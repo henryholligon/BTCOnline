@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import ostrichImg from "@assets/image_1768456571275.png";
 import Filters from "./filters";
 
 interface NavbarProps {
@@ -98,8 +99,8 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
                 <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-primary to-purple-500 border border-border"></div>
               </div>
             ) : (
-              <Button onClick={handleConnect} className="font-medium bg-[#A855F7] hover:bg-[#9333EA] text-white border-none">
-                <span className="mr-2 text-lg">🐦</span>
+              <Button onClick={handleConnect} className="font-medium bg-[#A855F7] hover:bg-[#9333EA] text-white border-none gap-2">
+                <img src={ostrichImg} alt="" className="h-5 w-5 object-contain brightness-0 invert" />
                 Connect Nostr
               </Button>
             )}
