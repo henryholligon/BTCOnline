@@ -141,7 +141,7 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
             ) : (
               <Button onClick={handleConnect} className="font-medium bg-[#A855F7] hover:bg-[#9333EA] text-white border-none gap-2">
                 <img src={ostrichImg} alt="" className="h-10 w-10 object-contain brightness-0 invert" />
-                Connect Nostr
+                Sign In
               </Button>
             )}
           </div>
