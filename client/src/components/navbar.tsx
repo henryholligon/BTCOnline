@@ -99,8 +99,8 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
                 <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-primary to-purple-500 border border-border"></div>
               </div>
             ) : (
-              <Button onClick={handleConnect} className="h-12 px-6 text-lg font-bold bg-[#A855F7] hover:bg-[#9333EA] text-white border-none gap-3 shadow-lg hover:shadow-purple-500/20 transition-all">
-                <img src={ostrichImg} alt="" className="h-8 w-8 object-contain brightness-0 invert" />
+              <Button onClick={handleConnect} className="font-medium bg-[#A855F7] hover:bg-[#9333EA] text-white border-none gap-2">
+                <img src={ostrichImg} alt="" className="h-7 w-7 object-contain brightness-0 invert" />
                 Connect Nostr
               </Button>
             )}
