@@ -98,7 +98,7 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
                 <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-primary to-purple-500 border border-border"></div>
               </div>
             ) : (
-              <Button onClick={handleConnect} className="font-medium">
+              <Button onClick={handleConnect} className="font-medium bg-[#A855F7] hover:bg-[#9333EA] text-white border-none">
                 <span className="mr-2 text-lg">🐦</span>
                 Connect Nostr
               </Button>
