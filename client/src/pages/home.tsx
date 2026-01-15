@@ -86,11 +86,10 @@ export default function Home() {
             transition={{ duration: 0.5 }}
           >
             <h1 className="text-4xl md:text-6xl font-display font-bold tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70">
-              Spend Your Sats <span className="text-primary">Peer-to-Peer</span>
+              Find places to spend <span className="text-primary">Bitcoin online</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-              A community-curated directory of merchants who embrace digital sovereignty. 
-              Review with Nostr, shop without permission.
+              A community-curated directory of online merchants who accept Bitcoin.
             </p>
           </motion.div>
         </div>
@@ -139,7 +138,7 @@ export default function Home() {
       <footer className="border-t border-border/40 py-8 bg-background mt-auto">
         <div className="container px-4 flex flex-col md:flex-row justify-between items-center text-sm text-muted-foreground">
           <div className="mb-4 md:mb-0">
-            <span className="font-display font-bold text-foreground">BitMerchants</span> &copy; 2024. Open Source.
+            <span className="font-display font-bold text-foreground">btconline</span> &copy; 2024. Open Source.
           </div>
           <div className="flex gap-4">
             <a href="#" className="hover:text-primary transition-colors">GitHub</a>

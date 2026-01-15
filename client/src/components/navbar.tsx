@@ -61,10 +61,10 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
 
         <Link href="/" className="mr-6 flex items-center space-x-2">
           <div className="h-8 w-8 rounded bg-primary flex items-center justify-center text-primary-foreground font-bold font-display text-xl">
-            ₿
+            🦩
           </div>
           <span className="hidden font-display font-bold sm:inline-block text-xl tracking-tight">
-            BitMerchants
+            btconline
           </span>
         </Link>
 
