@@ -78,7 +78,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "3",
     name: "Mullvad VPN",
     description: "Mullvad is a VPN service that helps keep your online activity, identity, and location private.",
-    logo: "/attached_assets/image_1768602445642.png",
+    logo: "/assets/mullvad-logo.png",
     categories: ["VPN & Privacy", "Services"],
     shippingCountries: ["Worldwide"],
     website: "https://mullvad.net",
