@@ -42,8 +42,12 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
       
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2 z-10">
         <div className="flex gap-4">
-          <div className="h-12 w-12 rounded-lg bg-secondary flex items-center justify-center text-3xl shadow-inner border border-border/50">
-            {merchant.logo}
+          <div className="h-12 w-12 rounded-lg bg-secondary flex items-center justify-center overflow-hidden shadow-inner border border-border/50">
+            {merchant.logo.startsWith("http") ? (
+              <img src={merchant.logo} alt={merchant.name} className="w-full h-full object-contain p-1" />
+            ) : (
+              <span className="text-3xl">{merchant.logo}</span>
+            )}
           </div>
           <div className="space-y-1">
             <CardTitle className="text-xl leading-none">{merchant.name}</CardTitle>
