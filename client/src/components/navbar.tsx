@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Search, Menu, Zap, User, LogOut, Bitcoin } from "lucide-react";
+import { Search, Menu, Zap, User, LogOut } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,8 +7,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import ostrichImg from "@assets/image_1768456571275.png";
 import Filters from "./filters";
-import { Heart } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 interface NavbarProps {
   onSearch: (query: string) => void;
@@ -62,9 +60,9 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
           </SheetContent>
         </Sheet>
 
-        <Link href="/" className="mr-6 flex items-center space-x-2 group">
-          <div className="h-8 w-8 rounded-full bg-primary overflow-hidden flex items-center justify-center border border-border/50 group-hover:scale-105 transition-transform">
-            <img src={ostrichImg} alt="" className="w-4 h-4 object-contain brightness-0 invert" />
+        <Link href="/" className="mr-6 flex items-center space-x-2">
+          <div className="h-8 w-8 rounded bg-primary flex items-center justify-center text-primary-foreground font-bold font-display text-xl">
+            ₿
           </div>
           <span className="hidden font-display font-bold sm:inline-block text-xl tracking-tight">
             btconline
@@ -85,44 +83,6 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
           </div>
           
           <div className="ml-auto flex items-center space-x-2">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="ghost" className="hidden md:flex items-center gap-2 hover:text-primary transition-colors">
-                  <Heart className="h-4 w-4 fill-primary text-primary" />
-                  Donate
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Support btconline</DialogTitle>
-                  <DialogDescription>
-                    Your donations help us keep this directory open-source and ad-free.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="flex flex-col items-center justify-center space-y-6 py-6 bg-muted/30 rounded-lg border border-border/50">
-                  <div className="bg-white p-4 rounded-xl shadow-inner">
-                    <img 
-                      src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=bitcoin:bc1qmockaddress" 
-                      alt="Bitcoin QR Code" 
-                      className="w-32 h-32"
-                    />
-                  </div>
-                  <div className="text-center space-y-2">
-                    <p className="text-xs font-mono text-muted-foreground break-all px-6">
-                      bc1q...mockaddress
-                    </p>
-                    <Button 
-                      className="bg-[#FF9900] hover:bg-[#E68A00] text-white font-bold px-8"
-                      onClick={() => window.open('https://mainnet.demo.btcpayserver.org/api/v1/invoices?storeId=mock', '_blank')}
-                    >
-                      <Bitcoin className="mr-2 h-4 w-4 fill-current" />
-                      Pay with BTCPay
-                    </Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-
             {isConnected ? (
               <div className="flex items-center gap-2">
                 <div className="hidden text-xs text-muted-foreground sm:inline-block font-mono">
@@ -140,8 +100,8 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
               </div>
             ) : (
               <Button onClick={handleConnect} className="font-medium bg-[#A855F7] hover:bg-[#9333EA] text-white border-none gap-2">
-                <img src={ostrichImg} alt="" className="h-10 w-10 object-contain brightness-0 invert" />
-                Sign In
+                <img src={ostrichImg} alt="" className="h-5 w-5 object-contain brightness-0 invert" />
+                Connect Nostr
               </Button>
             )}
           </div>
