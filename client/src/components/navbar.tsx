@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import ostrichImg from "@assets/image_1768456571275.png";
+import btcLogo from "@assets/BTC_Online_Logo_1768530959508.png";
 import Filters from "./filters";
 
 interface NavbarProps {
@@ -61,9 +62,7 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
         </Sheet>
 
         <Link href="/" className="mr-6 flex items-center space-x-2">
-          <div className="h-8 w-8 rounded bg-primary flex items-center justify-center text-primary-foreground font-bold font-display text-xl">
-            ₿
-          </div>
+          <img src={btcLogo} alt="btconline" className="h-10 w-10 object-contain invert brightness-0" />
           <span className="hidden font-display font-bold sm:inline-block text-xl tracking-tight">
             btconline
           </span>
