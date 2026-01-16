@@ -74,7 +74,7 @@ export default function Home() {
       
       {/* Hero Section */}
       <div className="relative border-b border-border/50 overflow-hidden">
-        <div className="absolute inset-0 z-0 opacity-20">
+        <div className="absolute inset-0 z-0 opacity-20 dark:opacity-20 opacity-10">
             <img src={bgImage} alt="" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
         </div>
@@ -85,7 +85,7 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="text-4xl md:text-6xl font-display font-bold tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70">
+            <h1 className="text-4xl md:text-6xl font-display font-bold tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-foreground to-foreground/70 dark:from-white dark:to-white/70">
               Find places to spend <span className="text-primary">Bitcoin online</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">

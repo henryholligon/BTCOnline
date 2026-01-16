@@ -1,10 +1,11 @@
 import { Link } from "wouter";
-import { Search, Menu, Zap, User, LogOut } from "lucide-react";
+import { Search, Menu, Zap, User, LogOut, Sun, Moon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useTheme } from "next-themes";
 import ostrichImg from "@assets/image_1768456571275.png";
 import btcLogo from "@assets/BTC_Online_Logo_1768530959508.png";
 import Filters from "./filters";
@@ -17,6 +18,7 @@ interface NavbarProps {
 export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
   const [isConnected, setIsConnected] = useState(false);
   const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
 
   const handleConnect = () => {
     // Mock Nostr connection
@@ -65,7 +67,7 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
           <img 
             src={btcLogo} 
             alt="btconline" 
-            className="h-10 w-10 object-contain invert brightness-200 contrast-200 mix-blend-screen" 
+            className="h-10 w-10 object-contain dark:invert dark:brightness-200 dark:contrast-200 dark:mix-blend-screen" 
           />
           <span className="hidden font-display font-bold sm:inline-block text-xl tracking-tight">
             btconline
@@ -86,6 +88,17 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
           </div>
           
           <div className="ml-auto flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="mr-2"
+            >
+              <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <span className="sr-only">Toggle theme</span>
+            </Button>
+
             {isConnected ? (
               <div className="flex items-center gap-2">
                 <div className="hidden text-xs text-muted-foreground sm:inline-block font-mono">
