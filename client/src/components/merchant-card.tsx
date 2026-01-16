@@ -42,9 +42,16 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
       
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2 z-10">
         <div className="flex gap-4">
-          <div className="h-12 w-12 rounded-lg bg-secondary flex items-center justify-center overflow-hidden shadow-inner border border-border/50">
+          <div className="h-12 w-12 rounded-lg bg-white flex items-center justify-center overflow-hidden shadow-inner border border-border/50">
             {merchant.logo.startsWith("http") ? (
-              <img src={merchant.logo} alt={merchant.name} className="w-full h-full object-contain p-1" />
+              <img 
+                src={merchant.logo} 
+                alt={merchant.name} 
+                className="w-full h-full object-contain p-1"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(merchant.name)}&background=329554&color=fff`;
+                }}
+              />
             ) : (
               <span className="text-3xl">{merchant.logo}</span>
             )}
