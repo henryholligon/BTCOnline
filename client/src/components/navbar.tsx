@@ -67,12 +67,12 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
           <img 
             src="/assets/main-logo.png" 
             alt="btconline" 
-            className="h-10 w-10 object-contain dark:hidden" 
+            className="h-10 w-10 object-contain dark:hidden mix-blend-multiply" 
           />
           <img 
             src="/assets/main-logo-dark.png" 
             alt="btconline" 
-            className="h-10 w-10 object-contain hidden dark:block" 
+            className="h-10 w-10 object-contain hidden dark:block mix-blend-screen" 
           />
           <span className="hidden font-display font-bold sm:inline-block text-xl tracking-tight">
             btconline
