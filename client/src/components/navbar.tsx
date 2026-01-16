@@ -63,8 +63,8 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
         </Sheet>
 
         <Link href="/" className="mr-6 flex items-center space-x-2">
-          <div className="h-8 w-8 rounded bg-primary flex items-center justify-center text-primary-foreground font-bold font-display text-xl">
-            ₿
+          <div className="h-8 w-8 rounded bg-primary overflow-hidden flex items-center justify-center border border-border/50">
+            <img src={ostrichImg} alt="" className="w-full h-full object-cover brightness-0 invert" />
           </div>
           <span className="hidden font-display font-bold sm:inline-block text-xl tracking-tight">
             btconline
