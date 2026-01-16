@@ -65,9 +65,14 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
 
         <Link href="/" className="mr-6 flex items-center space-x-2">
           <img 
-            src={btcLogo} 
+            src="/assets/main-logo.png" 
             alt="btconline" 
-            className="h-10 w-10 object-contain dark:invert dark:brightness-200 dark:contrast-200 dark:mix-blend-screen" 
+            className="h-10 w-10 object-contain dark:hidden" 
+          />
+          <img 
+            src="/assets/main-logo-dark.png" 
+            alt="btconline" 
+            className="h-10 w-10 object-contain hidden dark:block" 
           />
           <span className="hidden font-display font-bold sm:inline-block text-xl tracking-tight">
             btconline
