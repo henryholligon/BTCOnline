@@ -62,7 +62,7 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
         </Sheet>
 
         <Link href="/" className="mr-6 flex items-center space-x-2">
-          <img src={btcLogo} alt="btconline" className="h-10 w-10 object-contain invert brightness-0" />
+          <img src={btcLogo} alt="btconline" className="h-10 w-10 object-contain" />
           <span className="hidden font-display font-bold sm:inline-block text-xl tracking-tight">
             btconline
           </span>
