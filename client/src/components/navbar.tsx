@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useTheme } from "next-themes";
 import ostrichImg from "@assets/image_1768456571275.png";
-import btcLogo from "@assets/BTC_Online_Logo_1768530959508.png";
+import btcLogo from "/assets/main-logo.png";
 import Filters from "./filters";
 
 interface NavbarProps {
