@@ -84,7 +84,7 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
             </div>
           </div>
           
-          <div className="ml-auto flex items-center space-x-4">
+          <div className="ml-auto flex items-center space-x-2">
             <Dialog>
               <DialogTrigger asChild>
                 <Button variant="ghost" className="hidden md:flex items-center gap-2 hover:text-primary transition-colors">
