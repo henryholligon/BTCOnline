@@ -486,5 +486,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "37",
+    name: "MyNymBox",
+    description: "Plug-and-play Bitcoin nodes and privacy hardware. Take full control of your financial sovereignty with ease.",
+    logo: "/assets/mynymbox-logo.png",
+    categories: ["Services", "Tech"],
+    shippingCountries: ["Worldwide"],
+    website: "https://mynymbox.io/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
