@@ -50,18 +50,18 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
       
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2 z-10">
         <div className="flex gap-4">
-          <div className={`h-16 w-16 rounded-lg flex items-center justify-center text-4xl border border-border/50 overflow-hidden ${getIconBgColor()}`}>
+          <div className={`h-12 w-12 rounded-lg flex items-center justify-center text-3xl border border-border/50 overflow-hidden ${getIconBgColor()}`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
               <img 
                 src={merchant.logo} 
                 alt={merchant.name} 
-                className={`w-full h-full object-contain ${merchant.name.toLowerCase() === 'start9' ? 'bg-black p-1.5' : ''}`} 
+                className={`w-full h-full object-contain ${merchant.name.toLowerCase() === 'start9' ? 'bg-black p-1' : ''}`} 
               />
             ) : (
               merchant.logo
             )}
           </div>
-          <div className="space-y-1 pt-1">
+          <div className="space-y-1">
             <CardTitle className="text-xl leading-none">{merchant.name}</CardTitle>
             <div className="flex items-center text-sm text-muted-foreground gap-1">
               <Star className="h-3.5 w-3.5 fill-primary text-primary" />
