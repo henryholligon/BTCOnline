@@ -85,7 +85,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'yum yum tree fudge' ? 'scale-110' : 
                   merchant.name.toLowerCase() === 'tea and tonic' ? 'scale-90' : 
                   merchant.name.toLowerCase() === 'arotags' ? 'scale-90' : 
-                  merchant.name.toLowerCase() === 'spitting feathers' ? 'scale-110' : ''
+                  merchant.name.toLowerCase() === 'spitting feathers' ? 'scale-95' : ''
                 }`} 
               />
             ) : (
