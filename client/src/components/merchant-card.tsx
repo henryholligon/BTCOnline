@@ -66,7 +66,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
     if (name === 'soapminer') return 'bg-black shadow-none';
     if (name === 'mobimatter') return 'bg-[#121212] shadow-none';
     if (name === 'the good beans') return 'bg-[#1a3c34] shadow-none';
-    if (name === 'pumphreys coffee') return 'bg-white shadow-none';
+    if (name === 'pumphreys coffee') return 'bg-black shadow-none';
     if (name === 'mynymbox') return 'bg-white shadow-none';
     if (name === 'epic deals') return 'bg-[#373b44] shadow-none';
     if (name === "farmer bill's provisions") return 'bg-white shadow-none';
@@ -114,7 +114,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'soapminer' ? 'scale-100 object-cover' : 
                   merchant.name.toLowerCase() === 'mobimatter' ? 'scale-100 object-cover' : 
                   merchant.name.toLowerCase() === 'the good beans' ? 'scale-100 object-cover' : 
-                  merchant.name.toLowerCase() === 'pumphreys coffee' ? 'scale-90' : 
+                  merchant.name.toLowerCase() === 'pumphreys coffee' ? 'scale-100 object-cover' : 
                   merchant.name.toLowerCase() === 'mynymbox' ? 'scale-90' : 
                   merchant.name.toLowerCase() === 'epic deals' ? 'scale-100 object-cover' : 
                   merchant.name.toLowerCase() === "farmer bill's provisions" ? 'scale-100 object-contain p-1' : ''
