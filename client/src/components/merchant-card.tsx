@@ -56,7 +56,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
     if (name === 'spitting feathers') return 'bg-white shadow-none';
     if (name === 'mushmore supplements') return 'bg-[#151515] shadow-none';
     if (name === 'hummingbird amsterdam') return 'bg-black shadow-none';
-    if (name === 'planet express') return 'bg-secondary shadow-inner';
+    if (name === 'planet express') return 'bg-white shadow-none';
     if (name === 'farfetch') return 'bg-white shadow-none';
     return 'bg-secondary shadow-inner';
   };
