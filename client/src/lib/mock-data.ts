@@ -642,5 +642,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "51",
+    name: "Mister Padel",
+    description: "Italy's premier padel equipment specialist. Discover a wide selection of professional rackets, apparel, and accessories from leading brands like Nox, Bullpadel, and Adidas.",
+    logo: "https://www.misterpadel.it/wp-content/uploads/2023/11/Bitcoin_Accepted_Here-4800px.png",
+    categories: ["Sports", "Clothing", "Lifestyle"],
+    shippingCountries: ["Italy", "Europe"],
+    website: "https://www.misterpadel.it/",
+    lightningSupported: false,
+    onchainSupported: true,
+    reviews: []
   }
 ];
