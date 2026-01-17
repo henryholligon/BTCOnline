@@ -738,5 +738,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "59",
+    name: "PayPerQ",
+    description: "Get instant access to hundreds of powerful AI models with no subscriptions. Pay only for what you use with Lightning, Bitcoin, and other privacy-respecting payments.",
+    logo: "https://ppq.ai/flame2.png",
+    categories: ["Tech", "Services"],
+    shippingCountries: ["Worldwide"],
+    website: "https://ppq.ai/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
