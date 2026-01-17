@@ -354,5 +354,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "26",
+    name: "Planet Express",
+    description: "Your premier package forwarding and shipping partner. Ship from the USA to anywhere in the world with ease and reliability.",
+    logo: "/assets/planet-express-logo.png",
+    categories: ["Services", "Lifestyle"],
+    shippingCountries: ["USA", "Worldwide"],
+    website: "https://planetexpress.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
