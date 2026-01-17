@@ -38,9 +38,9 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
 
   const getIconBgColor = () => {
     const name = merchant.name.toLowerCase();
-    if (name === 'tor project') return 'bg-[#f9f9f9]';
-    if (name === 'human rights foundation') return 'bg-white';
-    return 'bg-secondary';
+    if (name === 'tor project') return 'bg-[#f9f9f9] shadow-none';
+    if (name === 'human rights foundation') return 'bg-white shadow-none';
+    return 'bg-secondary shadow-inner';
   };
 
   return (
@@ -49,7 +49,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
       
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2 z-10">
         <div className="flex gap-4">
-          <div className={`h-12 w-12 rounded-lg flex items-center justify-center text-3xl shadow-inner border border-border/50 overflow-hidden ${getIconBgColor()}`}>
+          <div className={`h-12 w-12 rounded-lg flex items-center justify-center text-3xl border border-border/50 overflow-hidden ${getIconBgColor()}`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
               <img 
                 src={merchant.logo} 
