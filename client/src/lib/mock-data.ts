@@ -414,5 +414,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "31",
+    name: "Ticketpro",
+    description: "South Africa's leading ticketing provider for sports, concerts, and events. Book your next experience with Bitcoin.",
+    logo: "/assets/ticketpro-logo.png",
+    categories: ["Services", "Entertainment"],
+    shippingCountries: ["South Africa"],
+    website: "https://www.ticketpro.co.za/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
