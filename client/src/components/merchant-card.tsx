@@ -46,7 +46,9 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
       
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2 z-10">
         <div className="flex gap-4">
-          <div className={`h-12 w-12 rounded-lg flex items-center justify-center text-3xl border border-border/50 overflow-hidden ${getIconBgColor()}`}>
+          <div className={`h-12 w-12 rounded-lg flex items-center justify-center text-3xl border border-border/50 overflow-hidden ${
+            merchant.name.toLowerCase() === 'kawa' ? 'bg-[#c9121f] border-[#c9121f]' : getIconBgColor()
+          }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
               <img 
                 src={merchant.logo} 
