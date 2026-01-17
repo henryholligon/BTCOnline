@@ -558,5 +558,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "44",
+    name: "Leeds Gin",
+    description: "Premium gin hand crafted in small batches in the heart of Yorkshire. Traditional botanicals steeped with juniper, coriander, ginger and orange.",
+    logo: "https://www.leedsgin.com/wp-content/uploads/elementor/thumbs/cropped-Favicon-v2-01-plyh4y2k69gla83ozhwxsz3smo2eeooufuj8remsgw.png",
+    categories: ["Food & Drink", "Alcohol"],
+    shippingCountries: ["UK"],
+    website: "https://www.leedsgin.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
