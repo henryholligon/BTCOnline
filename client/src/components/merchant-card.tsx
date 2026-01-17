@@ -104,7 +104,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'cheerings' ? 'scale-100 object-contain' : 
                   merchant.name.toLowerCase() === 'jonathan hill luthier' ? 'scale-100 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'select automotive' ? 'scale-100 object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'candyjets' ? 'scale-110 object-contain' : ''
+                  merchant.name.toLowerCase() === 'candyjets' ? 'scale-[1.8] object-contain' : ''
                 }`} 
               />
             ) : (
