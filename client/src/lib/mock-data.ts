@@ -438,5 +438,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: false,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "33",
+    name: "Soapminer",
+    description: "Handcrafted natural soaps for Bitcoiners. High-quality ingredients and unique designs that celebrate the Bitcoin lifestyle.",
+    logo: "/assets/soapminer-logo.png",
+    categories: ["Health & Beauty", "Lifestyle"],
+    shippingCountries: ["Worldwide"],
+    website: "https://soapminer.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
