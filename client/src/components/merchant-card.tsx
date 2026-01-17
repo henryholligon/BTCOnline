@@ -37,41 +37,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
   };
 
   const getIconBgColor = () => {
-    const name = merchant.name.toLowerCase();
-    if (name === 'tor project') return 'bg-[#f9f9f9] shadow-none';
-    if (name === 'human rights foundation') return 'bg-white shadow-none';
-    if (name === 'cheapair') return 'bg-white shadow-none';
-    if (name === 'travala') return 'bg-white shadow-none';
-    if (name === 'g2a') return 'bg-[#181c1f] shadow-none';
-    if (name === 'obscura') return 'bg-[#f15a24] shadow-none';
-    if (name === 'silent.link') return 'bg-white shadow-none';
-    if (name === 'great ghee') return 'bg-[#2d5a3d] shadow-none';
-    if (name === 'great north air ambulance') return 'bg-white shadow-none';
-    if (name === 'castle hill gin') return 'bg-[#12a5bf] shadow-none';
-    if (name === 'bonjour wines') return 'bg-white shadow-none';
-    if (name === 'peony lane wine') return 'bg-white shadow-none';
-    if (name === 'yum yum tree fudge') return 'bg-[#a9d8d6] shadow-none';
-    if (name === 'tea and tonic') return 'bg-white shadow-none';
-    if (name === 'arotags') return 'bg-white shadow-none';
-    if (name === 'spitting feathers') return 'bg-white shadow-none';
-    if (name === 'mushmore supplements') return 'bg-[#151515] shadow-none';
-    if (name === 'hummingbird amsterdam') return 'bg-black shadow-none';
-    if (name === 'planet express') return 'bg-white shadow-none';
-    if (name === 'farfetch') return 'bg-white shadow-none';
-    if (name === 'bramleigh farm') return 'bg-white shadow-none';
-    if (name === 'oshi good') return 'bg-black shadow-none';
-    if (name === 'palingshop') return 'bg-white shadow-none';
-    if (name === 'ticketpro') return 'bg-[#1a0b3c] shadow-none';
-    if (name === 'dynadot') return 'bg-[#001141] shadow-none';
-    if (name === 'soapminer') return 'bg-black shadow-none';
-    if (name === 'mobimatter') return 'bg-[#121212] shadow-none';
-    if (name === 'the good beans') return 'bg-[#1a3c34] shadow-none';
-    if (name === 'pumphreys coffee') return 'bg-white shadow-none';
-    if (name === 'mynymbox') return 'bg-white shadow-none';
-    if (name === 'epic deals') return 'bg-[#373b44] shadow-none';
-    if (name === "farmer bill's provisions") return 'bg-white shadow-none';
-    if (name === 'acme acres') return 'bg-black shadow-none';
-    return 'bg-secondary shadow-inner';
+    return 'bg-white shadow-none';
   };
 
   return (
