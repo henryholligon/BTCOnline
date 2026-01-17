@@ -201,7 +201,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
   },
   {
     id: "13",
-    name: "Obscura.net",
+    name: "Obscura",
     description: "High-performance VPN service built for the Bitcoin ecosystem. Privacy without compromise.",
     logo: "/assets/obscura-logo.jpg",
     categories: ["VPN & Privacy", "Services"],
