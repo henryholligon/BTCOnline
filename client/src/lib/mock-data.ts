@@ -522,5 +522,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "40",
+    name: "Acme Acres",
+    description: "Pasture-raised heritage pork and poultry from a family-owned farm. Focused on ethical farming and sustainable practices.",
+    logo: "/assets/acmeacres-logo.png",
+    categories: ["Food & Drink", "Lifestyle"],
+    shippingCountries: ["USA"],
+    website: "https://acmeacres.us/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
