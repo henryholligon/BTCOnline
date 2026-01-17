@@ -30,7 +30,8 @@ export const CATEGORIES = [
   "VPN & Privacy",
   "Hosting",
   "Books",
-  "Art"
+  "Art",
+  "Charity"
 ];
 
 export const COUNTRIES = [
@@ -155,7 +156,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     name: "Human Rights Foundation",
     description: "Supporting civil society in closed societies and uniting people in the common cause of human rights.",
     logo: "/assets/hrf-logo.png",
-    categories: ["Services", "Art"],
+    categories: ["Services", "Charity"],
     shippingCountries: ["Worldwide"],
     website: "https://hrf.org",
     lightningSupported: true,
