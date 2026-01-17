@@ -426,5 +426,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "32",
+    name: "Dynadot",
+    description: "Affordable domain registration and hosting services. Manage your digital identity with ease and security.",
+    logo: "/assets/dynadot-logo.png",
+    categories: ["Services", "Tech"],
+    shippingCountries: ["Worldwide"],
+    website: "https://www.dynadot.com/",
+    lightningSupported: false,
+    onchainSupported: true,
+    reviews: []
   }
 ];
