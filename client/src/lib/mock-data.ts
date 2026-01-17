@@ -251,7 +251,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "17",
     name: "Castle Hill Gin",
     description: "Premium handcrafted gin distilled in the heart of Yorkshire. Traditional methods with modern botanical blends.",
-    logo: "/assets/castle-hill-gin-logo.png",
+    logo: "/assets/castle-hill-gin-new.png",
     categories: ["Food & Drink", "Alcohol"],
     shippingCountries: ["UK"],
     website: "https://www.castlehillgin.com/",
