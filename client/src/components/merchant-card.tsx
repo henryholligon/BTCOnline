@@ -96,7 +96,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'the suffolk tutor' ? 'scale-90 object-contain' : 
                   merchant.name.toLowerCase() === "jimble's jumble" ? 'scale-100 object-cover' : 
                   merchant.name.toLowerCase() === 'hempful' ? 'scale-100 object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'highland fayre' ? 'scale-100 object-cover' : ''
+                  merchant.name.toLowerCase() === 'highland fayre' ? 'scale-125 object-contain' : ''
                 }`} 
               />
             ) : (
