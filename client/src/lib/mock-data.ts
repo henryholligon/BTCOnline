@@ -498,5 +498,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "38",
+    name: "Epic Deals",
+    description: "South Africa's leading platform for pre-owned and new tech. Shop smartphones, tablets, and more with Bitcoin.",
+    logo: "/assets/epicdeals-logo.png",
+    categories: ["Electronics", "Tech"],
+    shippingCountries: ["South Africa"],
+    website: "https://epicdeals.co.za/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
