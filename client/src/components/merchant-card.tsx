@@ -40,7 +40,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
     const name = merchant.name.toLowerCase();
     if (name === 'tor project') return 'bg-[#f9f9f9] shadow-none';
     if (name === 'human rights foundation') return 'bg-white shadow-none';
-    if (name === 'cheapair') return 'bg-white shadow-none';
+    if (name === 'cheapair') return 'bg-white shadow-inner';
     if (name === 'travala') return 'bg-white shadow-none';
     if (name === 'g2a') return 'bg-[#181c1f] shadow-none';
     return 'bg-secondary shadow-inner';
