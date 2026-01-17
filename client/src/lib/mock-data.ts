@@ -570,5 +570,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "45",
+    name: "ASF Tutoring",
+    description: "Online Maths tutor specialising in 1-1 and small group tuition. Empowering young people to have confidence in their mathematical ability.",
+    logo: "https://lh3.googleusercontent.com/sitesv/AAzXCkd3HXyJFjGJpq3BTfsb6TAxQcbFeM3NaSEOp5jWUMTyNJ0eHqxDlk-AS0FpzpgC_MEcudvir6_2IkcNWIrklLWbMaJ3DNeloWieZAkTZfGIpPpMWgRXzIEab7mzqGJXojCZxlZkS5ERbGvTqZJKCztbOPMAdDd0r6KvryhckKadeyDv2GiKFn7_=w1280",
+    categories: ["Services", "Tech"],
+    shippingCountries: ["Worldwide"],
+    website: "https://www.asftutoring.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
