@@ -85,7 +85,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'mynymbox' ? 'scale-90' : 
                   merchant.name.toLowerCase() === 'epic deals' ? 'scale-100 object-cover' : 
                   merchant.name.toLowerCase() === "farmer bill's provisions" ? 'scale-75 object-contain' : 
-                  merchant.name.toLowerCase() === 'acme acres' ? 'scale-100 object-cover' : ''
+                  merchant.name.toLowerCase() === 'acme acres' ? 'scale-75' : ''
                 }`} 
               />
             ) : (
