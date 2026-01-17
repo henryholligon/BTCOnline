@@ -45,7 +45,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
     if (name === 'g2a') return 'bg-[#181c1f] shadow-none';
     if (name === 'obscura') return 'bg-[#f15a24] shadow-none';
     if (name === 'silent.link') return 'bg-white shadow-none';
-    if (name === 'great ghee') return 'bg-white shadow-none';
+    if (name === 'great ghee') return 'bg-[#2d5a3d] shadow-none';
     return 'bg-secondary shadow-inner';
   };
 
