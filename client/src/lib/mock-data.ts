@@ -215,7 +215,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "14",
     name: "Silent.link",
     description: "Anonymously purchase eSIMs with Bitcoin. Privacy-first mobile data and SMS services.",
-    logo: "/assets/silent-link-logo.jpg",
+    logo: "/assets/silent-link-logo-new.png",
     categories: ["Services", "VPN & Privacy"],
     shippingCountries: ["Worldwide"],
     website: "https://silent.link",
