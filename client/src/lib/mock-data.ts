@@ -258,5 +258,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "18",
+    name: "Bonjour Wines",
+    description: "Specialist importer of fine French wines and artisanal spirits. Discover a curated selection of exceptional vineyards.",
+    logo: "/assets/bonjour-wines-logo.png",
+    categories: ["Food & Drink", "Alcohol"],
+    shippingCountries: ["UK"],
+    website: "https://www.bonjourwines.co.uk/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
