@@ -73,7 +73,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'g2a' ? 'scale-100' : 
                   merchant.name.toLowerCase() === 'obscura' ? 'scale-100' : 
                   merchant.name.toLowerCase() === 'silent.link' ? 'scale-125' : 
-                  merchant.name.toLowerCase() === 'great ghee' ? 'scale-110' : 
+                  merchant.name.toLowerCase() === 'great ghee' ? 'scale-[1.2]' : 
                   merchant.name.toLowerCase() === 'great north air ambulance' ? 'scale-90' : 
                   merchant.name.toLowerCase() === 'castle hill gin' ? 'scale-110' : 
                   merchant.name.toLowerCase() === 'bonjour wines' ? 'scale-110' : 
