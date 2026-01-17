@@ -222,5 +222,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "15",
+    name: "Great Ghee",
+    description: "Handcrafted, small-batch ghee made from grass-fed butter. High-quality clarified butter for healthy cooking.",
+    logo: "/assets/great-ghee-logo.jpg",
+    categories: ["Food & Drink"],
+    shippingCountries: ["USA"],
+    website: "https://greatghee.com",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];

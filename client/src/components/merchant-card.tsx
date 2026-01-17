@@ -45,6 +45,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
     if (name === 'g2a') return 'bg-[#181c1f] shadow-none';
     if (name === 'obscura') return 'bg-[#f15a24] shadow-none';
     if (name === 'silent.link') return 'bg-white shadow-none';
+    if (name === 'great ghee') return 'bg-white shadow-none';
     return 'bg-secondary shadow-inner';
   };
 
@@ -67,7 +68,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'travala' ? 'scale-110' : 
                   merchant.name.toLowerCase() === 'g2a' ? 'scale-100' : 
                   merchant.name.toLowerCase() === 'obscura' ? 'scale-100' : 
-                  merchant.name.toLowerCase() === 'silent.link' ? 'scale-125' : ''
+                  merchant.name.toLowerCase() === 'silent.link' ? 'scale-125' : 
+                  merchant.name.toLowerCase() === 'great ghee' ? 'scale-110' : ''
                 }`} 
               />
             ) : (
