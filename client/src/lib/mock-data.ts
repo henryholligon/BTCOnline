@@ -275,7 +275,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "19",
     name: "Peony Lane Wine",
     description: "Artisan winery specializing in elegant, floral-noted wines. Experience the unique terroir of our boutique vineyards.",
-    logo: "/assets/peony-lane-logo.png",
+    logo: "/assets/peony-lane-new.png",
     categories: ["Food & Drink", "Alcohol"],
     shippingCountries: ["USA"],
     website: "https://www.peonylanewine.com/",
