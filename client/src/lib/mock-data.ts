@@ -165,14 +165,14 @@ export const MOCK_MERCHANTS: Merchant[] = [
   },
   {
     id: "10",
-    name: "Orange Pill App",
-    description: "Find Bitcoiners near you.",
-    logo: "💊",
-    categories: ["Services", "Social"],
+    name: "CheapAir",
+    description: "Book flights and hotels with Bitcoin. One of the first travel sites to accept BTC.",
+    logo: "✈️",
+    categories: ["Services", "Travel"],
     shippingCountries: ["Worldwide"],
-    website: "https://theorangepillapp.com",
+    website: "https://cheapair.com",
     lightningSupported: true,
-    onchainSupported: false,
+    onchainSupported: true,
     reviews: []
   }
 ];
