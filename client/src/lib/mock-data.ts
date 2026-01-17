@@ -287,7 +287,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "20",
     name: "Yum Yum Tree Fudge",
     description: "Premium handcrafted fudge made with natural ingredients. Discover a vast array of unique and traditional flavors from this artisan confectioner.",
-    logo: "/assets/yum-yum-tree-fudge-logo.png",
+    logo: "/assets/yum-yum-tree-fudge-new.png",
     categories: ["Food & Drink", "Sweets"],
     shippingCountries: ["UK", "Worldwide"],
     website: "https://www.yumyumtreefudge.com/",

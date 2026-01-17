@@ -50,7 +50,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
     if (name === 'castle hill gin') return 'bg-[#12a5bf] shadow-none';
     if (name === 'bonjour wines') return 'bg-white shadow-none';
     if (name === 'peony lane wine') return 'bg-white shadow-none';
-    if (name === 'yum yum tree fudge') return 'bg-white shadow-none';
+    if (name === 'yum yum tree fudge') return 'bg-[#a9d8d6] shadow-none';
     return 'bg-secondary shadow-inner';
   };
 
