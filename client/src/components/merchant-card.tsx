@@ -63,7 +63,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
     if (name === 'palingshop') return 'bg-white shadow-none';
     if (name === 'ticketpro') return 'bg-[#1a0b3c] shadow-none';
     if (name === 'dynadot') return 'bg-[#001141] shadow-none';
-    if (name === 'soapminer') return 'bg-white shadow-none';
+    if (name === 'soapminer') return 'bg-black shadow-none';
     if (name === 'mobimatter') return 'bg-white shadow-none';
     if (name === 'the good beans') return 'bg-white shadow-none';
     if (name === 'pumphreys coffee') return 'bg-white shadow-none';
@@ -109,7 +109,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'palingshop' ? 'scale-100 object-contain' : 
                   merchant.name.toLowerCase() === 'ticketpro' ? 'scale-100 object-cover' : 
                   merchant.name.toLowerCase() === 'dynadot' ? 'scale-100 object-cover' : 
-                  merchant.name.toLowerCase() === 'soapminer' ? 'scale-90' : 
+                  merchant.name.toLowerCase() === 'soapminer' ? 'scale-100 object-cover' : 
                   merchant.name.toLowerCase() === 'mobimatter' ? 'scale-90' : 
                   merchant.name.toLowerCase() === 'the good beans' ? 'scale-90' : 
                   merchant.name.toLowerCase() === 'pumphreys coffee' ? 'scale-90' : 
