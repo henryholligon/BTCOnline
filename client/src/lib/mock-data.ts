@@ -116,12 +116,12 @@ export const MOCK_MERCHANTS: Merchant[] = [
   },
   {
     id: "6",
-    name: "Opendime",
-    description: "The Bitcoin Credit Stick. A small USB stick that lets you spend Bitcoin like a dollar bill.",
-    logo: "💾",
+    name: "Daylight Computer Co",
+    description: "Building the first computer that feels like paper. The Daylight Tablet.",
+    logo: "🌞",
     categories: ["Electronics"],
     shippingCountries: ["Worldwide"],
-    website: "https://opendime.com",
+    website: "https://daylightcomputer.com",
     lightningSupported: false,
     onchainSupported: true,
     reviews: []
