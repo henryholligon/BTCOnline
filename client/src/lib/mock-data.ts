@@ -191,7 +191,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "12",
     name: "G2A",
     description: "The world's largest marketplace for digital entertainment. Buy games, gift cards, and software with Bitcoin.",
-    logo: "/assets/g2a-logo.jpg",
+    logo: "/assets/g2a-logo-new.png",
     categories: ["Services", "Gift Cards"],
     shippingCountries: ["Worldwide"],
     website: "https://g2a.com",
