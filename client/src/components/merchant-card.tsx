@@ -87,7 +87,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === "farmer bill's provisions" ? 'scale-75 object-contain' : 
                   merchant.name.toLowerCase() === 'acme acres' ? 'scale-95' : 
                   merchant.name.toLowerCase() === 'chroma' ? 'scale-[1.5] object-contain p-2' : 
-                  merchant.name.toLowerCase() === 'kawa' ? 'scale-75 object-contain' : 
+                  merchant.name.toLowerCase() === 'kawa' ? 'scale-90 object-contain' : 
                   merchant.name.toLowerCase() === 'kijicha' ? 'scale-90' : ''
                 }`} 
               />
