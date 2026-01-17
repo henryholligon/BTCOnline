@@ -77,7 +77,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'great north air ambulance' ? 'scale-90' : 
                   merchant.name.toLowerCase() === 'castle hill gin' ? 'scale-110' : 
                   merchant.name.toLowerCase() === 'bonjour wines' ? 'scale-110' : 
-                  merchant.name.toLowerCase() === 'peony lane wine' ? 'scale-110' : ''
+                  merchant.name.toLowerCase() === 'peony lane wine' ? 'scale-90' : ''
                 }`} 
               />
             ) : (
