@@ -678,5 +678,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "54",
+    name: "Cheerings",
+    description: "Exceptional mood-enhancing earrings on a mission to spread cheer. Handpicked, unique designs that are 'Lobe Load' tested for featherlight comfort.",
+    logo: "/assets/cheerings-logo.png",
+    categories: ["Fashion", "Lifestyle", "Gift Cards"],
+    shippingCountries: ["UK", "Worldwide"],
+    website: "https://cheerings.co.uk/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
