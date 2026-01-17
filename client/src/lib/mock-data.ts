@@ -510,5 +510,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "39",
+    name: "Farmer Bill's Provisions",
+    description: "Premium, craft beef jerky and meat snacks. Ethically sourced and packed with flavor, delivered to your door.",
+    logo: "/assets/farmerbills-logo.png",
+    categories: ["Food & Drink", "Lifestyle"],
+    shippingCountries: ["USA"],
+    website: "https://farmerbillsprovisions.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
