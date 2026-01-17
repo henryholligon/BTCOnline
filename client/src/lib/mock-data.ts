@@ -707,7 +707,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "56",
     name: "Select Automotive",
     description: "Premium quality automotive parts for the vehicle aftermarket sector. UK supplier of window regulators, door locks, and more with expert support.",
-    logo: "https://lirp.cdn-website.com/4c5608ab/dms3rep/multi/opt/Select+Auto+-+New+Logo+%28Rounded+Edges%29-+Small+Version-240w.jpg",
+    logo: "/assets/select-automotive-logo-new.png",
     categories: ["Auto", "Services"],
     shippingCountries: ["UK"],
     website: "https://www.selectautomotive.co.uk/",
