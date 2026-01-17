@@ -762,5 +762,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: false,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "61",
+    name: "MtSocks",
+    description: "Bitcoin-themed socks that tell a story. High-quality, limited edition socks celebrating the history and culture of Bitcoin. Finite supply, just like the real thing.",
+    logo: "https://www.mtsocks.com/images/Basket.svg",
+    categories: ["Clothing", "Lifestyle"],
+    shippingCountries: ["Worldwide"],
+    website: "https://mtsocks.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
