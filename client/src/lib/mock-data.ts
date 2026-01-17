@@ -542,7 +542,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     logo: "/assets/chroma-logo.png",
     categories: ["Services", "Tech"],
     shippingCountries: ["Worldwide"],
-    website: "https://based.getchroma.co/",
+    website: "https://getchroma.co/",
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
