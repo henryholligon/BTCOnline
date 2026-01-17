@@ -342,5 +342,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "25",
+    name: "Hummingbird Amsterdam",
+    description: "Specialty coffee bar and store in the heart of Amsterdam. Discover a curated selection of coffee beans and brewing equipment.",
+    logo: "/assets/hummingbird-logo.png",
+    categories: ["Food & Drink", "Lifestyle"],
+    shippingCountries: ["Netherlands", "Europe"],
+    website: "https://www.hummingbird.amsterdam/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
