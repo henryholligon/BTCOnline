@@ -41,6 +41,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
     if (name === 'tor project') return 'bg-[#f9f9f9] shadow-none';
     if (name === 'human rights foundation') return 'bg-white shadow-none';
     if (name === 'cheapair') return 'bg-white shadow-none';
+    if (name === 'travala') return 'bg-white shadow-none';
     return 'bg-secondary shadow-inner';
   };
 
@@ -57,7 +58,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                 alt={merchant.name} 
                 className={`w-full h-full object-contain ${
                   merchant.name.toLowerCase() === 'start9' ? 'bg-black p-1' : 
-                  merchant.name.toLowerCase() === 'cheapair' ? 'scale-200' : ''
+                  merchant.name.toLowerCase() === 'cheapair' ? 'scale-200' : 
+                  merchant.name.toLowerCase() === 'travala' ? 'scale-110' : ''
                 }`} 
               />
             ) : (

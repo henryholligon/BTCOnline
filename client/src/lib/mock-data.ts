@@ -174,5 +174,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "11",
+    name: "Travala",
+    description: "Book 3,000,000+ travel products worldwide with Bitcoin and other cryptocurrencies.",
+    logo: "/assets/travala-logo.jpg",
+    categories: ["Services", "Travel"],
+    shippingCountries: ["Worldwide"],
+    website: "https://travala.com",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
