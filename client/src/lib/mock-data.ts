@@ -140,12 +140,12 @@ export const MOCK_MERCHANTS: Merchant[] = [
   },
   {
     id: "8",
-    name: "Blockstream Store",
-    description: "Official store for Blockstream Jade, clothing, and stickers.",
-    logo: "⛓️",
-    categories: ["Electronics", "Clothing"],
+    name: "Namecheap",
+    description: "Register domains and buy web hosting with Bitcoin. Privacy-focused domain registrar.",
+    logo: "🌐",
+    categories: ["Services", "Hosting"],
     shippingCountries: ["Worldwide"],
-    website: "https://store.blockstream.com",
+    website: "https://namecheap.com",
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
