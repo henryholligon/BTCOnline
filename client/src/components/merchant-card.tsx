@@ -96,7 +96,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'hummingbird amsterdam' ? 'scale-125 object-contain' : 
                   merchant.name.toLowerCase() === 'planet express' ? 'scale-90 object-contain' : 
                   merchant.name.toLowerCase() === 'farfetch' ? 'scale-90 object-contain' : 
-                  merchant.name.toLowerCase() === 'bramleigh farm' ? 'scale-110 object-cover' : 
+                  merchant.name.toLowerCase() === 'bramleigh farm' ? 'scale-90 object-contain' : 
                   merchant.name.toLowerCase() === 'oshi good' ? 'scale-90' : ''
                 }`} 
               />
