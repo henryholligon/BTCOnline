@@ -46,6 +46,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
     if (name === 'obscura') return 'bg-[#f15a24] shadow-none';
     if (name === 'silent.link') return 'bg-white shadow-none';
     if (name === 'great ghee') return 'bg-[#2d5a3d] shadow-none';
+    if (name === 'great north air ambulance') return 'bg-white shadow-none';
     return 'bg-secondary shadow-inner';
   };
 
@@ -69,7 +70,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'g2a' ? 'scale-100' : 
                   merchant.name.toLowerCase() === 'obscura' ? 'scale-100' : 
                   merchant.name.toLowerCase() === 'silent.link' ? 'scale-125' : 
-                  merchant.name.toLowerCase() === 'great ghee' ? 'scale-110' : ''
+                  merchant.name.toLowerCase() === 'great ghee' ? 'scale-110' : 
+                  merchant.name.toLowerCase() === 'great north air ambulance' ? 'scale-110' : ''
                 }`} 
               />
             ) : (

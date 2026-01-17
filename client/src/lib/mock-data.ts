@@ -234,5 +234,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "16",
+    name: "Great North Air Ambulance",
+    description: "Life-saving charity providing emergency medical care across the North of England. Supporting their operations via Bitcoin donations.",
+    logo: "/assets/gnaas-logo.png",
+    categories: ["Charity", "Health"],
+    shippingCountries: ["UK"],
+    website: "https://www.greatnorthairambulance.co.uk/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
