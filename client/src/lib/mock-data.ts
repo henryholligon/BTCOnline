@@ -630,5 +630,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "50",
+    name: "Golden Tallow",
+    description: "Luxurious skincare powered by pure Wagyu tallow. Nutrient-rich, artisanal formulations designed to restore and elevate your natural glow.",
+    logo: "https://goldentallow.com/cdn/shop/files/Wagyu_Tallow_Soap_Bar.jpg?v=1764228266&width=300",
+    categories: ["Health & Beauty", "Wellness", "Lifestyle"],
+    shippingCountries: ["Worldwide"],
+    website: "https://goldentallow.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
