@@ -306,5 +306,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "22",
+    name: "AroTags",
+    description: "Premium wood air fresheners for your car. Long-lasting, artisan-crafted scents using high-quality essential oils.",
+    logo: "/assets/arotags-logo.png",
+    categories: ["Auto", "Lifestyle"],
+    shippingCountries: ["USA", "Worldwide"],
+    website: "https://www.arotags.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
