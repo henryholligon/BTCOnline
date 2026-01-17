@@ -270,5 +270,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "19",
+    name: "Peony Lane Wine",
+    description: "Artisan winery specializing in elegant, floral-noted wines. Experience the unique terroir of our boutique vineyards.",
+    logo: "/assets/peony-lane-logo.png",
+    categories: ["Food & Drink", "Alcohol"],
+    shippingCountries: ["USA"],
+    website: "https://www.peonylanewine.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];

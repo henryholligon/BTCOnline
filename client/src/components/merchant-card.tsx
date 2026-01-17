@@ -49,6 +49,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
     if (name === 'great north air ambulance') return 'bg-white shadow-none';
     if (name === 'castle hill gin') return 'bg-white shadow-none';
     if (name === 'bonjour wines') return 'bg-white shadow-none';
+    if (name === 'peony lane wine') return 'bg-white shadow-none';
     return 'bg-secondary shadow-inner';
   };
 
@@ -75,7 +76,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'great ghee' ? 'scale-110' : 
                   merchant.name.toLowerCase() === 'great north air ambulance' ? 'scale-110' : 
                   merchant.name.toLowerCase() === 'castle hill gin' ? 'scale-110' : 
-                  merchant.name.toLowerCase() === 'bonjour wines' ? 'scale-110' : ''
+                  merchant.name.toLowerCase() === 'bonjour wines' ? 'scale-110' : 
+                  merchant.name.toLowerCase() === 'peony lane wine' ? 'scale-110' : ''
                 }`} 
               />
             ) : (
