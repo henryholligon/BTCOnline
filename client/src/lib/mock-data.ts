@@ -62,16 +62,16 @@ export const MOCK_MERCHANTS: Merchant[] = [
   },
   {
     id: "2",
-    name: "Coincards",
-    description: "Buy Gift Cards with Bitcoin & Altcoins. Canada & US supported.",
-    logo: "💳",
-    categories: ["Gift Cards", "Services"],
-    shippingCountries: ["USA", "Canada"],
-    website: "https://coincards.com",
+    name: "SLNT",
+    description: "Privacy-first Faraday bags and signal blocking accessories.",
+    logo: "🛡️",
+    categories: ["Services", "Electronics"],
+    shippingCountries: ["Worldwide"],
+    website: "https://slnt.com",
     lightningSupported: true,
     onchainSupported: true,
     reviews: [
-      { id: "r3", authorNpub: "npub1...def", rating: 4, comment: "Great service, fast delivery.", date: "2024-01-20" }
+      { id: "r3", authorNpub: "npub1...def", rating: 5, comment: "High quality signal blocking gear.", date: "2024-01-20" }
     ]
   },
   {
