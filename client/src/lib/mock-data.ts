@@ -666,5 +666,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: false,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "53",
+    name: "Essatoshi",
+    description: "Experience the essence of Satoshi. Curated Bitcoin-themed lifestyle goods and essentials designed for the modern bitcoiner.",
+    logo: "/assets/essatoshi-logo.png",
+    categories: ["Lifestyle", "Clothing", "Art"],
+    shippingCountries: ["Worldwide"],
+    website: "https://essatoshi.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
