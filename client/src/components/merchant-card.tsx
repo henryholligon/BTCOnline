@@ -70,7 +70,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
     if (name === 'mynymbox') return 'bg-white shadow-none';
     if (name === 'epic deals') return 'bg-[#373b44] shadow-none';
     if (name === "farmer bill's provisions") return 'bg-white shadow-none';
-    if (name === 'acme acres') return 'bg-white shadow-none';
+    if (name === 'acme acres') return 'bg-black shadow-none';
     return 'bg-secondary shadow-inner';
   };
 
@@ -119,7 +119,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'mynymbox' ? 'scale-90' : 
                   merchant.name.toLowerCase() === 'epic deals' ? 'scale-100 object-cover' : 
                   merchant.name.toLowerCase() === "farmer bill's provisions" ? 'scale-75 object-contain' : 
-                  merchant.name.toLowerCase() === 'acme acres' ? 'scale-90' : ''
+                  merchant.name.toLowerCase() === 'acme acres' ? 'scale-100 object-cover' : ''
                 }`} 
               />
             ) : (
