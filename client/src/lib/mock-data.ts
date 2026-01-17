@@ -318,5 +318,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "23",
+    name: "Spitting Feathers",
+    description: "Award-winning independent brewery and pub. Crafting exceptional real ales and craft beers with a focus on quality and tradition.",
+    logo: "/assets/spitting-feathers-logo.png",
+    categories: ["Food & Drink", "Alcohol"],
+    shippingCountries: ["UK"],
+    website: "https://spittingfeathers.co.uk/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];

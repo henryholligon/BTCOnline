@@ -53,6 +53,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
     if (name === 'yum yum tree fudge') return 'bg-[#a9d8d6] shadow-none';
     if (name === 'tea and tonic') return 'bg-white shadow-none';
     if (name === 'arotags') return 'bg-white shadow-none';
+    if (name === 'spitting feathers') return 'bg-white shadow-none';
     return 'bg-secondary shadow-inner';
   };
 
@@ -83,7 +84,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'peony lane wine' ? 'scale-90' : 
                   merchant.name.toLowerCase() === 'yum yum tree fudge' ? 'scale-110' : 
                   merchant.name.toLowerCase() === 'tea and tonic' ? 'scale-90' : 
-                  merchant.name.toLowerCase() === 'arotags' ? 'scale-90' : ''
+                  merchant.name.toLowerCase() === 'arotags' ? 'scale-90' : 
+                  merchant.name.toLowerCase() === 'spitting feathers' ? 'scale-110' : ''
                 }`} 
               />
             ) : (
