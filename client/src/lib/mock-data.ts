@@ -606,5 +606,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "48",
+    name: "Hempful",
+    description: "Premium European CBD and hemp products. High-potency, full-spectrum CBD oils, beverages, and skincare grown in the perfect climate for maximum potency.",
+    logo: "https://hempful.eu/wp-content/uploads/2025/11/homepage-hempful-cbd3.png.jpg",
+    categories: ["Food & Drink", "Wellness", "Health & Beauty"],
+    shippingCountries: ["Worldwide", "UK", "Europe"],
+    website: "https://hempful.eu/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
