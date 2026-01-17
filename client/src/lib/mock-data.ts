@@ -64,7 +64,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "2",
     name: "SLNT",
     description: "Privacy-first Faraday bags and signal blocking accessories.",
-    logo: "🛡️",
+    logo: "/assets/slnt-logo.png",
     categories: ["Services", "Electronics"],
     shippingCountries: ["Worldwide"],
     website: "https://slnt.com",
