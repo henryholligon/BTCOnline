@@ -474,5 +474,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "36",
+    name: "Pumphreys Coffee",
+    description: "Multi-award winning coffee roasters based in the North East of England since 1750. Specialists in finest quality coffee and tea.",
+    logo: "/assets/pumphreys-logo.png",
+    categories: ["Food & Drink", "Lifestyle"],
+    shippingCountries: ["UK", "Worldwide"],
+    website: "https://pumphreys-coffee.co.uk/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
