@@ -450,5 +450,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "34",
+    name: "MobiMatter",
+    description: "The best eSIM marketplace for travelers. Get instant connectivity worldwide with affordable data plans.",
+    logo: "/assets/mobimatter-logo.png",
+    categories: ["Services", "Travel", "Tech"],
+    shippingCountries: ["Worldwide"],
+    website: "https://mobimatter.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];

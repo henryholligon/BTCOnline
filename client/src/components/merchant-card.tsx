@@ -64,6 +64,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
     if (name === 'ticketpro') return 'bg-[#1a0b3c] shadow-none';
     if (name === 'dynadot') return 'bg-[#001141] shadow-none';
     if (name === 'soapminer') return 'bg-white shadow-none';
+    if (name === 'mobimatter') return 'bg-white shadow-none';
     return 'bg-secondary shadow-inner';
   };
 
@@ -105,7 +106,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'palingshop' ? 'scale-100 object-contain' : 
                   merchant.name.toLowerCase() === 'ticketpro' ? 'scale-100 object-cover' : 
                   merchant.name.toLowerCase() === 'dynadot' ? 'scale-100 object-cover' : 
-                  merchant.name.toLowerCase() === 'soapminer' ? 'scale-90' : ''
+                  merchant.name.toLowerCase() === 'soapminer' ? 'scale-90' : 
+                  merchant.name.toLowerCase() === 'mobimatter' ? 'scale-90' : ''
                 }`} 
               />
             ) : (
