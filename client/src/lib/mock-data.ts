@@ -378,5 +378,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: false,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "28",
+    name: "Bramleigh Farm",
+    description: "Family-run regenerative farm in the KZN Midlands. Premium pasture-raised chicken, eggs, pork, and grass-fed beef delivered direct to your door.",
+    logo: "/assets/bramleigh-logo.png",
+    categories: ["Food & Drink", "Wellness"],
+    shippingCountries: ["South Africa"],
+    website: "https://www.bramleigh.co.za/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];

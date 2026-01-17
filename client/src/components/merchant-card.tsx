@@ -58,6 +58,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
     if (name === 'hummingbird amsterdam') return 'bg-black shadow-none';
     if (name === 'planet express') return 'bg-white shadow-none';
     if (name === 'farfetch') return 'bg-white shadow-none';
+    if (name === 'bramleigh farm') return 'bg-white shadow-none';
     return 'bg-secondary shadow-inner';
   };
 
@@ -93,7 +94,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'mushmore supplements' ? 'scale-90 object-contain' : 
                   merchant.name.toLowerCase() === 'hummingbird amsterdam' ? 'scale-125 object-contain' : 
                   merchant.name.toLowerCase() === 'planet express' ? 'scale-90 object-contain' : 
-                  merchant.name.toLowerCase() === 'farfetch' ? 'scale-90 object-contain' : ''
+                  merchant.name.toLowerCase() === 'farfetch' ? 'scale-90 object-contain' : 
+                  merchant.name.toLowerCase() === 'bramleigh farm' ? 'scale-90' : ''
                 }`} 
               />
             ) : (
