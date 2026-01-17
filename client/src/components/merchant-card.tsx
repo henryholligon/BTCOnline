@@ -93,7 +93,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'mushmore supplements' ? 'scale-90 object-contain' : 
                   merchant.name.toLowerCase() === 'hummingbird amsterdam' ? 'scale-125 object-contain' : 
                   merchant.name.toLowerCase() === 'planet express' ? 'scale-90 object-contain' : 
-                  merchant.name.toLowerCase() === 'farfetch' ? 'scale-110' : ''
+                  merchant.name.toLowerCase() === 'farfetch' ? 'scale-90 object-contain' : ''
                 }`} 
               />
             ) : (
