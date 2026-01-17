@@ -102,7 +102,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'lincoln kiln dried logs' ? 'scale-100 object-cover' : 
                   merchant.name.toLowerCase() === 'essatoshi' ? 'scale-100 object-cover' : 
                   merchant.name.toLowerCase() === 'cheerings' ? 'scale-100 object-contain' : 
-                  merchant.name.toLowerCase() === 'jonathan hill luthier' ? 'scale-[1.4] object-contain' : ''
+                  merchant.name.toLowerCase() === 'jonathan hill luthier' ? 'scale-100 object-contain p-1' : ''
                 }`} 
               />
             ) : (

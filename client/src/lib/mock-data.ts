@@ -695,7 +695,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "55",
     name: "Jonathan Hill Luthier",
     description: "Historical and modern stringed instrument maker. Specialist in Viola d'amore, Lira da braccio, and bespoke historical instruments crafted with traditional methods.",
-    logo: "https://images.squarespace-cdn.com/content/v1/5dd6aeb993be22593aa2f7f2/1595323034607-B9KUUTQIVX299N6IAZHB/HARE+WEBSITE+LOGO.jpg",
+    logo: "/assets/jonathan-hill-logo-new.png",
     categories: ["Art", "Music", "Services"],
     shippingCountries: ["UK", "Worldwide"],
     website: "https://www.jonathanhill-luthier.com/",
