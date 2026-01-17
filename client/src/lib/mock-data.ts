@@ -118,7 +118,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "6",
     name: "Daylight Computer Co",
     description: "Building the first computer that feels like paper. The Daylight Tablet.",
-    logo: "🌞",
+    logo: "/assets/daylight-logo.png",
     categories: ["Electronics"],
     shippingCountries: ["Worldwide"],
     website: "https://daylightcomputer.com",
