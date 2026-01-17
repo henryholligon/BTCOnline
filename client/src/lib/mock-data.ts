@@ -366,5 +366,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "27",
+    name: "Farfetch",
+    description: "The global destination for modern luxury. Shop the world's best designers and boutiques for clothing, shoes, and accessories.",
+    logo: "/assets/farfetch-logo.png",
+    categories: ["Fashion", "Lifestyle"],
+    shippingCountries: ["Worldwide"],
+    website: "https://www.farfetch.com/",
+    lightningSupported: false,
+    onchainSupported: true,
+    reviews: []
   }
 ];
