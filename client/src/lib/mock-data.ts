@@ -210,5 +210,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "14",
+    name: "Silent.link",
+    description: "Anonymously purchase eSIMs with Bitcoin. Privacy-first mobile data and SMS services.",
+    logo: "/assets/silent-link-logo.jpg",
+    categories: ["Services", "VPN & Privacy"],
+    shippingCountries: ["Worldwide"],
+    website: "https://silent.link",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
