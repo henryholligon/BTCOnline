@@ -142,7 +142,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "8",
     name: "Namecheap",
     description: "Register domains and buy web hosting with Bitcoin. Privacy-focused domain registrar.",
-    logo: "🌐",
+    logo: "/assets/namecheap-logo.png",
     categories: ["Services", "Hosting"],
     shippingCountries: ["Worldwide"],
     website: "https://namecheap.com",
