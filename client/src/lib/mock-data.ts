@@ -654,5 +654,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: false,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "52",
+    name: "Lincoln Kiln Dried Logs",
+    description: "Premium kiln-dried hardwood logs delivered throughout Lincoln and the surrounding areas. Sustainably sourced, high-quality firewood for efficient and clean burning.",
+    logo: "https://www.lincolnkilndriedlogs.co.uk/wp-content/uploads/2023/09/footer-payment.png",
+    categories: ["Lifestyle", "Services"],
+    shippingCountries: ["UK"],
+    website: "https://www.lincolnkilndriedlogs.co.uk/",
+    lightningSupported: false,
+    onchainSupported: true,
+    reviews: []
   }
 ];
