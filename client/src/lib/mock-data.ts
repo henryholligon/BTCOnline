@@ -534,5 +534,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "41",
+    name: "Chroma",
+    description: "The Bitcoin-native financial platform. Manage your wealth with security, privacy, and sovereignty.",
+    logo: "/assets/chroma-logo.png",
+    categories: ["Services", "Tech"],
+    shippingCountries: ["Worldwide"],
+    website: "https://based.getchroma.co/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
