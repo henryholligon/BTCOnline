@@ -55,7 +55,10 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
               <img 
                 src={merchant.logo} 
                 alt={merchant.name} 
-                className={`w-full h-full object-contain ${merchant.name.toLowerCase() === 'start9' ? 'bg-black p-1' : ''}`} 
+                className={`w-full h-full object-contain ${
+                  merchant.name.toLowerCase() === 'start9' ? 'bg-black p-1' : 
+                  merchant.name.toLowerCase() === 'cheapair' ? 'scale-150' : ''
+                }`} 
               />
             ) : (
               merchant.logo
