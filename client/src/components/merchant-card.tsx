@@ -98,7 +98,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'hempful' ? 'scale-100 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'highland fayre' ? 'scale-100 object-contain' : 
                   merchant.name.toLowerCase() === 'golden tallow' ? 'scale-100 object-contain' : 
-                  merchant.name.toLowerCase() === 'mister padel' ? 'scale-100 object-contain p-2' : ''
+                  merchant.name.toLowerCase() === 'mister padel' ? 'scale-[2.4] object-contain translate-x-[-20%] translate-y-[5%]' : ''
                 }`} 
               />
             ) : (
