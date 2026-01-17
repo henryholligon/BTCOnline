@@ -93,7 +93,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "4",
     name: "Coinkite",
     description: "Hardware wallets for Bitcoin security. Makers of Coldcard.",
-    logo: "🔐",
+    logo: "/assets/coinkite-logo.png",
     categories: ["Electronics", "Services"],
     shippingCountries: ["Worldwide"],
     website: "https://coinkite.com",
