@@ -534,5 +534,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "42",
+    name: "U2 Kawa",
+    description: "Specialty coffee roastery offering unique and flavorful beans. Experience the art of Japanese-inspired coffee roasting.",
+    logo: "/assets/u2kawa-logo.png",
+    categories: ["Food & Drink", "Lifestyle"],
+    shippingCountries: ["Worldwide"],
+    website: "https://www.u2kawa.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
