@@ -402,5 +402,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "30",
+    name: "Palingshop",
+    description: "Traditional Dutch smoked eel and premium seafood delicacies delivered fresh from Volendam. Experience authentic Dutch flavors.",
+    logo: "/assets/palingshop-logo.png",
+    categories: ["Food & Drink"],
+    shippingCountries: ["Netherlands", "Europe"],
+    website: "https://www.palingshop.nl/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
