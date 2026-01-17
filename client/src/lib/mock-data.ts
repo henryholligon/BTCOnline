@@ -462,5 +462,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "35",
+    name: "The Good Beans",
+    description: "Ethically sourced, freshly roasted specialty coffee. Discover a wide variety of unique blends and single-origin beans.",
+    logo: "/assets/thegoodbeans-logo.png",
+    categories: ["Food & Drink", "Lifestyle"],
+    shippingCountries: ["Worldwide"],
+    website: "https://thegoodbeans.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
