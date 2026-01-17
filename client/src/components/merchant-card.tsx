@@ -43,7 +43,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
     if (name === 'cheapair') return 'bg-white shadow-none';
     if (name === 'travala') return 'bg-white shadow-none';
     if (name === 'g2a') return 'bg-[#181c1f] shadow-none';
-    if (name === 'obscura') return 'bg-white shadow-none';
+    if (name === 'obscura') return 'bg-[#f15a24] shadow-none';
     if (name === 'silent.link') return 'bg-white shadow-none';
     return 'bg-secondary shadow-inner';
   };
@@ -65,7 +65,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'cheapair' ? 'scale-[2.8]' : 
                   merchant.name.toLowerCase() === 'travala' ? 'scale-90' : 
                   merchant.name.toLowerCase() === 'g2a' ? 'scale-100' : 
-                  merchant.name.toLowerCase() === 'obscura' ? 'scale-110' : 
+                  merchant.name.toLowerCase() === 'obscura' ? 'scale-125' : 
                   merchant.name.toLowerCase() === 'silent.link' ? 'scale-110' : ''
                 }`} 
               />
