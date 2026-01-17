@@ -52,7 +52,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
     if (name === 'peony lane wine') return 'bg-white shadow-none';
     if (name === 'yum yum tree fudge') return 'bg-[#a9d8d6] shadow-none';
     if (name === 'tea and tonic') return 'bg-white shadow-none';
-    if (name === 'arotags') return 'bg-[#a32b2e] shadow-none';
+    if (name === 'arotags') return 'bg-white shadow-none';
     return 'bg-secondary shadow-inner';
   };
 
