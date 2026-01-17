@@ -330,5 +330,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "24",
+    name: "Mushmore Supplements",
+    description: "Premium mushroom supplements crafted for optimal wellness. Harnessing the power of functional fungi for clarity, focus, and vitality.",
+    logo: "/assets/mushmore-logo.png",
+    categories: ["Health & Beauty", "Wellness"],
+    shippingCountries: ["USA", "Worldwide"],
+    website: "https://www.mushmoresupplements.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];

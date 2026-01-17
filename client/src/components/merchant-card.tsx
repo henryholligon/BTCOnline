@@ -54,6 +54,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
     if (name === 'tea and tonic') return 'bg-white shadow-none';
     if (name === 'arotags') return 'bg-white shadow-none';
     if (name === 'spitting feathers') return 'bg-white shadow-none';
+    if (name === 'mushmore supplements') return 'bg-white shadow-none';
     return 'bg-secondary shadow-inner';
   };
 
@@ -85,7 +86,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'yum yum tree fudge' ? 'scale-110' : 
                   merchant.name.toLowerCase() === 'tea and tonic' ? 'scale-90' : 
                   merchant.name.toLowerCase() === 'arotags' ? 'scale-90' : 
-                  merchant.name.toLowerCase() === 'spitting feathers' ? 'scale-[0.85]' : ''
+                  merchant.name.toLowerCase() === 'spitting feathers' ? 'scale-[0.85]' : 
+                  merchant.name.toLowerCase() === 'mushmore supplements' ? 'scale-110' : ''
                 }`} 
               />
             ) : (
