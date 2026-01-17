@@ -186,5 +186,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "12",
+    name: "G2A",
+    description: "The world's largest marketplace for digital entertainment. Buy games, gift cards, and software with Bitcoin.",
+    logo: "/assets/g2a-logo.jpg",
+    categories: ["Services", "Gift Cards"],
+    shippingCountries: ["Worldwide"],
+    website: "https://g2a.com",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];

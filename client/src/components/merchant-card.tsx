@@ -42,6 +42,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
     if (name === 'human rights foundation') return 'bg-white shadow-none';
     if (name === 'cheapair') return 'bg-white shadow-none';
     if (name === 'travala') return 'bg-white shadow-none';
+    if (name === 'g2a') return 'bg-[#f47920] shadow-none';
     return 'bg-secondary shadow-inner';
   };
 
@@ -59,7 +60,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                 className={`w-full h-full object-contain ${
                   merchant.name.toLowerCase() === 'start9' ? 'bg-black p-1' : 
                   merchant.name.toLowerCase() === 'cheapair' ? 'scale-200' : 
-                  merchant.name.toLowerCase() === 'travala' ? 'scale-110' : ''
+                  merchant.name.toLowerCase() === 'travala' ? 'scale-110' : 
+                  merchant.name.toLowerCase() === 'g2a' ? 'scale-125 p-1' : ''
                 }`} 
               />
             ) : (
