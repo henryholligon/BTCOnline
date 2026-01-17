@@ -48,7 +48,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
         <div className="flex gap-4">
           <div className={`h-12 w-12 rounded-lg flex items-center justify-center text-3xl border border-border/50 overflow-hidden ${
             merchant.name.toLowerCase() === 'kawa' ? 'bg-[#c9121f] border-[#c9121f]' : 
-            merchant.name.toLowerCase() === 'the suffolk tutor' ? 'bg-[#f7941e] border-[#f7941e]' :
+            merchant.name.toLowerCase() === 'the suffolk tutor' ? 'bg-[#ff9e16] border-[#ff9e16]' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -93,7 +93,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'chroma' ? 'scale-100 object-contain p-0' : 
                   merchant.name.toLowerCase() === 'kawa' ? 'scale-100 object-cover' : 
                   merchant.name.toLowerCase() === 'asf tutoring' ? 'scale-100 object-cover' : 
-                  merchant.name.toLowerCase() === 'the suffolk tutor' ? 'scale-100 object-cover' : 
+                  merchant.name.toLowerCase() === 'the suffolk tutor' ? 'scale-90 object-contain' : 
                   merchant.name.toLowerCase() === "jimble's jumble" ? 'scale-100 object-cover' : ''
                 }`} 
               />

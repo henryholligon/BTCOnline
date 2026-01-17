@@ -587,7 +587,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "46",
     name: "The Suffolk Tutor",
     description: "Personalised primary school tutoring and specialist SEND support. Qualified teacher offering one-to-one and group sessions in Maths, English, and Science.",
-    logo: "/assets/suffolk-tutor-new.png",
+    logo: "https://static.wixstatic.com/media/e7f737_461ad44966af488b8bdfee9c8146a001~mv2.png/v1/fill/w_385,h_465,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/%40thesuffolktutor.png",
     categories: ["Services", "Tech"],
     shippingCountries: ["Worldwide", "UK"],
     website: "https://www.thesuffolktutor.com/",
