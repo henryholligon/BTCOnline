@@ -299,7 +299,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "21",
     name: "Tea and Tonic",
     description: "British luxury skincare and wellness brand using high-performance adaptogens and sustainable ingredients to support body and mind.",
-    logo: "/assets/tea-and-tonic-logo.png",
+    logo: "/assets/tea-and-tonic-new.png",
     categories: ["Health & Beauty", "Wellness"],
     shippingCountries: ["UK", "Worldwide"],
     website: "https://www.teaandtonic.co.uk/",
