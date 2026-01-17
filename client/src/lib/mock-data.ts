@@ -131,7 +131,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "7",
     name: "Tor Project",
     description: "Defending your rights to privacy and freedom online. Help us keep Tor strong.",
-    logo: "/assets/tor-logo.png",
+    logo: "/assets/tor-logo-new.png",
     categories: ["Services", "Charity", "VPN & Privacy"],
     shippingCountries: ["Worldwide"],
     website: "https://torproject.org",
