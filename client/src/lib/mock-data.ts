@@ -198,5 +198,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "13",
+    name: "Obscura VPN",
+    description: "High-performance VPN service built for the Bitcoin ecosystem. Privacy without compromise.",
+    logo: "/assets/obscura-logo.jpg",
+    categories: ["VPN & Privacy", "Services"],
+    shippingCountries: ["Worldwide"],
+    website: "https://obscuravpn.com",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
