@@ -59,6 +59,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                 alt={merchant.name} 
                 className={`w-full h-full object-contain ${
                   merchant.name.toLowerCase() === 'start9' ? 'bg-black p-1' : 
+                  merchant.name.toLowerCase() === 'bitrefill' ? 'scale-110' : 
                   merchant.name.toLowerCase() === 'cheapair' ? 'scale-200' : 
                   merchant.name.toLowerCase() === 'travala' ? 'scale-90' : 
                   merchant.name.toLowerCase() === 'g2a' ? 'scale-100' : ''
