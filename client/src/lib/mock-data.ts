@@ -774,5 +774,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "62",
+    name: "TorGuard",
+    description: "Secure and private VPN, Proxy, and Email services. Protect your online identity with high-speed, anonymous browsing and advanced encryption.",
+    logo: "https://torguard.net/images/logo.png",
+    categories: ["VPN & Privacy", "Services"],
+    shippingCountries: ["Worldwide"],
+    website: "https://torguard.net/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
