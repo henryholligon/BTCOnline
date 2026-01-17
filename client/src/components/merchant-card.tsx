@@ -93,7 +93,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'chroma' ? 'scale-100 object-contain p-0' : 
                   merchant.name.toLowerCase() === 'kawa' ? 'scale-100 object-cover' : 
                   merchant.name.toLowerCase() === 'asf tutoring' ? 'scale-100 object-cover' : 
-                  merchant.name.toLowerCase() === 'the suffolk tutor' ? 'scale-90 object-contain' : ''
+                  merchant.name.toLowerCase() === 'the suffolk tutor' ? 'scale-90 object-contain' : 
+                  merchant.name.toLowerCase() === "jimble's jumble" ? 'scale-100 object-cover' : ''
                 }`} 
               />
             ) : (

@@ -594,5 +594,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "47",
+    name: "Jimble's Jumble",
+    description: "Homemade preserves created in Northamptonshire from homegrown, wild foraged and food rescued ingredients. Small-batch jams, chutneys, and marmalades.",
+    logo: "https://jimblesjumble.odoo.com/web/image/3369-f7e687f9/3-DSC_0022.webp",
+    categories: ["Food & Drink", "Lifestyle"],
+    shippingCountries: ["UK"],
+    website: "https://jimblesjumble.odoo.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
