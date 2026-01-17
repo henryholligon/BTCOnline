@@ -618,5 +618,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "49",
+    name: "Highland Fayre",
+    description: "Scotland's No. 1 specialist hamper company. Luxury food and wine hampers, gift baskets, and corporate gifts delivered throughout the UK.",
+    logo: "https://www.highlandfayre.co.uk/cdn/shop/files/HF_40_anniversary_logo_square.jpg?v=1742572848&width=1080",
+    categories: ["Food & Drink", "Alcohol", "Lifestyle"],
+    shippingCountries: ["UK"],
+    website: "https://www.highlandfayre.co.uk/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
