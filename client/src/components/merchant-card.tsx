@@ -65,7 +65,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'cheapair' ? 'scale-[2.8]' : 
                   merchant.name.toLowerCase() === 'travala' ? 'scale-90' : 
                   merchant.name.toLowerCase() === 'g2a' ? 'scale-100' : 
-                  merchant.name.toLowerCase() === 'obscura' ? 'scale-125' : 
+                  merchant.name.toLowerCase() === 'obscura' ? 'scale-100' : 
                   merchant.name.toLowerCase() === 'silent.link' ? 'scale-110' : ''
                 }`} 
               />
