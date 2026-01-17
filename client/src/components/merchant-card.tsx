@@ -61,7 +61,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
     if (name === 'bramleigh farm') return 'bg-white shadow-none';
     if (name === 'oshi good') return 'bg-black shadow-none';
     if (name === 'palingshop') return 'bg-white shadow-none';
-    if (name === 'ticketpro') return 'bg-white shadow-none';
+    if (name === 'ticketpro') return 'bg-[#1a0b3c] shadow-none';
     return 'bg-secondary shadow-inner';
   };
 
@@ -101,7 +101,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'bramleigh farm' ? 'scale-90 object-contain' : 
                   merchant.name.toLowerCase() === 'oshi good' ? 'scale-90 object-contain' : 
                   merchant.name.toLowerCase() === 'palingshop' ? 'scale-110 object-contain' : 
-                  merchant.name.toLowerCase() === 'ticketpro' ? 'scale-90' : ''
+                  merchant.name.toLowerCase() === 'ticketpro' ? 'scale-100 object-cover' : ''
                 }`} 
               />
             ) : (
