@@ -167,7 +167,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "10",
     name: "CheapAir",
     description: "Book flights and hotels with Bitcoin. One of the first travel sites to accept BTC.",
-    logo: "✈️",
+    logo: "/assets/cheapair-logo.png",
     categories: ["Services", "Travel"],
     shippingCountries: ["Worldwide"],
     website: "https://cheapair.com",
