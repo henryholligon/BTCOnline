@@ -105,7 +105,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "5",
     name: "Start9",
     description: "Sovereign computing. Run your own personal server.",
-    logo: "🖥️",
+    logo: "/assets/start9-logo.png",
     categories: ["Electronics", "Hosting"],
     shippingCountries: ["Worldwide", "USA"],
     website: "https://start9.com",
