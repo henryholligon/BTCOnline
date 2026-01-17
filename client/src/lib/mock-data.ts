@@ -551,7 +551,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "43",
     name: "Kijicha",
     description: "Authentic Japanese tea and premium matcha sourced directly from growers. Experience the tradition and serenity of high-quality tea.",
-    logo: "/assets/kijicha-logo.png",
+    logo: "/assets/kijicha-new.png",
     categories: ["Food & Drink", "Lifestyle"],
     shippingCountries: ["Worldwide"],
     website: "https://kijicha.com/",
