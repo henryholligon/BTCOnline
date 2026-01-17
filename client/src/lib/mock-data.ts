@@ -750,5 +750,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "60",
+    name: "Crypto Tax Help",
+    description: "Leading UK tax and cryptocurrency accountant. Expert advice for Hodlers, Traders, and DAO enthusiasts to simplify crypto taxes and ensure HMRC compliance.",
+    logo: "https://cryptotaxhelp.co.uk/wp-content/uploads/sites/24/2022/01/Cryptocurrency-768x384.png",
+    categories: ["Services", "Tech"],
+    shippingCountries: ["UK"],
+    website: "https://cryptotaxhelp.co.uk/",
+    lightningSupported: false,
+    onchainSupported: true,
+    reviews: []
   }
 ];
