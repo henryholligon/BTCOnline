@@ -538,7 +538,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
   {
     id: "41",
     name: "Chroma",
-    description: "The Bitcoin-native financial platform. Manage your wealth with security, privacy, and sovereignty.",
+    description: "Chroma is dedicated to staying on the cutting edge of light therapy. Your support pushes forward devices designed by engineers who care deeply about health.",
     logo: "/assets/chroma-logo.png",
     categories: ["Services", "Tech"],
     shippingCountries: ["Worldwide"],
