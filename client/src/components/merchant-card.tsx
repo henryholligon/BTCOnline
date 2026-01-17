@@ -55,7 +55,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
     if (name === 'arotags') return 'bg-white shadow-none';
     if (name === 'spitting feathers') return 'bg-white shadow-none';
     if (name === 'mushmore supplements') return 'bg-[#151515] shadow-none';
-    if (name === 'hummingbird amsterdam') return 'bg-white shadow-none';
+    if (name === 'hummingbird amsterdam') return 'bg-black shadow-none';
     if (name === 'planet express') return 'bg-white shadow-none';
     return 'bg-secondary shadow-inner';
   };
@@ -90,7 +90,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'arotags' ? 'scale-90' : 
                   merchant.name.toLowerCase() === 'spitting feathers' ? 'scale-[0.85]' : 
                   merchant.name.toLowerCase() === 'mushmore supplements' ? 'scale-90 object-contain' : 
-                  merchant.name.toLowerCase() === 'hummingbird amsterdam' ? 'scale-90' : 
+                  merchant.name.toLowerCase() === 'hummingbird amsterdam' ? 'scale-110 object-contain' : 
                   merchant.name.toLowerCase() === 'planet express' ? 'scale-90' : ''
                 }`} 
               />
