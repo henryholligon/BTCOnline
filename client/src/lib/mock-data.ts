@@ -152,12 +152,12 @@ export const MOCK_MERCHANTS: Merchant[] = [
   },
   {
     id: "9",
-    name: "Bitcoin Magazine Store",
-    description: "Apparel, art, and books for Bitcoiners.",
-    logo: "📖",
-    categories: ["Clothing", "Books", "Art"],
+    name: "Human Rights Foundation",
+    description: "Supporting civil society in closed societies and uniting people in the common cause of human rights.",
+    logo: "/assets/hrf-logo.png",
+    categories: ["Services", "Art"],
     shippingCountries: ["Worldwide"],
-    website: "https://store.bitcoinmagazine.com",
+    website: "https://hrf.org",
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
