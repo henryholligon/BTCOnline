@@ -129,14 +129,14 @@ export const MOCK_MERCHANTS: Merchant[] = [
   },
   {
     id: "7",
-    name: "Fold App",
-    description: "Earn bitcoin on everything you do. Shop at your favorites and get cash back.",
-    logo: "🛍️",
-    categories: ["Services", "Gift Cards"],
-    shippingCountries: ["USA"],
-    website: "https://foldapp.com",
+    name: "Tor Project",
+    description: "Defending your rights to privacy and freedom online. Help us keep Tor strong.",
+    logo: "🧅",
+    categories: ["Services", "Charity", "VPN & Privacy"],
+    shippingCountries: ["Worldwide"],
+    website: "https://torproject.org",
     lightningSupported: true,
-    onchainSupported: false,
+    onchainSupported: true,
     reviews: []
   },
   {
