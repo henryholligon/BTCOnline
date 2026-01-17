@@ -726,5 +726,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "58",
+    name: "Maple AI",
+    description: "Private AI chat with end-to-end encryption. Powered by OpenSecret, Maple ensures your conversations stay yours with cryptographic proof of privacy.",
+    logo: "https://trymaple.ai/maple-logo.svg",
+    categories: ["Tech", "VPN & Privacy", "Services"],
+    shippingCountries: ["Worldwide"],
+    website: "https://trymaple.ai/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
