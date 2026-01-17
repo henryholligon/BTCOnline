@@ -51,6 +51,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
     if (name === 'bonjour wines') return 'bg-white shadow-none';
     if (name === 'peony lane wine') return 'bg-white shadow-none';
     if (name === 'yum yum tree fudge') return 'bg-[#a9d8d6] shadow-none';
+    if (name === 'tea and tonic') return 'bg-white shadow-none';
     return 'bg-secondary shadow-inner';
   };
 
@@ -79,7 +80,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'castle hill gin' ? 'scale-110' : 
                   merchant.name.toLowerCase() === 'bonjour wines' ? 'scale-110' : 
                   merchant.name.toLowerCase() === 'peony lane wine' ? 'scale-90' : 
-                  merchant.name.toLowerCase() === 'yum yum tree fudge' ? 'scale-110' : ''
+                  merchant.name.toLowerCase() === 'yum yum tree fudge' ? 'scale-110' : 
+                  merchant.name.toLowerCase() === 'tea and tonic' ? 'scale-110' : ''
                 }`} 
               />
             ) : (
