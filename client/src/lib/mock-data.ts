@@ -246,5 +246,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "17",
+    name: "Castle Hill Gin",
+    description: "Premium handcrafted gin distilled in the heart of Yorkshire. Traditional methods with modern botanical blends.",
+    logo: "/assets/castle-hill-gin-logo.png",
+    categories: ["Food & Drink", "Alcohol"],
+    shippingCountries: ["UK"],
+    website: "https://www.castlehillgin.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
