@@ -719,7 +719,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "57",
     name: "CandyJets",
     description: "Private jet charter services for business and leisure travel. Experience seamless travel with a bespoke 'Candy Concierge' service for a sweet and stress-free journey.",
-    logo: "/assets/candyjets-logo-black.png",
+    logo: "/assets/candyjets-logo-gold-circle.png",
     categories: ["Travel", "Services"],
     shippingCountries: ["UK", "Europe"],
     website: "https://candyjets.com/",
