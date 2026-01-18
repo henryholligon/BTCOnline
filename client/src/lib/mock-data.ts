@@ -947,7 +947,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "76",
     name: "IVPN",
     description: "Privacy-first VPN service with no logs, no customer data collection, and independent security audits. Accept cash, Monero, and Bitcoin for ultimate anonymity.",
-    logo: "https://www.ivpn.net/images-static/uploads/ivpn-home.png",
+    logo: "/assets/ivpn-new.png",
     categories: ["VPN & Privacy", "Services"],
     shippingCountries: ["Worldwide"],
     website: "https://www.ivpn.net/en/",
