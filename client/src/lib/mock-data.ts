@@ -1158,5 +1158,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "94",
+    name: "MMOGA",
+    description: "One of the first professional mediators of game services on the European market. MMOGA provides a wide range of products for online games, software keys, and gift cards with over 15 years of experience.",
+    logo: "/assets/mmoga-logo.png",
+    categories: ["Entertainment", "Services", "Tech"],
+    shippingCountries: ["Europe", "Worldwide"],
+    website: "https://www.mmoga.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
