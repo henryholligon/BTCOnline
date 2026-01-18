@@ -1103,7 +1103,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "89",
     name: "Atoms",
     description: "Makers of the most comfortable everyday shoes. Designed in New York, Atoms are known for their cloud-like comfort, antimicrobial copper lining, and perfect fit in quarter sizes.",
-    logo: "/assets/atoms-logo.png",
+    logo: "/assets/atoms-new-logo.png",
     categories: ["Fashion", "Lifestyle", "Wellness"],
     shippingCountries: ["USA", "Worldwide"],
     website: "https://atoms.com/",
