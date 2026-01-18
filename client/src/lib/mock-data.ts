@@ -990,5 +990,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "80",
+    name: "Samen Maier",
+    description: "Organic seeds, flower bulbs, and gardening supplies. High-quality ecological products for sustainable gardening and biodiversity.",
+    logo: "https://www.samen-maier.at/wp-content/uploads/2021/03/Samen-Maier-Logo-2021.png",
+    categories: ["Lifestyle", "Wellness"],
+    shippingCountries: ["Europe", "Austria", "Germany"],
+    website: "https://www.samen-maier.at/shop",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
