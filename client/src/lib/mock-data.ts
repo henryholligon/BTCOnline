@@ -1074,5 +1074,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "87",
+    name: "Fuelingyou",
+    description: "Premium bio-hacking and health optimization supplements and products. Discover a curated selection of high-quality tools to improve your physical and mental performance.",
+    logo: "https://fuelingyou.nl/cdn/shop/files/Logo_Fuelingyou_New_f6e9b40f-7f94-4b5d-9c8e-8a9d1c7b8e9d_120x.png?v=1614294136",
+    categories: ["Health & Beauty", "Wellness", "Lifestyle"],
+    shippingCountries: ["Netherlands", "Europe", "Worldwide"],
+    website: "https://fuelingyou.nl/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
