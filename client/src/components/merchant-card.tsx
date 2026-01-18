@@ -58,6 +58,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'ivpn' ? 'bg-[#1a1a1a] border-[#1a1a1a]' :
             merchant.name.toLowerCase() === 'hyke & byke' ? 'bg-black border-black' :
             merchant.name.toLowerCase() === 'kerwell' ? 'bg-black border-black' :
+            merchant.name.toLowerCase() === 'sticky' ? 'bg-white border-[#e5e7eb]' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -134,7 +135,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'privaterouter' ? 'scale-110 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'ivpn' ? 'scale-[1.4] object-contain p-1' : 
                   merchant.name.toLowerCase() === 'hyke & byke' ? 'scale-110 object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'kerwell' ? 'scale-110 object-contain p-1' : ''
+                  merchant.name.toLowerCase() === 'kerwell' ? 'scale-110 object-contain p-1' : 
+                  merchant.name.toLowerCase() === 'sticky' ? 'scale-110 object-contain p-1' : ''
                 }`} 
               />
             ) : (
