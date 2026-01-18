@@ -64,6 +64,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'smith pastures' ? 'bg-white border-[#e5e7eb] shadow-none' :
             merchant.name.toLowerCase() === 'skoon.' ? 'bg-white border-[#e5e7eb]' :
             merchant.name.toLowerCase() === 'mei leaf' ? 'bg-white border-[#e5e7eb]' :
+            merchant.name.toLowerCase() === 'missprint' ? 'bg-white border-[#e5e7eb]' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -146,7 +147,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'samen maier' ? 'scale-100 object-contain p-0' : 
                   merchant.name.toLowerCase() === 'smith pastures' ? 'scale-[1.2] object-contain p-0' : 
                   merchant.name.toLowerCase() === 'skoon.' ? 'scale-100 object-contain p-0' : 
-                  merchant.name.toLowerCase() === 'mei leaf' ? 'scale-90 object-contain p-1' : ''
+                  merchant.name.toLowerCase() === 'mei leaf' ? 'scale-90 object-contain p-1' : 
+                  merchant.name.toLowerCase() === 'missprint' ? 'scale-110 object-contain p-1' : ''
                 }`} 
               />
             ) : (
