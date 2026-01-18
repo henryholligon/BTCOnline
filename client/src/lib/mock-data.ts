@@ -1026,5 +1026,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "83",
+    name: "Mei Leaf",
+    description: "Curators of pinnacle specialty tea and unique teaware. Discover artisan-crafted teas from ancient heirloom cultivars, focusing on deep flavor and traditional methods.",
+    logo: "https://meileaf.com/themes/meileaf/resources/images/shipping_secure_circle.png",
+    categories: ["Food & Drink", "Wellness", "Lifestyle"],
+    shippingCountries: ["Worldwide", "UK"],
+    website: "https://meileaf.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
