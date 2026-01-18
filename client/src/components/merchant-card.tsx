@@ -57,7 +57,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'privaterouter' ? 'bg-white shadow-none' :
             merchant.name.toLowerCase() === 'ivpn' ? 'bg-[#1a1a1a] border-[#1a1a1a]' :
             merchant.name.toLowerCase() === 'hyke & byke' ? 'bg-black border-black' :
-            merchant.name.toLowerCase() === 'kerwell' ? 'bg-white border-[#e5e7eb]' :
+            merchant.name.toLowerCase() === 'kerwell' ? 'bg-black border-black' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
