@@ -858,5 +858,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "69",
+    name: "Campo Apícola",
+    description: "Conscious beekeeping from Santander, Colombia. Pure honey, pollen, propolis, and beeswax candles crafted with love and respect for nature.",
+    logo: "https://www.campoapicola.com/wp-content/uploads/2023/10/logo-apicola.png",
+    categories: ["Food & Drink", "Lifestyle"],
+    shippingCountries: ["Worldwide"],
+    website: "https://www.campoapicola.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
