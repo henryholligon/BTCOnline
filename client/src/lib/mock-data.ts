@@ -834,5 +834,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "67",
+    name: "Bloom Audio",
+    description: "Premium headphones and personal audio equipment. Expertly curated selection of high-fidelity audio gear for the discerning listener.",
+    logo: "https://bloomaudio.com/cdn/shop/files/Bloom-Logo-Icon-Black.png?v=1613705001",
+    categories: ["Electronics", "Services"],
+    shippingCountries: ["USA", "Worldwide"],
+    website: "https://bloomaudio.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
