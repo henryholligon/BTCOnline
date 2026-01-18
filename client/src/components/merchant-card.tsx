@@ -129,7 +129,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'consumer choice center' ? 'scale-[1.25] object-contain p-1' : 
                   merchant.name.toLowerCase() === 'pikasim' ? 'scale-100 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'mad gringo hot sauce' ? 'scale-110 object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'privaterouter' ? 'scale-[1.3] object-contain p-1' : 
+                  merchant.name.toLowerCase() === 'privaterouter' ? 'scale-110 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'ivpn' ? 'scale-110 object-contain p-1' : ''
                 }`} 
               />
