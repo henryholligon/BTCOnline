@@ -911,7 +911,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "73",
     name: "PikaSim",
     description: "Private travel eSIMs with instant setup in 190+ countries. No signup, no account, and no KYC required. Pay with Bitcoin or Lightning.",
-    logo: "https://pikasim.com/img/pika-transparent.png",
+    logo: "/assets/pikasim-new.png",
     categories: ["Travel", "Services", "VPN & Privacy"],
     shippingCountries: ["Worldwide"],
     website: "https://pikasim.com/",
