@@ -138,7 +138,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'hyke & byke' ? 'scale-110 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'kerwell' ? 'scale-110 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'sticky' ? 'scale-100 object-contain p-0' : 
-                  merchant.name.toLowerCase() === 'samen maier' ? 'scale-110 object-contain p-1' : ''
+                  merchant.name.toLowerCase() === 'samen maier' ? 'scale-100 object-contain p-0' : ''
                 }`} 
               />
             ) : (
