@@ -951,6 +951,18 @@ export const MOCK_MERCHANTS: Merchant[] = [
     categories: ["VPN & Privacy", "Services"],
     shippingCountries: ["Worldwide"],
     website: "https://www.ivpn.net/en/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
+  },
+  {
+    id: "77",
+    name: "Hyke & Byke",
+    description: "Premium backpacking and outdoor gear. High-quality sleeping bags, tents, and pads designed for performance and value. Built for the modern adventurer.",
+    logo: "https://www.hykeandbyke.com/cdn/shop/files/logo_410x.png?v=1614343807",
+    categories: ["Clothing", "Lifestyle"],
+    shippingCountries: ["USA", "Worldwide"],
+    website: "https://www.hykeandbyke.com/",
     lightningSupported: false,
     onchainSupported: true,
     reviews: []
