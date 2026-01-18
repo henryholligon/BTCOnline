@@ -966,5 +966,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: false,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "78",
+    name: "Kerwell",
+    description: "Premium CBD and wellness products focused on stress relief, better sleep, and pain management. Lab-tested extracts backed by science and transparency.",
+    logo: "https://kerwellness.com/cdn/shop/files/Logo_c1313ab4-2d8c-4ef3-a0ab-1fe360b8de3b.png?v=1662043257",
+    categories: ["Health & Beauty", "Wellness", "Lifestyle"],
+    shippingCountries: ["USA"],
+    website: "https://kerwellness.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
