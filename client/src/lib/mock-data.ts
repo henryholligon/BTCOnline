@@ -1146,5 +1146,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "93",
+    name: "Crave",
+    description: "The world's leading nicotine toothpick brand. Infused with bold flavors, Crave provides a discreet, smoke-free, and odorless way to enjoy nicotine anywhere, anytime.",
+    logo: "/assets/crave-logo.png",
+    categories: ["Lifestyle", "Wellness"],
+    shippingCountries: ["USA", "Worldwide"],
+    website: "https://cravepicks.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
