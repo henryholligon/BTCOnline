@@ -154,7 +154,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'missprint' ? 'scale-110 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'izindlovu' ? 'scale-125 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'sole' ? 'scale-125 object-contain p-2' : 
-                  merchant.name.toLowerCase() === 'fuelingyou' ? 'scale-[1.3] object-contain p-0' : ''
+                  merchant.name.toLowerCase() === 'fuelingyou' ? 'scale-110 object-contain p-1' : ''
                 }`} 
               />
             ) : (
