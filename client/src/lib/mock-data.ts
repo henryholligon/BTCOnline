@@ -791,7 +791,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "63",
     name: "Beef Initiative",
     description: "A movement focused on making food more localized, redundant, and secure. Providing market access to ranchers and consumers who value food integrity and regenerative practices.",
-    logo: "https://beefinitiative.com/cdn/shop/files/tbi-logo_300x.png",
+    logo: "/assets/beef-initiative-logo.png",
     categories: ["Food & Drink", "Wellness", "Lifestyle"],
     shippingCountries: ["USA"],
     website: "https://beefinitiative.com/",
