@@ -870,5 +870,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "70",
+    name: "Elephant Chateau",
+    description: "Ethically sourced, single-estate Ceylon teas and gourmet spices. Discover the world's most flavorful selection of aromatic leafy teas and fresh cinnamon.",
+    logo: "https://elephantchateau.com/images/logo-crest2.png",
+    categories: ["Food & Drink", "Lifestyle"],
+    shippingCountries: ["Worldwide"],
+    website: "https://elephantchateau.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
