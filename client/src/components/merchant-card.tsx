@@ -122,7 +122,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'campo apícola' ? 'scale-110 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'elephant chateau' ? 'scale-110 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'árbol de maple' ? 'scale-110 object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'consumer choice center' ? 'scale-110 object-contain p-1' : ''
+                  merchant.name.toLowerCase() === 'consumer choice center' ? 'scale-[1.25] object-contain p-1' : ''
                 }`} 
               />
             ) : (
