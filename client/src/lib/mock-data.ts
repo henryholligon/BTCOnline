@@ -1127,7 +1127,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "91",
     name: "NoGood Studio",
     description: "Freelance illustrator and design studio inspired by retro tech and fueled by the open-source movement. Amsterdam-based creator of The NoGood Book, limited edition prints, and apparel.",
-    logo: "/assets/nogood-studio-logo.png",
+    logo: "/assets/nogood-new.png",
     categories: ["Art", "Lifestyle", "Fashion"],
     shippingCountries: ["Worldwide", "Netherlands"],
     website: "https://www.nogood.studio/",

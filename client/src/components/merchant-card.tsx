@@ -72,7 +72,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'spy equipment uk' ? 'bg-[#0a1a0a] border-[#0a1a0a]' :
             merchant.name.toLowerCase() === 'atoms' ? 'bg-black border-black' :
             merchant.name.toLowerCase() === 'heatbit' ? 'bg-black border-black' :
-            merchant.name.toLowerCase() === 'nogood studio' ? 'bg-black border-black' :
+            merchant.name.toLowerCase() === 'nogood studio' ? 'bg-[#ff3b00] border-[#ff3b00]' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
