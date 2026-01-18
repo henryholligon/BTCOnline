@@ -1170,5 +1170,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "95",
+    name: "Human Trafficking Institute",
+    description: "HTI works to stop traffickers by partnering with law enforcement to decimate trafficking at its source. By stopping traffickers, they free current victims and prevent future exploitation through targeted enforcement strategies.",
+    logo: "/assets/hti-logo.png",
+    categories: ["Services", "Tech"],
+    shippingCountries: ["USA", "Worldwide"],
+    website: "https://traffickinginstitute.org/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
