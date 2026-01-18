@@ -1007,7 +1007,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "81",
     name: "Smith Pastures",
     description: "Family-owned farm specializing in pasture-raised heritage pork, poultry, and grass-fed meats. Focused on regenerative agriculture and providing nutrient-dense food.",
-    logo: "/assets/smith-pastures-logo.png",
+    logo: "https://smithpastures.com/wp-content/uploads/2023/03/shadow-logo-1.png",
     categories: ["Food & Drink", "Lifestyle"],
     shippingCountries: ["USA"],
     website: "https://smithpastures.com/",
