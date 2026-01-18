@@ -1086,5 +1086,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "88",
+    name: "Root & Branch",
+    description: "Specialty coffee roasters based in Belfast, Northern Ireland. Focusing on ethically sourced, high-quality beans and precision roasting to highlight unique flavor profiles.",
+    logo: "https://rootandbranch.coffee/cdn/shop/files/R_B_LOGO_BLACK_180x.png?v=1614294136",
+    categories: ["Food & Drink", "Lifestyle"],
+    shippingCountries: ["UK", "Ireland", "Worldwide"],
+    website: "https://rootandbranch.coffee/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
