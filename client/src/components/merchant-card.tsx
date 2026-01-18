@@ -70,6 +70,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'fuelingyou' ? 'bg-white border-[#e5e7eb]' :
             merchant.name.toLowerCase() === 'root & branch' ? 'bg-black border-black' :
             merchant.name.toLowerCase() === 'spy equipment uk' ? 'bg-[#0a1a0a] border-[#0a1a0a]' :
+            merchant.name.toLowerCase() === 'atoms' ? 'bg-white border-[#e5e7eb]' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -157,7 +158,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'izindlovu' ? 'scale-125 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'sole' ? 'scale-125 object-contain p-2' : 
                   merchant.name.toLowerCase() === 'fuelingyou' ? 'scale-110 object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'root & branch' ? 'scale-[1.3] object-contain p-1' : ''
+                  merchant.name.toLowerCase() === 'atoms' ? 'scale-100 object-contain p-2' : ''
                 }`} 
               />
             ) : (
