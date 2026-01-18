@@ -1053,7 +1053,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
   },
   {
     id: "85",
-    name: "I Zindlovu",
+    name: "Izindlovu",
     description: "Supporting elephant conservation through the sale of artisan-crafted goods and art. A portion of every purchase goes directly to protecting these magnificent creatures and their habitats.",
     logo: "https://izindlovu.org/wp-content/uploads/2021/05/logo_izindlovu_elephant-1.png",
     categories: ["Charity", "Art", "Lifestyle"],
