@@ -798,5 +798,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "64",
+    name: "Spy Equipment UK",
+    description: "High-quality, reliable surveillance and security solutions. Specialists in spy cameras, listening devices, and tracking equipment for professional and personal use.",
+    logo: "https://www.spyequipmentuk.co.uk/wp-content/uploads/2022/06/spy-cameras-e1656507517860.png",
+    categories: ["Tech", "Services"],
+    shippingCountries: ["UK", "Worldwide"],
+    website: "https://www.spyequipmentuk.co.uk/",
+    lightningSupported: false,
+    onchainSupported: true,
+    reviews: []
   }
 ];
