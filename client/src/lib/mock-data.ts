@@ -851,7 +851,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "68",
     name: "La Industria Handmade",
     description: "Artisan handmade tobacco pouches, belt bags, and sustainable accessories. Crafted with passion using organic cotton and recycled materials.",
-    logo: "https://laindustriahandmade.com/cdn/shop/files/coleccion-organic-cotton-shopify-LIH.jpg?v=1761216464&width=2000",
+    logo: "/assets/la-industria-logo.png",
     categories: ["Clothing", "Lifestyle"],
     shippingCountries: ["Europe", "Worldwide"],
     website: "https://laindustriahandmade.com/",
