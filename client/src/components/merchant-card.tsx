@@ -53,6 +53,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'la industria handmade' ? 'bg-[#1a1a1a] border-[#1a1a1a]' :
             merchant.name.toLowerCase() === 'consumer choice center' ? 'bg-[#1e3a8a] border-[#1e3a8a]' :
             merchant.name.toLowerCase() === 'mad gringo hot sauce' ? 'bg-black border-black' :
+            merchant.name.toLowerCase() === 'torguard' ? 'bg-[#0a1128] border-[#0a1128]' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -113,7 +114,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'payperq' ? 'scale-110 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'crypto tax help' ? 'scale-100 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'mtsocks' ? 'scale-[1.8] object-contain' : 
-                  merchant.name.toLowerCase() === 'torguard' ? 'scale-100 object-contain p-1' : 
+                  merchant.name.toLowerCase() === 'torguard' ? 'scale-125 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'beef initiative' ? 'scale-100 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'spy equipment uk' ? 'scale-100 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'bees & trees' ? 'scale-[1.15] object-contain p-1' : 

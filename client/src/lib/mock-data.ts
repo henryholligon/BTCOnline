@@ -779,7 +779,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "62",
     name: "TorGuard",
     description: "Secure and private VPN, Proxy, and Email services. Protect your online identity with high-speed, anonymous browsing and advanced encryption.",
-    logo: "https://torguard.net/images/logo.png",
+    logo: "/assets/torguard-new.png",
     categories: ["VPN & Privacy", "Services"],
     shippingCountries: ["Worldwide"],
     website: "https://torguard.net/",
