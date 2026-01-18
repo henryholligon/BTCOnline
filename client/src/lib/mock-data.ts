@@ -894,5 +894,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "72",
+    name: "Consumer Choice Center",
+    description: "A global consumer advocacy group fighting for lifestyle freedom, innovation, and consumer choice across the globe. We empower your voice in the halls of power.",
+    logo: "https://consumerchoicecenter.org/wp-content/uploads/2021/04/CCC_Logo_Horizontal_White_RGB-1.png",
+    categories: ["Services", "Charity"],
+    shippingCountries: ["Worldwide"],
+    website: "https://consumerchoicecenter.org/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];

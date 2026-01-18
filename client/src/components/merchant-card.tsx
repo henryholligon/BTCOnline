@@ -51,6 +51,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'the suffolk tutor' ? 'bg-[#ff9e16] border-[#ff9e16]' :
             merchant.name.toLowerCase() === 'beef initiative' ? 'bg-black border-black' :
             merchant.name.toLowerCase() === 'la industria handmade' ? 'bg-[#1a1a1a] border-[#1a1a1a]' :
+            merchant.name.toLowerCase() === 'consumer choice center' ? 'bg-[#1a1a1a] border-[#1a1a1a]' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -120,7 +121,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'la industria handmade' ? 'scale-110 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'campo apícola' ? 'scale-110 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'elephant chateau' ? 'scale-110 object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'árbol de maple' ? 'scale-110 object-contain p-1' : ''
+                  merchant.name.toLowerCase() === 'árbol de maple' ? 'scale-110 object-contain p-1' : 
+                  merchant.name.toLowerCase() === 'consumer choice center' ? 'scale-110 object-contain p-1' : ''
                 }`} 
               />
             ) : (
