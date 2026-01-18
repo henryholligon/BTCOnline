@@ -1043,7 +1043,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "84",
     name: "MissPrint",
     description: "Independent British design studio creating beautifully unique, hand-drawn wallpapers, fabrics, and home accessories with a focus on mid-century style and nature.",
-    logo: "https://www.missprint.co.uk/cdn/shop/files/MISSPRINT_LOGO_BLACK_RECTANGLE_e4a89639-6508-4122-8356-9f8742517865_120x.png?v=1614294136",
+    logo: "https://www.missprint.co.uk/img/missprint_logo.svg",
     categories: ["Lifestyle", "Art"],
     shippingCountries: ["UK", "Worldwide"],
     website: "https://www.missprint.co.uk/",
