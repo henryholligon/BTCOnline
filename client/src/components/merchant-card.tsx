@@ -160,6 +160,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'izindlovu' ? 'scale-125 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'sole' ? 'scale-125 object-contain p-2' : 
                   merchant.name.toLowerCase() === 'fuelingyou' ? 'scale-110 object-contain p-1' : 
+                  merchant.name.toLowerCase() === 'heatbit' ? 'scale-[1.25] object-contain p-0' : 
                   merchant.name.toLowerCase() === 'nogood studio' ? 'scale-100 object-contain p-0' : ''
                 }`} 
               />
