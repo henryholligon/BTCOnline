@@ -76,7 +76,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'degoogled' ? 'bg-white border-[#e5e7eb]' :
             merchant.name.toLowerCase() === 'crave' ? 'bg-white border-[#e5e7eb]' :
             merchant.name.toLowerCase() === 'mmoga' ? 'bg-white border-[#e5e7eb]' :
-            merchant.name.toLowerCase() === 'human trafficking institute' ? 'bg-[#002d72] border-[#002d72]' :
+            merchant.name.toLowerCase() === 'human trafficking institute' ? 'bg-white border-[#e5e7eb]' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -167,7 +167,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'heatbit' ? 'scale-[1.25] object-contain p-0' : 
                   merchant.name.toLowerCase() === 'degoogled' ? 'scale-110 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'mmoga' ? 'scale-110 object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'human trafficking institute' ? 'scale-125 object-contain p-1' : ''
+                  merchant.name.toLowerCase() === 'human trafficking institute' ? 'scale-[1.8] object-contain px-2' : ''
                 }`} 
               />
             ) : (
