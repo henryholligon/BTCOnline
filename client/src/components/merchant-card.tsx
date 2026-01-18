@@ -111,7 +111,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'mtsocks' ? 'scale-[1.8] object-contain' : 
                   merchant.name.toLowerCase() === 'torguard' ? 'scale-100 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'beef initiative' ? 'scale-100 object-contain p-2' : 
-                  merchant.name.toLowerCase() === 'spy equipment uk' ? 'scale-100 object-contain p-1' : ''
+                  merchant.name.toLowerCase() === 'spy equipment uk' ? 'scale-100 object-contain p-1' : 
+                  merchant.name.toLowerCase() === 'bees & trees' ? 'scale-125 object-contain p-2' : ''
                 }`} 
               />
             ) : (
