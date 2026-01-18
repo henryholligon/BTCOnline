@@ -69,6 +69,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'sole' ? 'bg-black border-black' :
             merchant.name.toLowerCase() === 'fuelingyou' ? 'bg-white border-[#e5e7eb]' :
             merchant.name.toLowerCase() === 'root & branch' ? 'bg-black border-black' :
+            merchant.name.toLowerCase() === 'spy equipment uk' ? 'bg-[#0a1a0a] border-[#0a1a0a]' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -132,7 +133,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'mtsocks' ? 'scale-110 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'torguard' ? 'scale-125 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'beef initiative' ? 'scale-100 object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'spy equipment uk' ? 'scale-100 object-contain p-1' : 
+                  merchant.name.toLowerCase() === 'spy equipment uk' ? 'scale-100 object-contain p-0' : 
                   merchant.name.toLowerCase() === 'bees & trees' ? 'scale-[1.15] object-contain p-1' : 
                   merchant.name.toLowerCase() === 'kaffebox' ? 'scale-100 object-cover' : 
                   merchant.name.toLowerCase() === 'bloom audio' ? 'scale-100 object-contain p-1' : 
