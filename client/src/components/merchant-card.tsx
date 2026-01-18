@@ -66,6 +66,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'mei leaf' ? 'bg-[#9e0b31] border-[#9e0b31]' :
             merchant.name.toLowerCase() === 'missprint' ? 'bg-white border-[#e5e7eb]' :
             merchant.name.toLowerCase() === 'izindlovu' ? 'bg-black border-black' :
+            merchant.name.toLowerCase() === 'sole' ? 'bg-white border-[#e5e7eb]' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -150,7 +151,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'skoon.' ? 'scale-100 object-contain p-0' : 
                   merchant.name.toLowerCase() === 'mei leaf' ? 'scale-[1.15] object-contain p-0' : 
                   merchant.name.toLowerCase() === 'missprint' ? 'scale-110 object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'izindlovu' ? 'scale-125 object-contain p-1' : ''
+                  merchant.name.toLowerCase() === 'izindlovu' ? 'scale-125 object-contain p-1' : 
+                  merchant.name.toLowerCase() === 'sole' ? 'scale-110 object-contain p-1' : ''
                 }`} 
               />
             ) : (
