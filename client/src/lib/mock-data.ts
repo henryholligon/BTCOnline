@@ -1067,7 +1067,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "86",
     name: "SOLE",
     description: "Premium supportive insoles and footwear designed for comfort and performance. SOLE products are crafted to provide orthopedic support and improve foot health.",
-    logo: "https://yoursole.com/assets/images/logo/sole_logo_black.svg",
+    logo: "/assets/sole-logo-new.png",
     categories: ["Fashion", "Wellness", "Lifestyle"],
     shippingCountries: ["USA", "Canada", "Worldwide"],
     website: "https://yoursole.com/us",
