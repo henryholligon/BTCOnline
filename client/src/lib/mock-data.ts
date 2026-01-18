@@ -1014,5 +1014,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "82",
+    name: "SKOON.",
+    description: "Premium South African skincare brand combining science and nature. Clean, non-toxic beauty products formulated with high-performance ingredients for radiant skin.",
+    logo: "https://www.skoonskin.com/cdn/shop/files/SKOON_logo_black_180x.png?v=1614330103",
+    categories: ["Health & Beauty", "Wellness"],
+    shippingCountries: ["South Africa", "Worldwide"],
+    website: "https://www.skoonskin.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
