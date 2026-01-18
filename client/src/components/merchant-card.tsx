@@ -113,7 +113,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'maple ai' ? 'scale-100 object-cover' : 
                   merchant.name.toLowerCase() === 'payperq' ? 'scale-110 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'crypto tax help' ? 'scale-100 object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'mtsocks' ? 'scale-[1.8] object-contain' : 
+                  merchant.name.toLowerCase() === 'mtsocks' ? 'scale-110 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'torguard' ? 'scale-125 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'beef initiative' ? 'scale-100 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'spy equipment uk' ? 'scale-100 object-contain p-1' : 

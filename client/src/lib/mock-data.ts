@@ -767,7 +767,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "61",
     name: "MtSocks",
     description: "Bitcoin-themed socks that tell a story. High-quality, limited edition socks celebrating the history and culture of Bitcoin. Finite supply, just like the real thing.",
-    logo: "https://www.mtsocks.com/images/Basket.svg",
+    logo: "/assets/mtsocks-new.png",
     categories: ["Clothing", "Lifestyle"],
     shippingCountries: ["Worldwide"],
     website: "https://mtsocks.com/",
