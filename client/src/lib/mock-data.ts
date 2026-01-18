@@ -923,7 +923,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "74",
     name: "Mad Gringo Hot Sauce",
     description: "Premium handcrafted Canadian hot sauces. From mild to wild, experience bold flavors and fiery heat with our artisanal small-batch sauces.",
-    logo: "https://canadianhotsauce.com/wp-content/uploads/2023/07/MadGringo_Logo_1720278754.webp",
+    logo: "/assets/mad-gringo-new.png",
     categories: ["Food & Drink", "Lifestyle"],
     shippingCountries: ["Canada", "USA", "Worldwide"],
     website: "https://canadianhotsauce.com/",

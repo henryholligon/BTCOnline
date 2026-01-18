@@ -52,6 +52,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'beef initiative' ? 'bg-black border-black' :
             merchant.name.toLowerCase() === 'la industria handmade' ? 'bg-[#1a1a1a] border-[#1a1a1a]' :
             merchant.name.toLowerCase() === 'consumer choice center' ? 'bg-[#1e3a8a] border-[#1e3a8a]' :
+            merchant.name.toLowerCase() === 'mad gringo hot sauce' ? 'bg-black border-black' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
