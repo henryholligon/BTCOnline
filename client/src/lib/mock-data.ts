@@ -1139,7 +1139,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "92",
     name: "DeGoogled",
     description: "Reclaim your mobile privacy with phones powered by privacy-focused operating systems. De-Googled provides secure, 100% private mobile experiences without intrusive tracking or data mining.",
-    logo: "/assets/degoogled-logo.png",
+    logo: "/assets/degoogled-new.png",
     categories: ["Tech", "VPN & Privacy", "Electronics"],
     shippingCountries: ["Worldwide"],
     website: "https://de-googled.com/",
