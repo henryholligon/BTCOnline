@@ -67,7 +67,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'missprint' ? 'bg-white border-[#e5e7eb]' :
             merchant.name.toLowerCase() === 'izindlovu' ? 'bg-white border-[#e5e7eb]' :
             merchant.name.toLowerCase() === 'sole' ? 'bg-black border-black' :
-            merchant.name.toLowerCase() === 'fuelingyou' ? 'bg-black border-black' :
+            merchant.name.toLowerCase() === 'fuelingyou' ? 'bg-white border-[#e5e7eb]' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
