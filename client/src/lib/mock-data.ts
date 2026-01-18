@@ -815,7 +815,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "65",
     name: "Bees & Trees",
     description: "Authentic, high-activity Mānuka honey from New Zealand's pristine forests. Sustainably sourced and independently tested for potency and purity.",
-    logo: "https://www.beesandtrees.com/cdn/shop/files/h-icon-1.png?v=1759300180&width=250",
+    logo: "/assets/bees-and-trees-logo.png",
     categories: ["Food & Drink", "Wellness", "Health & Beauty"],
     shippingCountries: ["USA", "Worldwide"],
     website: "https://www.beesandtrees.com/",
