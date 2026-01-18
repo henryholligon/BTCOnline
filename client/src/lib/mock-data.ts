@@ -1110,5 +1110,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "90",
+    name: "Heatbit",
+    description: "The world's first Bitcoin mining heaters and air purifiers. Heat your home while earning Bitcoin with next-generation smart devices designed in New York.",
+    logo: "/assets/heatbit-logo.png",
+    categories: ["Tech", "Electronics", "Lifestyle"],
+    shippingCountries: ["USA", "Canada", "Worldwide"],
+    website: "https://heatbit.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
