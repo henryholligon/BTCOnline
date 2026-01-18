@@ -58,7 +58,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'ivpn' ? 'bg-[#1a1a1a] border-[#1a1a1a]' :
             merchant.name.toLowerCase() === 'hyke & byke' ? 'bg-black border-black' :
             merchant.name.toLowerCase() === 'kerwell' ? 'bg-black border-black' :
-            merchant.name.toLowerCase() === 'sticky' ? 'bg-white border-[#e5e7eb]' :
+            merchant.name.toLowerCase() === 'sticky' ? 'bg-[#f0c3d9] border-[#f0c3d9]' :
             merchant.name.toLowerCase() === 'samen maier' ? 'bg-white border-[#e5e7eb]' :
             getIconBgColor()
           }`}>
@@ -137,7 +137,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'ivpn' ? 'scale-[1.4] object-contain p-1' : 
                   merchant.name.toLowerCase() === 'hyke & byke' ? 'scale-110 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'kerwell' ? 'scale-110 object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'sticky' ? 'scale-110 object-contain p-1' : 
+                  merchant.name.toLowerCase() === 'sticky' ? 'scale-100 object-contain p-0' : 
                   merchant.name.toLowerCase() === 'samen maier' ? 'scale-110 object-contain p-1' : ''
                 }`} 
               />

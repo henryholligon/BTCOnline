@@ -983,7 +983,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "79",
     name: "Sticky",
     description: "Singapore's first handmade rock candy store. Artisan candy makers crafting vibrant, custom-made sweets and lollipops entirely by hand.",
-    logo: "https://i0.wp.com/sticky.com.sg/wp-content/uploads/2025/10/sticky-lollipops.png",
+    logo: "/assets/sticky-new.png",
     categories: ["Food & Drink", "Sweets", "Lifestyle"],
     shippingCountries: ["Singapore", "Worldwide"],
     website: "https://sticky.com.sg/",
