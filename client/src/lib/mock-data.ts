@@ -395,7 +395,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "29",
     name: "Oshi Good",
     description: "Specialty coffee and cafe goods. Discover premium coffee beans and accessories for the perfect home brewing experience.",
-    logo: "/assets/oshigood-logo.png",
+    logo: "/assets/oshi-new.png",
     categories: ["Food & Drink", "Lifestyle"],
     shippingCountries: ["USA"],
     website: "https://www.oshigood.us/",
