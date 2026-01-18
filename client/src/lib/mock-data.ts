@@ -882,5 +882,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "71",
+    name: "Árbol de Maple",
+    description: "Handcrafted wooden furniture and educational toys for children. High-quality designs for bedrooms, play areas, and early childhood centers in Ecuador.",
+    logo: "https://www.arboldemaple.com/wp-content/uploads/2022/03/logo-arbol-de-maple.png",
+    categories: ["Clothing", "Lifestyle"],
+    shippingCountries: ["Worldwide"],
+    website: "https://www.arboldemaple.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];

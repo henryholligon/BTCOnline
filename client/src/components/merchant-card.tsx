@@ -119,7 +119,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'bloom audio' ? 'scale-100 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'la industria handmade' ? 'scale-110 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'campo apícola' ? 'scale-110 object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'elephant chateau' ? 'scale-110 object-contain p-1' : ''
+                  merchant.name.toLowerCase() === 'elephant chateau' ? 'scale-110 object-contain p-1' : 
+                  merchant.name.toLowerCase() === 'árbol de maple' ? 'scale-110 object-contain p-1' : ''
                 }`} 
               />
             ) : (
