@@ -822,5 +822,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "66",
+    name: "KaffeBox",
+    description: "Subscription service for Scandinavian specialty coffee. Freshly roasted beans from the best Nordic micro-roasteries delivered monthly.",
+    logo: "https://www.kaffebox.no/wp-content/uploads/2024/10/rotation-badge-beans-1.svg",
+    categories: ["Food & Drink", "Lifestyle"],
+    shippingCountries: ["Norway", "Worldwide"],
+    website: "https://www.kaffebox.no/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
