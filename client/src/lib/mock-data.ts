@@ -930,5 +930,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "75",
+    name: "PrivateRouter",
+    description: "Secure your home or office network with pre-configured VPN routers. Privacy-first hardware supporting Wireguard, OpenVPN, and anonymous hosting.",
+    logo: "https://privaterouter.com/wp-content/uploads/2022/01/Gli-AR750S_Ports-324x324.png",
+    categories: ["Electronics", "Services", "VPN & Privacy"],
+    shippingCountries: ["Worldwide"],
+    website: "https://privaterouter.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
