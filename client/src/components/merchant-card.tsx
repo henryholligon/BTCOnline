@@ -49,6 +49,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
           <div className={`h-12 w-12 rounded-lg flex items-center justify-center text-3xl border border-border/50 overflow-hidden ${
             merchant.name.toLowerCase() === 'kawa' ? 'bg-[#c9121f] border-[#c9121f]' : 
             merchant.name.toLowerCase() === 'the suffolk tutor' ? 'bg-[#ff9e16] border-[#ff9e16]' :
+            merchant.name.toLowerCase() === 'beef initiative' ? 'bg-black border-black' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -110,7 +111,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'crypto tax help' ? 'scale-100 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'mtsocks' ? 'scale-[1.8] object-contain' : 
                   merchant.name.toLowerCase() === 'torguard' ? 'scale-100 object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'beef initiative' ? 'scale-100 object-contain p-1 invert brightness-0' : 
+                  merchant.name.toLowerCase() === 'beef initiative' ? 'scale-100 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'spy equipment uk' ? 'scale-100 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'bees & trees' ? 'scale-[1.15] object-contain p-1' : 
                   merchant.name.toLowerCase() === 'kaffebox' ? 'scale-125 object-contain p-1' : ''
