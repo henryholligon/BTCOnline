@@ -1002,5 +1002,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "81",
+    name: "Smith Pastures",
+    description: "Family-owned farm specializing in pasture-raised heritage pork, poultry, and grass-fed meats. Focused on regenerative agriculture and providing nutrient-dense food.",
+    logo: "/assets/smith-pastures-logo.png",
+    categories: ["Food & Drink", "Lifestyle"],
+    shippingCountries: ["USA"],
+    website: "https://smithpastures.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
