@@ -142,7 +142,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'kerwell' ? 'scale-110 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'sticky' ? 'scale-100 object-contain p-0' : 
                   merchant.name.toLowerCase() === 'samen maier' ? 'scale-100 object-contain p-0' : 
-                  merchant.name.toLowerCase() === 'smith pastures' ? 'scale-110 object-contain p-0' : ''
+                  merchant.name.toLowerCase() === 'smith pastures' ? 'scale-[1.2] object-contain p-0' : ''
                 }`} 
               />
             ) : (
