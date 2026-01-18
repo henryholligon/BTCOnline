@@ -46,7 +46,9 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
       
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2 z-10">
         <div className="flex gap-4">
-          <div className={`h-12 w-12 rounded-lg flex items-center justify-center text-3xl border border-border/50 overflow-hidden ${
+          <div className={`h-12 w-12 flex items-center justify-center text-3xl border border-border/50 overflow-hidden ${
+            merchant.name.toLowerCase() === 'mei leaf' || merchant.name.toLowerCase() === 'skoon.' ? 'rounded-full' : 'rounded-lg'
+          } ${
             merchant.name.toLowerCase() === 'kawa' ? 'bg-[#c9121f] border-[#c9121f]' : 
             merchant.name.toLowerCase() === 'the suffolk tutor' ? 'bg-[#ff9e16] border-[#ff9e16]' :
             merchant.name.toLowerCase() === 'beef initiative' ? 'bg-black border-black' :
@@ -147,7 +149,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'samen maier' ? 'scale-100 object-contain p-0' : 
                   merchant.name.toLowerCase() === 'smith pastures' ? 'scale-[1.2] object-contain p-0' : 
                   merchant.name.toLowerCase() === 'skoon.' ? 'scale-100 object-contain p-0' : 
-                  merchant.name.toLowerCase() === 'mei leaf' ? 'scale-[1.15] object-contain p-0' : 
+                  merchant.name.toLowerCase() === 'mei leaf' ? 'scale-[1.6] object-contain p-0' : 
                   merchant.name.toLowerCase() === 'missprint' ? 'scale-110 object-contain p-1' : ''
                 }`} 
               />
