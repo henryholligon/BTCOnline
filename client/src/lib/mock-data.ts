@@ -19,6 +19,8 @@ export interface Merchant {
   paymentProvider?: string;
   reviews: Review[];
   featured?: boolean;
+  countryMadeIn?: string;
+  countryShippedFrom?: string;
 }
 
 export const PAYMENT_PROVIDERS = [
@@ -52,7 +54,8 @@ export const COUNTRIES = [
   "Canada",
   "UK",
   "Australia",
-  "El Salvador"
+  "El Salvador",
+  "Sweden"
 ];
 
 export const MOCK_MERCHANTS: Merchant[] = [
@@ -84,6 +87,8 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     paymentProvider: "Zaprite",
+    countryShippedFrom: "USA",
+    countryMadeIn: "USA",
     reviews: [
       { id: "r3", authorNpub: "npub1...def", rating: 5, comment: "High quality signal blocking gear.", date: "2024-01-20" }
     ]
@@ -99,6 +104,8 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     paymentProvider: "Strike",
+    countryShippedFrom: "Sweden",
+    countryMadeIn: "Sweden",
     featured: true,
     reviews: [
       { id: "r4", authorNpub: "npub1...ghi", rating: 5, comment: "Best privacy VPN, accepts cash and BTC.", date: "2024-03-01" }
@@ -114,6 +121,8 @@ export const MOCK_MERCHANTS: Merchant[] = [
     website: "https://coinkite.com",
     lightningSupported: true,
     onchainSupported: true,
+    countryShippedFrom: "Canada",
+    countryMadeIn: "Canada",
     reviews: []
   },
   {

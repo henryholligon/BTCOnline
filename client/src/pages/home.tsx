@@ -10,6 +10,8 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedCountry, setSelectedCountry] = useState("All");
+  const [selectedShippedFrom, setSelectedShippedFrom] = useState("All");
+  const [selectedMadeIn, setSelectedMadeIn] = useState("All");
   const [selectedProviders, setSelectedProviders] = useState<string[]>([]);
   const [minRating, setMinRating] = useState(0);
 
@@ -25,11 +27,21 @@ export default function Home() {
         selectedCategories.length === 0 || 
         selectedCategories.some(cat => merchant.categories.includes(cat));
 
-      // Country Filter
+      // Country Filter (Shipping To)
       const matchesCountry = 
         selectedCountry === "All" || 
         merchant.shippingCountries.includes("Worldwide") || 
         merchant.shippingCountries.includes(selectedCountry);
+
+      // Shipping From Filter
+      const matchesShippedFrom = 
+        selectedShippedFrom === "All" || 
+        merchant.countryShippedFrom === selectedShippedFrom;
+
+      // Made In Filter
+      const matchesMadeIn = 
+        selectedMadeIn === "All" || 
+        merchant.countryMadeIn === selectedMadeIn;
 
       // Provider Filter
       const matchesProvider = 
@@ -43,9 +55,9 @@ export default function Home() {
       
       const matchesRating = avgRating >= minRating;
 
-      return matchesSearch && matchesCategory && matchesCountry && matchesProvider && matchesRating;
+      return matchesSearch && matchesCategory && matchesCountry && matchesShippedFrom && matchesMadeIn && matchesProvider && matchesRating;
     });
-  }, [searchQuery, selectedCategories, selectedCountry, selectedProviders, minRating]);
+  }, [searchQuery, selectedCategories, selectedCountry, selectedShippedFrom, selectedMadeIn, selectedProviders, minRating]);
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategories(prev => 
@@ -66,6 +78,8 @@ export default function Home() {
   const clearFilters = () => {
     setSelectedCategories([]);
     setSelectedCountry("All");
+    setSelectedShippedFrom("All");
+    setSelectedMadeIn("All");
     setSelectedProviders([]);
     setMinRating(0);
     setSearchQuery("");
@@ -77,6 +91,10 @@ export default function Home() {
       onCategoryChange={handleCategoryChange}
       selectedCountry={selectedCountry}
       onCountryChange={setSelectedCountry}
+      selectedShippedFrom={selectedShippedFrom}
+      onShippedFromChange={setSelectedShippedFrom}
+      selectedMadeIn={selectedMadeIn}
+      onMadeInChange={setSelectedMadeIn}
       selectedProviders={selectedProviders}
       onProviderChange={handleProviderChange}
       minRating={minRating}

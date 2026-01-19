@@ -259,6 +259,23 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             <span>{merchant.shippingCountries.length > 3 ? "Global" : merchant.shippingCountries.join(", ")}</span>
           </div>
         </div>
+
+        {(merchant.countryShippedFrom || merchant.countryMadeIn) && (
+          <div className="grid grid-cols-2 gap-2 text-[10px] uppercase tracking-wider font-semibold text-muted-foreground/70 border-t border-border/20 pt-3">
+            {merchant.countryShippedFrom && (
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[9px] opacity-70">Shipped From</span>
+                <span className="text-foreground/90 truncate">{merchant.countryShippedFrom}</span>
+              </div>
+            )}
+            {merchant.countryMadeIn && (
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[9px] opacity-70">Made In</span>
+                <span className="text-foreground/90 truncate">{merchant.countryMadeIn}</span>
+              </div>
+            )}
+          </div>
+        )}
       </CardContent>
 
       <CardFooter className="flex gap-2 z-10 pt-2 border-t border-border/30 mt-auto">

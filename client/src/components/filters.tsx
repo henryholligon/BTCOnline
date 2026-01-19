@@ -13,6 +13,10 @@ interface FiltersProps {
   onCategoryChange: (category: string) => void;
   selectedCountry: string;
   onCountryChange: (country: string) => void;
+  selectedShippedFrom: string;
+  onShippedFromChange: (country: string) => void;
+  selectedMadeIn: string;
+  onMadeInChange: (country: string) => void;
   selectedProviders: string[];
   onProviderChange: (provider: string) => void;
   minRating: number;
@@ -25,6 +29,10 @@ export default function Filters({
   onCategoryChange,
   selectedCountry,
   onCountryChange,
+  selectedShippedFrom,
+  onShippedFromChange,
+  selectedMadeIn,
+  onMadeInChange,
   selectedProviders,
   onProviderChange,
   minRating,
@@ -37,7 +45,7 @@ export default function Filters({
         <h3 className="text-sm font-medium tracking-wide uppercase text-muted-foreground flex items-center gap-2">
           <Filter className="h-4 w-4" /> Filters
         </h3>
-        {(selectedCategories.length > 0 || selectedCountry !== "All" || minRating > 0 || selectedProviders.length > 0) && (
+        {(selectedCategories.length > 0 || selectedCountry !== "All" || selectedShippedFrom !== "All" || selectedMadeIn !== "All" || minRating > 0 || selectedProviders.length > 0) && (
           <Button 
             variant="ghost" 
             size="sm" 
@@ -74,6 +82,40 @@ export default function Filters({
       <div className="space-y-3">
         <Label className="text-base font-display">Shipping to</Label>
         <Select value={selectedCountry} onValueChange={onCountryChange}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select country" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="All">Anywhere</SelectItem>
+            {COUNTRIES.map((country) => (
+              <SelectItem key={country} value={country}>
+                {country}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-3">
+        <Label className="text-base font-display">Shipping from</Label>
+        <Select value={selectedShippedFrom} onValueChange={onShippedFromChange}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select country" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="All">Anywhere</SelectItem>
+            {COUNTRIES.map((country) => (
+              <SelectItem key={country} value={country}>
+                {country}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-3">
+        <Label className="text-base font-display">Country made in</Label>
+        <Select value={selectedMadeIn} onValueChange={onMadeInChange}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select country" />
           </SelectTrigger>
