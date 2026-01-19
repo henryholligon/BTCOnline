@@ -79,7 +79,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'human trafficking institute' ? 'bg-[#002d72] border-[#002d72]' :
             merchant.name.toLowerCase() === 'uzi shop' ? 'bg-[#5b84ba] border-[#5b84ba]' :
             merchant.name.toLowerCase() === 'hill helicopters' ? 'bg-black border-black' :
-            merchant.name.toLowerCase() === 'alternative airlines' ? 'bg-black border-black' :
+            merchant.name.toLowerCase() === 'alternative airlines' ? 'bg-[#5c4fff] border-[#5c4fff]' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
