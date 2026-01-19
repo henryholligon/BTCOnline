@@ -16,9 +16,19 @@ export interface Merchant {
   website: string;
   lightningSupported: boolean;
   onchainSupported: boolean;
+  paymentProvider?: string;
   reviews: Review[];
   featured?: boolean;
 }
+
+export const PAYMENT_PROVIDERS = [
+  "BTCPay Server",
+  "Zaprite",
+  "Strike",
+  "OpenNode",
+  "IBEX",
+  "BitPay"
+];
 
 export const CATEGORIES = [
   "Electronics",
@@ -55,6 +65,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     website: "https://bitrefill.com",
     lightningSupported: true,
     onchainSupported: true,
+    paymentProvider: "BTCPay Server",
     featured: true,
     reviews: [
       { id: "r1", authorNpub: "npub1...xyz", rating: 5, comment: "Works instantly via Lightning!", date: "2024-03-10" },
@@ -71,6 +82,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     website: "https://slnt.com",
     lightningSupported: true,
     onchainSupported: true,
+    paymentProvider: "Zaprite",
     reviews: [
       { id: "r3", authorNpub: "npub1...def", rating: 5, comment: "High quality signal blocking gear.", date: "2024-01-20" }
     ]
@@ -85,6 +97,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     website: "https://mullvad.net",
     lightningSupported: true,
     onchainSupported: true,
+    paymentProvider: "Strike",
     featured: true,
     reviews: [
       { id: "r4", authorNpub: "npub1...ghi", rating: 5, comment: "Best privacy VPN, accepts cash and BTC.", date: "2024-03-01" }

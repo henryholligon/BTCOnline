@@ -10,6 +10,7 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedCountry, setSelectedCountry] = useState("All");
+  const [selectedProviders, setSelectedProviders] = useState<string[]>([]);
   const [minRating, setMinRating] = useState(0);
 
   const filteredMerchants = useMemo(() => {
@@ -30,6 +31,11 @@ export default function Home() {
         merchant.shippingCountries.includes("Worldwide") || 
         merchant.shippingCountries.includes(selectedCountry);
 
+      // Provider Filter
+      const matchesProvider = 
+        selectedProviders.length === 0 || 
+        (merchant.paymentProvider && selectedProviders.includes(merchant.paymentProvider));
+
       // Rating Filter
       const avgRating = merchant.reviews.length > 0 
         ? merchant.reviews.reduce((acc, curr) => acc + curr.rating, 0) / merchant.reviews.length 
@@ -37,9 +43,9 @@ export default function Home() {
       
       const matchesRating = avgRating >= minRating;
 
-      return matchesSearch && matchesCategory && matchesCountry && matchesRating;
+      return matchesSearch && matchesCategory && matchesCountry && matchesProvider && matchesRating;
     });
-  }, [searchQuery, selectedCategories, selectedCountry, minRating]);
+  }, [searchQuery, selectedCategories, selectedCountry, selectedProviders, minRating]);
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategories(prev => 
@@ -49,9 +55,18 @@ export default function Home() {
     );
   };
 
+  const handleProviderChange = (provider: string) => {
+    setSelectedProviders(prev => 
+      prev.includes(provider) 
+        ? prev.filter(p => p !== provider)
+        : [...prev, provider]
+    );
+  };
+
   const clearFilters = () => {
     setSelectedCategories([]);
     setSelectedCountry("All");
+    setSelectedProviders([]);
     setMinRating(0);
     setSearchQuery("");
   };
@@ -62,6 +77,8 @@ export default function Home() {
       onCategoryChange={handleCategoryChange}
       selectedCountry={selectedCountry}
       onCountryChange={setSelectedCountry}
+      selectedProviders={selectedProviders}
+      onProviderChange={handleProviderChange}
       minRating={minRating}
       onRatingChange={setMinRating}
       onClear={clearFilters}

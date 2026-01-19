@@ -4,7 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CATEGORIES, COUNTRIES } from "@/lib/mock-data";
+import { CATEGORIES, COUNTRIES, PAYMENT_PROVIDERS } from "@/lib/mock-data";
 import { Filter, Star, X } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 
@@ -13,6 +13,8 @@ interface FiltersProps {
   onCategoryChange: (category: string) => void;
   selectedCountry: string;
   onCountryChange: (country: string) => void;
+  selectedProviders: string[];
+  onProviderChange: (provider: string) => void;
   minRating: number;
   onRatingChange: (rating: number) => void;
   onClear: () => void;
@@ -23,6 +25,8 @@ export default function Filters({
   onCategoryChange,
   selectedCountry,
   onCountryChange,
+  selectedProviders,
+  onProviderChange,
   minRating,
   onRatingChange,
   onClear,
@@ -33,7 +37,7 @@ export default function Filters({
         <h3 className="text-sm font-medium tracking-wide uppercase text-muted-foreground flex items-center gap-2">
           <Filter className="h-4 w-4" /> Filters
         </h3>
-        {(selectedCategories.length > 0 || selectedCountry !== "All" || minRating > 0) && (
+        {(selectedCategories.length > 0 || selectedCountry !== "All" || minRating > 0 || selectedProviders.length > 0) && (
           <Button 
             variant="ghost" 
             size="sm" 
@@ -82,6 +86,30 @@ export default function Filters({
             ))}
           </SelectContent>
         </Select>
+      </div>
+
+      <div className="space-y-3">
+        <Label className="text-base font-display">Payment Provider</Label>
+        <ScrollArea className="h-[150px] pr-4">
+          <div className="space-y-3">
+            {PAYMENT_PROVIDERS.map((provider) => (
+              <div key={provider} className="flex items-center space-x-2">
+                <Checkbox 
+                  id={`provider-${provider}`} 
+                  checked={selectedProviders.includes(provider)}
+                  onCheckedChange={() => onProviderChange(provider)}
+                  className="border-input data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                />
+                <Label 
+                  htmlFor={`provider-${provider}`}
+                  className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer hover:text-primary transition-colors"
+                >
+                  {provider}
+                </Label>
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
       </div>
 
       <div className="space-y-3">
