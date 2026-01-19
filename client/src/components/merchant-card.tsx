@@ -184,7 +184,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'bomberg watches' ? 'scale-100 object-contain p-0' : 
                   merchant.name.toLowerCase() === 'camper & nicholsons' ? 'scale-110 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'hill helicopters' ? 'scale-[1.1] object-contain p-0' : 
-                  merchant.name.toLowerCase() === 'cielo aviation' ? 'scale-[1.6] object-contain p-1' : 
+                  merchant.name.toLowerCase() === 'cielo aviation' ? 'scale-[1.2] object-contain p-1' : 
                   merchant.name.toLowerCase() === 'jomashop' ? 'scale-[0.9] object-contain p-0' : ''
                 }`} 
               />
