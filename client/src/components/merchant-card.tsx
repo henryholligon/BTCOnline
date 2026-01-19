@@ -82,6 +82,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'alternative airlines' ? 'bg-[#5c4fff] border-[#5c4fff]' :
             merchant.name.toLowerCase() === 'brazilian botanicals' ? 'bg-[#831843] border-[#831843]' :
             merchant.name.toLowerCase() === 'cyberpiggy' ? 'bg-[#d12a5e] border-[#d12a5e]' :
+            merchant.name.toLowerCase() === 'nordvpn' ? 'bg-[#4687ff] border-[#4687ff]' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -178,7 +179,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'hill helicopters' ? 'scale-[1.1] object-contain p-0' : 
                   merchant.name.toLowerCase() === 'alternative airlines' ? 'scale-[1.0] object-contain p-0' : 
                   merchant.name.toLowerCase() === 'brazilian botanicals' ? 'scale-[1.0] object-contain p-0' : 
-                  merchant.name.toLowerCase() === 'cyberpiggy' ? 'scale-[1.0] object-contain p-0' : ''
+                  merchant.name.toLowerCase() === 'cyberpiggy' ? 'scale-[1.0] object-contain p-0' : 
+                  merchant.name.toLowerCase() === 'nordvpn' ? 'scale-[1.3] object-contain p-1' : ''
                 }`} 
               />
             ) : (
