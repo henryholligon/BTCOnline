@@ -1194,5 +1194,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "97",
+    name: "Le Cyclo Sportif",
+    description: "Melbourne's premier destination for high-performance cycling. Specializing in road, mountain, and e-bikes, they offer a curated selection of world-class brands and expert mechanical services.",
+    logo: "/assets/lecyclosportif-logo.png",
+    categories: ["Sports & Outdoors", "Lifestyle"],
+    shippingCountries: ["Australia"],
+    website: "https://www.lecyclosportif.com.au/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
