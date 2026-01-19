@@ -1264,7 +1264,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "101",
     name: "Camper & Nicholsons",
     description: "The global leader in luxury yachting since 1782. Specializing in the sale, purchase, charter, and management of the world's finest superyachts.",
-    logo: "/assets/campernicholsons-logo.png",
+    logo: "/assets/campernicholsons-new.png",
     categories: ["Lifestyle", "Travel", "Services"],
     shippingCountries: ["Worldwide"],
     website: "https://camperandnicholsons.com/",

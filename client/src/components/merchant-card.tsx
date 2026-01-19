@@ -82,7 +82,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'ace jewelers' ? 'bg-white border-[#e5e7eb]' :
             merchant.name.toLowerCase() === 'against malaria foundation' ? 'bg-white border-[#e5e7eb]' :
             merchant.name.toLowerCase() === 'bomberg watches' ? 'bg-black border-black' :
-            merchant.name.toLowerCase() === 'camper & nicholsons' ? 'bg-[#002d72] border-[#002d72]' :
+            merchant.name.toLowerCase() === 'camper & nicholsons' ? 'bg-white border-[#e5e7eb]' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
