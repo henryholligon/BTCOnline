@@ -1182,5 +1182,17 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "96",
+    name: "Uzi Shop",
+    description: "One of Croatia's leading online IT stores, offering a massive range of computer components, peripherals, and gaming equipment. Known for competitive pricing and a specialized selection of high-end hardware.",
+    logo: "/assets/uzishop-logo.png",
+    categories: ["Tech", "Electronics", "Entertainment"],
+    shippingCountries: ["Croatia", "Europe"],
+    website: "https://www.uzishop.hr/",
+    lightningSupported: true,
+    onchainSupported: true,
+    reviews: []
   }
 ];
