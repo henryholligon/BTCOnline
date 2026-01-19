@@ -89,11 +89,11 @@ export default function Filters({
               );
             })}
             <span className="ml-2 text-xs font-medium text-muted-foreground w-16">
-              {(hoveredRating || minRating) === 5 
-                ? "5 Stars" 
-                : (hoveredRating || minRating) > 0 
-                  ? `${hoveredRating || minRating}+ Stars` 
-                  : "Any"}
+              {hoveredRating || minRating > 0 ? (
+                (hoveredRating || minRating) === 5 
+                  ? "5 Stars" 
+                  : `${hoveredRating || minRating}+ Stars`
+              ) : null}
             </span>
           </div>
         </div>
