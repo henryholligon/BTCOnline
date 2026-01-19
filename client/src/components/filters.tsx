@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { CATEGORIES, COUNTRIES, PAYMENT_PROVIDERS } from "@/lib/mock-data";
 import { Filter, Star, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 interface FiltersProps {
   selectedCategories: string[];
@@ -39,6 +40,8 @@ export default function Filters({
   onRatingChange,
   onClear,
 }: FiltersProps) {
+  const [hoveredRating, setHoveredRating] = useState(0);
+
   return (
     <div className="flex flex-col space-y-6">
       <div className="flex items-center justify-between">
@@ -61,24 +64,31 @@ export default function Filters({
         <div className="space-y-3">
           <Label className="text-sm font-display">Minimum Rating</Label>
           <div className="flex items-center gap-1">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <button
-                key={star}
-                type="button"
-                onClick={() => onRatingChange(minRating === star ? 0 : star)}
-                className="group focus:outline-none transition-transform active:scale-90"
-              >
-                <Star
-                  className={cn(
-                    "h-6 w-6 transition-colors fill-current",
-                    star <= minRating 
-                      ? (minRating === 5 ? "text-yellow-400" : "text-primary")
-                      : "text-muted-foreground/30 group-hover:text-primary/50"
-                  )}
-                />
-              </button>
-            ))}
-            <span className="ml-2 text-xs font-medium text-muted-foreground">
+            {[1, 2, 3, 4, 5].map((star) => {
+              const isActive = star <= (hoveredRating || minRating);
+              const is5Star = (hoveredRating || minRating) === 5;
+              
+              return (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => onRatingChange(minRating === star ? 0 : star)}
+                  onMouseEnter={() => setHoveredRating(star)}
+                  onMouseLeave={() => setHoveredRating(0)}
+                  className="group focus:outline-none transition-transform active:scale-90"
+                >
+                  <Star
+                    className={cn(
+                      "h-6 w-6 transition-colors fill-current",
+                      isActive
+                        ? (is5Star ? "text-yellow-400" : "text-primary")
+                        : "text-muted-foreground/30"
+                    )}
+                  />
+                </button>
+              );
+            })}
+            <span className="ml-2 text-xs font-medium text-muted-foreground w-16">
               {minRating === 5 ? "5 Stars" : (minRating > 0 ? `${minRating}+ Stars` : "Any")}
             </span>
           </div>
