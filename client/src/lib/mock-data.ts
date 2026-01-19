@@ -27,6 +27,7 @@ export const PAYMENT_PROVIDERS = [
   "Strike",
   "OpenNode",
   "IBEX",
+  "CoinCorner",
   "BitPay"
 ];
 
