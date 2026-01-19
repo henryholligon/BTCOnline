@@ -1232,5 +1232,18 @@ export const MOCK_MERCHANTS: Merchant[] = [
     onchainSupported: true,
     paymentProvider: "BitPay",
     reviews: []
+  },
+  {
+    id: "99",
+    name: "Against Malaria Foundation",
+    description: "The Against Malaria Foundation (AMF) is a charity that provides long-lasting insecticidal nets (LLINs) to protect people from malaria. 100% of public donations buy nets.",
+    logo: "/assets/amf-logo.png",
+    categories: ["Charity", "Services"],
+    shippingCountries: ["Worldwide"],
+    website: "https://www.againstmalaria.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    paymentProvider: "BTCPay Server",
+    reviews: []
   }
 ];
