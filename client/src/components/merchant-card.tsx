@@ -88,6 +88,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'jomashop' ? 'bg-black border-black' :
             merchant.name.toLowerCase() === 'lush' ? 'bg-black border-black' :
             merchant.name.toLowerCase() === 'newegg' ? 'bg-white border-[#e5e7eb]' :
+            merchant.name.toLowerCase() === 'onlinecarstereo' ? 'bg-white border-[#e5e7eb]' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -189,7 +190,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'cielo aviation' ? 'scale-[1.2] object-contain p-1' : 
                   merchant.name.toLowerCase() === 'jomashop' ? 'scale-[0.9] object-contain p-0' : 
                   merchant.name.toLowerCase() === 'lush' ? 'scale-[1.1] object-contain p-0' : 
-                  merchant.name.toLowerCase() === 'newegg' ? 'scale-110 object-contain p-1' : ''
+                  merchant.name.toLowerCase() === 'newegg' ? 'scale-110 object-contain p-1' : 
+                  merchant.name.toLowerCase() === 'onlinecarstereo' ? 'scale-125 object-contain p-1' : ''
                 }`} 
               />
             ) : (

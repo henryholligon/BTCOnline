@@ -1337,5 +1337,18 @@ export const MOCK_MERCHANTS: Merchant[] = [
     onchainSupported: true,
     paymentProvider: "BitPay",
     reviews: []
+  },
+  {
+    id: "107",
+    name: "OnlineCarStereo",
+    description: "Your premier source for car audio and video equipment. Offering a massive selection of car stereos, amplifiers, speakers, subwoofers, and security systems from top brands.",
+    logo: "/assets/onlinecarstereo-logo.png",
+    categories: ["Tech", "Lifestyle", "Services"],
+    shippingCountries: ["Worldwide", "USA"],
+    website: "https://www.onlinecarstereo.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    paymentProvider: "BitPay",
+    reviews: []
   }
 ];
