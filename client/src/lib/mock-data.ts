@@ -1337,5 +1337,18 @@ export const MOCK_MERCHANTS: Merchant[] = [
     onchainSupported: true,
     paymentProvider: "CoinGate",
     reviews: []
+  },
+  {
+    id: "117",
+    name: "Vintage Guitar World",
+    description: "Your premier destination for high-end vintage and rare guitars. Specializing in exceptional acoustic and electric instruments for collectors and professional musicians worldwide.",
+    logo: "/assets/vintage-guitar-logo.png",
+    categories: ["Music", "Services", "Lifestyle"],
+    shippingCountries: ["Worldwide"],
+    website: "https://www.vintage-guitar-world.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    paymentProvider: "CoinGate",
+    reviews: []
   }
 ];
