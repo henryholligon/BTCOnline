@@ -1219,5 +1219,18 @@ export const MOCK_MERCHANTS: Merchant[] = [
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
+  },
+  {
+    id: "98",
+    name: "Ace Jewelers",
+    description: "Amsterdam-based luxury jewelry and watch retailer with over 45 years of heritage. An authorized dealer for world-class brands like Nomos Glashütte, Christiaan van der Klaauw, and Frederique Constant.",
+    logo: "/assets/acejewelers-logo.png",
+    categories: ["Lifestyle", "Tech"],
+    shippingCountries: ["Worldwide", "Netherlands"],
+    website: "https://www.acejewelers.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    paymentProvider: "BitPay",
+    reviews: []
   }
 ];
