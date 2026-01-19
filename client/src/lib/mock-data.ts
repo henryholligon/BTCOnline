@@ -1381,7 +1381,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "120",
     name: "Zumub",
     description: "The leading store for sports supplements and healthy products in Europe. Offering over 10,000 products including vitamins, minerals, and sports nutrition to help you reach your fitness goals.",
-    logo: "/assets/zumub-logo.png",
+    logo: "/assets/zumub-v2.png",
     categories: ["Health & Beauty", "Wellness", "Lifestyle"],
     shippingCountries: ["Europe", "Worldwide"],
     website: "https://www.zumub.com/EN/",
