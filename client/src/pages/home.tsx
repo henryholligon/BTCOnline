@@ -2,9 +2,10 @@ import { useState, useMemo } from "react";
 import Navbar from "@/components/navbar";
 import Filters from "@/components/filters";
 import MerchantCard from "@/components/merchant-card";
-import { MOCK_MERCHANTS, Merchant } from "@/lib/mock-data";
+import { MOCK_MERCHANTS, Merchant, COUNTRIES, CATEGORIES, PAYMENT_PROVIDERS } from "@/lib/mock-data";
 import bgImage from "@assets/generated_images/abstract_digital_network_background_with_orange_nodes_in_cypherpunk_style.png";
 import { motion } from "framer-motion";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -17,38 +18,31 @@ export default function Home() {
 
   const filteredMerchants = useMemo(() => {
     return MOCK_MERCHANTS.filter((merchant) => {
-      // Search Filter
       const matchesSearch = 
         merchant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         merchant.description.toLowerCase().includes(searchQuery.toLowerCase());
 
-      // Category Filter
       const matchesCategory = 
         selectedCategories.length === 0 || 
         selectedCategories.some(cat => merchant.categories.includes(cat));
 
-      // Country Filter (Shipping To)
       const matchesCountry = 
         selectedCountry === "All" || 
         merchant.shippingCountries.some(c => c.includes("Worldwide")) || 
         merchant.shippingCountries.includes(selectedCountry);
 
-      // Shipping From Filter
       const matchesShippedFrom = 
         selectedShippedFrom === "All" || 
         (merchant.countryShippedFrom && selectedShippedFrom.includes(merchant.countryShippedFrom));
 
-      // Made In Filter
       const matchesMadeIn = 
         selectedMadeIn === "All" || 
         (merchant.countryMadeIn && selectedMadeIn.includes(merchant.countryMadeIn));
 
-      // Provider Filter
       const matchesProvider = 
         selectedProviders.length === 0 || 
         (merchant.paymentProvider && selectedProviders.includes(merchant.paymentProvider));
 
-      // Rating Filter
       const avgRating = merchant.reviews.length > 0 
         ? merchant.reviews.reduce((acc, curr) => acc + curr.rating, 0) / merchant.reviews.length 
         : 0;
@@ -60,19 +54,11 @@ export default function Home() {
   }, [searchQuery, selectedCategories, selectedCountry, selectedShippedFrom, selectedMadeIn, selectedProviders, minRating]);
 
   const handleCategoryChange = (category: string) => {
-    setSelectedCategories(prev => 
-      prev.includes(category) 
-        ? prev.filter(c => c !== category)
-        : [...prev, category]
-    );
+    setSelectedCategories(category === "All" || !category ? [] : [category]);
   };
 
   const handleProviderChange = (provider: string) => {
-    setSelectedProviders(prev => 
-      prev.includes(provider) 
-        ? prev.filter(p => p !== provider)
-        : [...prev, provider]
-    );
+    setSelectedProviders(provider === "All" || !provider ? [] : [provider]);
   };
 
   const clearFilters = () => {
@@ -107,65 +93,105 @@ export default function Home() {
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-primary/20">
       <Navbar onSearch={setSearchQuery} filtersSlot={filterComponent} />
       
-      {/* Hero Section */}
       <div className="relative border-b border-border/50 overflow-hidden">
         <div className="absolute inset-0 z-0 opacity-20 dark:opacity-20 opacity-10">
             <img src={bgImage} alt="" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
         </div>
         
-        <div className="container relative z-10 px-4 py-16 md:py-24 text-center">
+        <div className="container relative z-10 px-4 py-8 md:py-16 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="text-4xl md:text-6xl font-display font-bold tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-foreground to-foreground/70 dark:from-white dark:to-white/70">
+            <h1 className="text-3xl md:text-6xl font-display font-bold tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-foreground to-foreground/70 dark:from-white dark:to-white/70 leading-tight">
               Find places to spend <span className="text-primary">Bitcoin online</span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-              A community-curated directory of online merchants who accept Bitcoin.
-            </p>
           </motion.div>
         </div>
       </div>
 
-      <main className="container px-4 py-8 flex-1">
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* Sidebar - Desktop */}
-          <aside className="hidden md:block w-64 shrink-0 sticky top-24 h-[calc(100vh-8rem)]">
-            {filterComponent}
-          </aside>
+      <main className="container px-4 py-6 flex-1">
+        <div className="flex flex-col gap-6">
+          <div className="md:hidden -mx-4 px-4 overflow-x-auto pb-2 scrollbar-hide">
+            <div className="flex gap-2 min-w-max pb-2">
+              <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+                <SelectTrigger className="w-auto h-9 bg-muted/50 border-none rounded-full text-[11px] font-medium px-4 gap-2">
+                  <SelectValue placeholder="Shipping to" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">Anywhere</SelectItem>
+                  {COUNTRIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                </SelectContent>
+              </Select>
 
-          {/* Grid */}
-          <div className="flex-1">
-            <div className="mb-6 flex items-center justify-between">
-              <p className="text-muted-foreground">
-                Showing <span className="font-mono text-foreground font-medium">{filteredMerchants.length}</span> merchants
-              </p>
+              <Select value={selectedShippedFrom} onValueChange={setSelectedShippedFrom}>
+                <SelectTrigger className="w-auto h-9 bg-muted/50 border-none rounded-full text-[11px] font-medium px-4 gap-2">
+                  <SelectValue placeholder="Shipped from" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">Anywhere</SelectItem>
+                  {COUNTRIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                </SelectContent>
+              </Select>
+
+              <Select value={selectedCategories[0] || "All"} onValueChange={handleCategoryChange}>
+                <SelectTrigger className="w-auto h-9 bg-muted/50 border-none rounded-full text-[11px] font-medium px-4 gap-2">
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All Categories</SelectItem>
+                  {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                </SelectContent>
+              </Select>
+
+              <Select value={selectedProviders[0] || "All"} onValueChange={handleProviderChange}>
+                <SelectTrigger className="w-auto h-9 bg-muted/50 border-none rounded-full text-[11px] font-medium px-4 gap-2">
+                  <SelectValue placeholder="Provider" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All Providers</SelectItem>
+                  {PAYMENT_PROVIDERS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
+          </div>
 
-            {filteredMerchants.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredMerchants.map((merchant, index) => (
-                  <motion.div
-                    key={merchant.id}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.3, delay: index * 0.05 }}
-                  >
-                    <MerchantCard merchant={merchant} />
-                  </motion.div>
-                ))}
+          <div className="flex flex-col md:flex-row gap-8">
+            <aside className="hidden md:block w-64 shrink-0 sticky top-24 h-[calc(100vh-8rem)]">
+              {filterComponent}
+            </aside>
+
+            <div className="flex-1">
+              <div className="mb-6 flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                  Showing <span className="font-mono text-foreground font-medium">{filteredMerchants.length}</span> merchants
+                </p>
               </div>
-            ) : (
-              <div className="text-center py-20 border border-dashed border-border rounded-lg bg-card/20">
-                <p className="text-muted-foreground text-lg">No merchants found matching your criteria.</p>
-                <button onClick={clearFilters} className="mt-4 text-primary hover:underline">
-                  Clear all filters
-                </button>
-              </div>
-            )}
+
+              {filteredMerchants.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredMerchants.map((merchant, index) => (
+                    <motion.div
+                      key={merchant.id}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3, delay: index * 0.05 }}
+                    >
+                      <MerchantCard merchant={merchant} />
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-20 border border-dashed border-border rounded-lg bg-card/20">
+                  <p className="text-muted-foreground text-lg">No merchants found.</p>
+                  <button onClick={clearFilters} className="mt-4 text-primary hover:underline">
+                    Clear all filters
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </main>

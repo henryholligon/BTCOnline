@@ -40,7 +40,7 @@ export default function Filters({
   onClear,
 }: FiltersProps) {
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-medium tracking-wide uppercase text-muted-foreground flex items-center gap-2">
           <Filter className="h-4 w-4" /> Filters
@@ -57,125 +57,109 @@ export default function Filters({
         )}
       </div>
 
-      <div className="space-y-3">
-        <Label className="text-base font-display">Minimum Rating</Label>
-        <div className="pt-2 pb-1">
-          <Slider
-            value={[minRating]}
-            min={0}
-            max={5}
-            step={1}
-            onValueChange={(val) => onRatingChange(val[0])}
-            className="cursor-pointer"
-          />
-        </div>
-        <div className="flex justify-between text-xs text-muted-foreground font-mono">
-          <span>Any</span>
-          <span>5 Stars</span>
-        </div>
-        <div className="flex items-center gap-1 text-sm font-medium text-primary">
-          <Star className="h-3.5 w-3.5 fill-current" />
-          <span>{minRating === 0 ? "Any Rating" : `${minRating}+ Stars`}</span>
-        </div>
-      </div>
-
-      <div className="space-y-3">
-        <Label className="text-base font-display">Shipping to</Label>
-        <Select value={selectedCountry} onValueChange={onCountryChange}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select country" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="All">Anywhere</SelectItem>
-            {COUNTRIES.map((country) => (
-              <SelectItem key={country} value={country}>
-                {country}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-3">
-        <Label className="text-base font-display">Shipping from</Label>
-        <Select value={selectedShippedFrom} onValueChange={onShippedFromChange}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select country" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="All">Anywhere</SelectItem>
-            {COUNTRIES.map((country) => (
-              <SelectItem key={country} value={country}>
-                {country}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-3">
-        <Label className="text-base font-display">Country made in</Label>
-        <Select value={selectedMadeIn} onValueChange={onMadeInChange}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select country" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="All">Anywhere</SelectItem>
-            {COUNTRIES.map((country) => (
-              <SelectItem key={country} value={country}>
-                {country}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-3">
-        <Label className="text-base font-display">Payment Provider</Label>
-        <ScrollArea className="h-[150px] pr-4">
-          <div className="space-y-3">
-            {PAYMENT_PROVIDERS.map((provider) => (
-              <div key={provider} className="flex items-center space-x-2">
-                <Checkbox 
-                  id={`provider-${provider}`} 
-                  checked={selectedProviders.includes(provider)}
-                  onCheckedChange={() => onProviderChange(provider)}
-                  className="border-input data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-                />
-                <Label 
-                  htmlFor={`provider-${provider}`}
-                  className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer hover:text-primary transition-colors"
-                >
-                  {provider}
-                </Label>
-              </div>
-            ))}
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label className="text-sm font-display">Minimum Rating</Label>
+          <div className="pt-2 pb-1">
+            <Slider
+              value={[minRating]}
+              min={0}
+              max={5}
+              step={1}
+              onValueChange={(val) => onRatingChange(val[0])}
+              className="cursor-pointer"
+            />
           </div>
-        </ScrollArea>
-      </div>
-
-      <div className="space-y-3">
-        <Label className="text-base font-display">Categories</Label>
-        <ScrollArea className="h-[300px] pr-4">
-          <div className="space-y-3">
-            {CATEGORIES.map((category) => (
-              <div key={category} className="flex items-center space-x-2">
-                <Checkbox 
-                  id={`category-${category}`} 
-                  checked={selectedCategories.includes(category)}
-                  onCheckedChange={() => onCategoryChange(category)}
-                  className="border-input data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-                />
-                <Label 
-                  htmlFor={`category-${category}`}
-                  className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer hover:text-primary transition-colors"
-                >
-                  {category}
-                </Label>
-              </div>
-            ))}
+          <div className="flex items-center gap-1 text-xs font-medium text-primary">
+            <Star className="h-3 w-3 fill-current" />
+            <span>{minRating === 0 ? "Any Rating" : `${minRating}+ Stars`}</span>
           </div>
-        </ScrollArea>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-sm font-display">Shipping to</Label>
+          <Select value={selectedCountry} onValueChange={onCountryChange}>
+            <SelectTrigger className="w-full h-10">
+              <SelectValue placeholder="Select destination" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">Anywhere</SelectItem>
+              {COUNTRIES.map((country) => (
+                <SelectItem key={country} value={country}>{country}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-sm font-display">Shipping from</Label>
+          <Select value={selectedShippedFrom} onValueChange={onShippedFromChange}>
+            <SelectTrigger className="w-full h-10">
+              <SelectValue placeholder="Select origin" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">Anywhere</SelectItem>
+              {COUNTRIES.map((country) => (
+                <SelectItem key={country} value={country}>{country}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-sm font-display">Country made in</Label>
+          <Select value={selectedMadeIn} onValueChange={onMadeInChange}>
+            <SelectTrigger className="w-full h-10">
+              <SelectValue placeholder="Select origin" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">Anywhere</SelectItem>
+              {COUNTRIES.map((country) => (
+                <SelectItem key={country} value={country}>{country}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-3">
+          <Label className="text-sm font-display">Payment Provider</Label>
+          <ScrollArea className="h-[120px] pr-4">
+            <div className="space-y-3">
+              {PAYMENT_PROVIDERS.map((provider) => (
+                <div key={provider} className="flex items-center space-x-2">
+                  <Checkbox 
+                    id={`provider-${provider}`} 
+                    checked={selectedProviders.includes(provider)}
+                    onCheckedChange={() => onProviderChange(provider)}
+                  />
+                  <Label htmlFor={`provider-${provider}`} className="text-sm font-normal cursor-pointer">
+                    {provider}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+        </div>
+
+        <div className="space-y-3">
+          <Label className="text-sm font-display">Categories</Label>
+          <ScrollArea className="h-[200px] pr-4">
+            <div className="space-y-3">
+              {CATEGORIES.map((category) => (
+                <div key={category} className="flex items-center space-x-2">
+                  <Checkbox 
+                    id={`category-${category}`} 
+                    checked={selectedCategories.includes(category)}
+                    onCheckedChange={() => onCategoryChange(category)}
+                  />
+                  <Label htmlFor={`category-${category}`} className="text-sm font-normal cursor-pointer">
+                    {category}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+        </div>
       </div>
     </div>
   );
