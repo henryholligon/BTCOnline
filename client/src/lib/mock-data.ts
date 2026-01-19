@@ -1277,7 +1277,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "112",
     name: "NordVPN",
     description: "The world's leading VPN provider, offering high-speed encryption, malware protection, and unrestricted internet access. Secure your digital life on all your devices with NordVPN's advanced security features.",
-    logo: "/assets/nordvpn-logo.png",
+    logo: "/assets/nordvpn-v2.png",
     categories: ["VPN & Privacy", "Services", "Tech"],
     shippingCountries: ["Worldwide"],
     website: "https://nordvpn.com/",
