@@ -28,6 +28,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
     : 0;
 
   const getCountryEmoji = (countryName: string) => {
+    const pureName = countryName.replace(/[^\w\s]/gi, '').trim();
     const countries: Record<string, string> = {
       "USA": "🇺🇸",
       "Canada": "🇨🇦",
@@ -40,9 +41,11 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
       "Worldwide": "🌍",
       "Europe": "🇪🇺",
       "Australia": "🇦🇺",
-      "El Salvador": "🇸🇻"
+      "El Salvador": "🇸🇻",
+      "South Africa": "🇿🇦",
+      "Italy": "🇮🇹"
     };
-    return countries[countryName] || "📍";
+    return countries[pureName] || countries[countryName] || "📍";
   };
 
   const handleSubmitReview = (e: React.FormEvent) => {
@@ -252,11 +255,45 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
         </CardDescription>
 
         <div className="flex flex-wrap gap-2">
-          {merchant.categories.map((cat) => (
-            <Badge key={cat} variant="secondary" className="hover:bg-secondary/80">
-              {cat}
-            </Badge>
-          ))}
+          {merchant.categories.map((cat) => {
+            const hasEmoji = /\p{Emoji}/u.test(cat);
+            const categoryWithEmoji = hasEmoji ? cat : (() => {
+              const categoryEmojis: Record<string, string> = {
+                "Electronics": "💻",
+                "Clothing": "👕",
+                "Services": "🛠️",
+                "Food & Drink": "🍴",
+                "Travel": "✈️",
+                "Gift Cards": "🎁",
+                "VPN & Privacy": "🛡️",
+                "Hosting": "🌐",
+                "Books": "📚",
+                "Art": "🎨",
+                "Charity": "❤️",
+                "Fashion": "👗",
+                "Lifestyle": "✨",
+                "Health & Beauty": "💄",
+                "Wellness": "🧘",
+                "Auto": "🚗",
+                "Sports": "⚽",
+                "Music": "🎵",
+                "Tech": "⚙️",
+                "Entertainment": "🎬",
+                "Alcohol": "🍷",
+                "Sweets": "🍬",
+                "Health": "🏥"
+              };
+              const pureCat = cat.replace(/[^\w\s&]/gi, '').trim();
+              const emoji = categoryEmojis[pureCat] || categoryEmojis[cat];
+              return emoji ? `${emoji} ${cat}` : cat;
+            })();
+            
+            return (
+              <Badge key={cat} variant="secondary" className="hover:bg-secondary/80">
+                {categoryWithEmoji}
+              </Badge>
+            );
+          })}
         </div>
 
         <div className="flex items-center gap-4 text-xs text-muted-foreground font-mono">
@@ -274,7 +311,15 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
           )}
           <div className="flex items-center gap-1 ml-auto">
             <Globe className="h-3 w-3" />
-            <span>{merchant.shippingCountries.length > 3 ? "Global" : merchant.shippingCountries.join(", ")}</span>
+            <span className="flex items-center gap-1">
+              {merchant.shippingCountries.length > 3 
+                ? "🌍 Global" 
+                : merchant.shippingCountries.map(c => {
+                    const pureCountry = c.replace(/[^\w\s]/gi, '').trim();
+                    const hasEmoji = /\p{Emoji}/u.test(c);
+                    return hasEmoji ? c : `${getCountryEmoji(pureCountry)} ${c}`;
+                  }).join(", ")}
+            </span>
           </div>
         </div>
 
