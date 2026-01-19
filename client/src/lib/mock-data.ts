@@ -1316,7 +1316,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "105",
     name: "Lush",
     description: "Fresh handmade cosmetics including bath bombs, skincare, and hair care. Lush is a pioneer in ethical beauty, fighting animal testing and promoting naked packaging.",
-    logo: "/assets/lush-logo.png",
+    logo: "/assets/lush-new.png",
     categories: ["Lifestyle", "Tech", "Services"],
     shippingCountries: ["Worldwide", "United Kingdom"],
     website: "https://www.lush.com/uk/en",
