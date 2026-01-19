@@ -87,7 +87,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'hotelgift' ? 'bg-white border-[#e5e7eb]' :
             merchant.name.toLowerCase() === 'reachtags' ? 'bg-black border-black' :
             merchant.name.toLowerCase() === 'surfshark' ? 'bg-white border-[#e5e7eb]' :
-            merchant.name.toLowerCase() === 'vintage guitar world' ? 'bg-black border-black' :
+            merchant.name.toLowerCase() === 'vintage guitar world' ? 'bg-white border-[#e5e7eb]' :
             merchant.name.toLowerCase() === 'wayland games' ? 'bg-[#1a1a1a] border-[#1a1a1a]' :
             getIconBgColor()
           }`}>
