@@ -94,7 +94,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'gift off' ? 'bg-[#f4a124] border-[#f4a124]' :
             merchant.name.toLowerCase() === 'waking herbs' ? 'bg-[#5c1334] border-[#5c1334]' :
             merchant.name.toLowerCase() === 'freedom of the press' ? 'bg-white border-[#e5e7eb]' :
-            merchant.name.toLowerCase() === 'internet archive' ? 'bg-[#1a1a1a] border-[#1a1a1a]' :
+            merchant.name.toLowerCase() === 'internet archive' ? 'bg-black border-black' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -204,7 +204,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'gift off' ? 'scale-[1.0] object-contain p-0' : 
                   merchant.name.toLowerCase() === 'waking herbs' ? 'scale-[1.3] object-contain p-0' : 
                   merchant.name.toLowerCase() === 'freedom of the press' ? 'scale-[1.1] object-contain p-2' : 
-                  merchant.name.toLowerCase() === 'internet archive' ? 'scale-[1.1] object-contain p-1' : ''
+                  merchant.name.toLowerCase() === 'internet archive' ? 'scale-[1.0] object-contain p-0' : ''
                 }`} 
               />
             ) : (

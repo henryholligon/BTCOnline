@@ -1433,7 +1433,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "124",
     name: "Internet Archive",
     description: "A non-profit library of millions of free books, movies, software, music, websites, and more. Building a digital library of Internet sites and other cultural artifacts in digital form.",
-    logo: "/assets/archive-logo.png",
+    logo: "/assets/archive-v2.png",
     categories: ["Charity", "Services", "Books"],
     shippingCountries: ["Worldwide"],
     website: "https://archive.org/",
