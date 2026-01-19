@@ -1368,7 +1368,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "119",
     name: "ZenMarket",
     description: "Your best Japan proxy shopping service. Buy from Japanese online stores and auctions with ease. Secure, reliable, and convenient way to shop from Japan and ship worldwide.",
-    logo: "/assets/zenmarket-logo.png",
+    logo: "/assets/zenmarket-v2.png",
     categories: ["Services", "Lifestyle", "Tech"],
     shippingCountries: ["Worldwide"],
     website: "https://zenmarket.jp/",
