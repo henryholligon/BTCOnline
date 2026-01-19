@@ -1277,7 +1277,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "102",
     name: "Hill Helicopters",
     description: "The world's first truly private helicopter. Hill Helicopters is revolutionizing general aviation with the HX50 and HC50, combining luxury, performance, and an innovative ownership model.",
-    logo: "/assets/hillhelicopters-new.png",
+    logo: "/assets/hillhelicopters-v3.png",
     categories: ["Travel", "Tech", "Lifestyle"],
     shippingCountries: ["Worldwide"],
     website: "https://www.hillhelicopters.com/",

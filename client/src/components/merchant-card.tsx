@@ -183,7 +183,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'against malaria foundation' ? 'scale-[1.15] object-contain p-1' : 
                   merchant.name.toLowerCase() === 'bomberg watches' ? 'scale-100 object-contain p-0' : 
                   merchant.name.toLowerCase() === 'camper & nicholsons' ? 'scale-110 object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'hill helicopters' ? 'scale-[1.4] object-contain pt-1' : 
+                  merchant.name.toLowerCase() === 'hill helicopters' ? 'scale-[1.1] object-contain p-0' : 
                   merchant.name.toLowerCase() === 'cielo aviation' ? 'scale-[1.6] object-contain p-1' : 
                   merchant.name.toLowerCase() === 'jomashop' ? 'scale-[1.3] object-contain p-1' : ''
                 }`} 
