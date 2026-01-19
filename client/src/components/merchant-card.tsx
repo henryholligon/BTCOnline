@@ -93,6 +93,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'zumub' ? 'bg-black border-black' :
             merchant.name.toLowerCase() === 'gift off' ? 'bg-[#f4a124] border-[#f4a124]' :
             merchant.name.toLowerCase() === 'waking herbs' ? 'bg-[#5c1334] border-[#5c1334]' :
+            merchant.name.toLowerCase() === 'freedom of the press' ? 'bg-[#e31e24] border-[#e31e24]' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -200,7 +201,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'zenmarket' ? 'scale-[1.2] object-contain p-1' : 
                   merchant.name.toLowerCase() === 'zumub' ? 'scale-[1.0] object-contain p-0' : 
                   merchant.name.toLowerCase() === 'gift off' ? 'scale-[1.0] object-contain p-0' : 
-                  merchant.name.toLowerCase() === 'waking herbs' ? 'scale-[1.3] object-contain p-0' : ''
+                  merchant.name.toLowerCase() === 'waking herbs' ? 'scale-[1.3] object-contain p-0' : 
+                  merchant.name.toLowerCase() === 'freedom of the press' ? 'scale-[1.1] object-contain p-1' : ''
                 }`} 
               />
             ) : (

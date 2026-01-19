@@ -1415,5 +1415,18 @@ export const MOCK_MERCHANTS: Merchant[] = [
     onchainSupported: true,
     paymentProvider: "CoinGate",
     reviews: []
+  },
+  {
+    id: "123",
+    name: "Freedom of the Press",
+    description: "Protecting, defending, and empowering public-interest journalism in the 21st century. Supporting whistleblowers, journalists, and newsrooms through technology and advocacy.",
+    logo: "/assets/freedom-press-logo.png",
+    categories: ["Charity", "Services", "VPN & Privacy"],
+    shippingCountries: ["Worldwide"],
+    website: "https://freedom.press/",
+    lightningSupported: true,
+    onchainSupported: true,
+    paymentProvider: "BTCPay Server",
+    reviews: []
   }
 ];
