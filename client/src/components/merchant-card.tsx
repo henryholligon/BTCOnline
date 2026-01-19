@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Merchant } from "@/lib/mock-data";
-import { ExternalLink, Star, Zap, Bitcoin, Globe, MessageSquare } from "lucide-react";
+import { ExternalLink, Star, Zap, Bitcoin, MessageSquare } from "lucide-react";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
@@ -310,7 +310,6 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             </div>
           )}
           <div className="flex items-center gap-1 ml-auto">
-            <Globe className="h-3 w-3" />
             <span className="flex items-center gap-1">
               {merchant.shippingCountries.length > 3 
                 ? "🌍 Global" 
