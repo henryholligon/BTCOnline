@@ -1329,7 +1329,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "106",
     name: "Newegg",
     description: "The leading tech-focused e-retailer in North America, with a global reach. Newegg offers a comprehensive selection of the latest consumer electronics, entertainment, smart home, and gaming products.",
-    logo: "/assets/newegg-logo.png",
+    logo: "/assets/newegg-new.png",
     categories: ["Tech", "Lifestyle", "Services"],
     shippingCountries: ["Worldwide", "USA", "Canada"],
     website: "https://www.newegg.com/",
