@@ -1233,5 +1233,18 @@ export const MOCK_MERCHANTS: Merchant[] = [
     onchainSupported: true,
     paymentProvider: "Zaprite",
     reviews: []
+  },
+  {
+    id: "109",
+    name: "Alternative Airlines",
+    description: "A global flight search and booking site that offers a massive choice of 600+ airlines. Alternative Airlines provides a seamless way to book flights using Bitcoin and other cryptocurrencies.",
+    logo: "/assets/alternativeairlines-logo.png",
+    categories: ["Travel", "Services"],
+    shippingCountries: ["Worldwide"],
+    website: "https://www.alternativeairlines.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    paymentProvider: "BitPay",
+    reviews: []
   }
 ];
