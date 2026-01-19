@@ -83,7 +83,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'brazilian botanicals' ? 'bg-[#831843] border-[#831843]' :
             merchant.name.toLowerCase() === 'cyberpiggy' ? 'bg-[#d12a5e] border-[#d12a5e]' :
             merchant.name.toLowerCase() === 'nordvpn' ? 'bg-[#3b60ff] border-[#3b60ff]' :
-            merchant.name.toLowerCase() === 'gameroom' ? 'bg-[#e31e24] border-[#e31e24]' :
+            merchant.name.toLowerCase() === 'gameroom' ? 'bg-black border-black' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -182,7 +182,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'brazilian botanicals' ? 'scale-[1.0] object-contain p-0' : 
                   merchant.name.toLowerCase() === 'cyberpiggy' ? 'scale-[1.0] object-contain p-0' : 
                   merchant.name.toLowerCase() === 'nordvpn' ? 'scale-[1.0] object-contain p-0' : 
-                  merchant.name.toLowerCase() === 'gameroom' ? 'scale-[1.2] object-contain p-1' : ''
+                  merchant.name.toLowerCase() === 'gameroom' ? 'scale-[1.4] object-contain p-2' : ''
                 }`} 
               />
             ) : (

@@ -1290,7 +1290,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "113",
     name: "Gameroom",
     description: "Lithuania's premier gaming store offering a massive selection of video games, consoles, accessories, and board games. From the latest PS5 releases to classic tabletop experiences, Gameroom is the ultimate destination for gamers.",
-    logo: "/assets/gameroom-logo.png",
+    logo: "/assets/gameroom-v2.png",
     categories: ["Electronics", "Entertainment", "Services"],
     shippingCountries: ["Lithuania", "Europe", "Worldwide"],
     website: "https://gameroom.lt/en/",
