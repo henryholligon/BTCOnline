@@ -1407,7 +1407,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "122",
     name: "Waking Herbs",
     description: "Your source for high-quality ethnobotanicals and traditional herbal remedies. Dedicated to preserving ancient knowledge and providing ethically sourced herbs from around the world.",
-    logo: "/assets/waking-herbs-logo.png",
+    logo: "/assets/waking-herbs-v2.png",
     categories: ["Health & Beauty", "Wellness", "Lifestyle"],
     shippingCountries: ["Worldwide"],
     website: "https://www.wakingherbs.com/",
