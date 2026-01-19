@@ -82,6 +82,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'ace jewelers' ? 'bg-white border-[#e5e7eb]' :
             merchant.name.toLowerCase() === 'against malaria foundation' ? 'bg-white border-[#e5e7eb]' :
             merchant.name.toLowerCase() === 'bomberg watches' ? 'bg-black border-black' :
+            merchant.name.toLowerCase() === 'camper & nicholsons' ? 'bg-[#002d72] border-[#002d72]' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -177,7 +178,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'le cyclo sportif' ? 'scale-[1.3] object-contain px-1' : 
                   merchant.name.toLowerCase() === 'ace jewelers' ? 'scale-[1.2] object-contain p-1' : 
                   merchant.name.toLowerCase() === 'against malaria foundation' ? 'scale-[1.15] object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'bomberg watches' ? 'scale-100 object-contain p-0' : ''
+                  merchant.name.toLowerCase() === 'bomberg watches' ? 'scale-100 object-contain p-0' : 
+                  merchant.name.toLowerCase() === 'camper & nicholsons' ? 'scale-110 object-contain p-1' : ''
                 }`} 
               />
             ) : (

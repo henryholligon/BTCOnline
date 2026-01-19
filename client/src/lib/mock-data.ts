@@ -1259,5 +1259,18 @@ export const MOCK_MERCHANTS: Merchant[] = [
     onchainSupported: true,
     paymentProvider: "BitPay",
     reviews: []
+  },
+  {
+    id: "101",
+    name: "Camper & Nicholsons",
+    description: "The global leader in luxury yachting since 1782. Specializing in the sale, purchase, charter, and management of the world's finest superyachts.",
+    logo: "/assets/campernicholsons-logo.png",
+    categories: ["Lifestyle", "Travel", "Services"],
+    shippingCountries: ["Worldwide"],
+    website: "https://camperandnicholsons.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    paymentProvider: "Zaprite",
+    reviews: []
   }
 ];
