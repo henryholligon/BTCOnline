@@ -91,6 +91,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'wayland games' ? 'bg-white border-[#e5e7eb]' :
             merchant.name.toLowerCase() === 'zenmarket' ? 'bg-white border-[#e5e7eb]' :
             merchant.name.toLowerCase() === 'zumub' ? 'bg-black border-black' :
+            merchant.name.toLowerCase() === 'gift off' ? 'bg-white border-[#e5e7eb]' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -196,7 +197,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'vintage guitar world' ? 'scale-[1.3] object-contain p-2' : 
                   merchant.name.toLowerCase() === 'wayland games' ? 'scale-[1.15] object-contain p-1' : 
                   merchant.name.toLowerCase() === 'zenmarket' ? 'scale-[1.2] object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'zumub' ? 'scale-[1.0] object-contain p-0' : ''
+                  merchant.name.toLowerCase() === 'zumub' ? 'scale-[1.0] object-contain p-0' : 
+                  merchant.name.toLowerCase() === 'gift off' ? 'scale-[1.1] object-contain p-1' : ''
                 }`} 
               />
             ) : (
