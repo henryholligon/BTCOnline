@@ -84,8 +84,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'cyberpiggy' ? 'bg-[#d12a5e] border-[#d12a5e]' :
             merchant.name.toLowerCase() === 'nordvpn' ? 'bg-[#3b60ff] border-[#3b60ff]' :
             merchant.name.toLowerCase() === 'gameroom' ? 'bg-black border-black' :
-            merchant.name.toLowerCase() === 'hotelgift' ? 'bg-[#18345c] border-[#18345c]' :
-            merchant.name.toLowerCase() === 'reachtags' ? 'bg-white border-[#e5e7eb]' :
+            merchant.name.toLowerCase() === 'hotelgift' ? 'bg-[#800020] border-[#800020]' :
+            merchant.name.toLowerCase() === 'reachtags' ? 'bg-black border-black' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -186,7 +186,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'nordvpn' ? 'scale-[1.0] object-contain p-0' : 
                   merchant.name.toLowerCase() === 'gameroom' ? 'scale-[1.4] object-contain p-2' : 
                   merchant.name.toLowerCase() === 'hotelgift' ? 'scale-[1.3] object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'reachtags' ? 'scale-[1.2] object-contain p-1' : ''
+                  merchant.name.toLowerCase() === 'reachtags' ? 'scale-[1.0] object-contain p-0' : ''
                 }`} 
               />
             ) : (

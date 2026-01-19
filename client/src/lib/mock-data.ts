@@ -1316,7 +1316,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "115",
     name: "ReachTags",
     description: "The #1 Hashtag Generator for Instagram and social media growth. ReachTags helps you get more followers and likes with a powerful algorithm that picks impactful hashtags tailored to your niche.",
-    logo: "/assets/reachtags-logo.png",
+    logo: "/assets/reachtags-v2.png",
     categories: ["Services", "Tech"],
     shippingCountries: ["Worldwide"],
     website: "https://reachtags.app/",
