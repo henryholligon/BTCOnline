@@ -309,20 +309,9 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
               <span>On-Chain</span>
             </div>
           )}
-          <div className="flex items-center gap-1 ml-auto">
-            <span className="flex items-center gap-1">
-              {merchant.shippingCountries.length > 3 
-                ? "🌍 Global" 
-                : merchant.shippingCountries.map(c => {
-                    const pureCountry = c.replace(/[^\w\s]/gi, '').trim();
-                    const hasEmoji = /\p{Emoji}/u.test(c);
-                    return hasEmoji ? c : `${getCountryEmoji(pureCountry)} ${c}`;
-                  }).join(", ")}
-            </span>
-          </div>
         </div>
 
-        {(merchant.countryShippedFrom || merchant.countryMadeIn) && (
+        {(merchant.countryShippedFrom || merchant.countryMadeIn || merchant.shippingCountries.length > 0) && (
           <div className="grid grid-cols-2 gap-2 text-[10px] uppercase tracking-wider font-semibold text-muted-foreground/70 border-t border-border/20 pt-3">
             {merchant.countryShippedFrom && (
               <div className="flex flex-col gap-0.5">
@@ -337,6 +326,20 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                 <span className="text-[9px] opacity-70">Made In</span>
                 <span className="text-foreground/90 truncate flex items-center gap-1">
                   {getCountryEmoji(merchant.countryMadeIn)} {merchant.countryMadeIn}
+                </span>
+              </div>
+            )}
+            {merchant.shippingCountries.length > 0 && (
+              <div className="flex flex-col gap-0.5 col-span-2 mt-1 border-t border-border/10 pt-2">
+                <span className="text-[9px] opacity-70">Shipping to</span>
+                <span className="text-foreground/90 truncate flex items-center gap-1">
+                  {merchant.shippingCountries.length > 3 
+                    ? "🌍 Global" 
+                    : merchant.shippingCountries.map(c => {
+                        const pureCountry = c.replace(/[^\w\s]/gi, '').trim();
+                        const hasEmoji = /\p{Emoji}/u.test(c);
+                        return hasEmoji ? c : `${getCountryEmoji(pureCountry)} ${c}`;
+                      }).join(", ")}
                 </span>
               </div>
             )}
