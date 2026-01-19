@@ -333,8 +333,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
               <div className="flex flex-col gap-0.5 col-span-2 mt-1 border-t border-border/10 pt-2">
                 <span className="text-[9px] opacity-70">Shipping to</span>
                 <span className="text-foreground/90 truncate flex items-center gap-1">
-                  {merchant.shippingCountries.length > 3 
-                    ? "🌍 Global" 
+                  {merchant.shippingCountries.some(c => c.toLowerCase().includes("worldwide"))
+                    ? "🌍 Worldwide" 
                     : merchant.shippingCountries.map(c => {
                         const pureCountry = c.replace(/[^\w\s]/gi, '').trim();
                         const hasEmoji = /\p{Emoji}/u.test(c);
