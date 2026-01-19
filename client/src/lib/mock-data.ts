@@ -1424,7 +1424,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     categories: ["Charity", "Services", "VPN & Privacy"],
     shippingCountries: ["Worldwide"],
     website: "https://freedom.press/",
-    lightningSupported: true,
+    lightningSupported: false,
     onchainSupported: true,
     paymentProvider: "BTCPay Server",
     reviews: []
@@ -1437,7 +1437,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     categories: ["Charity", "Services", "Books"],
     shippingCountries: ["Worldwide"],
     website: "https://archive.org/",
-    lightningSupported: true,
+    lightningSupported: false,
     onchainSupported: true,
     paymentProvider: "BTCPay Server",
     reviews: []
