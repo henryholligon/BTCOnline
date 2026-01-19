@@ -70,16 +70,16 @@ export default function Filters({
               >
                 <Star
                   className={cn(
-                    "h-6 w-6 transition-colors",
+                    "h-6 w-6 transition-colors fill-current",
                     star <= minRating 
-                      ? "fill-primary text-primary" 
-                      : "text-muted-foreground group-hover:text-primary/50"
+                      ? "text-primary" 
+                      : "text-muted-foreground/30 group-hover:text-primary/50"
                   )}
                 />
               </button>
             ))}
             <span className="ml-2 text-xs font-medium text-muted-foreground">
-              {minRating > 0 ? `${minRating}+ Stars` : "Any"}
+              {minRating > 0 ? `${minRating}+ Stars` : "1+ Stars"}
             </span>
           </div>
         </div>
