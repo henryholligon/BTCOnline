@@ -79,7 +79,7 @@ export default function Filters({
               </button>
             ))}
             <span className="ml-2 text-xs font-medium text-muted-foreground">
-              {minRating === 5 ? "5 Stars" : (minRating > 0 ? `${minRating}+ Stars` : "1+ Stars")}
+              {minRating === 5 ? "5 Stars" : (minRating > 0 ? `${minRating}+ Stars` : "Any")}
             </span>
           </div>
         </div>
