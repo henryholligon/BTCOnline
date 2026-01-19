@@ -1298,5 +1298,18 @@ export const MOCK_MERCHANTS: Merchant[] = [
     onchainSupported: true,
     paymentProvider: "CoinCorner",
     reviews: []
+  },
+  {
+    id: "114",
+    name: "Hotelgift",
+    description: "The ultimate hotel gift card for every occasion. Discover over 750,000 hotels worldwide and create memories that last. With Experiencegift, they can book stays in 170+ countries with full Bitcoin support.",
+    logo: "/assets/hotelgift-logo.png",
+    categories: ["Travel", "Gift Cards", "Services"],
+    shippingCountries: ["Worldwide"],
+    website: "https://www.hotelgift.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    paymentProvider: "BitPay",
+    reviews: []
   }
 ];
