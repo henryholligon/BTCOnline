@@ -28,7 +28,7 @@ export const PAYMENT_PROVIDERS = [
   "OpenNode",
   "IBEX",
   "CoinCorner",
-  "BitPay"
+  "CoinGate"
 ];
 
 export const CATEGORIES = [
@@ -1244,7 +1244,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     website: "https://www.alternativeairlines.com/",
     lightningSupported: true,
     onchainSupported: true,
-    paymentProvider: "BitPay",
+    paymentProvider: "CoinGate",
     reviews: []
   },
   {
@@ -1270,7 +1270,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     website: "https://cyberpiggy.com/",
     lightningSupported: true,
     onchainSupported: true,
-    paymentProvider: "BitPay",
+    paymentProvider: "CoinGate",
     reviews: []
   },
   {
@@ -1283,7 +1283,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     website: "https://nordvpn.com/",
     lightningSupported: true,
     onchainSupported: true,
-    paymentProvider: "BitPay",
+    paymentProvider: "CoinGate",
     reviews: []
   },
   {
@@ -1309,7 +1309,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     website: "https://www.hotelgift.com/",
     lightningSupported: true,
     onchainSupported: true,
-    paymentProvider: "BitPay",
+    paymentProvider: "CoinGate",
     reviews: []
   },
   {
@@ -1322,7 +1322,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     website: "https://reachtags.app/",
     lightningSupported: true,
     onchainSupported: true,
-    paymentProvider: "BitPay",
+    paymentProvider: "CoinGate",
     reviews: []
   }
 ];
