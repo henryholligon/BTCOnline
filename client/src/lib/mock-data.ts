@@ -1350,5 +1350,18 @@ export const MOCK_MERCHANTS: Merchant[] = [
     onchainSupported: true,
     paymentProvider: "BitPay",
     reviews: []
+  },
+  {
+    id: "108",
+    name: "Perrelet",
+    description: "Swiss luxury watchmaker since 1777, inventor of the self-winding watch. Known for exceptional craftsmanship and the iconic Turbine collection with high-precision automatic movements.",
+    logo: "/assets/perrelet-logo.png",
+    categories: ["Lifestyle", "Tech", "Services"],
+    shippingCountries: ["Worldwide", "Switzerland"],
+    website: "https://perrelet.com/en-GB",
+    lightningSupported: true,
+    onchainSupported: true,
+    paymentProvider: "BitPay",
+    reviews: []
   }
 ];
