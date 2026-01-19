@@ -78,18 +78,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'mmoga' ? 'bg-white border-[#e5e7eb]' :
             merchant.name.toLowerCase() === 'human trafficking institute' ? 'bg-[#002d72] border-[#002d72]' :
             merchant.name.toLowerCase() === 'uzi shop' ? 'bg-[#5b84ba] border-[#5b84ba]' :
-            merchant.name.toLowerCase() === 'le cyclo sportif' ? 'bg-white border-[#e5e7eb]' :
-            merchant.name.toLowerCase() === 'ace jewelers' ? 'bg-white border-[#e5e7eb]' :
-            merchant.name.toLowerCase() === 'against malaria foundation' ? 'bg-white border-[#e5e7eb]' :
-            merchant.name.toLowerCase() === 'bomberg watches' ? 'bg-black border-black' :
-            merchant.name.toLowerCase() === 'camper & nicholsons' ? 'bg-white border-[#e5e7eb]' :
             merchant.name.toLowerCase() === 'hill helicopters' ? 'bg-black border-black' :
-            merchant.name.toLowerCase() === 'cielo aviation' ? 'bg-white border-[#e5e7eb]' :
-            merchant.name.toLowerCase() === 'jomashop' ? 'bg-black border-black' :
-            merchant.name.toLowerCase() === 'lush' ? 'bg-black border-black' :
-            merchant.name.toLowerCase() === 'newegg' ? 'bg-white border-[#e5e7eb]' :
-            merchant.name.toLowerCase() === 'onlinecarstereo' ? 'bg-white border-[#e5e7eb]' :
-            merchant.name.toLowerCase() === 'perrelet' ? 'bg-black border-black' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -183,17 +172,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'human trafficking institute' ? 'scale-100 object-contain p-0' : 
                   merchant.name.toLowerCase() === 'uzi shop' ? 'scale-90 object-contain p-0' : 
                   merchant.name.toLowerCase() === 'le cyclo sportif' ? 'scale-[1.3] object-contain px-1' : 
-                  merchant.name.toLowerCase() === 'ace jewelers' ? 'scale-[1.2] object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'against malaria foundation' ? 'scale-[1.15] object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'bomberg watches' ? 'scale-100 object-contain p-0' : 
-                  merchant.name.toLowerCase() === 'camper & nicholsons' ? 'scale-110 object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'hill helicopters' ? 'scale-[1.1] object-contain p-0' : 
-                  merchant.name.toLowerCase() === 'cielo aviation' ? 'scale-[1.2] object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'jomashop' ? 'scale-[0.9] object-contain p-0' : 
-                  merchant.name.toLowerCase() === 'lush' ? 'scale-[1.1] object-contain p-0' : 
-                  merchant.name.toLowerCase() === 'newegg' ? 'scale-110 object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'onlinecarstereo' ? 'scale-125 object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'perrelet' ? 'scale-110 object-contain p-1' : ''
+                  merchant.name.toLowerCase() === 'hill helicopters' ? 'scale-[1.1] object-contain p-0' : ''
                 }`} 
               />
             ) : (
