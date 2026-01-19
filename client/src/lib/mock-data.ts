@@ -1251,7 +1251,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "110",
     name: "Brazilian Botanicals",
     description: "Specialists in high-quality traditional Brazilian teas and rare botanicals. Sustainably sourced directly from caring farmers, offering 100% natural, unprocessed ingredients for a unique tea experience.",
-    logo: "/assets/brazilianbotanicals-logo.png",
+    logo: "/assets/brazilianbotanicals-v2.png",
     categories: ["Food & Drink", "Health", "Lifestyle"],
     shippingCountries: ["Worldwide", "USA"],
     website: "https://www.brazilianbotanicals.com/",
