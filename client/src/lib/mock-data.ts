@@ -1355,7 +1355,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "118",
     name: "Wayland Games",
     description: "Europe's largest independent retailer for tabletop games, miniatures, and wargaming hobby supplies. Providing a vast selection of board games, card games, and hobby accessories to gamers worldwide.",
-    logo: "/assets/wayland-games-logo.png",
+    logo: "/assets/wayland-games-v2.png",
     categories: ["Entertainment", "Lifestyle", "Services"],
     shippingCountries: ["UK", "Europe", "Worldwide"],
     website: "https://www.waylandgames.co.uk/",
