@@ -1298,5 +1298,18 @@ export const MOCK_MERCHANTS: Merchant[] = [
     onchainSupported: true,
     paymentProvider: "BitPay",
     reviews: []
+  },
+  {
+    id: "104",
+    name: "Jomashop",
+    description: "A leading fashion retailer of luxury watches, handbags, sunglasses, jewelry, and more. Jomashop offers over 650 brands and hundreds of thousands of items at significant discounts.",
+    logo: "/assets/jomashop-logo.png",
+    categories: ["Lifestyle", "Tech", "Travel"],
+    shippingCountries: ["Worldwide", "USA"],
+    website: "https://www.jomashop.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    paymentProvider: "BitPay",
+    reviews: []
   }
 ];
