@@ -1290,7 +1290,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "103",
     name: "Cielo Aviation",
     description: "Bespoke private jet and helicopter charter solutions. With access to over 3,500 aircraft worldwide, Cielo Aviation provides luxury air travel with 24/7 personalized assistance and cryptocurrency payment support.",
-    logo: "/assets/cieloaviation-logo.png",
+    logo: "/assets/cieloaviation-new.png",
     categories: ["Travel", "Lifestyle", "Services"],
     shippingCountries: ["Worldwide"],
     website: "https://www.cielo-aviation.com/",

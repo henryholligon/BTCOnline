@@ -84,7 +84,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'bomberg watches' ? 'bg-black border-black' :
             merchant.name.toLowerCase() === 'camper & nicholsons' ? 'bg-white border-[#e5e7eb]' :
             merchant.name.toLowerCase() === 'hill helicopters' ? 'bg-black border-black' :
-            merchant.name.toLowerCase() === 'cielo aviation' ? 'bg-black border-black' :
+            merchant.name.toLowerCase() === 'cielo aviation' ? 'bg-white border-[#e5e7eb]' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -183,7 +183,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'bomberg watches' ? 'scale-100 object-contain p-0' : 
                   merchant.name.toLowerCase() === 'camper & nicholsons' ? 'scale-110 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'hill helicopters' ? 'scale-[1.4] object-contain pt-1' : 
-                  merchant.name.toLowerCase() === 'cielo aviation' ? 'scale-[1.2] object-contain p-1' : ''
+                  merchant.name.toLowerCase() === 'cielo aviation' ? 'scale-[1.6] object-contain p-1' : ''
                 }`} 
               />
             ) : (
