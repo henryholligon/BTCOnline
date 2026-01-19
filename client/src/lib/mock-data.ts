@@ -1246,5 +1246,18 @@ export const MOCK_MERCHANTS: Merchant[] = [
     onchainSupported: true,
     paymentProvider: "BitPay",
     reviews: []
+  },
+  {
+    id: "110",
+    name: "Brazilian Botanicals",
+    description: "Specialists in high-quality traditional Brazilian teas and rare botanicals. Sustainably sourced directly from caring farmers, offering 100% natural, unprocessed ingredients for a unique tea experience.",
+    logo: "/assets/brazilianbotanicals-logo.png",
+    categories: ["Food & Drink", "Health", "Lifestyle"],
+    shippingCountries: ["Worldwide", "USA"],
+    website: "https://www.brazilianbotanicals.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    paymentProvider: "BTCPay Server",
+    reviews: []
   }
 ];
