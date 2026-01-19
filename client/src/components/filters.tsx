@@ -6,7 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CATEGORIES, COUNTRIES, PAYMENT_PROVIDERS } from "@/lib/mock-data";
 import { Filter, Star, X } from "lucide-react";
-import { Slider } from "@/components/ui/slider";
+import { cn } from "@/lib/utils";
 
 interface FiltersProps {
   selectedCategories: string[];
@@ -58,21 +58,29 @@ export default function Filters({
       </div>
 
       <div className="space-y-4">
-        <div className="space-y-2">
+        <div className="space-y-3">
           <Label className="text-sm font-display">Minimum Rating</Label>
-          <div className="pt-2 pb-1">
-            <Slider
-              value={[minRating]}
-              min={0}
-              max={5}
-              step={1}
-              onValueChange={(val) => onRatingChange(val[0])}
-              className="cursor-pointer"
-            />
-          </div>
-          <div className="flex items-center gap-1 text-xs font-medium text-primary">
-            <Star className="h-3 w-3 fill-current" />
-            <span>{minRating === 0 ? "Any Rating" : `${minRating}+ Stars`}</span>
+          <div className="flex items-center gap-1">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <button
+                key={star}
+                type="button"
+                onClick={() => onRatingChange(minRating === star ? 0 : star)}
+                className="group focus:outline-none transition-transform active:scale-90"
+              >
+                <Star
+                  className={cn(
+                    "h-6 w-6 transition-colors",
+                    star <= minRating 
+                      ? "fill-primary text-primary" 
+                      : "text-muted-foreground group-hover:text-primary/50"
+                  )}
+                />
+              </button>
+            ))}
+            <span className="ml-2 text-xs font-medium text-muted-foreground">
+              {minRating > 0 ? `${minRating}+ Stars` : "Any"}
+            </span>
           </div>
         </div>
 
