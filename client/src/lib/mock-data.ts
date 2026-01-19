@@ -1259,5 +1259,18 @@ export const MOCK_MERCHANTS: Merchant[] = [
     onchainSupported: true,
     paymentProvider: "BTCPay Server",
     reviews: []
+  },
+  {
+    id: "111",
+    name: "CyberPiggy",
+    description: "Your destination for high-performance gaming peripherals, custom PCs, and futuristic tech. From VR headsets to ergonomic gaming chairs, CyberPiggy brings the ultimate cyber-experience to your setup.",
+    logo: "/assets/cyberpiggy-logo.png",
+    categories: ["Tech", "Electronics", "Entertainment"],
+    shippingCountries: ["Europe", "Worldwide"],
+    website: "https://cyberpiggy.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    paymentProvider: "BitPay",
+    reviews: []
   }
 ];

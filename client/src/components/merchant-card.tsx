@@ -81,6 +81,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'hill helicopters' ? 'bg-black border-black' :
             merchant.name.toLowerCase() === 'alternative airlines' ? 'bg-[#5c4fff] border-[#5c4fff]' :
             merchant.name.toLowerCase() === 'brazilian botanicals' ? 'bg-[#831843] border-[#831843]' :
+            merchant.name.toLowerCase() === 'cyberpiggy' ? 'bg-[#0f172a] border-[#0f172a]' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -176,7 +177,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'le cyclo sportif' ? 'scale-[1.3] object-contain px-1' : 
                   merchant.name.toLowerCase() === 'hill helicopters' ? 'scale-[1.1] object-contain p-0' : 
                   merchant.name.toLowerCase() === 'alternative airlines' ? 'scale-[1.0] object-contain p-0' : 
-                  merchant.name.toLowerCase() === 'brazilian botanicals' ? 'scale-[1.0] object-contain p-0' : ''
+                  merchant.name.toLowerCase() === 'brazilian botanicals' ? 'scale-[1.0] object-contain p-0' : 
+                  merchant.name.toLowerCase() === 'cyberpiggy' ? 'scale-[1.1] object-contain p-1' : ''
                 }`} 
               />
             ) : (
