@@ -1251,7 +1251,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "100",
     name: "Bomberg Watches",
     description: "Independent Swiss watchmaker known for bold, unconventional designs and exceptional craftsmanship. Bomberg combines traditional Swiss watchmaking with an urban, rebellious spirit.",
-    logo: "/assets/bomberg-logo.png",
+    logo: "/assets/bomberg-new.png",
     categories: ["Lifestyle", "Tech"],
     shippingCountries: ["Worldwide"],
     website: "https://bombergwatches.com/",
