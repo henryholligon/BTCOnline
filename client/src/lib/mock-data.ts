@@ -1394,7 +1394,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "121",
     name: "Gift Off",
     description: "Buy gift cards for hundreds of retailers worldwide with Bitcoin. Gift Off makes it easy to live on crypto by offering instant delivery of digital gift cards for your favorite brands.",
-    logo: "/assets/giftoff-logo.png",
+    logo: "/assets/giftoff-v2.png",
     categories: ["Gift Cards", "Services", "Lifestyle"],
     shippingCountries: ["Worldwide"],
     website: "https://giftoff.com",
