@@ -1224,7 +1224,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "98",
     name: "Ace Jewelers",
     description: "Amsterdam-based luxury jewelry and watch retailer with over 45 years of heritage. An authorized dealer for world-class brands like Nomos Glashütte, Christiaan van der Klaauw, and Frederique Constant.",
-    logo: "/assets/acejewelers-logo.png",
+    logo: "/assets/acejewelers-new.png",
     categories: ["Lifestyle", "Tech"],
     shippingCountries: ["Worldwide", "Netherlands"],
     website: "https://www.acejewelers.com/",

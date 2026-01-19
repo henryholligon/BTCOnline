@@ -79,7 +79,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'human trafficking institute' ? 'bg-[#002d72] border-[#002d72]' :
             merchant.name.toLowerCase() === 'uzi shop' ? 'bg-[#5b84ba] border-[#5b84ba]' :
             merchant.name.toLowerCase() === 'le cyclo sportif' ? 'bg-white border-[#e5e7eb]' :
-            merchant.name.toLowerCase() === 'ace jewelers' ? 'bg-black border-black' :
+            merchant.name.toLowerCase() === 'ace jewelers' ? 'bg-white border-[#e5e7eb]' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -173,7 +173,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'human trafficking institute' ? 'scale-100 object-contain p-0' : 
                   merchant.name.toLowerCase() === 'uzi shop' ? 'scale-90 object-contain p-0' : 
                   merchant.name.toLowerCase() === 'le cyclo sportif' ? 'scale-[1.3] object-contain px-1' : 
-                  merchant.name.toLowerCase() === 'ace jewelers' ? 'scale-110 object-contain p-1' : ''
+                  merchant.name.toLowerCase() === 'ace jewelers' ? 'scale-[1.2] object-contain p-1' : ''
                 }`} 
               />
             ) : (
