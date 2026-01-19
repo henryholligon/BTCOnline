@@ -164,10 +164,10 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'izindlovu' ? 'scale-125 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'sole' ? 'scale-125 object-contain p-2' : 
                   merchant.name.toLowerCase() === 'fuelingyou' ? 'scale-110 object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'heatbit' ? 'scale-[1.25] object-contain p-0' : 
+                  merchant.name.toLowerCase() === 'heatbit' ? 'scale-[1.15] object-contain p-0' : 
                   merchant.name.toLowerCase() === 'degoogled' ? 'scale-110 object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'mmoga' ? 'scale-110 object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'human trafficking institute' ? 'scale-110 object-contain p-0' : ''
+                  merchant.name.toLowerCase() === 'mmoga' ? 'scale-100 object-contain p-1' : 
+                  merchant.name.toLowerCase() === 'human trafficking institute' ? 'scale-100 object-contain p-0' : ''
                 }`} 
               />
             ) : (
