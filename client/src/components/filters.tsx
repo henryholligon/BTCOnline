@@ -72,7 +72,7 @@ export default function Filters({
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base font-display">Shipping Country</Label>
+        <Label className="text-base font-display">Shipping to</Label>
         <Select value={selectedCountry} onValueChange={onCountryChange}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select country" />
