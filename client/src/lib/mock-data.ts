@@ -34,28 +34,28 @@ export const PAYMENT_PROVIDERS = [
 ];
 
 export const CATEGORIES = [
-  "Electronics",
-  "Clothing",
-  "Services",
-  "Food & Drink",
-  "Travel",
-  "Gift Cards",
-  "VPN & Privacy",
-  "Hosting",
-  "Books",
-  "Art",
-  "Charity"
+  "💻 Electronics",
+  "👕 Clothing",
+  "🛠️ Services",
+  "🍴 Food & Drink",
+  "✈️ Travel",
+  "🎁 Gift Cards",
+  "🛡️ VPN & Privacy",
+  "🌐 Hosting",
+  "📚 Books",
+  "🎨 Art",
+  "❤️ Charity"
 ];
 
 export const COUNTRIES = [
-  "Worldwide",
-  "USA",
-  "Europe",
-  "Canada",
-  "UK",
-  "Australia",
-  "El Salvador",
-  "Sweden"
+  "🌍 Worldwide",
+  "🇺🇸 USA",
+  "🇪🇺 Europe",
+  "🇨🇦 Canada",
+  "🇬🇧 UK",
+  "🇦🇺 Australia",
+  "🇸🇻 El Salvador",
+  "🇸🇪 Sweden"
 ];
 
 export const MOCK_MERCHANTS: Merchant[] = [
@@ -64,8 +64,8 @@ export const MOCK_MERCHANTS: Merchant[] = [
     name: "BitRefill",
     description: "Buy Gift Cards & Mobile Refills with Bitcoin. Live on crypto.",
     logo: "/assets/bitrefill-logo.png",
-    categories: ["Gift Cards", "Services", "Travel"],
-    shippingCountries: ["Worldwide"],
+    categories: ["🎁 Gift Cards", "🛠️ Services", "✈️ Travel"],
+    shippingCountries: ["🌍 Worldwide"],
     website: "https://bitrefill.com",
     lightningSupported: true,
     onchainSupported: true,
@@ -81,8 +81,8 @@ export const MOCK_MERCHANTS: Merchant[] = [
     name: "SLNT",
     description: "Privacy-first Faraday bags and signal blocking accessories.",
     logo: "/assets/slnt-logo.png",
-    categories: ["Services", "Electronics"],
-    shippingCountries: ["Worldwide"],
+    categories: ["🛠️ Services", "💻 Electronics"],
+    shippingCountries: ["🌍 Worldwide"],
     website: "https://slnt.com",
     lightningSupported: true,
     onchainSupported: true,
@@ -98,8 +98,8 @@ export const MOCK_MERCHANTS: Merchant[] = [
     name: "Mullvad VPN",
     description: "Mullvad is a VPN service that helps keep your online activity, identity, and location private.",
     logo: "/assets/mullvad-logo.png",
-    categories: ["VPN & Privacy", "Services"],
-    shippingCountries: ["Worldwide"],
+    categories: ["🛡️ VPN & Privacy", "🛠️ Services"],
+    shippingCountries: ["🌍 Worldwide"],
     website: "https://mullvad.net",
     lightningSupported: true,
     onchainSupported: true,
@@ -116,8 +116,8 @@ export const MOCK_MERCHANTS: Merchant[] = [
     name: "Coinkite",
     description: "Hardware wallets for Bitcoin security. Makers of Coldcard.",
     logo: "/assets/coinkite-logo.png",
-    categories: ["Electronics", "Services"],
-    shippingCountries: ["Worldwide"],
+    categories: ["💻 Electronics", "🛠️ Services"],
+    shippingCountries: ["🌍 Worldwide"],
     website: "https://coinkite.com",
     lightningSupported: true,
     onchainSupported: true,

@@ -27,6 +27,24 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
     ? merchant.reviews.reduce((acc, curr) => acc + curr.rating, 0) / merchant.reviews.length 
     : 0;
 
+  const getCountryEmoji = (countryName: string) => {
+    const countries: Record<string, string> = {
+      "USA": "🇺🇸",
+      "Canada": "🇨🇦",
+      "Sweden": "🇸🇪",
+      "UK": "🇬🇧",
+      "Germany": "🇩🇪",
+      "Japan": "🇯🇵",
+      "Portugal": "🇵🇹",
+      "Netherlands": "🇳🇱",
+      "Worldwide": "🌍",
+      "Europe": "🇪🇺",
+      "Australia": "🇦🇺",
+      "El Salvador": "🇸🇻"
+    };
+    return countries[countryName] || "📍";
+  };
+
   const handleSubmitReview = (e: React.FormEvent) => {
     e.preventDefault();
     setIsReviewOpen(false);
@@ -265,13 +283,17 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             {merchant.countryShippedFrom && (
               <div className="flex flex-col gap-0.5">
                 <span className="text-[9px] opacity-70">Shipped From</span>
-                <span className="text-foreground/90 truncate">{merchant.countryShippedFrom}</span>
+                <span className="text-foreground/90 truncate flex items-center gap-1">
+                  {getCountryEmoji(merchant.countryShippedFrom)} {merchant.countryShippedFrom}
+                </span>
               </div>
             )}
             {merchant.countryMadeIn && (
               <div className="flex flex-col gap-0.5">
                 <span className="text-[9px] opacity-70">Made In</span>
-                <span className="text-foreground/90 truncate">{merchant.countryMadeIn}</span>
+                <span className="text-foreground/90 truncate flex items-center gap-1">
+                  {getCountryEmoji(merchant.countryMadeIn)} {merchant.countryMadeIn}
+                </span>
               </div>
             )}
           </div>

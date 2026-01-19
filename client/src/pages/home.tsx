@@ -30,18 +30,18 @@ export default function Home() {
       // Country Filter (Shipping To)
       const matchesCountry = 
         selectedCountry === "All" || 
-        merchant.shippingCountries.includes("Worldwide") || 
+        merchant.shippingCountries.some(c => c.includes("Worldwide")) || 
         merchant.shippingCountries.includes(selectedCountry);
 
       // Shipping From Filter
       const matchesShippedFrom = 
         selectedShippedFrom === "All" || 
-        merchant.countryShippedFrom === selectedShippedFrom;
+        (merchant.countryShippedFrom && selectedShippedFrom.includes(merchant.countryShippedFrom));
 
       // Made In Filter
       const matchesMadeIn = 
         selectedMadeIn === "All" || 
-        merchant.countryMadeIn === selectedMadeIn;
+        (merchant.countryMadeIn && selectedMadeIn.includes(merchant.countryMadeIn));
 
       // Provider Filter
       const matchesProvider = 
