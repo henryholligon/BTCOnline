@@ -86,6 +86,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'hill helicopters' ? 'bg-black border-black' :
             merchant.name.toLowerCase() === 'cielo aviation' ? 'bg-white border-[#e5e7eb]' :
             merchant.name.toLowerCase() === 'jomashop' ? 'bg-black border-black' :
+            merchant.name.toLowerCase() === 'lush' ? 'bg-black border-black' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -185,7 +186,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'camper & nicholsons' ? 'scale-110 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'hill helicopters' ? 'scale-[1.1] object-contain p-0' : 
                   merchant.name.toLowerCase() === 'cielo aviation' ? 'scale-[1.2] object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'jomashop' ? 'scale-[0.9] object-contain p-0' : ''
+                  merchant.name.toLowerCase() === 'jomashop' ? 'scale-[0.9] object-contain p-0' : 
+                  merchant.name.toLowerCase() === 'lush' ? 'scale-[0.8] object-contain p-0' : ''
                 }`} 
               />
             ) : (
