@@ -1246,5 +1246,18 @@ export const MOCK_MERCHANTS: Merchant[] = [
     onchainSupported: true,
     paymentProvider: "BTCPay Server",
     reviews: []
+  },
+  {
+    id: "100",
+    name: "Bomberg Watches",
+    description: "Independent Swiss watchmaker known for bold, unconventional designs and exceptional craftsmanship. Bomberg combines traditional Swiss watchmaking with an urban, rebellious spirit.",
+    logo: "/assets/bomberg-logo.png",
+    categories: ["Lifestyle", "Tech"],
+    shippingCountries: ["Worldwide"],
+    website: "https://bombergwatches.com/",
+    lightningSupported: true,
+    onchainSupported: true,
+    paymentProvider: "BitPay",
+    reviews: []
   }
 ];
