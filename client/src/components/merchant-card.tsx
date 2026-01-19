@@ -171,7 +171,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'mmoga' ? 'scale-90 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'human trafficking institute' ? 'scale-100 object-contain p-0' : 
                   merchant.name.toLowerCase() === 'uzi shop' ? 'scale-90 object-contain p-0' : 
-                  merchant.name.toLowerCase() === 'le cyclo sportif' ? 'scale-[1.8] object-contain px-1' : ''
+                  merchant.name.toLowerCase() === 'le cyclo sportif' ? 'scale-[1.5] object-contain px-1' : ''
                 }`} 
               />
             ) : (
