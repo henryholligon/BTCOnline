@@ -86,7 +86,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'gameroom' ? 'bg-black border-black' :
             merchant.name.toLowerCase() === 'hotelgift' ? 'bg-[#800020] border-[#800020]' :
             merchant.name.toLowerCase() === 'reachtags' ? 'bg-black border-black' :
-            merchant.name.toLowerCase() === 'surfshark' ? 'bg-[#00d182] border-[#00d182]' :
+            merchant.name.toLowerCase() === 'surfshark' ? 'bg-white border-[#e5e7eb]' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -188,7 +188,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'gameroom' ? 'scale-[1.4] object-contain p-2' : 
                   merchant.name.toLowerCase() === 'hotelgift' ? 'scale-[1.3] object-contain p-1' : 
                   merchant.name.toLowerCase() === 'reachtags' ? 'scale-[1.0] object-contain p-0' : 
-                  merchant.name.toLowerCase() === 'surfshark' ? 'scale-[1.1] object-contain p-1' : ''
+                  merchant.name.toLowerCase() === 'surfshark' ? 'scale-[1.3] object-contain p-1' : ''
                 }`} 
               />
             ) : (

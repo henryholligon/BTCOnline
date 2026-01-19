@@ -1329,7 +1329,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "116",
     name: "Surfshark",
     description: "Access the web safely and privately on unlimited devices. Surfshark VPN offers high-speed encryption, ad-blocking, and malware protection to secure your digital life.",
-    logo: "/assets/surfshark-logo.png",
+    logo: "/assets/surfshark-v2.png",
     categories: ["VPN & Privacy", "Services", "Tech"],
     shippingCountries: ["Worldwide"],
     website: "https://surfshark.com/",
