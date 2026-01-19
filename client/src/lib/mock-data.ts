@@ -1342,7 +1342,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: "117",
     name: "Vintage Guitar World",
     description: "Your premier destination for high-end vintage and rare guitars. Specializing in exceptional acoustic and electric instruments for collectors and professional musicians worldwide.",
-    logo: "/assets/vintage-guitar-logo.png",
+    logo: "/assets/vintage-guitar-v2.png",
     categories: ["Music", "Services", "Lifestyle"],
     shippingCountries: ["Worldwide"],
     website: "https://www.vintage-guitar-world.com/",
