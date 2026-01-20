@@ -116,6 +116,11 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             merchant.name.toLowerCase() === 'waking herbs' ? 'bg-[#5c1334] border-[#5c1334]' :
             merchant.name.toLowerCase() === 'freedom of the press' ? 'bg-white border-[#e5e7eb]' :
             merchant.name.toLowerCase() === 'internet archive' ? 'bg-black border-black' :
+            merchant.name.toLowerCase() === 'lincoln kiln dried logs' ? 'bg-white border-[#e5e7eb]' :
+            merchant.name.toLowerCase() === 'candyjets' ? 'bg-white border-[#e5e7eb]' :
+            merchant.name.toLowerCase() === 'payperq' ? 'bg-white border-[#e5e7eb]' :
+            merchant.name.toLowerCase() === 'campo apícola' ? 'bg-white border-[#e5e7eb]' :
+            merchant.name.toLowerCase() === 'elephant chateau' ? 'bg-white border-[#e5e7eb]' :
             getIconBgColor()
           }`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -167,14 +172,14 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'highland fayre' ? 'scale-100 object-contain' : 
                   merchant.name.toLowerCase() === 'golden tallow' ? 'scale-100 object-contain' : 
                   merchant.name.toLowerCase() === 'mister padel' ? 'scale-100 object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'lincoln kiln dried logs' ? 'scale-100 object-cover' : 
+                  merchant.name.toLowerCase() === 'lincoln kiln dried logs' ? 'scale-[1.3] object-contain p-1' : 
                   merchant.name.toLowerCase() === 'essatoshi' ? 'scale-100 object-cover' : 
                   merchant.name.toLowerCase() === 'cheerings' ? 'scale-100 object-contain' : 
                   merchant.name.toLowerCase() === 'jonathan hill luthier' ? 'scale-100 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'select automotive' ? 'scale-100 object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'candyjets' ? 'scale-100 object-cover' : 
+                  merchant.name.toLowerCase() === 'candyjets' ? 'scale-[1.4] object-contain p-1' : 
                   merchant.name.toLowerCase() === 'maple ai' ? 'scale-100 object-cover' : 
-                  merchant.name.toLowerCase() === 'payperq' ? 'scale-110 object-contain p-1' : 
+                  merchant.name.toLowerCase() === 'payperq' ? 'scale-[1.2] object-contain p-1' : 
                   merchant.name.toLowerCase() === 'crypto tax help' ? 'scale-100 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'mtsocks' ? 'scale-110 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'torguard' ? 'scale-125 object-contain p-1' : 
@@ -184,8 +189,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'kaffebox' ? 'scale-100 object-cover' : 
                   merchant.name.toLowerCase() === 'bloom audio' ? 'scale-100 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'la industria handmade' ? 'scale-110 object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'campo apícola' ? 'scale-110 object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'elephant chateau' ? 'scale-110 object-contain p-1' : 
+                  merchant.name.toLowerCase() === 'campo apícola' ? 'scale-[1.4] object-contain p-1' : 
+                  merchant.name.toLowerCase() === 'elephant chateau' ? 'scale-[1.2] object-contain p-1' : 
                   merchant.name.toLowerCase() === 'árbol de maple' ? 'scale-110 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'consumer choice center' ? 'scale-[1.25] object-contain p-1' : 
                   merchant.name.toLowerCase() === 'pikasim' ? 'scale-100 object-contain p-1' : 
@@ -196,20 +201,20 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'kerwell' ? 'scale-110 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'sticky' ? 'scale-100 object-contain p-0' : 
                   merchant.name.toLowerCase() === 'samen maier' ? 'scale-100 object-contain p-0' : 
-                  merchant.name.toLowerCase() === 'smith pastures' ? 'scale-[1.2] object-contain p-0' : 
+                  merchant.name.toLowerCase() === 'smith pastures' ? 'scale-[1.5] object-contain p-1' : 
                   merchant.name.toLowerCase() === 'skoon.' ? 'scale-100 object-contain p-0' : 
                   merchant.name.toLowerCase() === 'mei leaf' ? 'scale-[1.15] object-contain p-0' : 
-                  merchant.name.toLowerCase() === 'missprint' ? 'scale-110 object-contain p-1' : 
+                  merchant.name.toLowerCase() === 'missprint' ? 'scale-[1.4] object-contain p-1' : 
                   merchant.name.toLowerCase() === 'izindlovu' ? 'scale-125 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'sole' ? 'scale-125 object-contain p-2' : 
                   merchant.name.toLowerCase() === 'fuelingyou' ? 'scale-110 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'heatbit' ? 'scale-[1.15] object-contain p-0' : 
                   merchant.name.toLowerCase() === 'degoogled' ? 'scale-110 object-contain p-1' : 
                   merchant.name.toLowerCase() === 'mmoga' ? 'scale-90 object-contain p-1' : 
-                  merchant.name.toLowerCase() === 'human trafficking institute' ? 'scale-100 object-contain p-0' : 
+                  merchant.name.toLowerCase() === 'human trafficking institute' ? 'scale-[1.3] object-contain p-1' : 
                   merchant.name.toLowerCase() === 'uzi shop' ? 'scale-90 object-contain p-0' : 
                   merchant.name.toLowerCase() === 'le cyclo sportif' ? 'scale-[1.3] object-contain px-1' : 
-                  merchant.name.toLowerCase() === 'hill helicopters' ? 'scale-[1.1] object-contain p-0' : 
+                  merchant.name.toLowerCase() === 'hill helicopters' ? 'scale-[1.6] object-contain p-1' : 
                   merchant.name.toLowerCase() === 'alternative airlines' ? 'scale-[1.0] object-contain p-0' : 
                   merchant.name.toLowerCase() === 'brazilian botanicals' ? 'scale-[1.0] object-contain p-0' : 
                   merchant.name.toLowerCase() === 'cyberpiggy' ? 'scale-[1.0] object-contain p-0' : 
