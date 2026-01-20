@@ -277,7 +277,9 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
               };
               const pureCat = cat.replace(/[^\w\s&]/gi, '').trim();
               const emoji = categoryEmojis[pureCat] || categoryEmojis[cat];
-              const categoryWithEmoji = emoji ? `${emoji} ${cat}` : cat;
+              // Ensure we only add the emoji if it's not already there
+              const hasEmoji = /\p{Emoji}/u.test(cat);
+              const categoryWithEmoji = (emoji && !hasEmoji) ? `${emoji} ${cat}` : cat;
               
               return (
                 <Badge key={cat} variant="secondary" className="hover:bg-secondary/80 whitespace-nowrap text-[10px] py-0 px-2 h-5">
