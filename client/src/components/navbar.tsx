@@ -77,13 +77,6 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
         </Link>
 
         <div className="flex flex-1 items-center space-x-2 md:justify-end">
-          <div className="hidden md:flex items-center space-x-2 mr-2">
-            <Button asChild variant="ghost" className="text-sm font-medium hover:text-primary transition-colors h-9 px-4">
-              <a href="https://btcmap.org" target="_blank" rel="noopener noreferrer">
-                In-person
-              </a>
-            </Button>
-          </div>
           <div className="w-full flex-1 md:w-auto md:flex-none">
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -96,7 +89,13 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
             </div>
           </div>
           
-          <div className="ml-auto flex items-center space-x-2">
+          <div className="flex items-center space-x-2">
+            <Button asChild variant="ghost" className="hidden md:flex text-sm font-medium hover:text-primary transition-colors h-9 px-4">
+              <a href="https://btcmap.org" target="_blank" rel="noopener noreferrer">
+                In-person
+              </a>
+            </Button>
+
             <Button
               variant="ghost"
               size="icon"
