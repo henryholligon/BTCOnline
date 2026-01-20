@@ -58,25 +58,23 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
 
   const getIconBgColor = () => {
     const name = merchant.name.toLowerCase();
-    if (name === 'start9' || name === 'beef initiative' || name === 'oshi good' || name === 'hyke & byke' || name === 'kerwell' || name === 'root & branch' || name === 'atoms' || name === 'heatbit' || name === 'hill helicopters' || name === 'gameroom' || name === 'internet archive' || name === 'sole') return 'bg-black border-black';
+    if (name === 'start9' || name === 'beef initiative' || name === 'oshi good' || name === 'hyke & byke' || name === 'kerwell' || name === 'root & branch' || name === 'atoms' || name === 'heatbit' || name === 'hill helicopters' || name === 'gameroom' || name === 'internet archive' || name === 'sole' || name === 'travala' || name === 'g2a' || name === 'silent.link' || name === 'mushmore supplements' || name === 'hummingbird amsterdam' || name === 'planet express' || name === 'farfetch' || name === 'bramleigh farm' || name === 'palingshop' || name === 'ticketpro' || name === 'dynadot' || name === 'soapminer' || name === 'mobimatter' || name === 'the good beans' || name === 'pumphreys coffee' || name === 'epic deals' || name === "farmer bill's provisions" || name === 'acme acres' || name === 'chroma' || name === 'asf tutoring' || name === "jimble's jumble" || name === 'hempful' || name === 'highland fayre' || name === 'golden tallow' || name === 'mister padel' || name === 'lincoln kiln dried logs' || name === 'essatoshi' || name === 'cheerings' || name === 'jonathan hill luthier' || name === 'select automotive' || name === 'candyjets' || name === 'maple ai' || name === 'payperq' || name === 'crypto tax help' || name === 'mtsocks' || name === 'spy equipment uk' || name === 'bees & trees' || name === 'kaffebox' || name === 'bloom audio' || name === 'campo apícola' || name === 'elephant chateau' || name === 'árbol de maple' || name === 'pikasim' || name === 'mad gringo hot sauce' || name === 'privaterouter' || name === 'smith pastures' || name === 'skoon.' || name === 'missprint' || name === 'izindlovu' || name === 'fuelingyou' || name === 'degoogled' || name === 'crave' || name === 'mmoga' || name === 'human trafficking institute' || name === 'uzi shop' || name === 'le cyclo sportif' || name === 'alternative airlines' || name === 'brazilian botanicals' || name === 'cyberpiggy' || name === 'hotelgift' || name === 'reachtags' || name === 'surfshark' || name === 'vintage guitar world' || name === 'wayland games' || name === 'zenmarket' || name === 'zumub' || name === 'gift off' || name === 'waking herbs' || name === 'freedom of the press') return 'bg-white border-[#e5e7eb]';
+    
     if (name === 'kawa') return 'bg-[#c9121f] border-[#c9121f]';
     if (name === 'the suffolk tutor') return 'bg-[#ff9e16] border-[#ff9e16]';
     if (name === 'la industria handmade' || name === 'ivpn') return 'bg-[#1a1a1a] border-[#1a1a1a]';
     if (name === 'consumer choice center') return 'bg-[#1e3a8a] border-[#1e3a8a]';
-    if (name === 'mad gringo hot sauce') return 'bg-black border-black';
     if (name === 'torguard') return 'bg-[#0a1128] border-[#0a1128]';
     if (name === 'sticky') return 'bg-[#f0c3d9] border-[#f0c3d9]';
     if (name === 'mei leaf') return 'bg-[#9e0b31] border-[#9e0b31]';
     if (name === 'nogood studio') return 'bg-[#ff3b00] border-[#ff3b00]';
-    if (name === 'human trafficking institute') return 'bg-[#002d72] border-[#002d72]';
-    if (name === 'uzi shop') return 'bg-[#5b84ba] border-[#5b84ba]';
     if (name === 'alternative airlines') return 'bg-[#5c4fff] border-[#5c4fff]';
     if (name === 'brazilian botanicals') return 'bg-[#831843] border-[#831843]';
     if (name === 'cyberpiggy') return 'bg-[#d12a5e] border-[#d12a5e]';
     if (name === 'nordvpn') return 'bg-[#3b60ff] border-[#3b60ff]';
     if (name === 'gift off') return 'bg-[#f4a124] border-[#f4a124]';
     if (name === 'waking herbs') return 'bg-[#5c1334] border-[#5c1334]';
-    if (name === 'spy equipment uk') return 'bg-[#0a1a0a] border-[#0a1a0a]';
+    
     return 'bg-white border-[#e5e7eb]';
   };
 
@@ -85,7 +83,6 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
       <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
       
       <div className="flex flex-col md:flex-row flex-1 p-4 gap-6 items-start md:items-center">
-        {/* Merchant Identity Section - Fixed width for alignment */}
         <div className="flex items-center gap-4 w-full md:w-[280px] shrink-0">
           <div className={`h-16 w-16 shrink-0 rounded-xl flex items-center justify-center text-3xl border overflow-hidden z-10 ${getIconBgColor()}`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -109,9 +106,9 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === "farmer bill's provisions" ? 'scale-75' : 
                   merchant.name.toLowerCase() === 'hempful' ? 'scale-100 p-1' : 
                   merchant.name.toLowerCase() === 'mister padel' ? 'scale-100 p-1' : 
-                  merchant.name.toLowerCase() === 'lincoln kiln dried logs' ? 'scale-[1.3] p-1' : 
-                  merchant.name.toLowerCase() === 'candyjets' ? 'scale-[1.4] p-1' : 
-                  merchant.name.toLowerCase() === 'payperq' ? 'scale-[1.2] p-1' : 
+                  merchant.name.toLowerCase() === 'lincoln kiln dried logs' ? 'scale-[1.6] p-0' : 
+                  merchant.name.toLowerCase() === 'candyjets' ? 'scale-[1.8] p-0' : 
+                  merchant.name.toLowerCase() === 'payperq' ? 'scale-[1.5] p-0' : 
                   merchant.name.toLowerCase() === 'crypto tax help' ? 'scale-100 p-1' : 
                   merchant.name.toLowerCase() === 'mtsocks' ? 'scale-110 p-1' : 
                   merchant.name.toLowerCase() === 'torguard' ? 'scale-125 p-1' : 
@@ -119,8 +116,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'bees & trees' ? 'scale-[1.15] p-1' : 
                   merchant.name.toLowerCase() === 'bloom audio' ? 'scale-100 p-1' : 
                   merchant.name.toLowerCase() === 'la industria handmade' ? 'scale-110 p-1' : 
-                  merchant.name.toLowerCase() === 'campo apícola' ? 'scale-[1.4] p-1' : 
-                  merchant.name.toLowerCase() === 'elephant chateau' ? 'scale-[1.2] p-1' : 
+                  merchant.name.toLowerCase() === 'campo apícola' ? 'scale-[1.7] p-0' : 
+                  merchant.name.toLowerCase() === 'elephant chateau' ? 'scale-[1.6] p-0' : 
                   merchant.name.toLowerCase() === 'árbol de maple' ? 'scale-110 p-1' : 
                   merchant.name.toLowerCase() === 'consumer choice center' ? 'scale-[1.25] p-1' : 
                   merchant.name.toLowerCase() === 'pikasim' ? 'scale-100 p-1' : 
@@ -129,18 +126,18 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   merchant.name.toLowerCase() === 'ivpn' ? 'scale-[1.4] p-1' : 
                   merchant.name.toLowerCase() === 'hyke & byke' ? 'scale-110 p-1' : 
                   merchant.name.toLowerCase() === 'kerwell' ? 'scale-110 p-1' : 
-                  merchant.name.toLowerCase() === 'smith pastures' ? 'scale-[1.5] p-1' : 
+                  merchant.name.toLowerCase() === 'smith pastures' ? 'scale-[1.8] p-0' : 
                   merchant.name.toLowerCase() === 'skoon.' ? 'scale-100' : 
                   merchant.name.toLowerCase() === 'mei leaf' ? 'scale-[1.15]' : 
-                  merchant.name.toLowerCase() === 'missprint' ? 'scale-[1.4] p-1' : 
+                  merchant.name.toLowerCase() === 'missprint' ? 'scale-[1.8] p-0' : 
                   merchant.name.toLowerCase() === 'izindlovu' ? 'scale-125 p-1' : 
                   merchant.name.toLowerCase() === 'sole' ? 'scale-125 p-2' : 
                   merchant.name.toLowerCase() === 'fuelingyou' ? 'scale-110 p-1' : 
                   merchant.name.toLowerCase() === 'heatbit' ? 'scale-[1.15]' : 
                   merchant.name.toLowerCase() === 'degoogled' ? 'scale-110 p-1' : 
-                  merchant.name.toLowerCase() === 'human trafficking institute' ? 'scale-[1.3] p-1' : 
+                  merchant.name.toLowerCase() === 'human trafficking institute' ? 'scale-[1.6] p-0' : 
                   merchant.name.toLowerCase() === 'le cyclo sportif' ? 'scale-[1.3] px-1' : 
-                  merchant.name.toLowerCase() === 'hill helicopters' ? 'scale-[1.6] p-1' : 
+                  merchant.name.toLowerCase() === 'hill helicopters' ? 'scale-[1.9] p-0' : 
                   merchant.name.toLowerCase() === 'gameroom' ? 'scale-[1.4] p-2' : 
                   merchant.name.toLowerCase() === 'hotelgift' ? 'scale-[1.1] p-1' : 
                   merchant.name.toLowerCase() === 'surfshark' ? 'scale-[1.3] p-1' : 
@@ -166,7 +163,6 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
           </div>
         </div>
 
-        {/* Description & Categories Section - flex-1 for remaining space */}
         <div className="flex-1 space-y-3 z-10 min-w-0">
           <CardDescription className="line-clamp-2 text-base">
             {merchant.description}
@@ -231,7 +227,6 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
           </div>
         </div>
 
-        {/* Shipping & Meta Section - Fixed width for alignment */}
         <div className="w-full md:w-[200px] shrink-0 flex flex-col gap-2 z-10 border-t md:border-t-0 md:border-l border-border/20 pt-3 md:pt-0 md:pl-4">
           {(merchant.countryMadeIn || merchant.shippingCountries.length > 0) && (
             <div className="flex flex-col gap-2 text-[10px] uppercase tracking-wider font-semibold text-muted-foreground/70">
@@ -261,7 +256,6 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
           )}
         </div>
 
-        {/* Action Buttons Section - Fixed width for alignment */}
         <div className="flex md:flex-col gap-2 w-full md:w-[100px] shrink-0 z-10 pt-2 md:pt-0">
           <Button asChild variant="default" className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90">
             <a href={merchant.website} target="_blank" rel="noopener noreferrer">
