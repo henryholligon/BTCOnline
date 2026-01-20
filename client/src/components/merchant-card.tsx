@@ -300,7 +300,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
               <div className="flex items-center gap-1 text-yellow-400 relative group/lightning">
                 <div className="absolute inset-0 bg-yellow-400/20 blur-xl rounded-full scale-0 group-hover/lightning:scale-150 transition-transform duration-500 pointer-events-none" />
                 <Zap className="h-3 w-3 fill-current animate-lightning-zap drop-shadow-[0_0_8px_rgba(250,204,21,0.8)] relative z-10" />
-                <span className="relative z-10 font-bold tracking-wider">Lightning</span>
+                <span className="relative z-10 font-bold tracking-wider animate-lightning-zap">Lightning</span>
               </div>
             )}
             {merchant.onchainSupported && (
