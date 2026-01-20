@@ -240,11 +240,6 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
               <span className="text-muted-foreground/50">•</span>
               <span>{merchant.reviews.length} reviews</span>
             </div>
-            {merchant.featured && (
-              <Badge variant="outline" className="mt-1 border-primary/30 text-primary bg-primary/10 animate-pulse-slow">
-                Featured
-              </Badge>
-            )}
           </div>
         </div>
 
