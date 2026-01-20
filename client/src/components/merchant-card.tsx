@@ -275,9 +275,11 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                 "Sweets": "🍬",
                 "Health": "🏥"
               };
-              const pureCat = cat.replace(/[^\w\s&]/gi, '').trim();
+              
+              // Clean the category string of any existing emojis before look-up
+              const pureCat = cat.replace(/\p{Emoji}/gu, '').trim();
               const emoji = categoryEmojis[pureCat] || categoryEmojis[cat];
-              const categoryWithEmoji = emoji ? `${emoji} ${cat}` : cat;
+              const categoryWithEmoji = emoji ? `${emoji} ${pureCat}` : cat;
               
               return (
                 <Badge key={cat} variant="secondary" className="hover:bg-secondary/80 whitespace-nowrap text-[10px] py-0 px-2 h-5">

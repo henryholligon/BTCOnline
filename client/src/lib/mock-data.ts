@@ -34,16 +34,16 @@ export const PAYMENT_PROVIDERS = [
 ];
 
 export const CATEGORIES = [
-  "💻 Electronics",
-  "👕 Clothing",
-  "🍴 Food & Drink",
-  "✈️ Travel",
-  "🎁 Gift Cards",
-  "🛡️ VPN & Privacy",
-  "🌐 Hosting",
-  "📚 Books",
-  "🎨 Art",
-  "❤️ Charity"
+  "Electronics",
+  "Clothing",
+  "Food & Drink",
+  "Travel",
+  "Gift Cards",
+  "VPN & Privacy",
+  "Hosting",
+  "Books",
+  "Art",
+  "Charity"
 ];
 
 export const COUNTRIES = [
@@ -63,7 +63,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     name: "BitRefill",
     description: "Buy Gift Cards & Mobile Refills with Bitcoin. Live on crypto.",
     logo: "/assets/bitrefill-logo.png",
-    categories: ["🎁 Gift Cards", "✈️ Travel"],
+    categories: ["Gift Cards", "Travel"],
     shippingCountries: ["🌍 Worldwide"],
     website: "https://bitrefill.com",
     lightningSupported: true,
@@ -80,7 +80,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     name: "SLNT",
     description: "Privacy-first Faraday bags and signal blocking accessories.",
     logo: "/assets/slnt-logo.png",
-    categories: ["💻 Electronics"],
+    categories: ["Electronics"],
     shippingCountries: ["🌍 Worldwide"],
     website: "https://slnt.com",
     lightningSupported: true,
@@ -97,7 +97,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     name: "Mullvad VPN",
     description: "Mullvad is a VPN service that helps keep your online activity, identity, and location private.",
     logo: "/assets/mullvad-logo.png",
-    categories: ["🛡️ VPN & Privacy"],
+    categories: ["VPN & Privacy"],
     shippingCountries: ["🌍 Worldwide"],
     website: "https://mullvad.net",
     lightningSupported: true,
@@ -115,7 +115,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     name: "Coinkite",
     description: "Hardware wallets for Bitcoin security. Makers of Coldcard.",
     logo: "/assets/coinkite-logo.png",
-    categories: ["💻 Electronics"],
+    categories: ["Electronics"],
     shippingCountries: ["🌍 Worldwide"],
     website: "https://coinkite.com",
     lightningSupported: true,
