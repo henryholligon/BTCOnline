@@ -171,12 +171,12 @@ export default function Home() {
               </div>
 
               {filteredMerchants.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="flex flex-col gap-4">
                   {filteredMerchants.map((merchant, index) => (
                     <motion.div
                       key={merchant.id}
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: index * 0.05 }}
                     >
                       <MerchantCard merchant={merchant} />

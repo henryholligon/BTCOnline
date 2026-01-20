@@ -62,12 +62,13 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
   };
 
   return (
-    <Card className="flex flex-col h-full bg-card/50 border-border/50 hover:border-primary/50 transition-all duration-300 group overflow-hidden relative">
-      <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+    <Card className="flex flex-col md:flex-row w-full bg-card/50 border-border/50 hover:border-primary/50 transition-all duration-300 group overflow-hidden relative mb-4">
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
       
-      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2 z-10">
-        <div className="flex gap-4">
-          <div className={`h-12 w-12 rounded-lg flex items-center justify-center text-3xl border border-border/50 overflow-hidden ${
+      <div className="flex flex-col md:flex-row flex-1 p-4 gap-6 items-start md:items-center">
+        {/* Merchant Identity Section */}
+        <div className="flex items-center gap-4 min-w-[240px]">
+          <div className={`h-16 w-16 shrink-0 rounded-xl flex items-center justify-center text-3xl border border-border/50 overflow-hidden z-10 ${
             merchant.name.toLowerCase() === 'kawa' ? 'bg-[#c9121f] border-[#c9121f]' : 
             merchant.name.toLowerCase() === 'the suffolk tutor' ? 'bg-[#ff9e16] border-[#ff9e16]' :
             merchant.name.toLowerCase() === 'beef initiative' ? 'bg-black border-black' :
@@ -233,169 +234,169 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             )}
           </div>
           <div className="space-y-1">
-            <CardTitle className="text-xl leading-none">{merchant.name}</CardTitle>
+            <CardTitle className="text-xl leading-tight">{merchant.name}</CardTitle>
             <div className="flex items-center text-sm text-muted-foreground gap-1">
               <Star className="h-3.5 w-3.5 fill-primary text-primary" />
               <span className="font-mono">{averageRating > 0 ? averageRating.toFixed(1) : "New"}</span>
               <span className="text-muted-foreground/50">•</span>
               <span>{merchant.reviews.length} reviews</span>
             </div>
-          </div>
-        </div>
-        {merchant.featured && (
-          <Badge variant="outline" className="border-primary/30 text-primary bg-primary/10 animate-pulse-slow">
-            Featured
-          </Badge>
-        )}
-      </CardHeader>
-
-      <CardContent className="flex-1 space-y-4 z-10 pt-2">
-        <CardDescription className="line-clamp-2 text-base">
-          {merchant.description}
-        </CardDescription>
-
-        <div className="flex flex-wrap gap-2">
-          {merchant.categories.map((cat) => {
-            const hasEmoji = /\p{Emoji}/u.test(cat);
-            const categoryWithEmoji = hasEmoji ? cat : (() => {
-              const categoryEmojis: Record<string, string> = {
-                "Electronics": "💻",
-                "Clothing": "👕",
-                "Services": "🛠️",
-                "Food & Drink": "🍴",
-                "Travel": "✈️",
-                "Gift Cards": "🎁",
-                "VPN & Privacy": "🛡️",
-                "Hosting": "🌐",
-                "Books": "📚",
-                "Art": "🎨",
-                "Charity": "❤️",
-                "Fashion": "👗",
-                "Lifestyle": "✨",
-                "Health & Beauty": "💄",
-                "Wellness": "🧘",
-                "Auto": "🚗",
-                "Sports": "⚽",
-                "Music": "🎵",
-                "Tech": "⚙️",
-                "Entertainment": "🎬",
-                "Alcohol": "🍷",
-                "Sweets": "🍬",
-                "Health": "🏥"
-              };
-              const pureCat = cat.replace(/[^\w\s&]/gi, '').trim();
-              const emoji = categoryEmojis[pureCat] || categoryEmojis[cat];
-              return emoji ? `${emoji} ${cat}` : cat;
-            })();
-            
-            return (
-              <Badge key={cat} variant="secondary" className="hover:bg-secondary/80">
-                {categoryWithEmoji}
+            {merchant.featured && (
+              <Badge variant="outline" className="mt-1 border-primary/30 text-primary bg-primary/10 animate-pulse-slow">
+                Featured
               </Badge>
-            );
-          })}
+            )}
+          </div>
         </div>
 
-        <div className="flex items-center gap-4 text-xs text-muted-foreground font-mono">
-          {merchant.lightningSupported && (
-            <div className="flex items-center gap-1 text-yellow-400 relative group/lightning">
-              <div className="absolute inset-0 bg-yellow-400/20 blur-xl rounded-full scale-0 group-hover/lightning:scale-150 transition-transform duration-500 pointer-events-none" />
-              <Zap className="h-3.5 w-3.5 fill-current animate-lightning-zap drop-shadow-[0_0_8px_rgba(250,204,21,0.8)] relative z-10" />
-              <span className="relative z-10 font-bold tracking-wider">Lightning</span>
-            </div>
-          )}
-          {merchant.onchainSupported && (
-            <div className="flex items-center gap-1 text-orange-500">
-              <Bitcoin className="h-3 w-3 fill-current" />
-              <span>On-Chain</span>
-            </div>
-          )}
-        </div>
+        {/* Description & Categories Section */}
+        <div className="flex-1 space-y-3 z-10 min-w-0">
+          <CardDescription className="line-clamp-2 text-base">
+            {merchant.description}
+          </CardDescription>
 
-        {(merchant.countryShippedFrom || merchant.countryMadeIn || merchant.shippingCountries.length > 0) && (
-          <div className="grid grid-cols-2 gap-2 text-[10px] uppercase tracking-wider font-semibold text-muted-foreground/70 border-t border-border/20 pt-3">
-            {merchant.countryShippedFrom && (
-              <div className="flex flex-col gap-0.5">
-                <span className="text-[9px] opacity-70">Shipped From</span>
-                <span className="text-foreground/90 truncate flex items-center gap-1">
-                  {getCountryEmoji(merchant.countryShippedFrom)} {merchant.countryShippedFrom}
-                </span>
+          <div className="flex flex-wrap gap-2">
+            {merchant.categories.slice(0, 3).map((cat) => {
+              const hasEmoji = /\p{Emoji}/u.test(cat);
+              const categoryWithEmoji = hasEmoji ? cat : (() => {
+                const categoryEmojis: Record<string, string> = {
+                  "Electronics": "💻",
+                  "Clothing": "👕",
+                  "Services": "🛠️",
+                  "Food & Drink": "🍴",
+                  "Travel": "✈️",
+                  "Gift Cards": "🎁",
+                  "VPN & Privacy": "🛡️",
+                  "Hosting": "🌐",
+                  "Books": "📚",
+                  "Art": "🎨",
+                  "Charity": "❤️",
+                  "Fashion": "👗",
+                  "Lifestyle": "✨",
+                  "Health & Beauty": "💄",
+                  "Wellness": "🧘",
+                  "Auto": "🚗",
+                  "Sports": "⚽",
+                  "Music": "🎵",
+                  "Tech": "⚙️",
+                  "Entertainment": "🎬",
+                  "Alcohol": "🍷",
+                  "Sweets": "🍬",
+                  "Health": "🏥"
+                };
+                const pureCat = cat.replace(/[^\w\s&]/gi, '').trim();
+                const emoji = categoryEmojis[pureCat] || categoryEmojis[cat];
+                return emoji ? `${emoji} ${cat}` : cat;
+              })();
+              
+              return (
+                <Badge key={cat} variant="secondary" className="hover:bg-secondary/80 whitespace-nowrap text-[10px] py-0 px-2 h-5">
+                  {categoryWithEmoji}
+                </Badge>
+              );
+            })}
+            {merchant.categories.length > 3 && (
+              <span className="text-[10px] text-muted-foreground self-center">+{merchant.categories.length - 3} more</span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-4 text-[10px] text-muted-foreground font-mono">
+            {merchant.lightningSupported && (
+              <div className="flex items-center gap-1 text-yellow-400 relative group/lightning">
+                <div className="absolute inset-0 bg-yellow-400/20 blur-xl rounded-full scale-0 group-hover/lightning:scale-150 transition-transform duration-500 pointer-events-none" />
+                <Zap className="h-3 w-3 fill-current animate-lightning-zap drop-shadow-[0_0_8px_rgba(250,204,21,0.8)] relative z-10" />
+                <span className="relative z-10 font-bold tracking-wider">Lightning</span>
               </div>
             )}
-            {merchant.countryMadeIn && (
-              <div className="flex flex-col gap-0.5">
-                <span className="text-[9px] opacity-70">Made In</span>
-                <span className="text-foreground/90 truncate flex items-center gap-1">
-                  {getCountryEmoji(merchant.countryMadeIn)} {merchant.countryMadeIn}
-                </span>
-              </div>
-            )}
-            {merchant.shippingCountries.length > 0 && (
-              <div className="flex flex-col gap-0.5 col-span-2 mt-1 border-t border-border/10 pt-2">
-                <span className="text-[9px] opacity-70">Shipping to</span>
-                <span className="text-foreground/90 truncate flex items-center gap-1">
-                  {merchant.shippingCountries.some(c => c.toLowerCase().includes("worldwide"))
-                    ? "🌍 Worldwide" 
-                    : merchant.shippingCountries.map(c => {
-                        const pureCountry = c.replace(/[^\w\s]/gi, '').trim();
-                        const hasEmoji = /\p{Emoji}/u.test(c);
-                        return hasEmoji ? c : `${getCountryEmoji(pureCountry)} ${c}`;
-                      }).join(", ")}
-                </span>
+            {merchant.onchainSupported && (
+              <div className="flex items-center gap-1 text-orange-500">
+                <Bitcoin className="h-3 w-3 fill-current" />
+                <span>On-Chain</span>
               </div>
             )}
           </div>
-        )}
-      </CardContent>
+        </div>
 
-      <CardFooter className="flex gap-2 z-10 pt-2 border-t border-border/30 mt-auto">
-        <Button asChild variant="default" className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90">
-          <a href={merchant.website} target="_blank" rel="noopener noreferrer">
-            Visit Site <ExternalLink className="ml-2 h-4 w-4" />
-          </a>
-        </Button>
-        
-        <Dialog open={isReviewOpen} onOpenChange={setIsReviewOpen}>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="icon" title="Write a review">
-              <MessageSquare className="h-4 w-4" />
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Write a review for {merchant.name}</DialogTitle>
-              <DialogDescription>
-                Share your experience. Your review will be cryptographically signed.
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSubmitReview} className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="rating">Rating</Label>
-                <div className="flex gap-2">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Button 
-                      key={star} 
-                      type="button" 
-                      variant="ghost" 
-                      size="sm"
-                      className="p-0 h-8 w-8 hover:bg-transparent"
-                    >
-                      <Star className="h-6 w-6 text-muted hover:text-primary fill-muted hover:fill-primary transition-colors" />
-                    </Button>
-                  ))}
+        {/* Shipping & Meta Section */}
+        <div className="w-full md:w-[200px] flex flex-col gap-2 z-10 border-t md:border-t-0 md:border-l border-border/20 pt-3 md:pt-0 md:pl-4">
+          {(merchant.countryShippedFrom || merchant.countryMadeIn || merchant.shippingCountries.length > 0) && (
+            <div className="flex flex-col gap-2 text-[10px] uppercase tracking-wider font-semibold text-muted-foreground/70">
+              {merchant.countryShippedFrom && (
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[9px] opacity-70">Shipped From</span>
+                  <span className="text-foreground/90 truncate flex items-center gap-1">
+                    {getCountryEmoji(merchant.countryShippedFrom)} {merchant.countryShippedFrom}
+                  </span>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="comment">Comment</Label>
-                <Textarea id="comment" placeholder="Tell us about your purchase..." required />
-              </div>
-              <DialogFooter>
-                <Button type="submit">Sign & Publish</Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </CardFooter>
+              )}
+              {merchant.shippingCountries.length > 0 && (
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[9px] opacity-70">Shipping to</span>
+                  <span className="text-foreground/90 truncate flex items-center gap-1">
+                    {merchant.shippingCountries.some(c => c.toLowerCase().includes("worldwide"))
+                      ? "🌍 Worldwide" 
+                      : merchant.shippingCountries.map(c => {
+                          const pureCountry = c.replace(/[^\w\s]/gi, '').trim();
+                          const hasEmoji = /\p{Emoji}/u.test(c);
+                          return hasEmoji ? c : `${getCountryEmoji(pureCountry)} ${c}`;
+                        }).slice(0, 2).join(", ") + (merchant.shippingCountries.length > 2 ? "..." : "")}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Action Buttons Section */}
+        <div className="flex md:flex-col gap-2 w-full md:w-auto z-10 pt-2 md:pt-0">
+          <Button asChild variant="default" className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90">
+            <a href={merchant.website} target="_blank" rel="noopener noreferrer">
+              Visit <ExternalLink className="ml-2 h-3 w-3" />
+            </a>
+          </Button>
+          
+          <Dialog open={isReviewOpen} onOpenChange={setIsReviewOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm" className="px-2" title="Write a review">
+                <MessageSquare className="h-4 w-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Write a review for {merchant.name}</DialogTitle>
+                <DialogDescription>
+                  Share your experience. Your review will be cryptographically signed.
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleSubmitReview} className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="rating">Rating</Label>
+                  <div className="flex gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Button 
+                        key={star} 
+                        type="button" 
+                        variant="ghost" 
+                        size="sm"
+                        className="p-0 h-8 w-8 hover:bg-transparent"
+                      >
+                        <Star className="h-6 w-6 text-muted hover:text-primary fill-muted hover:fill-primary transition-colors" />
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="comment">Comment</Label>
+                  <Textarea id="comment" placeholder="Tell us about your purchase..." required />
+                </div>
+                <DialogFooter>
+                  <Button type="submit">Sign & Publish</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
     </Card>
   );
 }
