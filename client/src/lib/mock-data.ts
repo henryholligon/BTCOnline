@@ -63,7 +63,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     name: "BitRefill",
     description: "Buy Gift Cards & Mobile Refills with Bitcoin. Live on crypto.",
     logo: "/assets/bitrefill-logo.png",
-    categories: ["Gift Cards", "Travel"],
+    categories: ["🎁 Gift Cards", "✈️ Travel"],
     shippingCountries: ["🌍 Worldwide"],
     website: "https://bitrefill.com",
     lightningSupported: true,
