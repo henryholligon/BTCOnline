@@ -298,14 +298,14 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
 
         <div className="flex items-center gap-4 text-xs text-muted-foreground font-mono">
           {merchant.lightningSupported && (
-            <div className="flex items-center gap-1.5 text-yellow-400 relative px-2 py-0.5 rounded-full bg-yellow-400/10 border border-yellow-400/20 overflow-hidden group/lightning">
+            <div className="flex items-center gap-1.5 text-yellow-400 relative px-2 py-0.5 rounded-full bg-yellow-400/10 overflow-hidden group/lightning">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-400/20 to-transparent -translate-x-full animate-shimmer pointer-events-none" />
               <Zap className="h-3.5 w-3.5 fill-current animate-bounce-subtle drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]" />
               <span className="relative z-10 font-bold tracking-wider text-[10px]">LIGHTNING</span>
             </div>
           )}
           {merchant.onchainSupported && (
-            <div className="flex items-center gap-1.5 text-orange-500 relative px-2 py-0.5 rounded-full bg-orange-500/10 border border-orange-500/20 overflow-hidden group/onchain">
+            <div className="flex items-center gap-1.5 text-orange-500 relative px-2 py-0.5 rounded-full bg-orange-500/10 overflow-hidden group/onchain">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-orange-500/20 to-transparent -translate-x-full animate-shimmer pointer-events-none" />
               <Bitcoin className="h-3.5 w-3.5 fill-current animate-pulse drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]" />
               <span className="relative z-10 font-bold tracking-wider text-[10px]">ON-CHAIN</span>
