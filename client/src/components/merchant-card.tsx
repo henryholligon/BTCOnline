@@ -262,7 +262,6 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                 const categoryEmojis: Record<string, string> = {
                   "Electronics": "💻",
                   "Clothing": "👕",
-                  "Services": "🛠️",
                   "Food & Drink": "🍴",
                   "Travel": "✈️",
                   "Gift Cards": "🎁",
