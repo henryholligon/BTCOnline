@@ -298,9 +298,27 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
 
         <div className="flex items-center gap-4 text-xs text-muted-foreground font-mono">
           {merchant.lightningSupported && (
-            <div className="flex items-center gap-1 text-yellow-400">
-              <Zap className="h-3 w-3 fill-current" />
-              <span>Lightning</span>
+            <div className="flex items-center gap-1 text-yellow-400 relative group/lightning">
+              <div className="absolute inset-0 bg-yellow-400/20 blur-xl rounded-full scale-0 group-hover/lightning:scale-150 transition-transform duration-500 pointer-events-none" />
+              <div className="absolute -inset-1 bg-yellow-400/10 blur-md rounded-full animate-pulse pointer-events-none" />
+              <Zap className="h-3.5 w-3.5 fill-current animate-bounce-subtle drop-shadow-[0_0_8px_rgba(250,204,21,0.8)] relative z-10" />
+              <span className="relative z-10 font-bold tracking-wider">Lightning</span>
+              
+              {/* Lightning Splash Sparks */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 pointer-events-none opacity-0 group-hover/lightning:opacity-100 transition-opacity">
+                {[...Array(6)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="absolute top-1/2 left-1/2 w-0.5 h-3 bg-yellow-400 rounded-full animate-lightning-spark"
+                    style={{
+                      transformOrigin: 'center',
+                      rotate: `${i * 60}deg`,
+                      '--rotation': `${i * 60}deg`,
+                      animationDelay: `${i * 0.1}s`
+                    } as any}
+                  />
+                ))}
+              </div>
             </div>
           )}
           {merchant.onchainSupported && (
