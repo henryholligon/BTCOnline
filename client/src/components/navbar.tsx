@@ -76,59 +76,57 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
           />
         </Link>
 
-        <div className="flex flex-1 items-center space-x-2 md:justify-end">
-          <div className="w-full flex-1 md:w-auto md:flex-none">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search merchants..."
-                className="h-9 w-full rounded-md border border-input bg-muted/50 pl-8 pr-4 text-sm shadow-none transition-colors focus-visible:bg-background focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:w-[300px] lg:w-[400px]"
-                onChange={(e) => onSearch(e.target.value)}
-              />
-            </div>
+        <div className="flex-1 flex items-center ml-4">
+          <div className="relative w-full max-w-[400px]">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search merchants..."
+              className="h-9 w-full rounded-md border border-input bg-muted/50 pl-8 pr-4 text-sm shadow-none transition-colors focus-visible:bg-background focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+              onChange={(e) => onSearch(e.target.value)}
+            />
           </div>
-          
-          <div className="flex items-center space-x-2">
-            <Button asChild variant="ghost" className="hidden md:flex text-sm font-medium hover:text-primary transition-colors h-9 px-4">
-              <a href="https://btcmap.org" target="_blank" rel="noopener noreferrer">
-                In-person
-              </a>
-            </Button>
+        </div>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="mr-2"
-            >
-              <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-              <span className="sr-only">Toggle theme</span>
-            </Button>
+        <div className="flex items-center space-x-2">
+          <Button asChild variant="ghost" className="hidden md:flex text-sm font-medium hover:text-primary transition-colors h-9 px-4">
+            <a href="https://btcmap.org" target="_blank" rel="noopener noreferrer">
+              In-person
+            </a>
+          </Button>
 
-            {isConnected ? (
-              <div className="flex items-center gap-2">
-                <div className="hidden text-xs text-muted-foreground sm:inline-block font-mono">
-                  npub1...8x9z
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={handleDisconnect}
-                  className="hover:bg-destructive/10 hover:text-destructive transition-colors"
-                >
-                  <LogOut className="h-5 w-5" />
-                </Button>
-                <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-primary to-purple-500 border border-border"></div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="mr-2"
+          >
+            <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <span className="sr-only">Toggle theme</span>
+          </Button>
+
+          {isConnected ? (
+            <div className="flex items-center gap-2">
+              <div className="hidden text-xs text-muted-foreground sm:inline-block font-mono">
+                npub1...8x9z
               </div>
-            ) : (
-              <Button onClick={handleConnect} className="font-medium bg-[#A855F7] hover:bg-[#9333EA] text-white border-none gap-2">
-                <img src={ostrichImg} alt="" className="h-5 w-5 object-contain brightness-0 invert" />
-                Connect Nostr
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={handleDisconnect}
+                className="hover:bg-destructive/10 hover:text-destructive transition-colors"
+              >
+                <LogOut className="h-5 w-5" />
               </Button>
-            )}
-          </div>
+              <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-primary to-purple-500 border border-border"></div>
+            </div>
+          ) : (
+            <Button onClick={handleConnect} className="font-medium bg-[#A855F7] hover:bg-[#9333EA] text-white border-none gap-2">
+              <img src={ostrichImg} alt="" className="h-5 w-5 object-contain brightness-0 invert" />
+              Connect Nostr
+            </Button>
+          )}
         </div>
       </div>
     </nav>
