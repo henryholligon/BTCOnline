@@ -14,8 +14,6 @@ interface FiltersProps {
   onCategoryChange: (category: string) => void;
   selectedCountry: string;
   onCountryChange: (country: string) => void;
-  selectedShippedFrom: string;
-  onShippedFromChange: (country: string) => void;
   selectedMadeIn: string;
   onMadeInChange: (country: string) => void;
   selectedProviders: string[];
@@ -30,8 +28,6 @@ export default function Filters({
   onCategoryChange,
   selectedCountry,
   onCountryChange,
-  selectedShippedFrom,
-  onShippedFromChange,
   selectedMadeIn,
   onMadeInChange,
   selectedProviders,
@@ -48,7 +44,7 @@ export default function Filters({
         <h3 className="text-sm font-medium tracking-wide uppercase text-muted-foreground flex items-center gap-2">
           <Filter className="h-4 w-4" /> Filters
         </h3>
-        {(selectedCategories.length > 0 || selectedCountry !== "All" || selectedShippedFrom !== "All" || selectedMadeIn !== "All" || minRating > 0 || selectedProviders.length > 0) && (
+        {(selectedCategories.length > 0 || selectedCountry !== "All" || selectedMadeIn !== "All" || minRating > 0 || selectedProviders.length > 0) && (
           <Button 
             variant="ghost" 
             size="sm" 
@@ -103,21 +99,6 @@ export default function Filters({
           <Select value={selectedCountry} onValueChange={onCountryChange}>
             <SelectTrigger className="w-full h-10">
               <SelectValue placeholder="Select destination" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All">Anywhere</SelectItem>
-              {COUNTRIES.map((country) => (
-                <SelectItem key={country} value={country}>{country}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label className="text-sm font-display">Shipping from</Label>
-          <Select value={selectedShippedFrom} onValueChange={onShippedFromChange}>
-            <SelectTrigger className="w-full h-10">
-              <SelectValue placeholder="Select origin" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="All">Anywhere</SelectItem>

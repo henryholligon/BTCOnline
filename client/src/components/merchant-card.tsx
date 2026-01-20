@@ -319,13 +319,13 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
 
         {/* Shipping & Meta Section */}
         <div className="w-full md:w-[200px] flex flex-col gap-2 z-10 border-t md:border-t-0 md:border-l border-border/20 pt-3 md:pt-0 md:pl-4">
-          {(merchant.countryShippedFrom || merchant.countryMadeIn || merchant.shippingCountries.length > 0) && (
+          {(merchant.countryMadeIn || merchant.shippingCountries.length > 0) && (
             <div className="flex flex-col gap-2 text-[10px] uppercase tracking-wider font-semibold text-muted-foreground/70">
-              {merchant.countryShippedFrom && (
+              {merchant.countryMadeIn && (
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-[9px] opacity-70">Shipped From</span>
+                  <span className="text-[9px] opacity-70">Made In</span>
                   <span className="text-foreground/90 truncate flex items-center gap-1">
-                    {getCountryEmoji(merchant.countryShippedFrom)} {merchant.countryShippedFrom}
+                    {getCountryEmoji(merchant.countryMadeIn)} {merchant.countryMadeIn}
                   </span>
                 </div>
               )}

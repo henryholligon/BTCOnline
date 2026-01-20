@@ -11,7 +11,6 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedCountry, setSelectedCountry] = useState("All");
-  const [selectedShippedFrom, setSelectedShippedFrom] = useState("All");
   const [selectedMadeIn, setSelectedMadeIn] = useState("All");
   const [selectedProviders, setSelectedProviders] = useState<string[]>([]);
   const [minRating, setMinRating] = useState(0);
@@ -31,10 +30,6 @@ export default function Home() {
         merchant.shippingCountries.some(c => c.includes("Worldwide")) || 
         merchant.shippingCountries.includes(selectedCountry);
 
-      const matchesShippedFrom = 
-        selectedShippedFrom === "All" || 
-        (merchant.countryShippedFrom && selectedShippedFrom.includes(merchant.countryShippedFrom));
-
       const matchesMadeIn = 
         selectedMadeIn === "All" || 
         (merchant.countryMadeIn && selectedMadeIn.includes(merchant.countryMadeIn));
@@ -49,9 +44,9 @@ export default function Home() {
       
       const matchesRating = avgRating >= minRating;
 
-      return matchesSearch && matchesCategory && matchesCountry && matchesShippedFrom && matchesMadeIn && matchesProvider && matchesRating;
+      return matchesSearch && matchesCategory && matchesCountry && matchesMadeIn && matchesProvider && matchesRating;
     });
-  }, [searchQuery, selectedCategories, selectedCountry, selectedShippedFrom, selectedMadeIn, selectedProviders, minRating]);
+  }, [searchQuery, selectedCategories, selectedCountry, selectedMadeIn, selectedProviders, minRating]);
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategories(category === "All" || !category ? [] : [category]);
@@ -64,7 +59,6 @@ export default function Home() {
   const clearFilters = () => {
     setSelectedCategories([]);
     setSelectedCountry("All");
-    setSelectedShippedFrom("All");
     setSelectedMadeIn("All");
     setSelectedProviders([]);
     setMinRating(0);
@@ -77,8 +71,6 @@ export default function Home() {
       onCategoryChange={handleCategoryChange}
       selectedCountry={selectedCountry}
       onCountryChange={setSelectedCountry}
-      selectedShippedFrom={selectedShippedFrom}
-      onShippedFromChange={setSelectedShippedFrom}
       selectedMadeIn={selectedMadeIn}
       onMadeInChange={setSelectedMadeIn}
       selectedProviders={selectedProviders}
@@ -119,16 +111,6 @@ export default function Home() {
               <Select value={selectedCountry} onValueChange={setSelectedCountry}>
                 <SelectTrigger className="w-auto h-9 bg-muted/50 border-none rounded-full text-[11px] font-medium px-4 gap-2">
                   <SelectValue placeholder="Shipping to" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="All">Anywhere</SelectItem>
-                  {COUNTRIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                </SelectContent>
-              </Select>
-
-              <Select value={selectedShippedFrom} onValueChange={setSelectedShippedFrom}>
-                <SelectTrigger className="w-auto h-9 bg-muted/50 border-none rounded-full text-[11px] font-medium px-4 gap-2">
-                  <SelectValue placeholder="Shipped from" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="All">Anywhere</SelectItem>
