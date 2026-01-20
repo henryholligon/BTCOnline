@@ -65,6 +65,20 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
     <Card className="flex flex-col h-full bg-card/50 border-border/50 hover:border-primary/50 transition-all duration-300 group overflow-hidden relative">
       <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
       
+      {merchant.reviews.length === 0 && (
+        <div className="absolute top-2 right-2 z-20 pointer-events-none">
+          <img 
+            src="https://media.tenor.com/view/new-blinking-new-blinking-without-background-gif-5770026634302544702" 
+            alt="New" 
+            className="h-8 w-auto mix-blend-multiply dark:mix-blend-screen"
+            onError={(e) => {
+              // Fallback if tenor direct link is weird
+              e.currentTarget.src = "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJndXp4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4JmVwPXYxX3N0aWNrZXJzX3NlYXJjaCZjdD1z/3o7TKMGpxx8yGz8uXm/giphy.gif";
+            }}
+          />
+        </div>
+      )}
+
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2 z-10">
         <div className="flex gap-4">
           <div className={`h-12 w-12 rounded-lg flex items-center justify-center text-3xl border border-border/50 overflow-hidden ${
