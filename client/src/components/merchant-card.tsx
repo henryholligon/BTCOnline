@@ -2,7 +2,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
@@ -66,8 +65,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
       <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
       
       <div className="flex flex-col md:flex-row flex-1 p-4 gap-6 items-start md:items-center">
-        {/* Merchant Identity Section */}
-        <div className="flex items-center gap-4 min-w-[240px]">
+        {/* Merchant Identity Section - Fixed width for alignment */}
+        <div className="flex items-center gap-4 w-full md:w-[280px] shrink-0">
           <div className={`h-16 w-16 shrink-0 rounded-xl flex items-center justify-center text-3xl border border-border/50 overflow-hidden z-10 ${
             merchant.name.toLowerCase() === 'kawa' ? 'bg-[#c9121f] border-[#c9121f]' : 
             merchant.name.toLowerCase() === 'the suffolk tutor' ? 'bg-[#ff9e16] border-[#ff9e16]' :
@@ -233,8 +232,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
               merchant.logo
             )}
           </div>
-          <div className="space-y-1">
-            <CardTitle className="text-xl leading-tight">{merchant.name}</CardTitle>
+          <div className="space-y-1 overflow-hidden">
+            <CardTitle className="text-xl leading-tight truncate" title={merchant.name}>{merchant.name}</CardTitle>
             <div className="flex items-center text-sm text-muted-foreground gap-1">
               <Star className="h-3.5 w-3.5 fill-primary text-primary" />
               <span className="font-mono">{averageRating > 0 ? averageRating.toFixed(1) : "New"}</span>
@@ -249,7 +248,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
           </div>
         </div>
 
-        {/* Description & Categories Section */}
+        {/* Description & Categories Section - flex-1 for remaining space */}
         <div className="flex-1 space-y-3 z-10 min-w-0">
           <CardDescription className="line-clamp-2 text-base">
             {merchant.description}
@@ -258,35 +257,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
           <div className="flex flex-wrap gap-2">
             {merchant.categories.slice(0, 3).map((cat) => {
               const hasEmoji = /\p{Emoji}/u.test(cat);
-              const categoryWithEmoji = hasEmoji ? cat : (() => {
-                const categoryEmojis: Record<string, string> = {
-                  "Electronics": "💻",
-                  "Clothing": "👕",
-                  "Food & Drink": "🍴",
-                  "Travel": "✈️",
-                  "Gift Cards": "🎁",
-                  "VPN & Privacy": "🛡️",
-                  "Hosting": "🌐",
-                  "Books": "📚",
-                  "Art": "🎨",
-                  "Charity": "❤️",
-                  "Fashion": "👗",
-                  "Lifestyle": "✨",
-                  "Health & Beauty": "💄",
-                  "Wellness": "🧘",
-                  "Auto": "🚗",
-                  "Sports": "⚽",
-                  "Music": "🎵",
-                  "Tech": "⚙️",
-                  "Entertainment": "🎬",
-                  "Alcohol": "🍷",
-                  "Sweets": "🍬",
-                  "Health": "🏥"
-                };
-                const pureCat = cat.replace(/[^\w\s&]/gi, '').trim();
-                const emoji = categoryEmojis[pureCat] || categoryEmojis[cat];
-                return emoji ? `${emoji} ${cat}` : cat;
-              })();
+              const categoryWithEmoji = hasEmoji ? cat : cat;
               
               return (
                 <Badge key={cat} variant="secondary" className="hover:bg-secondary/80 whitespace-nowrap text-[10px] py-0 px-2 h-5">
@@ -316,8 +287,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
           </div>
         </div>
 
-        {/* Shipping & Meta Section */}
-        <div className="w-full md:w-[200px] flex flex-col gap-2 z-10 border-t md:border-t-0 md:border-l border-border/20 pt-3 md:pt-0 md:pl-4">
+        {/* Shipping & Meta Section - Fixed width for alignment */}
+        <div className="w-full md:w-[200px] shrink-0 flex flex-col gap-2 z-10 border-t md:border-t-0 md:border-l border-border/20 pt-3 md:pt-0 md:pl-4">
           {(merchant.countryMadeIn || merchant.shippingCountries.length > 0) && (
             <div className="flex flex-col gap-2 text-[10px] uppercase tracking-wider font-semibold text-muted-foreground/70">
               {merchant.countryMadeIn && (
@@ -346,8 +317,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
           )}
         </div>
 
-        {/* Action Buttons Section */}
-        <div className="flex md:flex-col gap-2 w-full md:w-auto z-10 pt-2 md:pt-0">
+        {/* Action Buttons Section - Fixed width for alignment */}
+        <div className="flex md:flex-col gap-2 w-full md:w-[100px] shrink-0 z-10 pt-2 md:pt-0">
           <Button asChild variant="default" className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90">
             <a href={merchant.website} target="_blank" rel="noopener noreferrer">
               Visit <ExternalLink className="ml-2 h-3 w-3" />
