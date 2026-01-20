@@ -68,13 +68,9 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
       {merchant.reviews.length === 0 && (
         <div className="absolute top-2 right-2 z-20 pointer-events-none">
           <img 
-            src="https://media.tenor.com/view/new-blinking-new-blinking-without-background-gif-5770026634302544702" 
+            src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJndXp4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4JmVwPXYxX3N0aWNrZXJzX3NlYXJjaCZjdD1z/3o7TKMGpxx8yGz8uXm/giphy.gif" 
             alt="New" 
-            className="h-8 w-auto mix-blend-multiply dark:mix-blend-screen"
-            onError={(e) => {
-              // Fallback if tenor direct link is weird
-              e.currentTarget.src = "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJndXp4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4JmVwPXYxX3N0aWNrZXJzX3NlYXJjaCZjdD1z/3o7TKMGpxx8yGz8uXm/giphy.gif";
-            }}
+            className="h-10 w-auto drop-shadow-md"
           />
         </div>
       )}
@@ -312,15 +308,17 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
 
         <div className="flex items-center gap-4 text-xs text-muted-foreground font-mono">
           {merchant.lightningSupported && (
-            <div className="flex items-center gap-1 text-yellow-400">
-              <Zap className="h-3 w-3 fill-current" />
-              <span>Lightning</span>
+            <div className="flex items-center gap-1.5 text-yellow-400 relative px-2 py-0.5 rounded-full bg-yellow-400/10 border border-yellow-400/20 overflow-hidden group/lightning">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-400/20 to-transparent -translate-x-full animate-shimmer pointer-events-none" />
+              <Zap className="h-3.5 w-3.5 fill-current animate-bounce-subtle drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]" />
+              <span className="relative z-10 font-bold tracking-wider text-[10px]">LIGHTNING</span>
             </div>
           )}
           {merchant.onchainSupported && (
-            <div className="flex items-center gap-1 text-orange-500">
-              <Bitcoin className="h-3 w-3 fill-current" />
-              <span>On-Chain</span>
+            <div className="flex items-center gap-1.5 text-orange-500 relative px-2 py-0.5 rounded-full bg-orange-500/10 border border-orange-500/20 overflow-hidden group/onchain">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-orange-500/20 to-transparent -translate-x-full animate-shimmer pointer-events-none" />
+              <Bitcoin className="h-3.5 w-3.5 fill-current animate-pulse drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]" />
+              <span className="relative z-10 font-bold tracking-wider text-[10px]">ON-CHAIN</span>
             </div>
           )}
         </div>

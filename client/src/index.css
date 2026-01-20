@@ -98,6 +98,27 @@
   --color-chart-5: hsl(var(--chart-5));
 
   --radius: 0.5rem;
+
+  --animate-pulse-slow: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-bounce-subtle: bounce-subtle 2s ease-in-out infinite;
+
+  @keyframes pulse-slow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  @keyframes bounce-subtle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-2px); }
+  }
+
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  --animate-shimmer: shimmer 2s infinite;
 }
 
 @layer base {
