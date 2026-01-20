@@ -63,7 +63,7 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
           </SheetContent>
         </Sheet>
 
-        <Link href="/" className="mr-4 flex items-center">
+        <Link href="/" className="mr-6 flex items-center">
           <img 
             src="/assets/main-logo.png" 
             alt="btconline" 
@@ -76,16 +76,14 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
           />
         </Link>
 
-        <div className="hidden md:flex items-center space-x-4 mr-6">
-          <Button asChild variant="ghost" className="text-sm font-medium hover:text-primary transition-colors gap-2">
-            <a href="https://btcmap.org" target="_blank" rel="noopener noreferrer">
-              <span className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-              In-person
-            </a>
-          </Button>
-        </div>
-
         <div className="flex flex-1 items-center space-x-2 md:justify-end">
+          <div className="hidden md:flex items-center space-x-2 mr-2">
+            <Button asChild variant="ghost" className="text-sm font-medium hover:text-primary transition-colors h-9 px-4">
+              <a href="https://btcmap.org" target="_blank" rel="noopener noreferrer">
+                In-person
+              </a>
+            </Button>
+          </div>
           <div className="w-full flex-1 md:w-auto md:flex-none">
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
