@@ -1,38 +1,38 @@
-import { merchants, reviews, type Merchant, type InsertMerchant, type Review, type InsertReview } from "@shared/schema";
-import { db } from "./db";
-import { eq, and } from "drizzle-orm";
+import { type User, type InsertUser } from "@shared/schema";
+import { randomUUID } from "crypto";
+
+// modify the interface with any CRUD methods
+// you might need
 
 export interface IStorage {
-  getMerchants(): Promise<Merchant[]>;
-  getMerchant(id: number): Promise<Merchant | undefined>;
-  createMerchant(merchant: InsertMerchant): Promise<Merchant>;
-  getReviewsByMerchant(merchantId: number): Promise<Review[]>;
-  createReview(review: InsertReview): Promise<Review>;
+  getUser(id: string): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
 }
 
-export class DatabaseStorage implements IStorage {
-  async getMerchants(): Promise<Merchant[]> {
-    return await db.select().from(merchants);
+export class MemStorage implements IStorage {
+  private users: Map<string, User>;
+
+  constructor() {
+    this.users = new Map();
   }
 
-  async getMerchant(id: number): Promise<Merchant | undefined> {
-    const [merchant] = await db.select().from(merchants).where(eq(merchants.id, id));
-    return merchant;
+  async getUser(id: string): Promise<User | undefined> {
+    return this.users.get(id);
   }
 
-  async createMerchant(insertMerchant: InsertMerchant): Promise<Merchant> {
-    const [merchant] = await db.insert(merchants).values(insertMerchant).returning();
-    return merchant;
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(
+      (user) => user.username === username,
+    );
   }
 
-  async getReviewsByMerchant(merchantId: number): Promise<Review[]> {
-    return await db.select().from(reviews).where(eq(reviews.merchantId, merchantId));
-  }
-
-  async createReview(insertReview: InsertReview): Promise<Review> {
-    const [review] = await db.insert(reviews).values(insertReview).returning();
-    return review;
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const id = randomUUID();
+    const user: User = { ...insertUser, id };
+    this.users.set(id, user);
+    return user;
   }
 }
 
-export const storage = new DatabaseStorage();
+export const storage = new MemStorage();

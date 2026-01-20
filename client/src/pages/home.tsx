@@ -1,15 +1,11 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Navbar from "@/components/navbar";
 import Filters from "@/components/filters";
 import MerchantCard from "@/components/merchant-card";
-import { COUNTRIES, CATEGORIES, PAYMENT_PROVIDERS } from "@/lib/mock-data";
+import { MOCK_MERCHANTS, Merchant, COUNTRIES, CATEGORIES, PAYMENT_PROVIDERS } from "@/lib/mock-data";
+import bgImage from "@assets/generated_images/abstract_digital_network_background_with_orange_nodes_in_cypherpunk_style.png";
 import { motion } from "framer-motion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useQuery } from "@tanstack/react-query";
-import { Merchant, Review } from "@shared/schema";
-import bgImage from "@assets/generated_images/abstract_digital_network_background_with_orange_nodes_in_cypherpunk_style.png";
-
-type MerchantWithReviews = Merchant & { reviews: Review[] };
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -20,45 +16,43 @@ export default function Home() {
   const [selectedPaymentMethods, setSelectedPaymentMethods] = useState<string[]>([]);
   const [minRating, setMinRating] = useState(0);
 
-  const { data: merchants = [], isLoading } = useQuery<MerchantWithReviews[]>({
-    queryKey: ["/api/merchants"],
-  });
+  const filteredMerchants = useMemo(() => {
+    return MOCK_MERCHANTS.filter((merchant) => {
+      const matchesSearch = 
+        merchant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        merchant.description.toLowerCase().includes(searchQuery.toLowerCase());
 
-  const filteredMerchants = (merchants || []).filter((merchant) => {
-    const matchesSearch = 
-      merchant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      merchant.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = 
+        selectedCategories.length === 0 || 
+        selectedCategories.some(cat => merchant.categories.includes(cat));
 
-    const matchesCategory = 
-      selectedCategories.length === 0 || 
-      selectedCategories.some(cat => merchant.categories.includes(cat));
+      const matchesCountry = 
+        selectedCountry === "All" || 
+        merchant.shippingCountries.some(c => c.includes("Worldwide")) || 
+        merchant.shippingCountries.includes(selectedCountry);
 
-    const matchesCountry = 
-      selectedCountry === "All" || 
-      merchant.shippingCountries.some(c => c.includes("Worldwide")) || 
-      merchant.shippingCountries.includes(selectedCountry);
+      const matchesMadeIn = 
+        selectedMadeIn === "All" || 
+        (merchant.countryMadeIn && selectedMadeIn.includes(merchant.countryMadeIn));
 
-    const matchesMadeIn = 
-      selectedMadeIn === "All" || 
-      (merchant.countryMadeIn && selectedMadeIn.includes(merchant.countryMadeIn));
+      const matchesProvider = 
+        selectedProviders.length === 0 || 
+        (merchant.paymentProvider && selectedProviders.includes(merchant.paymentProvider));
 
-    const matchesProvider = 
-      selectedProviders.length === 0 || 
-      (merchant.paymentProvider && selectedProviders.includes(merchant.paymentProvider));
+      const matchesPaymentMethod = 
+        selectedPaymentMethods.length === 0 || 
+        (selectedPaymentMethods.includes("lightning") && merchant.lightningSupported) ||
+        (selectedPaymentMethods.includes("onchain") && merchant.onchainSupported);
 
-    const matchesPaymentMethod = 
-      selectedPaymentMethods.length === 0 || 
-      (selectedPaymentMethods.includes("lightning") && merchant.lightningSupported) ||
-      (selectedPaymentMethods.includes("onchain") && merchant.onchainSupported);
+      const avgRating = merchant.reviews.length > 0 
+        ? merchant.reviews.reduce((acc, curr) => acc + curr.rating, 0) / merchant.reviews.length 
+        : 0;
+      
+      const matchesRating = avgRating >= minRating;
 
-    const avgRating = merchant.reviews.length > 0 
-      ? merchant.reviews.reduce((acc, curr) => acc + curr.rating, 0) / merchant.reviews.length 
-      : 0;
-    
-    const matchesRating = avgRating >= minRating;
-
-    return matchesSearch && matchesCategory && matchesCountry && matchesMadeIn && matchesProvider && matchesPaymentMethod && matchesRating;
-  });
+      return matchesSearch && matchesCategory && matchesCountry && matchesMadeIn && matchesProvider && matchesPaymentMethod && matchesRating;
+    });
+  }, [searchQuery, selectedCategories, selectedCountry, selectedMadeIn, selectedProviders, selectedPaymentMethods, minRating]);
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategories(category === "All" || !category ? [] : [category]);
@@ -174,21 +168,11 @@ export default function Home() {
             <div className="flex-1">
               <div className="mb-6 flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">
-                  {isLoading ? (
-                    "Loading merchants..."
-                  ) : (
-                    <>Showing <span className="font-mono text-foreground font-medium">{filteredMerchants.length}</span> merchants</>
-                  )}
+                  Showing <span className="font-mono text-foreground font-medium">{filteredMerchants.length}</span> merchants
                 </p>
               </div>
 
-              {isLoading ? (
-                <div className="flex flex-col gap-4">
-                  {[...Array(5)].map((_, i) => (
-                    <div key={i} className="h-40 w-full bg-muted/20 animate-pulse rounded-xl" />
-                  ))}
-                </div>
-              ) : filteredMerchants.length > 0 ? (
+              {filteredMerchants.length > 0 ? (
                 <div className="flex flex-col gap-4">
                   {filteredMerchants.map((merchant, index) => (
                     <motion.div
