@@ -240,6 +240,11 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
               <span className="text-muted-foreground/50">•</span>
               <span>{merchant.reviews.length} reviews</span>
             </div>
+            {merchant.featured && (
+              <Badge variant="outline" className="mt-1 border-primary/30 text-primary bg-primary/10 animate-pulse-slow">
+                Featured
+              </Badge>
+            )}
           </div>
         </div>
 
@@ -251,35 +256,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
 
           <div className="flex flex-wrap gap-2">
             {merchant.categories.slice(0, 3).map((cat) => {
-              const categoryEmojis: Record<string, string> = {
-                "Electronics": "💻",
-                "Clothing": "👕",
-                "Food & Drink": "🍴",
-                "Travel": "✈️",
-                "Gift Cards": "🎁",
-                "VPN & Privacy": "🛡️",
-                "Hosting": "🌐",
-                "Books": "📚",
-                "Art": "🎨",
-                "Charity": "❤️",
-                "Fashion": "👗",
-                "Lifestyle": "✨",
-                "Health & Beauty": "💄",
-                "Wellness": "🧘",
-                "Auto": "🚗",
-                "Sports": "⚽",
-                "Music": "🎵",
-                "Tech": "⚙️",
-                "Entertainment": "🎬",
-                "Alcohol": "🍷",
-                "Sweets": "🍬",
-                "Health": "🏥"
-              };
-              const pureCat = cat.replace(/[^\w\s&]/gi, '').trim();
-              const emoji = categoryEmojis[pureCat] || categoryEmojis[cat];
-              // Ensure we only add the emoji if it's not already there
               const hasEmoji = /\p{Emoji}/u.test(cat);
-              const categoryWithEmoji = (emoji && !hasEmoji) ? `${emoji} ${cat}` : cat;
+              const categoryWithEmoji = hasEmoji ? cat : cat;
               
               return (
                 <Badge key={cat} variant="secondary" className="hover:bg-secondary/80 whitespace-nowrap text-[10px] py-0 px-2 h-5">
