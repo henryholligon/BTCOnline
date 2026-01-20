@@ -379,10 +379,10 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="comment">Comment</Label>
-                  <Textarea id="comment" placeholder="Tell us about your purchase..." required />
+                  <Textarea placeholder="Share your experience..." id="comment" />
                 </div>
                 <DialogFooter>
-                  <Button type="submit">Sign & Publish</Button>
+                  <Button type="submit">Publish Review</Button>
                 </DialogFooter>
               </form>
             </DialogContent>
