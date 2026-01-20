@@ -26,6 +26,36 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
     ? merchant.reviews.reduce((acc, curr) => acc + curr.rating, 0) / merchant.reviews.length 
     : 0;
 
+  const getCategoryEmoji = (category: string) => {
+    const categoryEmojis: Record<string, string> = {
+      "Electronics": "💻",
+      "Clothing": "👕",
+      "Food & Drink": "🍴",
+      "Travel": "✈️",
+      "Gift Cards": "🎁",
+      "VPN & Privacy": "🛡️",
+      "Hosting": "🌐",
+      "Books": "📚",
+      "Art": "🎨",
+      "Charity": "❤️",
+      "Services": "🔧",
+      "Health": "🏥",
+      "Alcohol": "🍷",
+      "Sweets": "🍬",
+      "Health & Beauty": "💄",
+      "Wellness": "🧘",
+      "Auto": "🚗",
+      "Lifestyle": "✨",
+      "Entertainment": "🎭",
+      "Tech": "⚙️",
+      "Fashion": "👗",
+    };
+    const hasEmoji = /\p{Emoji}/u.test(category);
+    if (hasEmoji) return category;
+    const emoji = categoryEmojis[category] || "📦";
+    return `${emoji} ${category}`;
+  };
+
   const getCountryEmoji = (countryName: string) => {
     const pureName = countryName.replace(/[^\w\s]/gi, '').trim();
     const countries: Record<string, string> = {
@@ -255,16 +285,11 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
           </CardDescription>
 
           <div className="flex flex-wrap gap-2">
-            {merchant.categories.slice(0, 3).map((cat) => {
-              const hasEmoji = /\p{Emoji}/u.test(cat);
-              const categoryWithEmoji = hasEmoji ? cat : cat;
-              
-              return (
-                <Badge key={cat} variant="secondary" className="hover:bg-secondary/80 whitespace-nowrap text-[10px] py-0 px-2 h-5">
-                  {categoryWithEmoji}
-                </Badge>
-              );
-            })}
+            {merchant.categories.slice(0, 3).map((cat) => (
+              <Badge key={cat} variant="secondary" className="hover:bg-secondary/80 whitespace-nowrap text-[10px] py-0 px-2 h-5">
+                {getCategoryEmoji(cat)}
+              </Badge>
+            ))}
             {merchant.categories.length > 3 && (
               <span className="text-[10px] text-muted-foreground self-center">+{merchant.categories.length - 3} more</span>
             )}
