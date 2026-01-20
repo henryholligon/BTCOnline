@@ -300,30 +300,8 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
           {merchant.lightningSupported && (
             <div className="flex items-center gap-1 text-yellow-400 relative group/lightning">
               <div className="absolute inset-0 bg-yellow-400/20 blur-xl rounded-full scale-0 group-hover/lightning:scale-150 transition-transform duration-500 pointer-events-none" />
-              <Zap className="h-3.5 w-3.5 fill-current group-hover/lightning:animate-lightning-zap drop-shadow-[0_0_8px_rgba(250,204,21,0.8)] relative z-10" />
+              <Zap className="h-3.5 w-3.5 fill-current animate-bounce-subtle group-hover/lightning:animate-lightning-zap drop-shadow-[0_0_8px_rgba(250,204,21,0.8)] relative z-10" />
               <span className="relative z-10 font-bold tracking-wider">Lightning</span>
-              
-              {/* Electric Zap Effect */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 pointer-events-none overflow-hidden opacity-0 group-hover/lightning:opacity-100 transition-opacity">
-                <svg className="w-full h-full stroke-yellow-400 fill-none" viewBox="0 0 100 100">
-                  <path 
-                    className="animate-lightning-zap opacity-0" 
-                    d="M50 10 L45 40 L55 40 L50 90" 
-                    strokeWidth="3" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                    style={{ filter: 'blur(1px)' }}
-                  />
-                  <path 
-                    className="animate-lightning-zap opacity-0" 
-                    d="M20 50 L40 45 L40 55 L80 50" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                    style={{ animationDelay: '0.1s', filter: 'blur(1px)' }}
-                  />
-                </svg>
-              </div>
             </div>
           )}
           {merchant.onchainSupported && (
