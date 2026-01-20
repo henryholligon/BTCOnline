@@ -13,6 +13,7 @@ export default function Home() {
   const [selectedCountry, setSelectedCountry] = useState("All");
   const [selectedMadeIn, setSelectedMadeIn] = useState("All");
   const [selectedProviders, setSelectedProviders] = useState<string[]>([]);
+  const [selectedPaymentMethods, setSelectedPaymentMethods] = useState<string[]>([]);
   const [minRating, setMinRating] = useState(0);
 
   const filteredMerchants = useMemo(() => {
@@ -38,22 +39,35 @@ export default function Home() {
         selectedProviders.length === 0 || 
         (merchant.paymentProvider && selectedProviders.includes(merchant.paymentProvider));
 
+      const matchesPaymentMethod = 
+        selectedPaymentMethods.length === 0 || 
+        (selectedPaymentMethods.includes("lightning") && merchant.lightningSupported) ||
+        (selectedPaymentMethods.includes("onchain") && merchant.onchainSupported);
+
       const avgRating = merchant.reviews.length > 0 
         ? merchant.reviews.reduce((acc, curr) => acc + curr.rating, 0) / merchant.reviews.length 
         : 0;
       
       const matchesRating = avgRating >= minRating;
 
-      return matchesSearch && matchesCategory && matchesCountry && matchesMadeIn && matchesProvider && matchesRating;
+      return matchesSearch && matchesCategory && matchesCountry && matchesMadeIn && matchesProvider && matchesPaymentMethod && matchesRating;
     });
-  }, [searchQuery, selectedCategories, selectedCountry, selectedMadeIn, selectedProviders, minRating]);
+  }, [searchQuery, selectedCategories, selectedCountry, selectedMadeIn, selectedProviders, selectedPaymentMethods, minRating]);
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategories(category === "All" || !category ? [] : [category]);
   };
 
   const handleProviderChange = (provider: string) => {
-    setSelectedProviders(provider === "All" || !provider ? [] : [provider]);
+    setSelectedProviders(prev => 
+      prev.includes(provider) ? prev.filter(p => p !== provider) : [...prev, provider]
+    );
+  };
+
+  const handlePaymentMethodChange = (method: string) => {
+    setSelectedPaymentMethods(prev => 
+      prev.includes(method) ? prev.filter(m => m !== method) : [...prev, method]
+    );
   };
 
   const clearFilters = () => {
@@ -61,6 +75,7 @@ export default function Home() {
     setSelectedCountry("All");
     setSelectedMadeIn("All");
     setSelectedProviders([]);
+    setSelectedPaymentMethods([]);
     setMinRating(0);
     setSearchQuery("");
   };
@@ -77,6 +92,8 @@ export default function Home() {
       onProviderChange={handleProviderChange}
       minRating={minRating}
       onRatingChange={setMinRating}
+      selectedPaymentMethods={selectedPaymentMethods}
+      onPaymentMethodChange={handlePaymentMethodChange}
       onClear={clearFilters}
     />
   );

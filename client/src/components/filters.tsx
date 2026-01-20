@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CATEGORIES, COUNTRIES, PAYMENT_PROVIDERS } from "@/lib/mock-data";
-import { Filter, Star, X } from "lucide-react";
+import { Bitcoin, Filter, Star, X, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
@@ -20,6 +20,8 @@ interface FiltersProps {
   onProviderChange: (provider: string) => void;
   minRating: number;
   onRatingChange: (rating: number) => void;
+  selectedPaymentMethods: string[];
+  onPaymentMethodChange: (method: string) => void;
   onClear: () => void;
 }
 
@@ -34,6 +36,8 @@ export default function Filters({
   onProviderChange,
   minRating,
   onRatingChange,
+  selectedPaymentMethods,
+  onPaymentMethodChange,
   onClear,
 }: FiltersProps) {
   const [hoveredRating, setHoveredRating] = useState(0);
@@ -44,7 +48,7 @@ export default function Filters({
         <h3 className="text-sm font-medium tracking-wide uppercase text-muted-foreground flex items-center gap-2">
           <Filter className="h-4 w-4" /> Filters
         </h3>
-        {(selectedCategories.length > 0 || selectedCountry !== "All" || selectedMadeIn !== "All" || minRating > 0 || selectedProviders.length > 0) && (
+        {(selectedCategories.length > 0 || selectedCountry !== "All" || selectedMadeIn !== "All" || minRating > 0 || selectedProviders.length > 0 || selectedPaymentMethods.length > 0) && (
           <Button 
             variant="ghost" 
             size="sm" 
@@ -91,6 +95,27 @@ export default function Filters({
                   : `${hoveredRating || minRating}+ Stars`
               ) : null}
             </span>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <Label className="text-sm font-display">Payment Method</Label>
+          <div className="flex flex-col space-y-2">
+            {[
+              { id: "lightning", label: "Lightning", icon: <Zap className="h-3 w-3 fill-yellow-400 text-yellow-400" /> },
+              { id: "onchain", label: "On-Chain", icon: <Bitcoin className="h-3 w-3 fill-orange-500 text-orange-500" /> }
+            ].map((method) => (
+              <div key={method.id} className="flex items-center space-x-2">
+                <Checkbox 
+                  id={`method-${method.id}`} 
+                  checked={selectedPaymentMethods.includes(method.id)}
+                  onCheckedChange={() => onPaymentMethodChange(method.id)}
+                />
+                <Label htmlFor={`method-${method.id}`} className="text-sm font-normal cursor-pointer flex items-center gap-1.5">
+                  {method.icon} {method.label}
+                </Label>
+              </div>
+            ))}
           </div>
         </div>
 
