@@ -68,13 +68,9 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
       {merchant.reviews.length === 0 && (
         <div className="absolute top-2 right-2 z-20 pointer-events-none">
           <img 
-            src="https://media.tenor.com/view/new-blinking-new-blinking-without-background-gif-5770026634302544702" 
+            src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJndXp4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4JmVwPXYxX3N0aWNrZXJzX3NlYXJjaCZjdD1z/3o7TKMGpxx8yGz8uXm/giphy.gif" 
             alt="New" 
-            className="h-8 w-auto mix-blend-multiply dark:mix-blend-screen"
-            onError={(e) => {
-              // Fallback if tenor direct link is weird
-              e.currentTarget.src = "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJndXp4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4ZzB4JmVwPXYxX3N0aWNrZXJzX3NlYXJjaCZjdD1z/3o7TKMGpxx8yGz8uXm/giphy.gif";
-            }}
+            className="h-8 w-auto drop-shadow-md"
           />
         </div>
       )}
@@ -313,7 +309,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
         <div className="flex items-center gap-4 text-xs text-muted-foreground font-mono">
           {merchant.lightningSupported && (
             <div className="flex items-center gap-1 text-yellow-400">
-              <Zap className="h-3 w-3 fill-current" />
+              <Zap className="h-3 w-3 fill-current animate-pulse drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]" />
               <span>Lightning</span>
             </div>
           )}
