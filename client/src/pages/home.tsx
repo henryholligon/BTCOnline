@@ -118,20 +118,20 @@ export default function Home() {
             <div className="flex gap-2 min-w-max pb-2">
               <Select value={selectedCountry} onValueChange={setSelectedCountry}>
                 <SelectTrigger className="w-auto h-9 bg-muted/50 border-none rounded-full text-[11px] font-medium px-4 gap-2">
-                  <SelectValue placeholder="Shipping to" />
+                  <SelectValue placeholder={<span className="flex items-center gap-1"><span className="animate-spin-slow">🌍</span> Shipping to</span>} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="All">Anywhere</SelectItem>
+                  <SelectItem value="All"><span className="flex items-center gap-1"><span className="animate-spin-slow">🌍</span> Anywhere</span></SelectItem>
                   {COUNTRIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                 </SelectContent>
               </Select>
 
               <Select value={selectedShippedFrom} onValueChange={setSelectedShippedFrom}>
                 <SelectTrigger className="w-auto h-9 bg-muted/50 border-none rounded-full text-[11px] font-medium px-4 gap-2">
-                  <SelectValue placeholder="Shipped from" />
+                  <SelectValue placeholder={<span className="flex items-center gap-1"><span className="animate-flag-wave">🚩</span> Shipped from</span>} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="All">Anywhere</SelectItem>
+                  <SelectItem value="All"><span className="flex items-center gap-1"><span className="animate-flag-wave">🚩</span> Anywhere</span></SelectItem>
                   {COUNTRIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                 </SelectContent>
               </Select>

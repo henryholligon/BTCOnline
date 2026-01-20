@@ -59,6 +59,19 @@
   --font-display: 'Space Grotesk', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
+  --animate-flag-wave: flag-wave 2s ease-in-out infinite;
+  --animate-spin-slow: spin-slow 8s linear infinite;
+
+  @keyframes flag-wave {
+    0%, 100% { transform: rotate(-5deg) skewX(2deg); }
+    50% { transform: rotate(5deg) skewX(-2deg); }
+  }
+
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
