@@ -55,7 +55,7 @@ async function seed() {
     "Highland Fayre": "/assets/highland-fayre-new.png",
     "Golden Tallow": "/assets/golden-tallow-logo.png",
     "Mister Padel": "/assets/mister-padel-icon.png",
-    "Lincoln Kiln Dried Logs": "https://lincolnkilndriedlogs.co.uk/wp-content/uploads/2021/08/cropped-favicon-32x32.png",
+    "Lincoln Kiln Dried Logs": "/assets/lincoln-logs-logo.png",
     "Essatoshi": "https://essatoshi.com/cdn/shop/files/essatoshi_logo_black_180x.png",
     "Cheerings": "/assets/cheerings-logo-new.png",
     "Jonathan Hill Luthier": "https://jonathanhillguitars.com/wp-content/uploads/2021/04/cropped-favicon-32x32.png",

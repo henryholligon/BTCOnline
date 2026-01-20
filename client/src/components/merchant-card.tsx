@@ -144,6 +144,10 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
     if (lowerName === 'highland fayre') return 'scale-100 object-contain';
     if (lowerName === 'golden tallow') return 'scale-100 object-contain';
     if (lowerName === 'mister padel') return 'scale-100 object-contain p-1';
+    if (lowerName === 'lincoln kiln dried logs') return 'scale-125 object-contain p-1';
+    if (lowerName === 'lincoln logs') return 'scale-125 object-contain p-1';
+    if (lowerName === 'lincoln dried logs') return 'scale-125 object-contain p-1';
+    if (lowerName === 'lincoln logs delivery') return 'scale-125 object-contain p-1';
     if (lowerName === 'lincoln kiln dried logs') return 'scale-100 object-cover';
     if (lowerName === 'essatoshi') return 'scale-100 object-cover';
     if (lowerName === 'cheerings') return 'scale-100 object-contain';
