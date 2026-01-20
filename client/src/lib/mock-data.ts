@@ -145,7 +145,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     categories: ["Electronics"],
     shippingCountries: ["Worldwide"],
     website: "https://daylightcomputer.com",
-    lightningSupported: false,
+    lightningSupported: true,
     onchainSupported: true,
     reviews: []
   },
@@ -397,7 +397,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     categories: ["Clothing"],
     shippingCountries: ["Worldwide"],
     website: "https://www.farfetch.com/",
-    lightningSupported: false,
+    lightningSupported: true,
     onchainSupported: true,
     reviews: []
   },
@@ -457,7 +457,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     categories: ["Hosting"],
     shippingCountries: ["Worldwide"],
     website: "https://www.dynadot.com/",
-    lightningSupported: false,
+    lightningSupported: true,
     onchainSupported: true,
     reviews: []
   },
@@ -612,7 +612,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     logo: "https://static.wixstatic.com/media/e7f737_461ad44966af488b8bdfee9c8146a001~mv2.png/v1/fill/w_385,h_465,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/%40thesuffolktutor.png",
     categories: ["Electronics"],
     shippingCountries: ["Worldwide", "UK"],
-    website: "https://www.thesuffolktutor.com/",
+    website: "https://www.thesuffolututor.com/",
     lightningSupported: true,
     onchainSupported: true,
     reviews: []
@@ -1156,7 +1156,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     categories: ["Electronics"],
     shippingCountries: ["Worldwide"],
     website: "https://heatbit.com/",
-    lightningSupported: false,
+    lightningSupported: true,
     onchainSupported: true,
     paymentProvider: "BTCPay Server",
     reviews: []
@@ -1208,7 +1208,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     categories: ["Electronics"],
     shippingCountries: ["Worldwide"],
     website: "https://www.mmoga.com/",
-    lightningSupported: false,
+    lightningSupported: true,
     onchainSupported: true,
     paymentProvider: "CoinGate",
     reviews: []
@@ -1260,7 +1260,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     categories: ["Electronics"],
     shippingCountries: ["Worldwide"],
     website: "https://www.hillhelicopters.com/",
-    lightningSupported: false,
+    lightningSupported: true,
     onchainSupported: true,
     paymentProvider: "BTCPay Server",
     reviews: []
@@ -1312,7 +1312,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     categories: ["VPN & Privacy"],
     shippingCountries: ["Worldwide"],
     website: "https://nordvpn.com/",
-    lightningSupported: false,
+    lightningSupported: true,
     onchainSupported: true,
     paymentProvider: "CoinGate",
     reviews: []
@@ -1364,7 +1364,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     categories: ["VPN & Privacy"],
     shippingCountries: ["Worldwide"],
     website: "https://surfshark.com/",
-    lightningSupported: false,
+    lightningSupported: true,
     onchainSupported: true,
     paymentProvider: "CoinGate",
     reviews: []
@@ -1390,7 +1390,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     categories: ["Electronics"],
     shippingCountries: ["Europe", "Worldwide"],
     website: "https://www.waylandgames.co.uk/",
-    lightningSupported: false,
+    lightningSupported: true,
     onchainSupported: true,
     paymentProvider: "CoinGate",
     reviews: []
@@ -1403,7 +1403,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     categories: ["Travel"],
     shippingCountries: ["Worldwide"],
     website: "https://zenmarket.jp/",
-    lightningSupported: false,
+    lightningSupported: true,
     onchainSupported: true,
     paymentProvider: "CoinGate",
     reviews: []
@@ -1416,7 +1416,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     categories: ["Food & Drink"],
     shippingCountries: ["Europe", "Worldwide"],
     website: "https://www.zumub.com/",
-    lightningSupported: false,
+    lightningSupported: true,
     onchainSupported: true,
     paymentProvider: "CoinGate",
     reviews: []
