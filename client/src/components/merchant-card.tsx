@@ -58,16 +58,22 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
 
   const getIconBgColor = () => {
     const name = merchant.name.toLowerCase();
-    if (name === 'start9' || name === 'beef initiative' || name === 'oshi good' || name === 'hyke & byke' || name === 'kerwell' || name === 'root & branch' || name === 'atoms' || name === 'heatbit' || name === 'hill helicopters' || name === 'gameroom' || name === 'internet archive' || name === 'sole' || name === 'travala' || name === 'g2a' || name === 'silent.link' || name === 'mushmore supplements' || name === 'hummingbird amsterdam' || name === 'planet express' || name === 'farfetch' || name === 'bramleigh farm' || name === 'palingshop' || name === 'ticketpro' || name === 'dynadot' || name === 'soapminer' || name === 'mobimatter' || name === 'the good beans' || name === 'pumphreys coffee' || name === 'epic deals' || name === "farmer bill's provisions" || name === 'acme acres' || name === 'chroma' || name === 'asf tutoring' || name === "jimble's jumble" || name === 'hempful' || name === 'highland fayre' || name === 'golden tallow' || name === 'mister padel' || name === 'lincoln kiln dried logs' || name === 'essatoshi' || name === 'cheerings' || name === 'jonathan hill luthier' || name === 'select automotive' || name === 'candyjets' || name === 'maple ai' || name === 'payperq' || name === 'crypto tax help' || name === 'mtsocks' || name === 'spy equipment uk' || name === 'bees & trees' || name === 'kaffebox' || name === 'bloom audio' || name === 'campo apícola' || name === 'elephant chateau' || name === 'árbol de maple' || name === 'pikasim' || name === 'mad gringo hot sauce' || name === 'privaterouter' || name === 'smith pastures' || name === 'skoon.' || name === 'missprint' || name === 'izindlovu' || name === 'fuelingyou' || name === 'degoogled' || name === 'crave' || name === 'mmoga' || name === 'human trafficking institute' || name === 'uzi shop' || name === 'le cyclo sportif' || name === 'alternative airlines' || name === 'brazilian botanicals' || name === 'cyberpiggy' || name === 'hotelgift' || name === 'reachtags' || name === 'surfshark' || name === 'vintage guitar world' || name === 'wayland games' || name === 'zenmarket' || name === 'zumub' || name === 'gift off' || name === 'waking herbs' || name === 'freedom of the press') return 'bg-white border-[#e5e7eb]';
     
+    // Black backgrounds
+    if (['start9', 'beef initiative', 'oshi good', 'hyke & byke', 'kerwell', 'root & branch', 'atoms', 'heatbit', 'hill helicopters', 'gameroom', 'internet archive', 'sole', 'mad gringo hot sauce', 'la industria handmade', 'ivpn', 'spy equipment uk'].includes(name)) {
+      return 'bg-black border-black';
+    }
+    
+    // Brand Specific
     if (name === 'kawa') return 'bg-[#c9121f] border-[#c9121f]';
     if (name === 'the suffolk tutor') return 'bg-[#ff9e16] border-[#ff9e16]';
-    if (name === 'la industria handmade' || name === 'ivpn') return 'bg-[#1a1a1a] border-[#1a1a1a]';
     if (name === 'consumer choice center') return 'bg-[#1e3a8a] border-[#1e3a8a]';
     if (name === 'torguard') return 'bg-[#0a1128] border-[#0a1128]';
     if (name === 'sticky') return 'bg-[#f0c3d9] border-[#f0c3d9]';
     if (name === 'mei leaf') return 'bg-[#9e0b31] border-[#9e0b31]';
     if (name === 'nogood studio') return 'bg-[#ff3b00] border-[#ff3b00]';
+    if (name === 'human trafficking institute') return 'bg-[#002d72] border-[#002d72]';
+    if (name === 'uzi shop') return 'bg-[#5b84ba] border-[#5b84ba]';
     if (name === 'alternative airlines') return 'bg-[#5c4fff] border-[#5c4fff]';
     if (name === 'brazilian botanicals') return 'bg-[#831843] border-[#831843]';
     if (name === 'cyberpiggy') return 'bg-[#d12a5e] border-[#d12a5e]';
@@ -83,6 +89,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
       <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
       
       <div className="flex flex-col md:flex-row flex-1 p-4 gap-6 items-start md:items-center">
+        {/* Merchant Identity Section - Fixed width for alignment */}
         <div className="flex items-center gap-4 w-full md:w-[280px] shrink-0">
           <div className={`h-16 w-16 shrink-0 rounded-xl flex items-center justify-center text-3xl border overflow-hidden z-10 ${getIconBgColor()}`}>
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
@@ -90,7 +97,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                 src={merchant.logo} 
                 alt={merchant.name} 
                 className={`w-full h-full object-contain ${
-                  merchant.name.toLowerCase() === 'start9' ? 'bg-black p-1' : 
+                  merchant.name.toLowerCase() === 'start9' ? 'p-1' : 
                   merchant.name.toLowerCase() === 'bitrefill' ? 'scale-110' : 
                   merchant.name.toLowerCase() === 'human rights foundation' ? 'scale-110' : 
                   merchant.name.toLowerCase() === 'cheapair' ? 'scale-[2.8]' : 
