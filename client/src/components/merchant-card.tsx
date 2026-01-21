@@ -151,7 +151,9 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             {merchant.logo.startsWith("/") || merchant.logo.startsWith("http") ? (
               <img 
                 src={merchant.logo} 
-                alt={merchant.name} 
+                alt={merchant.name}
+                loading="lazy"
+                decoding="async"
                 className={`w-full h-full object-contain ${
                   merchant.name.toLowerCase() === 'start9' ? 'bg-black p-1' : 
                   merchant.name.toLowerCase() === 'bitrefill' ? 'scale-110' : 
