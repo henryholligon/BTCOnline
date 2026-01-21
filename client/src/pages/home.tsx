@@ -118,7 +118,7 @@ export default function Home() {
               Find places to spend <span className="text-primary">Bitcoin online</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              A community-collected free and opensource directory of businesses that accept Bitcoin
+              A free and open source directory of businesses that accept Bitcoin
             </p>
           </motion.div>
         </div>
