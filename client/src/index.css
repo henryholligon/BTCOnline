@@ -3,10 +3,6 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Smooth fade for theme switching */
-*, *::before, *::after {
-  transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease, fill 200ms ease, stroke 200ms ease;
-}
 
 /* LIGHT MODE (Default) */
 :root {
