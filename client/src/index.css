@@ -3,16 +3,9 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Instant theme switching - no color transitions */
+/* Smooth fade for theme switching */
 *, *::before, *::after {
-  transition-property: transform, opacity, shadow !important;
-  transition-duration: 150ms;
-}
-
-html.theme-transition-none *, 
-html.theme-transition-none *::before, 
-html.theme-transition-none *::after {
-  transition: none !important;
+  transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease, fill 200ms ease, stroke 200ms ease;
 }
 
 /* LIGHT MODE (Default) */
