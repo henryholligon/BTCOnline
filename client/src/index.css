@@ -3,6 +3,17 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Instant theme switching - no color transitions */
+*, *::before, *::after {
+  transition-property: transform, opacity, shadow !important;
+  transition-duration: 150ms;
+}
+
+html.theme-transition-none *, 
+html.theme-transition-none *::before, 
+html.theme-transition-none *::after {
+  transition: none !important;
+}
 
 /* LIGHT MODE (Default) */
 :root {
