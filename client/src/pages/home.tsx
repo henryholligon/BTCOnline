@@ -171,7 +171,6 @@ export default function Home() {
           </div>
           <div className="flex gap-4">
             <a href="#" className="hover:text-primary transition-colors">GitHub</a>
-            <a href="#" className="hover:text-primary transition-colors">Nostr</a>
             <a href="#" className="hover:text-primary transition-colors">Add Merchant</a>
           </div>
         </div>

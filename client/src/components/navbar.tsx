@@ -1,14 +1,9 @@
 import { Link } from "wouter";
-import { Search, Menu, Zap, User, LogOut, Sun, Moon } from "lucide-react";
-import { useState } from "react";
+import { Search, Menu, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useTheme } from "next-themes";
-import ostrichImg from "@assets/image_1768456571275.png";
-import btcLogo from "/assets/main-logo.png";
-import Filters from "./filters";
 
 interface NavbarProps {
   onSearch: (query: string) => void;
@@ -16,34 +11,7 @@ interface NavbarProps {
 }
 
 export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
-  const [isConnected, setIsConnected] = useState(false);
-  const { toast } = useToast();
   const { theme, setTheme } = useTheme();
-
-  const handleConnect = () => {
-    // Mock Nostr connection
-    toast({
-      title: "Connecting to Nostr...",
-      duration: 1000,
-    });
-    
-    setTimeout(() => {
-      setIsConnected(true);
-      toast({
-        title: "Connected",
-        description: "Logged in as npub1...8x9z",
-        variant: "default",
-      });
-    }, 1500);
-  };
-
-  const handleDisconnect = () => {
-    setIsConnected(false);
-    toast({
-      title: "Disconnected",
-      description: "You have signed out.",
-    });
-  };
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
@@ -106,27 +74,6 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
             <span className="sr-only">Toggle theme</span>
           </Button>
 
-          {isConnected ? (
-            <div className="flex items-center gap-2">
-              <div className="hidden text-xs text-muted-foreground sm:inline-block font-mono">
-                npub1...8x9z
-              </div>
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={handleDisconnect}
-                className="hover:bg-destructive/10 hover:text-destructive transition-colors"
-              >
-                <LogOut className="h-5 w-5" />
-              </Button>
-              <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-primary to-purple-500 border border-border"></div>
-            </div>
-          ) : (
-            <Button onClick={handleConnect} className="font-medium bg-[#A855F7] hover:bg-[#9333EA] text-white border-none gap-2">
-              <img src={ostrichImg} alt="" className="h-5 w-5 object-contain brightness-0 invert" />
-              Connect Nostr
-            </Button>
-          )}
         </div>
       </div>
     </nav>
