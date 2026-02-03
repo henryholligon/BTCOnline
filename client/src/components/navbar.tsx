@@ -80,23 +80,6 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
         </div>
 
         <div className="flex items-center space-x-2">
-          <Button asChild variant="ghost" className="hidden md:flex text-sm font-medium hover:text-primary transition-colors h-9 px-4">
-            <a href="https://btcmap.org" target="_blank" rel="noopener noreferrer">
-              In-person
-            </a>
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="mr-2"
-          >
-            <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            <span className="sr-only">Toggle theme</span>
-          </Button>
-
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
             <DialogTrigger asChild>
               <Button className="font-medium bg-primary hover:bg-primary/90 text-primary-foreground gap-2">
@@ -154,6 +137,22 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
               </form>
             </DialogContent>
           </Dialog>
+
+          <Button asChild variant="ghost" className="hidden md:flex text-sm font-medium hover:text-primary transition-colors h-9 px-4">
+            <a href="https://btcmap.org" target="_blank" rel="noopener noreferrer">
+              In-person
+            </a>
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          >
+            <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <span className="sr-only">Toggle theme</span>
+          </Button>
         </div>
       </div>
     </nav>
