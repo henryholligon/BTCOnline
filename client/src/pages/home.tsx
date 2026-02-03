@@ -126,38 +126,36 @@ export default function Home() {
 
       <main className="container px-4 py-6 flex-1">
         <div className="flex flex-col gap-6">
-          <div className="md:hidden -mx-4 px-4 overflow-x-auto pb-2 scrollbar-hide">
-            <div className="flex gap-2 min-w-max pb-2">
-              <Select value={selectedCountry} onValueChange={setSelectedCountry}>
-                <SelectTrigger className="w-auto h-9 bg-muted/50 border-none rounded-full text-[11px] font-medium px-4 gap-2">
-                  <SelectValue placeholder="Shipping to" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="All">Anywhere</SelectItem>
-                  {COUNTRIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                </SelectContent>
-              </Select>
+          <div className="md:hidden flex flex-wrap justify-center gap-2 pb-4">
+            <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+              <SelectTrigger className="w-auto h-9 bg-muted/50 border-none rounded-full text-[11px] font-medium px-4 gap-2">
+                <SelectValue placeholder="Shipping to" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">Anywhere</SelectItem>
+                {COUNTRIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              </SelectContent>
+            </Select>
 
-              <Select value={selectedCategories[0] || "All"} onValueChange={handleCategoryChange}>
-                <SelectTrigger className="w-auto h-9 bg-muted/50 border-none rounded-full text-[11px] font-medium px-4 gap-2">
-                  <SelectValue placeholder="Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="All">All Categories</SelectItem>
-                  {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                </SelectContent>
-              </Select>
+            <Select value={selectedCategories[0] || "All"} onValueChange={handleCategoryChange}>
+              <SelectTrigger className="w-auto h-9 bg-muted/50 border-none rounded-full text-[11px] font-medium px-4 gap-2">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All Categories</SelectItem>
+                {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              </SelectContent>
+            </Select>
 
-              <Select value={selectedProviders[0] || "All"} onValueChange={handleProviderChange}>
-                <SelectTrigger className="w-auto h-9 bg-muted/50 border-none rounded-full text-[11px] font-medium px-4 gap-2">
-                  <SelectValue placeholder="Provider" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="All">All Providers</SelectItem>
-                  {PAYMENT_PROVIDERS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
+            <Select value={selectedProviders[0] || "All"} onValueChange={handleProviderChange}>
+              <SelectTrigger className="w-auto h-9 bg-muted/50 border-none rounded-full text-[11px] font-medium px-4 gap-2">
+                <SelectValue placeholder="Provider" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All Providers</SelectItem>
+                {PAYMENT_PROVIDERS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="flex flex-col md:flex-row gap-8">
