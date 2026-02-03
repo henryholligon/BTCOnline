@@ -1,13 +1,10 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CATEGORIES, COUNTRIES, PAYMENT_PROVIDERS } from "@/lib/mock-data";
-import { Bitcoin, Filter, Star, X, Zap } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { Bitcoin, Filter, X, Zap } from "lucide-react";
 
 interface FiltersProps {
   selectedCategories: string[];
@@ -18,8 +15,6 @@ interface FiltersProps {
   onMadeInChange: (country: string) => void;
   selectedProviders: string[];
   onProviderChange: (provider: string) => void;
-  minRating: number;
-  onRatingChange: (rating: number) => void;
   selectedPaymentMethods: string[];
   onPaymentMethodChange: (method: string) => void;
   onClear: () => void;
@@ -34,13 +29,10 @@ export default function Filters({
   onMadeInChange,
   selectedProviders,
   onProviderChange,
-  minRating,
-  onRatingChange,
   selectedPaymentMethods,
   onPaymentMethodChange,
   onClear,
 }: FiltersProps) {
-  const [hoveredRating, setHoveredRating] = useState(0);
 
   return (
     <div className="flex flex-col space-y-6">
@@ -48,7 +40,7 @@ export default function Filters({
         <h3 className="text-sm font-medium tracking-wide uppercase text-muted-foreground flex items-center gap-2">
           <Filter className="h-4 w-4" /> Filters
         </h3>
-        {(selectedCategories.length > 0 || selectedCountry !== "All" || selectedMadeIn !== "All" || minRating > 0 || selectedProviders.length > 0 || selectedPaymentMethods.length > 0) && (
+        {(selectedCategories.length > 0 || selectedCountry !== "All" || selectedMadeIn !== "All" || selectedProviders.length > 0 || selectedPaymentMethods.length > 0) && (
           <Button 
             variant="ghost" 
             size="sm" 
@@ -61,43 +53,6 @@ export default function Filters({
       </div>
 
       <div className="space-y-4">
-        <div className="space-y-3">
-          <Label className="text-sm font-display">Minimum Rating</Label>
-          <div className="flex items-center gap-1">
-            {[1, 2, 3, 4, 5].map((star) => {
-              const isActive = star <= (hoveredRating || minRating);
-              const is5Star = (hoveredRating || minRating) === 5;
-              
-              return (
-                <button
-                  key={star}
-                  type="button"
-                  onClick={() => onRatingChange(minRating === star ? 0 : star)}
-                  onMouseEnter={() => setHoveredRating(star)}
-                  onMouseLeave={() => setHoveredRating(0)}
-                  className="group focus:outline-none transition-transform active:scale-90"
-                >
-                  <Star
-                    className={cn(
-                      "h-6 w-6 transition-colors fill-current",
-                      isActive
-                        ? (is5Star ? "text-yellow-400" : "text-primary")
-                        : "text-muted-foreground/30"
-                    )}
-                  />
-                </button>
-              );
-            })}
-            <span className="ml-2 text-xs font-medium text-muted-foreground w-16">
-              {hoveredRating || minRating > 0 ? (
-                (hoveredRating || minRating) === 5 
-                  ? "5 Stars" 
-                  : `${hoveredRating || minRating}+ Stars`
-              ) : null}
-            </span>
-          </div>
-        </div>
-
         <div className="space-y-3">
           <Label className="text-sm font-display">Payment Method</Label>
           <div className="flex flex-col space-y-2">

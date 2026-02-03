@@ -3,28 +3,16 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardDescription,
-  CardFooter,
-  CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Merchant } from "@/lib/mock-data";
-import { ExternalLink, Star, Zap, Bitcoin, MessageSquare } from "lucide-react";
-import { useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+import { ExternalLink, Zap, Bitcoin } from "lucide-react";
 
 interface MerchantCardProps {
   merchant: Merchant;
 }
 
 export default function MerchantCard({ merchant }: MerchantCardProps) {
-  const { toast } = useToast();
-  const [isReviewOpen, setIsReviewOpen] = useState(false);
-  const averageRating = merchant.reviews.length > 0 
-    ? merchant.reviews.reduce((acc, curr) => acc + curr.rating, 0) / merchant.reviews.length 
-    : 0;
 
   const getCategoryEmoji = (category: string) => {
     const categoryEmojis: Record<string, string> = {
@@ -75,15 +63,6 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
       "Italy": "🇮🇹"
     };
     return countries[pureName] || countries[countryName] || "📍";
-  };
-
-  const handleSubmitReview = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsReviewOpen(false);
-    toast({
-      title: "Review Submitted",
-      description: "Your review has been signed and published to the relay.",
-    });
   };
 
   const getIconBgColor = () => {
@@ -264,12 +243,6 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
           </div>
           <div className="space-y-1 overflow-hidden">
             <CardTitle className="text-xl leading-tight truncate" title={merchant.name}>{merchant.name}</CardTitle>
-            <div className="flex items-center text-sm text-muted-foreground gap-1">
-              <Star className="h-3.5 w-3.5 fill-primary text-primary" />
-              <span className="font-mono">{averageRating > 0 ? averageRating.toFixed(1) : "New"}</span>
-              <span className="text-muted-foreground/50">•</span>
-              <span>{merchant.reviews.length} reviews</span>
-            </div>
             {merchant.featured && (
               <Badge variant="outline" className="mt-1 border-primary/30 text-primary bg-primary/10 animate-pulse-slow">
                 Featured
@@ -349,47 +322,6 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
               Visit <ExternalLink className="ml-2 h-3 w-3" />
             </a>
           </Button>
-          
-          <Dialog open={isReviewOpen} onOpenChange={setIsReviewOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="px-2" title="Write a review">
-                <MessageSquare className="h-4 w-4" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Write a review for {merchant.name}</DialogTitle>
-                <DialogDescription>
-                  Share your experience. Your review will be cryptographically signed.
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleSubmitReview} className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="rating">Rating</Label>
-                  <div className="flex gap-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Button 
-                        key={star} 
-                        type="button" 
-                        variant="ghost" 
-                        size="sm"
-                        className="p-0 h-8 w-8 hover:bg-transparent"
-                      >
-                        <Star className="h-6 w-6 text-muted hover:text-primary fill-muted hover:fill-primary transition-colors" />
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="comment">Comment</Label>
-                  <Textarea id="comment" placeholder="Tell us about your purchase..." required />
-                </div>
-                <DialogFooter>
-                  <Button type="submit">Sign & Publish</Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
         </div>
       </div>
     </Card>

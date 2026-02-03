@@ -14,7 +14,6 @@ export default function Home() {
   const [selectedMadeIn, setSelectedMadeIn] = useState("All");
   const [selectedProviders, setSelectedProviders] = useState<string[]>([]);
   const [selectedPaymentMethods, setSelectedPaymentMethods] = useState<string[]>([]);
-  const [minRating, setMinRating] = useState(0);
 
   const filteredMerchants = useMemo(() => {
     return MOCK_MERCHANTS.filter((merchant) => {
@@ -44,15 +43,9 @@ export default function Home() {
         (selectedPaymentMethods.includes("lightning") && merchant.lightningSupported) ||
         (selectedPaymentMethods.includes("onchain") && merchant.onchainSupported);
 
-      const avgRating = merchant.reviews.length > 0 
-        ? merchant.reviews.reduce((acc, curr) => acc + curr.rating, 0) / merchant.reviews.length 
-        : 0;
-      
-      const matchesRating = avgRating >= minRating;
-
-      return matchesSearch && matchesCategory && matchesCountry && matchesMadeIn && matchesProvider && matchesPaymentMethod && matchesRating;
+      return matchesSearch && matchesCategory && matchesCountry && matchesMadeIn && matchesProvider && matchesPaymentMethod;
     });
-  }, [searchQuery, selectedCategories, selectedCountry, selectedMadeIn, selectedProviders, selectedPaymentMethods, minRating]);
+  }, [searchQuery, selectedCategories, selectedCountry, selectedMadeIn, selectedProviders, selectedPaymentMethods]);
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategories(category === "All" || !category ? [] : [category]);
@@ -76,7 +69,6 @@ export default function Home() {
     setSelectedMadeIn("All");
     setSelectedProviders([]);
     setSelectedPaymentMethods([]);
-    setMinRating(0);
     setSearchQuery("");
   };
 
@@ -90,8 +82,6 @@ export default function Home() {
       onMadeInChange={setSelectedMadeIn}
       selectedProviders={selectedProviders}
       onProviderChange={handleProviderChange}
-      minRating={minRating}
-      onRatingChange={setMinRating}
       selectedPaymentMethods={selectedPaymentMethods}
       onPaymentMethodChange={handlePaymentMethodChange}
       onClear={clearFilters}
