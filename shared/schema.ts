@@ -46,7 +46,21 @@ export const CATEGORIES = [
   "🌐 Hosting",
   "📚 Books",
   "🎨 Art",
-  "❤️ Charity"
+  "❤️ Charity",
+  "🔧 Services",
+  "💄 Health & Beauty",
+  "🧘 Wellness",
+  "⚙️ Tech",
+  "👗 Fashion",
+  "✨ Lifestyle",
+  "🍷 Alcohol",
+  "🍬 Sweets",
+  "🚗 Auto",
+  "🎭 Entertainment",
+  "🎵 Music",
+  "🏥 Health",
+  "⚽ Sports",
+  "🏕️ Sports & Outdoors",
 ];
 
 export const COUNTRIES = [
@@ -57,5 +71,15 @@ export const COUNTRIES = [
   "🇬🇧 UK",
   "🇦🇺 Australia",
   "🇸🇻 El Salvador",
-  "🇸🇪 Sweden"
+  "🇸🇪 Sweden",
+  "🇳🇱 Netherlands",
+  "🇳🇴 Norway",
+  "🇮🇹 Italy",
+  "🇭🇷 Croatia",
+  "🇱🇹 Lithuania",
+  "🇦🇹 Austria",
+  "🇩🇪 Germany",
+  "🇮🇪 Ireland",
+  "🇸🇬 Singapore",
+  "🇿🇦 South Africa",
 ];

@@ -3,7 +3,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CATEGORIES, COUNTRIES, PAYMENT_PROVIDERS } from "@/lib/mock-data";
+import { CATEGORIES, COUNTRIES, PAYMENT_PROVIDERS } from "@shared/schema";
 import { Bitcoin, Filter, X, Zap } from "lucide-react";
 
 interface FiltersProps {

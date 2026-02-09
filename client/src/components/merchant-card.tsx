@@ -5,7 +5,7 @@ import {
   CardDescription,
   CardTitle,
 } from "@/components/ui/card";
-import { Merchant } from "@/lib/mock-data";
+import { type Merchant } from "@shared/schema";
 import { ExternalLink, Zap, Bitcoin } from "lucide-react";
 
 interface MerchantCardProps {

@@ -1,13 +1,15 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Navbar from "@/components/navbar";
 import Filters from "@/components/filters";
 import MerchantCard from "@/components/merchant-card";
-import { MOCK_MERCHANTS, Merchant, COUNTRIES, CATEGORIES, PAYMENT_PROVIDERS } from "@/lib/mock-data";
+import { type Merchant } from "@shared/schema";
 import bgImage from "@assets/generated_images/abstract_digital_network_background_with_orange_nodes_in_cypherpunk_style.png";
 import { motion } from "framer-motion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function Home() {
+  const [merchants, setMerchants] = useState<Merchant[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedCountry, setSelectedCountry] = useState("All");
@@ -15,24 +17,43 @@ export default function Home() {
   const [selectedProviders, setSelectedProviders] = useState<string[]>([]);
   const [selectedPaymentMethods, setSelectedPaymentMethods] = useState<string[]>([]);
 
+  useEffect(() => {
+    fetch("/api/merchants")
+      .then((res) => res.json())
+      .then((data) => {
+        setMerchants(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const stripEmoji = (str: string) => str.replace(/[^\p{L}\p{N}\s&]/gu, '').trim();
+
   const filteredMerchants = useMemo(() => {
-    return MOCK_MERCHANTS.filter((merchant) => {
+    return merchants.filter((merchant) => {
       const matchesSearch = 
         merchant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         merchant.description.toLowerCase().includes(searchQuery.toLowerCase());
 
       const matchesCategory = 
         selectedCategories.length === 0 || 
-        selectedCategories.some(cat => merchant.categories.includes(cat));
+        selectedCategories.some(cat => {
+          const catText = stripEmoji(cat).toLowerCase();
+          return merchant.categories.some(mc => 
+            mc === cat || stripEmoji(mc).toLowerCase() === catText
+          );
+        });
 
       const matchesCountry = 
         selectedCountry === "All" || 
         merchant.shippingCountries.some(c => c.includes("Worldwide")) || 
-        merchant.shippingCountries.includes(selectedCountry);
+        merchant.shippingCountries.some(c => 
+          c === selectedCountry || stripEmoji(c).toLowerCase() === stripEmoji(selectedCountry).toLowerCase()
+        );
 
       const matchesMadeIn = 
         selectedMadeIn === "All" || 
-        (merchant.countryMadeIn && selectedMadeIn.includes(merchant.countryMadeIn));
+        (merchant.countryMadeIn && stripEmoji(selectedMadeIn).toLowerCase().includes(merchant.countryMadeIn.toLowerCase()));
 
       const matchesProvider = 
         selectedProviders.length === 0 || 
@@ -128,7 +149,11 @@ export default function Home() {
                 </p>
               </div>
 
-              {filteredMerchants.length > 0 ? (
+              {loading ? (
+                <div className="text-center py-20">
+                  <p className="text-muted-foreground text-lg">Loading merchants...</p>
+                </div>
+              ) : filteredMerchants.length > 0 ? (
                 <div className="flex flex-col gap-4">
                   {filteredMerchants.map((merchant, index) => (
                     <motion.div
