@@ -66,7 +66,7 @@ export default function Home() {
 
       return matchesSearch && matchesCategory && matchesCountry && matchesMadeIn && matchesProvider && matchesPaymentMethod;
     });
-  }, [searchQuery, selectedCategories, selectedCountry, selectedMadeIn, selectedProviders, selectedPaymentMethods]);
+  }, [merchants, searchQuery, selectedCategories, selectedCountry, selectedMadeIn, selectedProviders, selectedPaymentMethods]);
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategories(category === "All" || !category ? [] : [category]);
