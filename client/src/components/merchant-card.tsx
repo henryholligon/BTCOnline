@@ -6,7 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { type Merchant } from "@shared/schema";
-import { ExternalLink, Zap, Bitcoin } from "lucide-react";
+import { ExternalLink, Zap, Bitcoin, Clock } from "lucide-react";
 
 interface MerchantCardProps {
   merchant: Merchant;
@@ -311,6 +311,15 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                   </span>
                 </div>
               )}
+            </div>
+          )}
+          {merchant.lastSurveyed && (
+            <div className="flex flex-col gap-0.5 text-[10px] uppercase tracking-wider font-semibold text-muted-foreground/70">
+              <span className="text-[9px] opacity-70">Last Surveyed</span>
+              <span className="text-foreground/90 flex items-center gap-1" data-testid={`text-last-surveyed-${merchant.id}`}>
+                <Clock className="h-3 w-3" />
+                {new Date(merchant.lastSurveyed).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+              </span>
             </div>
           )}
         </div>
