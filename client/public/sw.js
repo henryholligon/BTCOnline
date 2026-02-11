@@ -1,6 +1,5 @@
-const CACHE_NAME = 'btconline-v1';
+const CACHE_NAME = 'btconline-v2';
 const STATIC_ASSETS = [
-  '/',
   '/manifest.json',
   '/favicon.png',
 ];
@@ -23,6 +22,9 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+
+  const url = new URL(event.request.url);
+  if (url.pathname.startsWith('/api/')) return;
 
   event.respondWith(
     fetch(event.request)
