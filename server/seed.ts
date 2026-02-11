@@ -117,7 +117,7 @@ const SEED_MERCHANTS = [
   { name: "Internet Archive", description: "A non-profit library of millions of free books, movies, software, music, and websites.", logo: "/assets/archive-v2.png", categories: ["❤️ Charity", "Services", "📚 Books"], shippingCountries: ["🌍 Worldwide"], website: "https://archive.org/", lightningSupported: false, onchainSupported: true, paymentProvider: "BTCPay Server" },
 ];
 
-async function seed() {
+export async function seed() {
   console.log("Seeding database...");
 
   const existing = await db.select().from(merchants);
@@ -126,16 +126,21 @@ async function seed() {
     return;
   }
 
-  await db.insert(merchants).values(SEED_MERCHANTS);
+  const today = new Date().toISOString().split('T')[0];
+  const merchantsWithDate = SEED_MERCHANTS.map(m => ({ ...m, lastSurveyed: today }));
+  await db.insert(merchants).values(merchantsWithDate);
   console.log(`Seeded ${SEED_MERCHANTS.length} merchants.`);
 }
 
-seed()
-  .then(() => {
-    console.log("Seed complete.");
-    process.exit(0);
-  })
-  .catch((err) => {
-    console.error("Seed failed:", err);
-    process.exit(1);
-  });
+const isDirectRun = process.argv[1]?.includes('seed');
+if (isDirectRun) {
+  seed()
+    .then(() => {
+      console.log("Seed complete.");
+      process.exit(0);
+    })
+    .catch((err) => {
+      console.error("Seed failed:", err);
+      process.exit(1);
+    });
+}
