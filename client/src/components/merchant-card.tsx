@@ -289,14 +289,6 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
         <div className="w-full md:w-[200px] shrink-0 flex flex-col gap-2 z-10 border-t md:border-t-0 md:border-l border-border/20 pt-3 md:pt-0 md:pl-4">
           {(merchant.countryMadeIn || merchant.shippingCountries.length > 0) && (
             <div className="flex flex-col gap-2 text-[10px] uppercase tracking-wider font-semibold text-muted-foreground/70">
-              {merchant.countryMadeIn && (
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-[9px] opacity-70">Made In</span>
-                  <span className="text-foreground/90 truncate flex items-center gap-1">
-                    {getCountryEmoji(merchant.countryMadeIn)} {merchant.countryMadeIn}
-                  </span>
-                </div>
-              )}
               {merchant.shippingCountries.length > 0 && (
                 <div className="flex flex-col gap-0.5">
                   <span className="text-[9px] opacity-70">Shipping to</span>
@@ -308,6 +300,14 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                           const hasEmoji = /\p{Emoji}/u.test(c);
                           return hasEmoji ? c : `${getCountryEmoji(pureCountry)} ${c}`;
                         }).slice(0, 2).join(", ") + (merchant.shippingCountries.length > 2 ? "..." : "")}
+                  </span>
+                </div>
+              )}
+              {merchant.countryMadeIn && (
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[9px] opacity-70">Made In</span>
+                  <span className="text-foreground/90 truncate flex items-center gap-1">
+                    {getCountryEmoji(merchant.countryMadeIn)} {merchant.countryMadeIn}
                   </span>
                 </div>
               )}
