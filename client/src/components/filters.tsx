@@ -20,6 +20,55 @@ interface FiltersProps {
   onClear: () => void;
 }
 
+const categoryEmojis: Record<string, string> = {
+  "Electronics": "💻",
+  "Food & Drink": "🍴",
+  "Travel": "✈️",
+  "Gift Cards": "🎁",
+  "VPN & Privacy": "🛡️",
+  "Hosting": "🌐",
+  "Art": "🎨",
+  "Charity": "❤️",
+  "Fashion": "👗",
+  "Lifestyle": "✨",
+  "Gaming": "🎮",
+  "Social Media": "📱",
+  "Gambling": "🎰",
+  "Real Estate": "🏠",
+  "Vehicle": "🚗",
+  "Footwear": "👟",
+  "Cellular": "📡",
+  "AI": "🤖",
+  "Magazine": "📰",
+  "Education": "🎓",
+  "Home Goods": "🏠",
+  "Airplanes": "✈️",
+  "Yachts": "🛥️",
+  "Nicotine": "🚬",
+  "Hot Tubs": "🛁",
+  "Games": "🎲",
+  "VPN": "🛡️",
+  "Health": "🏥",
+  "Food Delivery": "🛵",
+  "Taxi": "🚕",
+  "Insurance": "🛡️",
+  "Payments": "💳",
+  "Furniture": "🪑",
+  "Jewellery": "💎",
+};
+
+const countryEmojis: Record<string, string> = {
+  "Worldwide": "🌍",
+  "United States": "🇺🇸",
+  "United Kingdom": "🇬🇧",
+  "EEA": "🇪🇺",
+  "Canada": "🇨🇦",
+  "Singapore": "🇸🇬",
+  "Mexico": "🇲🇽",
+  "Columbia": "🇨🇴",
+  "Monaco": "🇲🇨",
+};
+
 export default function Filters({
   selectedCategories,
   onCategoryChange,
@@ -83,7 +132,7 @@ export default function Filters({
             <SelectContent>
               <SelectItem value="All">Anywhere</SelectItem>
               {COUNTRIES.map((country) => (
-                <SelectItem key={country} value={country}>{country}</SelectItem>
+                <SelectItem key={country} value={country}>{countryEmojis[country] || ""} {country}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -98,7 +147,7 @@ export default function Filters({
             <SelectContent>
               <SelectItem value="All">Anywhere</SelectItem>
               {COUNTRIES.map((country) => (
-                <SelectItem key={country} value={country}>{country}</SelectItem>
+                <SelectItem key={country} value={country}>{countryEmojis[country] || ""} {country}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -136,7 +185,7 @@ export default function Filters({
                     onCheckedChange={() => onCategoryChange(category)}
                   />
                   <Label htmlFor={`category-${category}`} className="text-sm font-normal cursor-pointer">
-                    {category}
+                    {categoryEmojis[category] || "📦"} {category}
                   </Label>
                 </div>
               ))}
