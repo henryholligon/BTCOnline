@@ -4,9 +4,6 @@
 A free and open-source directory of businesses that accept Bitcoin online. Displays merchant listings with categories, payment methods (Lightning/On-chain), shipping information, and website links.
 
 ## Recent Changes
-- Synced merchant data with CSV: 50 merchants total (deleted 85 old, updated 28 existing, added 22 new)
-- Updated CATEGORIES and PAYMENT_PROVIDERS constants to match CSV data
-- Cleaned up merchant card component (removed dead logo customization code)
 - Migrated merchant data from mock-data.ts to PostgreSQL database
 - Created API routes for serving merchant data (GET /api/merchants, POST /api/merchants)
 - Frontend fetches merchants from API instead of importing static data
@@ -19,7 +16,7 @@ A free and open-source directory of businesses that accept Bitcoin online. Displ
 - **Database**: PostgreSQL with merchants table
 - **Schema**: shared/schema.ts defines Merchant type and constants (CATEGORIES, COUNTRIES, PAYMENT_PROVIDERS)
 - **Storage**: server/storage.ts implements DatabaseStorage with CRUD operations
-- **Seed**: server/seed.ts populates database with 50 merchants
+- **Seed**: server/seed.ts populates database with 113 merchants
 
 ## Key Files
 - `shared/schema.ts` - Database schema, types, and filter constants
