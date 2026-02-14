@@ -4,6 +4,9 @@
 A free and open-source directory of businesses that accept Bitcoin online. Displays merchant listings with categories, payment methods (Lightning/On-chain), shipping information, and website links.
 
 ## Recent Changes
+- Added admin page (/admin) with CSV bulk import and multi-logo upload (drag & drop)
+- CSV import validates through insertMerchantSchema, supports flexible field names (snake_case and camelCase)
+- Logo uploads saved to client/public/assets/ with collision-safe filenames
 - Migrated merchant data from mock-data.ts to PostgreSQL database
 - Created API routes for serving merchant data (GET /api/merchants, POST /api/merchants)
 - Frontend fetches merchants from API instead of importing static data
@@ -21,7 +24,8 @@ A free and open-source directory of businesses that accept Bitcoin online. Displ
 ## Key Files
 - `shared/schema.ts` - Database schema, types, and filter constants
 - `server/storage.ts` - Database storage interface
-- `server/routes.ts` - API routes (/api/merchants)
+- `server/routes.ts` - API routes (/api/merchants, /api/merchants/import, /api/upload-logos)
+- `client/src/pages/admin.tsx` - Admin page with CSV import and logo upload
 - `server/seed.ts` - Database seed script
 - `server/db.ts` - Database connection
 - `client/src/pages/home.tsx` - Main page with filtering logic
