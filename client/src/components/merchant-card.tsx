@@ -243,11 +243,6 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
           </div>
           <div className="space-y-1 overflow-hidden">
             <CardTitle className="text-xl leading-tight truncate" title={merchant.name}>{merchant.name}</CardTitle>
-            {merchant.featured && (
-              <Badge variant="outline" className="mt-1 border-primary/30 text-primary bg-primary/10 animate-pulse-slow">
-                Featured
-              </Badge>
-            )}
           </div>
         </div>
 

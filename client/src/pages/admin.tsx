@@ -16,7 +16,6 @@ interface ParsedMerchant {
   lightningSupported: string;
   onchainSupported: string;
   paymentProvider: string;
-  featured: string;
   countryMadeIn: string;
   countryShippedFrom: string;
   lastSurveyed: string;
@@ -225,7 +224,6 @@ export default function Admin() {
                 <span><strong>lightning</strong> — true/false</span>
                 <span><strong>onchain</strong> — true/false</span>
                 <span><strong>paymentProvider</strong> — e.g. BTCPay Server</span>
-                <span><strong>featured</strong> — true/false</span>
                 <span><strong>countryMadeIn</strong> — e.g. USA</span>
                 <span><strong>lastSurveyed</strong> — e.g. 2026-02-11</span>
               </div>

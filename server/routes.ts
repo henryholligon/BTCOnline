@@ -113,7 +113,7 @@ export async function registerRoutes(
             lightningSupported: parseBool(row.lightningSupported || row.lightning_supported || row.lightning),
             onchainSupported: parseBool(row.onchainSupported || row.onchain_supported || row.onchain),
             paymentProvider: row.paymentProvider || row.payment_provider || null,
-            featured: parseBool(row.featured),
+            featured: false,
             countryMadeIn: row.countryMadeIn || row.country_made_in || null,
             countryShippedFrom: row.countryShippedFrom || row.country_shipped_from || null,
             lastSurveyed: row.lastSurveyed || row.last_surveyed || new Date().toISOString().split('T')[0],
