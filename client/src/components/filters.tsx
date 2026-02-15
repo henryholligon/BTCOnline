@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CATEGORIES, COUNTRIES, PAYMENT_PROVIDERS } from "@shared/schema";
-import { Bitcoin, X, Zap } from "lucide-react";
+import { Bitcoin, Filter, X, Zap } from "lucide-react";
 
 interface FiltersProps {
   selectedCategories: string[];
@@ -33,41 +33,40 @@ export default function Filters({
   onPaymentMethodChange,
   onClear,
 }: FiltersProps) {
-  const hasFilters = selectedCategories.length > 0 || selectedCountry !== "All" || selectedMadeIn !== "All" || selectedProviders.length > 0 || selectedPaymentMethods.length > 0;
 
   return (
     <div className="flex flex-col space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-[13px] font-semibold text-foreground">Filters</h3>
-        {hasFilters && (
+        <h3 className="text-sm font-medium tracking-wide uppercase text-muted-foreground flex items-center gap-2">
+          <Filter className="h-4 w-4" /> Filters
+        </h3>
+        {(selectedCategories.length > 0 || selectedCountry !== "All" || selectedMadeIn !== "All" || selectedProviders.length > 0 || selectedPaymentMethods.length > 0) && (
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={onClear}
-            className="h-auto p-0 text-[12px] text-muted-foreground hover:text-foreground font-medium"
+            className="h-auto p-0 text-xs text-muted-foreground hover:text-foreground"
           >
-            Clear <X className="ml-0.5 h-3 w-3" />
+            Clear all <X className="ml-1 h-3 w-3" />
           </Button>
         )}
       </div>
 
-      <div className="space-y-5">
-        <div className="space-y-2.5">
-          <Label className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">Payment</Label>
+      <div className="space-y-4">
+        <div className="space-y-3">
+          <Label className="text-sm font-display">Payment Method</Label>
           <div className="flex flex-col space-y-2">
             {[
-              { id: "lightning", label: "Lightning", icon: <Zap className="h-3 w-3 fill-amber-500 text-amber-500" /> },
-              { id: "onchain", label: "On-Chain", icon: <Bitcoin className="h-3 w-3 text-orange-500" /> }
+              { id: "lightning", label: "Lightning", icon: <Zap className="h-3 w-3 fill-yellow-400 text-yellow-400" /> },
+              { id: "onchain", label: "On-Chain", icon: <Bitcoin className="h-3 w-3 fill-orange-500 text-orange-500" /> }
             ].map((method) => (
               <div key={method.id} className="flex items-center space-x-2">
                 <Checkbox 
                   id={`method-${method.id}`} 
                   checked={selectedPaymentMethods.includes(method.id)}
                   onCheckedChange={() => onPaymentMethodChange(method.id)}
-                  className="rounded"
-                  data-testid={`checkbox-${method.id}`}
                 />
-                <Label htmlFor={`method-${method.id}`} className="text-[13px] font-normal cursor-pointer flex items-center gap-1.5">
+                <Label htmlFor={`method-${method.id}`} className="text-sm font-normal cursor-pointer flex items-center gap-1.5">
                   {method.icon} {method.label}
                 </Label>
               </div>
@@ -76,10 +75,10 @@ export default function Filters({
         </div>
 
         <div className="space-y-2">
-          <Label className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">Ships to</Label>
+          <Label className="text-sm font-display">Shipping to</Label>
           <Select value={selectedCountry} onValueChange={onCountryChange}>
-            <SelectTrigger className="w-full h-8 rounded-lg text-[13px]" data-testid="select-shipping">
-              <SelectValue placeholder="Anywhere" />
+            <SelectTrigger className="w-full h-10">
+              <SelectValue placeholder="Select destination" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="All">Anywhere</SelectItem>
@@ -91,10 +90,10 @@ export default function Filters({
         </div>
 
         <div className="space-y-2">
-          <Label className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">Made in</Label>
+          <Label className="text-sm font-display">Country made in</Label>
           <Select value={selectedMadeIn} onValueChange={onMadeInChange}>
-            <SelectTrigger className="w-full h-8 rounded-lg text-[13px]" data-testid="select-made-in">
-              <SelectValue placeholder="Anywhere" />
+            <SelectTrigger className="w-full h-10">
+              <SelectValue placeholder="Select origin" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="All">Anywhere</SelectItem>
@@ -105,20 +104,18 @@ export default function Filters({
           </Select>
         </div>
 
-        <div className="space-y-2.5">
-          <Label className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">Provider</Label>
-          <ScrollArea className="h-[110px] pr-3">
-            <div className="space-y-2">
+        <div className="space-y-3">
+          <Label className="text-sm font-display">Payment Provider</Label>
+          <ScrollArea className="h-[120px] pr-4">
+            <div className="space-y-3">
               {PAYMENT_PROVIDERS.map((provider) => (
                 <div key={provider} className="flex items-center space-x-2">
                   <Checkbox 
                     id={`provider-${provider}`} 
                     checked={selectedProviders.includes(provider)}
                     onCheckedChange={() => onProviderChange(provider)}
-                    className="rounded"
-                    data-testid={`checkbox-provider-${provider}`}
                   />
-                  <Label htmlFor={`provider-${provider}`} className="text-[13px] font-normal cursor-pointer">
+                  <Label htmlFor={`provider-${provider}`} className="text-sm font-normal cursor-pointer">
                     {provider}
                   </Label>
                 </div>
@@ -127,20 +124,18 @@ export default function Filters({
           </ScrollArea>
         </div>
 
-        <div className="space-y-2.5">
-          <Label className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">Category</Label>
-          <ScrollArea className="h-[200px] pr-3">
-            <div className="space-y-2">
+        <div className="space-y-3">
+          <Label className="text-sm font-display">Categories</Label>
+          <ScrollArea className="h-[200px] pr-4">
+            <div className="space-y-3">
               {CATEGORIES.map((category) => (
                 <div key={category} className="flex items-center space-x-2">
                   <Checkbox 
                     id={`category-${category}`} 
                     checked={selectedCategories.includes(category)}
                     onCheckedChange={() => onCategoryChange(category)}
-                    className="rounded"
-                    data-testid={`checkbox-category-${category}`}
                   />
-                  <Label htmlFor={`category-${category}`} className="text-[13px] font-normal cursor-pointer">
+                  <Label htmlFor={`category-${category}`} className="text-sm font-normal cursor-pointer">
                     {category}
                   </Label>
                 </div>

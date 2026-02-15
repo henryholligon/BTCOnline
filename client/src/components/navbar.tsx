@@ -13,7 +13,7 @@ import { CATEGORIES } from "@/lib/mock-data";
 
 interface NavbarProps {
   onSearch: (query: string) => void;
-  filtersSlot?: React.ReactNode;
+  filtersSlot?: React.ReactNode; // For mobile menu
 }
 
 export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
@@ -37,58 +37,57 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/70 glass">
-      <div className="container flex h-14 items-center px-4 gap-4">
+    <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-16 items-center px-4">
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="md:hidden shrink-0 h-8 w-8">
-              <Menu className="h-4 w-4" />
+            <Button variant="ghost" size="icon" className="mr-2 md:hidden">
+              <Menu className="h-5 w-5" />
               <span className="sr-only">Toggle filters</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-[300px] sm:w-[360px]">
-            <div className="py-6">
-              <h2 className="mb-6 text-lg font-semibold">Filters</h2>
+          <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+            <div className="py-4">
+              <h2 className="mb-4 text-lg font-semibold tracking-tight">Filters</h2>
               {filtersSlot}
             </div>
           </SheetContent>
         </Sheet>
 
-        <Link href="/" className="flex items-center shrink-0">
+        <Link href="/" className="mr-6 flex items-center">
           <img 
             src="/assets/main-logo.png" 
             alt="btconline" 
-            className="h-8 w-8 object-contain dark:hidden" 
+            className="h-10 w-10 object-contain dark:hidden mix-blend-multiply" 
           />
           <img 
             src="/assets/main-logo-dark.png" 
             alt="btconline" 
-            className="h-8 w-8 object-contain hidden dark:block" 
+            className="h-10 w-10 object-contain hidden dark:block mix-blend-screen" 
           />
         </Link>
 
-        <div className="flex-1 flex justify-center">
-          <div className="relative w-full max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/60" />
+        <div className="flex-1 flex items-center ml-4">
+          <div className="relative w-full max-w-[400px]">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Search merchants..."
-              className="h-8 w-full rounded-lg border-0 bg-secondary/80 pl-9 pr-4 text-sm shadow-none placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-ring focus-visible:bg-background"
+              className="h-9 w-full rounded-md border border-input bg-muted/50 pl-8 pr-4 text-sm shadow-none transition-colors focus-visible:bg-background focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
               onChange={(e) => onSearch(e.target.value)}
-              data-testid="input-search"
             />
           </div>
         </div>
 
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex items-center space-x-2">
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
             <DialogTrigger asChild>
-              <Button size="sm" className="rounded-lg bg-foreground text-background hover:bg-foreground/90 dark:bg-white dark:text-black dark:hover:bg-white/90 font-medium text-[13px] h-8 px-3 gap-1.5 shadow-sm" data-testid="button-add-merchant">
-                <Plus className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Add</span>
+              <Button className="font-medium bg-primary hover:bg-primary/90 text-primary-foreground gap-2">
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">Add Merchant</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="rounded-2xl">
+            <DialogContent>
               <DialogHeader>
                 <DialogTitle>Add a Merchant</DialogTitle>
                 <DialogDescription>
@@ -104,7 +103,6 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
                     value={businessName}
                     onChange={(e) => setBusinessName(e.target.value)}
                     required
-                    className="rounded-lg"
                     data-testid="input-business-name"
                   />
                 </div>
@@ -117,14 +115,13 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
                     value={businessUrl}
                     onChange={(e) => setBusinessUrl(e.target.value)}
                     required
-                    className="rounded-lg"
                     data-testid="input-business-url"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="businessCategory">Category</Label>
                   <Select value={businessCategory} onValueChange={setBusinessCategory} required>
-                    <SelectTrigger className="rounded-lg" data-testid="select-business-category">
+                    <SelectTrigger data-testid="select-business-category">
                       <SelectValue placeholder="Select a category" />
                     </SelectTrigger>
                     <SelectContent>
@@ -135,13 +132,13 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
                   </Select>
                 </div>
                 <DialogFooter>
-                  <Button type="submit" className="rounded-lg" data-testid="button-submit-merchant">Submit Merchant</Button>
+                  <Button type="submit" data-testid="button-submit-merchant">Submit Merchant</Button>
                 </DialogFooter>
               </form>
             </DialogContent>
           </Dialog>
 
-          <Button asChild variant="ghost" size="sm" className="hidden md:flex text-[13px] font-medium text-muted-foreground hover:text-foreground h-8 px-3 rounded-lg">
+          <Button asChild variant="ghost" className="hidden md:flex text-sm font-medium hover:text-primary transition-colors h-9 px-4">
             <a href="https://btcmap.org" target="_blank" rel="noopener noreferrer">
               In-person
             </a>
@@ -150,11 +147,10 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           >
-            <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             <span className="sr-only">Toggle theme</span>
           </Button>
         </div>
