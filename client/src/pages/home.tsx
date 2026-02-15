@@ -3,9 +3,7 @@ import Navbar from "@/components/navbar";
 import Filters from "@/components/filters";
 import MerchantCard from "@/components/merchant-card";
 import { type Merchant } from "@shared/schema";
-import bgImage from "@assets/generated_images/abstract_digital_network_background_with_orange_nodes_in_cypherpunk_style.png";
 import { motion } from "framer-motion";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function Home() {
   const [merchants, setMerchants] = useState<Merchant[]>([]);
@@ -109,84 +107,100 @@ export default function Home() {
     />
   );
 
+  const hasActiveFilters = selectedCategories.length > 0 || selectedCountry !== "All" || selectedMadeIn !== "All" || selectedProviders.length > 0 || selectedPaymentMethods.length > 0 || searchQuery.length > 0;
+
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-primary/20">
+    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
       <Navbar onSearch={setSearchQuery} filtersSlot={filterComponent} />
       
-      <div className="relative border-b border-border/50 overflow-hidden">
-        <div className="absolute inset-0 z-0 opacity-20 dark:opacity-20 opacity-10">
-            <img src={bgImage} alt="" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
-        </div>
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.04] via-transparent to-transparent dark:from-primary/[0.06] pointer-events-none" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/[0.08] dark:bg-primary/[0.04] rounded-full blur-[120px] pointer-events-none" />
         
-        <div className="container relative z-10 px-4 py-8 md:py-16 text-center">
+        <div className="container relative z-10 px-4 py-12 md:py-20 text-center max-w-3xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
           >
-            <h1 className="text-3xl md:text-6xl font-display font-bold tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-foreground to-foreground/70 dark:from-white dark:to-white/70 leading-tight">
-              Find places to spend <span className="text-primary">Bitcoin online</span>
+            <h1 className="text-4xl md:text-[56px] font-semibold tracking-tight leading-[1.1] mb-5">
+              Find places to spend{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-500">
+                Bitcoin online
+              </span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-xl mx-auto font-normal">
               A free and open source directory of businesses that accept Bitcoin
             </p>
           </motion.div>
         </div>
       </div>
 
-      <main className="container px-4 py-6 flex-1">
-        <div className="flex flex-col gap-6">
-          <div className="flex flex-col md:flex-row gap-8">
-            <aside className="hidden md:block w-64 shrink-0 sticky top-24 h-[calc(100vh-8rem)]">
-              {filterComponent}
-            </aside>
+      <main className="container px-4 pb-12 flex-1">
+        <div className="flex flex-col md:flex-row gap-8">
+          <aside className="hidden md:block w-60 shrink-0 sticky top-20 h-[calc(100vh-6rem)] overflow-y-auto">
+            {filterComponent}
+          </aside>
 
-            <div className="flex-1">
-              <div className="mb-6 flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  Showing <span className="font-mono text-foreground font-medium">{filteredMerchants.length}</span> merchants
-                </p>
-              </div>
-
-              {loading ? (
-                <div className="text-center py-20">
-                  <p className="text-muted-foreground text-lg">Loading merchants...</p>
-                </div>
-              ) : filteredMerchants.length > 0 ? (
-                <div className="flex flex-col gap-4">
-                  {filteredMerchants.map((merchant, index) => (
-                    <motion.div
-                      key={merchant.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: index * 0.05 }}
-                    >
-                      <MerchantCard merchant={merchant} />
-                    </motion.div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-20 border border-dashed border-border rounded-lg bg-card/20">
-                  <p className="text-muted-foreground text-lg">No merchants found.</p>
-                  <button onClick={clearFilters} className="mt-4 text-primary hover:underline">
-                    Clear all filters
+          <div className="flex-1 min-w-0">
+            <div className="mb-5 flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                <span className="font-semibold text-foreground tabular-nums">{filteredMerchants.length}</span>
+                {" "}merchant{filteredMerchants.length !== 1 ? "s" : ""}
+                {hasActiveFilters && (
+                  <button onClick={clearFilters} className="ml-3 text-primary hover:text-primary/80 font-medium transition-colors">
+                    Clear filters
                   </button>
-                </div>
-              )}
+                )}
+              </p>
             </div>
+
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-24 gap-3">
+                <div className="h-8 w-8 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+                <p className="text-sm text-muted-foreground">Loading merchants...</p>
+              </div>
+            ) : filteredMerchants.length > 0 ? (
+              <div className="flex flex-col gap-3">
+                {filteredMerchants.map((merchant, index) => (
+                  <motion.div
+                    key={merchant.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ 
+                      duration: 0.35, 
+                      delay: Math.min(index * 0.03, 0.6),
+                      ease: [0.25, 0.1, 0.25, 1]
+                    }}
+                  >
+                    <MerchantCard merchant={merchant} />
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-24">
+                <div className="text-5xl mb-4">🔍</div>
+                <p className="text-lg font-medium text-foreground/80 mb-2">No merchants found</p>
+                <p className="text-sm text-muted-foreground mb-5">Try adjusting your filters or search terms</p>
+                <button onClick={clearFilters} className="text-sm text-primary hover:text-primary/80 font-medium transition-colors">
+                  Clear all filters
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </main>
 
-      <footer className="border-t border-border/40 py-8 bg-background mt-auto">
-        <div className="container px-4 flex flex-col md:flex-row justify-between items-center text-sm text-muted-foreground">
-          <div className="mb-4 md:mb-0">
-            <span className="font-display font-bold text-foreground">btconline</span> &copy; 2024. Open Source.
+      <footer className="border-t border-border/50 py-8 bg-card/50">
+        <div className="container px-4 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
+          <div>
+            <span className="font-semibold text-foreground">btconline</span>
+            <span className="mx-2 text-border">·</span>
+            Open Source
           </div>
-          <div className="flex gap-4">
-            <a href="#" className="hover:text-primary transition-colors">GitHub</a>
-            <a href="#" className="hover:text-primary transition-colors">Add Merchant</a>
+          <div className="flex gap-6">
+            <a href="#" className="hover:text-foreground transition-colors">GitHub</a>
+            <a href="#" className="hover:text-foreground transition-colors">Add Merchant</a>
           </div>
         </div>
       </footer>
