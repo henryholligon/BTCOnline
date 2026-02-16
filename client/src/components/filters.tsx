@@ -107,7 +107,7 @@ export default function Filters({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-        <FilterDropdown label="Category" active={selectedCategories.length > 0}>
+        <FilterDropdown label="📂 Category" active={selectedCategories.length > 0}>
           <button
             onClick={() => onCategoryChange("All")}
             className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
@@ -129,7 +129,7 @@ export default function Filters({
           ))}
         </FilterDropdown>
 
-        <FilterDropdown label="Payment" active={selectedPaymentMethods.length > 0} closeOnSelect={false}>
+        <FilterDropdown label="💳 Payment" active={selectedPaymentMethods.length > 0} closeOnSelect={false}>
           {[
             { id: "lightning", label: "Lightning", icon: <Zap className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" /> },
             { id: "onchain", label: "On-Chain", icon: <Bitcoin className="h-3.5 w-3.5 fill-orange-500 text-orange-500" /> }
@@ -147,7 +147,7 @@ export default function Filters({
           ))}
         </FilterDropdown>
 
-        <FilterDropdown label="Ships to" active={selectedCountry !== "All"}>
+        <FilterDropdown label="📦 Ships to" active={selectedCountry !== "All"}>
           <button
             onClick={() => onCountryChange("All")}
             className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
@@ -169,7 +169,7 @@ export default function Filters({
           ))}
         </FilterDropdown>
 
-        <FilterDropdown label="Made in" active={selectedMadeIn !== "All"}>
+        <FilterDropdown label="🏭 Made in" active={selectedMadeIn !== "All"}>
           <button
             onClick={() => onMadeInChange("All")}
             className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
@@ -191,7 +191,7 @@ export default function Filters({
           ))}
         </FilterDropdown>
 
-        <FilterDropdown label="Provider" active={selectedProviders.length > 0} closeOnSelect={false}>
+        <FilterDropdown label="🔌 Provider" active={selectedProviders.length > 0} closeOnSelect={false}>
           {PAYMENT_PROVIDERS.map((provider) => (
             <button
               key={provider}
