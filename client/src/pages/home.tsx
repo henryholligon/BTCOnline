@@ -3,7 +3,6 @@ import Navbar from "@/components/navbar";
 import Filters from "@/components/filters";
 import MerchantCard from "@/components/merchant-card";
 import { type Merchant } from "@shared/schema";
-import bgImage from "@assets/generated_images/abstract_digital_network_background_with_orange_nodes_in_cypherpunk_style.png";
 import btcBgImage from "@assets/image_1771226498805.png";
 import { motion } from "framer-motion";
 
@@ -115,9 +114,26 @@ export default function Home() {
       <Navbar onSearch={setSearchQuery} filtersSlot={filterComponent} />
       
       <div className="relative border-b border-border/50 overflow-hidden">
-        <div className="absolute inset-0 z-0 opacity-20 dark:opacity-20 opacity-10">
-            <img src={bgImage} alt="" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+        <div className="absolute inset-0 z-0">
+          <div className="hero-grid absolute inset-0 opacity-[0.08] dark:opacity-[0.12]" />
+          <div className="absolute inset-0 overflow-hidden">
+            {[...Array(12)].map((_, i) => (
+              <span
+                key={i}
+                className="absolute text-primary/10 dark:text-primary/15 font-bold select-none animate-float-btc"
+                style={{
+                  fontSize: `${14 + (i % 4) * 8}px`,
+                  left: `${(i * 8.3) % 100}%`,
+                  top: `${(i * 17 + 5) % 90}%`,
+                  animationDelay: `${i * 0.7}s`,
+                  animationDuration: `${6 + (i % 3) * 2}s`,
+                }}
+              >
+                ₿
+              </span>
+            ))}
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-transparent to-background" />
         </div>
         
         <div className="max-w-3xl mx-auto relative z-10 px-4 py-8 md:py-16 text-center">
