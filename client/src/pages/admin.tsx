@@ -49,9 +49,13 @@ export default function Admin() {
     setImportResult(null);
     Papa.parse(file, {
       header: true,
-      skipEmptyLines: true,
+      skipEmptyLines: "greedy",
+      transformHeader: (header: string) => header.trim(),
       complete: (results) => {
-        setCsvData(results.data as ParsedMerchant[]);
+        const rows = (results.data as ParsedMerchant[]).filter(
+          (row) => row.name && row.name.trim() !== ""
+        );
+        setCsvData(rows);
       },
       error: () => {
         setCsvData([]);
@@ -276,6 +280,8 @@ export default function Admin() {
                     <th className="text-left p-2 font-medium">Website</th>
                     <th className="text-left p-2 font-medium">Lightning</th>
                     <th className="text-left p-2 font-medium">On-chain</th>
+                    <th className="text-left p-2 font-medium">Payment Provider</th>
+                    <th className="text-left p-2 font-medium">Shipping</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -312,6 +318,8 @@ export default function Admin() {
                           <span className="text-muted-foreground">No</span>
                         )}
                       </td>
+                      <td className="p-2 max-w-[120px] truncate text-muted-foreground">{row.paymentProvider || row.payment_provider || "—"}</td>
+                      <td className="p-2 max-w-[120px] truncate text-muted-foreground">{row.shippingCountries || row.shipping_countries || "—"}</td>
                     </tr>
                   ))}
                 </tbody>

@@ -105,22 +105,25 @@ export async function registerRoutes(
       };
 
       for (let i = 0; i < merchantRows.length; i++) {
-        const row = merchantRows[i];
+        const row = normalizeKeys(merchantRows[i]);
         try {
+          const name = String(row.name || "").trim();
+          if (!name) continue;
+
           const prepared = {
-            name: String(row.name || "").trim(),
+            name,
             description: String(row.description || "").trim(),
             logo: String(row.logo || "").trim(),
             categories: parseArrayField(row.categories),
-            shippingCountries: parseArrayField(row.shippingCountries || row.shipping_countries),
+            shippingCountries: parseArrayField(row.shippingcountries || row.shipping_countries),
             website: String(row.website || "").trim(),
-            lightningSupported: parseBool(row.lightningSupported || row.lightning_supported || row.lightning),
-            onchainSupported: parseBool(row.onchainSupported || row.onchain_supported || row.onchain),
-            paymentProvider: row.paymentProvider || row.payment_provider || null,
+            lightningSupported: parseBool(row.lightningsupported || row.lightning_supported || row.lightning),
+            onchainSupported: parseBool(row.onchainsupported || row.onchain_supported || row.onchain),
+            paymentProvider: row.paymentprovider || row.payment_provider || null,
             featured: false,
-            countryMadeIn: row.countryMadeIn || row.country_made_in || null,
-            countryShippedFrom: row.countryShippedFrom || row.country_shipped_from || null,
-            lastSurveyed: row.lastSurveyed || row.last_surveyed || new Date().toISOString().split('T')[0],
+            countryMadeIn: row.countrymadein || row.country_made_in || null,
+            countryShippedFrom: row.countryshippedfrom || row.country_shipped_from || null,
+            lastSurveyed: row.lastsurveyed || row.last_surveyed || new Date().toISOString().split('T')[0],
           };
 
           const validated = insertMerchantSchema.safeParse(prepared);
@@ -171,4 +174,16 @@ function parseBool(value: any): boolean {
     return ["true", "yes", "1", "y"].includes(value.toLowerCase().trim());
   }
   return false;
+}
+
+function normalizeKeys(obj: Record<string, any>): Record<string, any> {
+  const result: Record<string, any> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    const normalized = key.toLowerCase().replace(/[\s_-]+/g, '').replace(/_\d+$/, '');
+    if (!result[normalized]) {
+      result[normalized] = value;
+    }
+    result[key] = value;
+  }
+  return result;
 }
