@@ -113,32 +113,16 @@ export default function Home() {
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-primary/20">
       <Navbar onSearch={setSearchQuery} filtersSlot={filterComponent} />
       
-      <div className="relative border-b border-border/50 overflow-hidden bg-gradient-to-br from-background via-background to-background">
-        <div className="absolute inset-0 z-0">
-          <div className="hero-blob hero-blob-1" />
-          <div className="hero-blob hero-blob-2" />
-          <div className="hero-blob hero-blob-3" />
-          <div className="hero-scanline absolute inset-0" />
-        </div>
-        
+      <div className="relative border-b border-border/50 overflow-hidden hero-section">
+        <div className="absolute inset-0 z-0 hero-glow" />
         <div className="max-w-3xl mx-auto relative z-10 px-4 py-10 md:py-20 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <motion.div
-              className="inline-block mb-6"
-              animate={{ rotate: [0, 5, -5, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <span className="text-5xl md:text-7xl">₿</span>
-            </motion.div>
             <h1 className="text-3xl md:text-6xl font-display font-bold tracking-tight mb-4 leading-tight">
-              Find places to spend{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-orange-400 to-primary bg-[length:200%_100%] animate-gradient-shift">
-                Bitcoin online
-              </span>
+              Find places to spend <span className="text-primary">Bitcoin online</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               A free and open source directory of merchants that accept Bitcoin
