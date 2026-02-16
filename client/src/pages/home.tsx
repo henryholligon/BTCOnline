@@ -120,7 +120,7 @@ export default function Home() {
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
         </div>
         
-        <div className="container relative z-10 px-4 py-8 md:py-16 text-center">
+        <div className="max-w-3xl mx-auto relative z-10 px-4 py-8 md:py-16 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
