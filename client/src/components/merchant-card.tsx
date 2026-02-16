@@ -64,7 +64,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
           const pureCountry = c.replace(/[^\w\s]/gi, '').trim();
           const hasEmoji = /\p{Emoji}/u.test(c);
           return hasEmoji ? c : `${getCountryEmoji(pureCountry)} ${c}`;
-        }).slice(0, 2).join(", ") + (merchant.shippingCountries.length > 2 ? "..." : "")
+        }).slice(0, 2).join(", ") + (merchant.shippingCountries.length > 2 ? "..." : "") + " shipping"
     : null;
 
   return (
