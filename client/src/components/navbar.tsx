@@ -63,7 +63,7 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
             <DialogTrigger asChild>
               <Button className="font-medium bg-primary hover:bg-primary/90 text-primary-foreground gap-2 h-8 text-xs px-3">
                 <Plus className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Add Merchant</span>
+                Add Merchant
               </Button>
             </DialogTrigger>
             <DialogContent>
