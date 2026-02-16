@@ -114,7 +114,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
         </div>
 
         {shippingText && (
-          <div className="hidden md:flex items-center gap-1 text-xs text-muted-foreground shrink-0">
+          <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
             <span>{shippingText}</span>
           </div>
         )}
