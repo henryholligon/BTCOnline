@@ -105,7 +105,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
           <p className="text-xs md:text-sm text-muted-foreground truncate">{merchant.description}</p>
           <div className="flex items-center gap-2 mt-1">
             {shippingText && (
-              <span className="text-xs text-muted-foreground">{shippingText}</span>
+              <span className="text-xs text-muted-foreground border border-border/50 rounded-full px-2 py-0.5">{shippingText}</span>
             )}
             <div className="hidden md:flex items-center gap-1.5">
               {merchant.categories.slice(0, 2).map((cat) => (
