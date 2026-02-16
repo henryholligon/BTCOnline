@@ -115,9 +115,8 @@ export default function Home() {
       <Navbar onSearch={setSearchQuery} filtersSlot={filterComponent} />
       
       <div className="relative border-b border-border/50 overflow-hidden">
-        <div className="absolute inset-0 z-0 opacity-20 dark:opacity-20 opacity-10">
+        <div className="absolute inset-0 z-0">
             <img src={bgImage} alt="" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
         </div>
         
         <div className="max-w-3xl mx-auto relative z-10 px-4 py-8 md:py-16 text-center">
@@ -125,8 +124,9 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
+            className="bg-white/90 dark:bg-card/90 backdrop-blur-sm rounded-xl px-6 py-8 md:px-10 md:py-12 border border-white/50 dark:border-border/50 shadow-lg"
           >
-            <h1 className="text-3xl md:text-6xl font-display font-bold tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-foreground to-foreground/70 dark:from-white dark:to-white/70 leading-tight">
+            <h1 className="text-3xl md:text-6xl font-display font-bold tracking-tight mb-4 text-foreground leading-tight">
               Find places to spend <span className="text-primary">Bitcoin online</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
