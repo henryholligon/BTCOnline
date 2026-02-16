@@ -3,7 +3,7 @@ import Navbar from "@/components/navbar";
 import Filters from "@/components/filters";
 import MerchantCard from "@/components/merchant-card";
 import { type Merchant } from "@shared/schema";
-import bgImage from "@assets/image_1771282990050.png";
+import bgImage from "@assets/generated_images/abstract_digital_network_background_with_orange_nodes_in_cypherpunk_style.png";
 import btcBgImage from "@assets/image_1771226498805.png";
 import { motion } from "framer-motion";
 
@@ -115,8 +115,9 @@ export default function Home() {
       <Navbar onSearch={setSearchQuery} filtersSlot={filterComponent} />
       
       <div className="relative border-b border-border/50 overflow-hidden">
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0 opacity-20 dark:opacity-20 opacity-10">
             <img src={bgImage} alt="" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
         </div>
         
         <div className="max-w-3xl mx-auto relative z-10 px-4 py-8 md:py-16 text-center">
@@ -124,9 +125,8 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-white/90 dark:bg-card/90 backdrop-blur-sm rounded-xl px-6 py-8 md:px-10 md:py-12 border border-white/50 dark:border-border/50 shadow-lg"
           >
-            <h1 className="text-3xl md:text-6xl font-display font-bold tracking-tight mb-4 text-foreground leading-tight">
+            <h1 className="text-3xl md:text-6xl font-display font-bold tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-foreground to-foreground/70 dark:from-white dark:to-white/70 leading-tight">
               Find places to spend <span className="text-primary">Bitcoin online</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
