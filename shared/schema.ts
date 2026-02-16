@@ -29,12 +29,19 @@ export type Merchant = typeof merchants.$inferSelect;
 
 export const PAYMENT_PROVIDERS = [
   "BTCPay Server",
-  "Zaprite",
-  "Strike",
-  "OpenNode",
-  "IBEX",
+  "Bitcashier",
+  "COINPAYMENTS",
   "CoinCorner",
-  "CoinGate"
+  "Coingate",
+  "CoinsPaid",
+  "NOWPayments",
+  "Open Node",
+  "Self-hosted",
+  "Speed",
+  "Strike",
+  "The Giving Block",
+  "Triple A",
+  "Zaprite",
 ];
 
 export const CATEGORIES = [
