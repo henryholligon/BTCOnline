@@ -95,6 +95,9 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             {merchant.onchainSupported && (
               <Bitcoin className="h-3.5 w-3.5 shrink-0 fill-orange-500 text-orange-500" />
             )}
+            {merchant.name === "Maple AI" && (
+              <span className="shrink-0 text-[10px] font-bold bg-green-500 text-white px-1.5 py-0.5 rounded-full uppercase tracking-wide">10% off with BTC</span>
+            )}
           </div>
           <p className="text-xs md:text-sm text-muted-foreground truncate">{merchant.description}</p>
         </div>
