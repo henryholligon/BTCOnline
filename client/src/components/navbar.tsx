@@ -57,7 +57,7 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
-      <div className="container px-4">
+      <div className="max-w-3xl mx-auto px-4">
         <div className="flex items-center justify-end py-1.5 gap-2 border-b border-border/20">
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
             <DialogTrigger asChild>
