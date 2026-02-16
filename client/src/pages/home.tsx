@@ -4,7 +4,6 @@ import Filters from "@/components/filters";
 import MerchantCard from "@/components/merchant-card";
 import { type Merchant } from "@shared/schema";
 import bgImage from "@assets/generated_images/abstract_digital_network_background_with_orange_nodes_in_cypherpunk_style.png";
-import heroBanner from "@assets/image_1771267917861.png";
 import btcBgImage from "@assets/image_1771226498805.png";
 import { motion } from "framer-motion";
 
@@ -116,14 +115,25 @@ export default function Home() {
       <Navbar onSearch={setSearchQuery} filtersSlot={filterComponent} />
       
       <div className="relative border-b border-border/50 overflow-hidden">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="w-full"
-        >
-          <img src={heroBanner} alt="Find Places to Spend Bitcoin Online - A free and open source directory of merchants that accept Bitcoin" className="w-full h-auto object-cover" />
-        </motion.div>
+        <div className="absolute inset-0 z-0 opacity-20 dark:opacity-20 opacity-10">
+            <img src={bgImage} alt="" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+        </div>
+        
+        <div className="container relative z-10 px-4 py-8 md:py-16 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h1 className="text-3xl md:text-6xl font-display font-bold tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-foreground to-foreground/70 dark:from-white dark:to-white/70 leading-tight">
+              Find places to spend <span className="text-primary">Bitcoin online</span>
+            </h1>
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              A free and open source directory of merchants that accept Bitcoin
+            </p>
+          </motion.div>
+        </div>
       </div>
 
       <main className="flex-1 relative" style={{ backgroundImage: `url(${btcBgImage})`, backgroundSize: '600px', backgroundRepeat: 'repeat', backgroundPosition: 'center' }}>
