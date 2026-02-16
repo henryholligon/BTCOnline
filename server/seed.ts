@@ -54,13 +54,26 @@ const SEED_MERCHANTS = [
   { name: "Primal", description: "Social media app where you control your identity, content and algorithm with the right to exit.", logo: "/assets/primal.png", categories: ["⚙️ Tech", "🛡️ VPN & Privacy"], shippingCountries: ["Worldwide"], website: "https://primal.net/", lightningSupported: true, onchainSupported: false, paymentProvider: "Strike", countryMadeIn: null, lastSurveyed: "2026-02-15" },
 ];
 
+const SEED_VERSION = 2;
+
 export async function seed() {
   console.log("Seeding database...");
 
   const existing = await db.select().from(merchants);
-  if (existing.length > 0) {
-    console.log(`Database already has ${existing.length} merchants. Skipping seed.`);
+
+  const expectedNames = SEED_MERCHANTS.map(m => m.name).sort();
+  const existingNames = existing.map(m => m.name).sort();
+  const isUpToDate = existing.length === SEED_MERCHANTS.length &&
+    expectedNames.every((name, i) => name === existingNames[i]);
+
+  if (existing.length > 0 && isUpToDate) {
+    console.log(`Database already has ${existing.length} correct merchants. Skipping seed.`);
     return;
+  }
+
+  if (existing.length > 0) {
+    console.log(`Database has ${existing.length} outdated merchants. Replacing with ${SEED_MERCHANTS.length} updated merchants...`);
+    await db.delete(merchants);
   }
 
   await db.insert(merchants).values(SEED_MERCHANTS);
