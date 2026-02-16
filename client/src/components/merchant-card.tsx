@@ -69,7 +69,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
 
   return (
     <div
-      className="w-full bg-card/50 border border-border/50 hover:border-primary/30 rounded-lg transition-all duration-200 cursor-pointer group"
+      className="w-full bg-white border border-border/50 hover:border-primary/30 rounded-lg transition-all duration-200 cursor-pointer group"
       onClick={() => setExpanded(!expanded)}
       data-testid={`card-merchant-${merchant.id}`}
     >
