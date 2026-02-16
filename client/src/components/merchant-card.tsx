@@ -59,7 +59,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
 
   const shippingText = merchant.shippingCountries.length > 0
     ? merchant.shippingCountries.some(c => c.toLowerCase().includes("worldwide"))
-      ? "🌍 Worldwide"
+      ? "🌍 Worldwide shipping"
       : merchant.shippingCountries.map(c => {
           const pureCountry = c.replace(/[^\w\s]/gi, '').trim();
           const hasEmoji = /\p{Emoji}/u.test(c);
