@@ -36,7 +36,7 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+    <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60" style={{ overflow: 'visible' }}>
       <div className="container flex h-14 items-center px-4">
         <Link href="/" className="mr-4 flex items-center shrink-0">
           <img 
@@ -143,7 +143,7 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
       </div>
 
       {filtersSlot && (
-        <div className="container px-4 pb-3 pt-1">
+        <div className="container px-4 pb-3 pt-1" style={{ overflow: 'visible' }}>
           {filtersSlot}
         </div>
       )}

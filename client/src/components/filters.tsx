@@ -23,21 +23,29 @@ function FilterDropdown({ label, children, active, closeOnSelect = true }: { lab
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!open) return;
     const handleClick = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
     };
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
+  }, [open]);
 
   const handleItemClick = () => {
     if (closeOnSelect) setOpen(false);
   };
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative" style={{ zIndex: open ? 100 : 'auto' }}>
       <button
-        onClick={() => setOpen(!open)}
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setOpen((prev) => !prev);
+        }}
         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
           active
             ? "bg-primary text-primary-foreground border-primary"
@@ -49,7 +57,11 @@ function FilterDropdown({ label, children, active, closeOnSelect = true }: { lab
         <ChevronDown className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
-        <div className="absolute top-full left-0 mt-2 bg-popover border border-border rounded-lg shadow-lg z-50 min-w-[200px] p-2 max-h-[300px] overflow-y-auto" onClick={handleItemClick}>
+        <div
+          className="absolute left-0 mt-2 bg-popover border border-border rounded-lg shadow-lg min-w-[200px] p-2 max-h-[300px] overflow-y-auto"
+          style={{ top: '100%', zIndex: 9999 }}
+          onClick={handleItemClick}
+        >
           {children}
         </div>
       )}
@@ -73,8 +85,8 @@ export default function Filters({
   const hasActiveFilters = selectedCategories.length > 0 || selectedCountry !== "All" || selectedMadeIn !== "All" || selectedProviders.length > 0 || selectedPaymentMethods.length > 0;
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+    <div className="flex flex-col gap-2" style={{ overflow: 'visible' }}>
+      <div className="flex items-center gap-2 flex-wrap pb-1">
         <FilterDropdown label="Category" active={selectedCategories.length > 0}>
           <button
             onClick={() => onCategoryChange("All")}
