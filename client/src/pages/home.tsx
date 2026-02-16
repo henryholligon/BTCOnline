@@ -113,37 +113,32 @@ export default function Home() {
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-primary/20">
       <Navbar onSearch={setSearchQuery} filtersSlot={filterComponent} />
       
-      <div className="relative border-b border-border/50 overflow-hidden">
+      <div className="relative border-b border-border/50 overflow-hidden bg-gradient-to-br from-background via-background to-background">
         <div className="absolute inset-0 z-0">
-          <div className="hero-grid absolute inset-0 opacity-[0.08] dark:opacity-[0.12]" />
-          <div className="absolute inset-0 overflow-hidden">
-            {[...Array(12)].map((_, i) => (
-              <span
-                key={i}
-                className="absolute text-primary font-bold select-none animate-float-btc"
-                style={{
-                  fontSize: `${14 + (i % 4) * 8}px`,
-                  left: `${(i * 8.3) % 100}%`,
-                  top: `${(i * 17 + 5) % 90}%`,
-                  animationDelay: `${i * 0.7}s`,
-                  animationDuration: `${6 + (i % 3) * 2}s`,
-                }}
-              >
-                ₿
-              </span>
-            ))}
-          </div>
-          <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-transparent to-background" />
+          <div className="hero-blob hero-blob-1" />
+          <div className="hero-blob hero-blob-2" />
+          <div className="hero-blob hero-blob-3" />
+          <div className="hero-scanline absolute inset-0" />
         </div>
         
-        <div className="max-w-3xl mx-auto relative z-10 px-4 py-8 md:py-16 text-center">
+        <div className="max-w-3xl mx-auto relative z-10 px-4 py-10 md:py-20 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="text-3xl md:text-6xl font-display font-bold tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-foreground to-foreground/70 dark:from-white dark:to-white/70 leading-tight">
-              Find places to spend <span className="text-primary">Bitcoin online</span>
+            <motion.div
+              className="inline-block mb-6"
+              animate={{ rotate: [0, 5, -5, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <span className="text-5xl md:text-7xl">₿</span>
+            </motion.div>
+            <h1 className="text-3xl md:text-6xl font-display font-bold tracking-tight mb-4 leading-tight">
+              Find places to spend{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-orange-400 to-primary bg-[length:200%_100%] animate-gradient-shift">
+                Bitcoin online
+              </span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               A free and open source directory of merchants that accept Bitcoin
