@@ -73,7 +73,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
       onClick={() => setExpanded(!expanded)}
       data-testid={`card-merchant-${merchant.id}`}
     >
-      <div className="flex items-center gap-4 p-3 md:p-4">
+      <div className="flex items-center gap-3 md:gap-4 p-4 md:p-4">
         <div className="h-10 w-10 md:h-12 md:w-12 shrink-0 rounded-lg flex items-center justify-center overflow-hidden border border-border/50 bg-white">
           {(merchant.logo.startsWith("/") || merchant.logo.startsWith("http")) ? (
             <img
@@ -86,7 +86,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
           )}
         </div>
 
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 space-y-1">
           <div className="flex items-center gap-2">
             <h3 className="font-semibold text-sm md:text-base truncate">{merchant.name}</h3>
             {merchant.lightningSupported && (
@@ -103,7 +103,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             )}
           </div>
           <p className="text-xs md:text-sm text-muted-foreground truncate">{merchant.description}</p>
-          <div className="flex items-center gap-2 mt-1">
+          <div className="flex items-center gap-2">
             {shippingText && (
               <Badge variant="secondary" className="text-[10px] py-0 px-1.5">
                 {shippingText}
