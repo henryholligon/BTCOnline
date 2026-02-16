@@ -90,7 +90,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
           <div className="flex items-center gap-2">
             <h3 className="font-semibold text-sm md:text-base truncate">{merchant.name}</h3>
             {merchant.lightningSupported && (
-              <Zap className="h-3.5 w-3.5 shrink-0 fill-yellow-400 text-yellow-400" />
+              <Zap className="h-3.5 w-3.5 shrink-0 fill-yellow-400 text-yellow-400 animate-lightning-zap drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]" />
             )}
             {merchant.onchainSupported && (
               <Bitcoin className="h-3.5 w-3.5 shrink-0 fill-orange-500 text-orange-500" />
@@ -129,7 +129,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
               <div className="flex items-center gap-2 text-foreground">
                 {merchant.lightningSupported && (
                   <span className="flex items-center gap-1 text-yellow-500">
-                    <Zap className="h-3 w-3 fill-current" /> Lightning
+                    <Zap className="h-3 w-3 fill-current animate-lightning-zap" /> Lightning
                   </span>
                 )}
                 {merchant.onchainSupported && (
