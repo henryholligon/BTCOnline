@@ -51,18 +51,7 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
           />
         </Link>
 
-        <div className="flex-1 flex items-center">
-          <div className="relative w-full max-w-[360px]">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search merchants..."
-              className="h-9 w-full rounded-md border border-input bg-muted/50 pl-8 pr-4 text-sm shadow-none transition-colors focus-visible:bg-background focus-visible:ring-1 focus-visible:ring-ring"
-              onChange={(e) => onSearch(e.target.value)}
-              data-testid="input-search"
-            />
-          </div>
-        </div>
+        <div className="flex-1" />
 
         <div className="flex items-center space-x-2">
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>

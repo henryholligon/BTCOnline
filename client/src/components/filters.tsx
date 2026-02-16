@@ -107,7 +107,7 @@ export default function Filters({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-        <FilterDropdown label="💼 Category" active={selectedCategories.length > 0}>
+        <FilterDropdown label="🔍 Search" active={selectedCategories.length > 0}>
           <button
             onClick={() => onCategoryChange("All")}
             className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
