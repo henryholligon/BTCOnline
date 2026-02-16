@@ -2,7 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CATEGORIES, COUNTRIES, PAYMENT_PROVIDERS } from "@shared/schema";
 import { Bitcoin, ChevronDown, X, Zap } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 
 interface FiltersProps {
   selectedCategories: string[];
@@ -20,32 +21,49 @@ interface FiltersProps {
 
 function FilterDropdown({ label, children, active, closeOnSelect = true }: { label: string; children: React.ReactNode; active?: boolean; closeOnSelect?: boolean }) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState({ top: 0, left: 0 });
+
+  const updatePosition = useCallback(() => {
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setPos({ top: rect.bottom + 8, left: rect.left });
+    }
+  }, []);
 
   useEffect(() => {
     if (!open) return;
+    updatePosition();
     const handleClick = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
+      const target = e.target as Node;
+      if (
+        buttonRef.current?.contains(target) ||
+        panelRef.current?.contains(target)
+      ) return;
+      setOpen(false);
     };
+    const handleScroll = () => updatePosition();
     document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, [open]);
+    window.addEventListener("scroll", handleScroll, true);
+    window.addEventListener("resize", handleScroll);
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      window.removeEventListener("scroll", handleScroll, true);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, [open, updatePosition]);
 
   const handleItemClick = () => {
     if (closeOnSelect) setOpen(false);
   };
 
   return (
-    <div ref={ref} className="relative" style={{ zIndex: open ? 100 : 'auto' }}>
+    <div className="shrink-0">
       <button
+        ref={buttonRef}
         type="button"
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          setOpen((prev) => !prev);
-        }}
+        onClick={() => setOpen((prev) => !prev)}
         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
           active
             ? "bg-primary text-primary-foreground border-primary"
@@ -56,14 +74,16 @@ function FilterDropdown({ label, children, active, closeOnSelect = true }: { lab
         {label}
         <ChevronDown className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
-      {open && (
+      {open && createPortal(
         <div
-          className="absolute left-0 mt-2 bg-popover border border-border rounded-lg shadow-lg min-w-[200px] p-2 max-h-[300px] overflow-y-auto"
-          style={{ top: '100%', zIndex: 9999 }}
+          ref={panelRef}
+          className="fixed bg-popover border border-border rounded-lg shadow-lg min-w-[200px] p-2 max-h-[300px] overflow-y-auto"
+          style={{ top: pos.top, left: pos.left, zIndex: 9999 }}
           onClick={handleItemClick}
         >
           {children}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
@@ -85,8 +105,8 @@ export default function Filters({
   const hasActiveFilters = selectedCategories.length > 0 || selectedCountry !== "All" || selectedMadeIn !== "All" || selectedProviders.length > 0 || selectedPaymentMethods.length > 0;
 
   return (
-    <div className="flex flex-col gap-2" style={{ overflow: 'visible' }}>
-      <div className="flex items-center gap-2 flex-wrap pb-1">
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
         <FilterDropdown label="Category" active={selectedCategories.length > 0}>
           <button
             onClick={() => onCategoryChange("All")}
