@@ -5,7 +5,7 @@ import MerchantCard from "@/components/merchant-card";
 import { type Merchant } from "@shared/schema";
 import bgImage from "@assets/generated_images/abstract_digital_network_background_with_orange_nodes_in_cypherpunk_style.png";
 import { motion } from "framer-motion";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 
 export default function Home() {
   const [merchants, setMerchants] = useState<Merchant[]>([]);
@@ -136,47 +136,37 @@ export default function Home() {
       </div>
 
       <main className="container px-4 py-6 flex-1">
-        <div className="flex flex-col gap-6">
-          <div className="flex flex-col md:flex-row gap-8">
-            <aside className="hidden md:block w-64 shrink-0 sticky top-24 h-[calc(100vh-8rem)]">
-              {filterComponent}
-            </aside>
-
-            <div className="flex-1">
-              <div className="mb-6 flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  Showing <span className="font-mono text-foreground font-medium">{filteredMerchants.length}</span> merchants
-                </p>
-              </div>
-
-              {loading ? (
-                <div className="text-center py-20">
-                  <p className="text-muted-foreground text-lg">Loading merchants...</p>
-                </div>
-              ) : filteredMerchants.length > 0 ? (
-                <div className="flex flex-col gap-4">
-                  {filteredMerchants.map((merchant, index) => (
-                    <motion.div
-                      key={merchant.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: index * 0.05 }}
-                    >
-                      <MerchantCard merchant={merchant} />
-                    </motion.div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-20 border border-dashed border-border rounded-lg bg-card/20">
-                  <p className="text-muted-foreground text-lg">No merchants found.</p>
-                  <button onClick={clearFilters} className="mt-4 text-primary hover:underline">
-                    Clear all filters
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
+        <div className="mb-4 flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            Showing <span className="font-mono text-foreground font-medium">{filteredMerchants.length}</span> merchants
+          </p>
         </div>
+
+        {loading ? (
+          <div className="text-center py-20">
+            <p className="text-muted-foreground text-lg">Loading merchants...</p>
+          </div>
+        ) : filteredMerchants.length > 0 ? (
+          <div className="flex flex-col gap-4">
+            {filteredMerchants.map((merchant, index) => (
+              <motion.div
+                key={merchant.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+              >
+                <MerchantCard merchant={merchant} />
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20 border border-dashed border-border rounded-lg bg-card/20">
+            <p className="text-muted-foreground text-lg">No merchants found.</p>
+            <button onClick={clearFilters} className="mt-4 text-primary hover:underline">
+              Clear all filters
+            </button>
+          </div>
+        )}
       </main>
 
       <footer className="border-t border-border/40 py-8 bg-background mt-auto">
