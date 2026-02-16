@@ -4,6 +4,7 @@ import Filters from "@/components/filters";
 import MerchantCard from "@/components/merchant-card";
 import { type Merchant } from "@shared/schema";
 import bgImage from "@assets/generated_images/abstract_digital_network_background_with_orange_nodes_in_cypherpunk_style.png";
+import btcBgImage from "@assets/image_1771226498805.png";
 import { motion } from "framer-motion";
 
 
@@ -135,19 +136,20 @@ export default function Home() {
         </div>
       </div>
 
-      <main className="container px-4 py-6 flex-1">
-        <div className="mb-4 flex items-center justify-between">
+      <main className="container px-4 py-6 flex-1 relative" style={{ backgroundImage: `url(${btcBgImage})`, backgroundSize: '600px', backgroundRepeat: 'repeat', backgroundPosition: 'center' }}>
+        <div className="absolute inset-0 bg-background/90 dark:bg-background/95" />
+        <div className="relative z-10 mb-4 flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
             Showing <span className="font-mono text-foreground font-medium">{filteredMerchants.length}</span> merchants
           </p>
         </div>
 
         {loading ? (
-          <div className="text-center py-20">
+          <div className="relative z-10 text-center py-20">
             <p className="text-muted-foreground text-lg">Loading merchants...</p>
           </div>
         ) : filteredMerchants.length > 0 ? (
-          <div className="flex flex-col gap-4">
+          <div className="relative z-10 flex flex-col gap-4">
             {filteredMerchants.map((merchant, index) => (
               <motion.div
                 key={merchant.id}
@@ -160,7 +162,7 @@ export default function Home() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-20 border border-dashed border-border rounded-lg bg-card/20">
+          <div className="relative z-10 text-center py-20 border border-dashed border-border rounded-lg bg-card/20">
             <p className="text-muted-foreground text-lg">No merchants found.</p>
             <button onClick={clearFilters} className="mt-4 text-primary hover:underline">
               Clear all filters
