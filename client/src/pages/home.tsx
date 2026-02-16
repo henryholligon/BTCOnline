@@ -136,39 +136,41 @@ export default function Home() {
         </div>
       </div>
 
-      <main className="container px-4 py-6 flex-1 relative" style={{ backgroundImage: `url(${btcBgImage})`, backgroundSize: '600px', backgroundRepeat: 'repeat', backgroundPosition: 'center' }}>
+      <main className="flex-1 relative" style={{ backgroundImage: `url(${btcBgImage})`, backgroundSize: '600px', backgroundRepeat: 'repeat', backgroundPosition: 'center' }}>
         <div className="absolute inset-0 bg-background/90 dark:bg-background/95" />
-        <div className="relative z-10 mb-4 flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            Showing <span className="font-mono text-foreground font-medium">{filteredMerchants.length}</span> merchants
-          </p>
-        </div>
+        <div className="relative z-10 max-w-3xl mx-auto px-4 py-6">
+          <div className="mb-4 flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              Showing <span className="font-mono text-foreground font-medium">{filteredMerchants.length}</span> merchants
+            </p>
+          </div>
 
-        {loading ? (
-          <div className="relative z-10 text-center py-20">
-            <p className="text-muted-foreground text-lg">Loading merchants...</p>
-          </div>
-        ) : filteredMerchants.length > 0 ? (
-          <div className="relative z-10 flex flex-col gap-4">
-            {filteredMerchants.map((merchant, index) => (
-              <motion.div
-                key={merchant.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-              >
-                <MerchantCard merchant={merchant} />
-              </motion.div>
-            ))}
-          </div>
-        ) : (
-          <div className="relative z-10 text-center py-20 border border-dashed border-border rounded-lg bg-card/20">
-            <p className="text-muted-foreground text-lg">No merchants found.</p>
-            <button onClick={clearFilters} className="mt-4 text-primary hover:underline">
-              Clear all filters
-            </button>
-          </div>
-        )}
+          {loading ? (
+            <div className="text-center py-20">
+              <p className="text-muted-foreground text-lg">Loading merchants...</p>
+            </div>
+          ) : filteredMerchants.length > 0 ? (
+            <div className="flex flex-col gap-4">
+              {filteredMerchants.map((merchant, index) => (
+                <motion.div
+                  key={merchant.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                >
+                  <MerchantCard merchant={merchant} />
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20 border border-dashed border-border rounded-lg bg-card/20">
+              <p className="text-muted-foreground text-lg">No merchants found.</p>
+              <button onClick={clearFilters} className="mt-4 text-primary hover:underline">
+                Clear all filters
+              </button>
+            </div>
+          )}
+        </div>
       </main>
 
       <footer className="border-t border-border/40 py-8 bg-background mt-auto">
