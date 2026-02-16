@@ -74,7 +74,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
       data-testid={`card-merchant-${merchant.id}`}
     >
       <div className="flex items-center gap-3 md:gap-4 p-4 md:p-4">
-        <div className="h-10 w-10 md:h-12 md:w-12 shrink-0 rounded-lg flex items-center justify-center overflow-hidden border border-border/50 bg-white dark:bg-muted">
+        <div className="h-10 w-10 md:h-12 md:w-12 shrink-0 rounded-lg flex items-center justify-center overflow-hidden border-2 border-border bg-white dark:bg-muted">
           {(merchant.logo.startsWith("/") || merchant.logo.startsWith("http")) ? (
             <img
               src={merchant.logo}
