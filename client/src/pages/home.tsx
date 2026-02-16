@@ -120,7 +120,7 @@ export default function Home() {
             {[...Array(12)].map((_, i) => (
               <span
                 key={i}
-                className="absolute text-primary/10 dark:text-primary/15 font-bold select-none animate-float-btc"
+                className="absolute text-primary font-bold select-none animate-float-btc"
                 style={{
                   fontSize: `${14 + (i % 4) * 8}px`,
                   left: `${(i * 8.3) % 100}%`,
