@@ -98,6 +98,9 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             {merchant.name === "Maple AI" && (
               <span className="shrink-0 text-[10px] font-bold bg-green-500 text-white px-1.5 py-0.5 rounded-sm uppercase tracking-wide">10% off with BTC</span>
             )}
+            {merchant.name === "SLNT" && (
+              <span className="shrink-0 text-[10px] font-bold text-white px-1.5 py-0.5 rounded-sm uppercase tracking-wide animate-rainbow" style={{ background: "linear-gradient(90deg, #ff0000, #ff8800, #ffff00, #00ff00, #0088ff, #8800ff, #ff0088, #ff0000)", backgroundSize: "200% 100%" }}>NEW</span>
+            )}
           </div>
           <p className="text-xs md:text-sm text-muted-foreground truncate">{merchant.description}</p>
         </div>
