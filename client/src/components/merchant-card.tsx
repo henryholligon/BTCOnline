@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { type Merchant } from "@shared/schema";
-import { ExternalLink, Zap, Bitcoin, Clock, ChevronDown } from "lucide-react";
+import { ExternalLink, Zap, Bitcoin, Clock } from "lucide-react";
 import { useState } from "react";
 
 interface MerchantCardProps {
@@ -119,7 +119,6 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
           </div>
         )}
 
-        <ChevronDown className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ${expanded ? "rotate-180" : ""}`} />
       </div>
 
       {expanded && (
