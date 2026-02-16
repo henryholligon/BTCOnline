@@ -37,8 +37,8 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center px-4">
-        <Link href="/" className="mr-4 flex items-center shrink-0">
+      <div className="container flex items-center px-4 py-2 gap-3">
+        <Link href="/" className="flex items-center shrink-0">
           <img 
             src="/assets/main-logo.png" 
             alt="btconline" 
@@ -51,9 +51,13 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
           />
         </Link>
 
-        <div className="flex-1" />
+        {filtersSlot && (
+          <div className="flex-1 min-w-0">
+            {filtersSlot}
+          </div>
+        )}
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 shrink-0">
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
             <DialogTrigger asChild>
               <Button className="font-medium bg-primary hover:bg-primary/90 text-primary-foreground gap-2 h-9">
@@ -130,12 +134,6 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
           </Button>
         </div>
       </div>
-
-      {filtersSlot && (
-        <div className="container px-4 pb-3 pt-1">
-          {filtersSlot}
-        </div>
-      )}
     </nav>
   );
 }
