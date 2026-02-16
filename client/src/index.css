@@ -114,7 +114,7 @@ html.theme-transition-none *::after {
   --animate-pulse-slow: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-bounce-subtle: bounce-subtle 2s ease-in-out infinite;
   --animate-lightning-zap: lightning-zap 1.5s ease-in-out infinite;
-  --animate-rainbow: rainbow-color 3s linear infinite;
+  --animate-rainbow: rainbow-shift 2s linear infinite;
 
   @keyframes pulse-slow {
     0%, 100% { opacity: 1; }
@@ -154,15 +154,9 @@ html.theme-transition-none *::after {
     }
   }
 
-  @keyframes rainbow-color {
-    0% { color: #ff0080; }
-    15% { color: #ff8c00; }
-    30% { color: #40e0d0; }
-    45% { color: #0066ff; }
-    60% { color: #9132c8; }
-    75% { color: #ff3399; }
-    90% { color: #ff0000; }
-    100% { color: #ff0080; }
+  @keyframes rainbow-shift {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
   }
 }
 
