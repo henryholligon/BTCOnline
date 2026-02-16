@@ -107,6 +107,13 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             {shippingText && (
               <span className="text-xs text-black border border-border/50 rounded-full px-2 py-0.5">{shippingText}</span>
             )}
+            <div className="flex md:hidden items-center gap-1.5">
+              {merchant.categories.slice(0, 1).map((cat) => (
+                <Badge key={cat} variant="secondary" className="text-[10px] py-0 px-1.5">
+                  {getCategoryEmoji(cat)}
+                </Badge>
+              ))}
+            </div>
             <div className="hidden md:flex items-center gap-1.5">
               {merchant.categories.slice(0, 2).map((cat) => (
                 <Badge key={cat} variant="secondary" className="text-[10px] py-0 px-1.5">
