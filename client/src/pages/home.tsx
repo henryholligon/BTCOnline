@@ -114,7 +114,7 @@ export default function Home() {
       <Navbar onSearch={setSearchQuery} filtersSlot={filterComponent} />
       
       <div className="relative border-b border-border/50 overflow-hidden hero-section">
-        <div className="absolute inset-0 z-0 opacity-[0.07] dark:opacity-[0.05]" style={{ backgroundImage: 'url(/assets/hero-pattern.png)', backgroundSize: '400px', backgroundRepeat: 'repeat', backgroundPosition: 'center' }} />
+        <div className="absolute inset-0 z-0 opacity-30 dark:opacity-20" style={{ backgroundImage: 'url(/assets/hero-pattern.png)', backgroundSize: '400px', backgroundRepeat: 'repeat', backgroundPosition: 'center' }} />
         <div className="absolute inset-0 z-0 hero-glow" />
         <div className="max-w-3xl mx-auto relative z-10 px-4 py-10 md:py-20 text-center">
           <motion.div
