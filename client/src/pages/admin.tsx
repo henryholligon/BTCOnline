@@ -42,6 +42,7 @@ export default function Admin() {
   const [uploadingLogos, setUploadingLogos] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [dragOverCsv, setDragOverCsv] = useState(false);
+  const [replaceAll, setReplaceAll] = useState(true);
 
   const handleCsvUpload = useCallback((file: File) => {
     setCsvFileName(file.name);
@@ -83,7 +84,7 @@ export default function Admin() {
       const res = await fetch("/api/merchants/import", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ merchants: csvData }),
+        body: JSON.stringify({ merchants: csvData, replaceAll }),
       });
       const result = await res.json();
       setImportResult(result);
@@ -235,7 +236,16 @@ export default function Admin() {
           <Card className="p-6 space-y-4">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">Preview — {csvData.length} merchant(s) to import</CardTitle>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-4">
+                <label className="flex items-center gap-2 text-sm cursor-pointer" data-testid="checkbox-replace-all">
+                  <input
+                    type="checkbox"
+                    checked={replaceAll}
+                    onChange={(e) => setReplaceAll(e.target.checked)}
+                    className="rounded border-border"
+                  />
+                  Replace all existing merchants
+                </label>
                 <Button
                   variant="ghost"
                   size="sm"

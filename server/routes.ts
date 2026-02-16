@@ -90,9 +90,13 @@ export async function registerRoutes(
 
   app.post("/api/merchants/import", async (req, res) => {
     try {
-      const { merchants: merchantRows } = req.body;
+      const { merchants: merchantRows, replaceAll } = req.body;
       if (!Array.isArray(merchantRows) || merchantRows.length === 0) {
         return res.status(400).json({ message: "No merchant data provided" });
+      }
+
+      if (replaceAll) {
+        await storage.deleteAllMerchants();
       }
 
       const results: { success: number; errors: Array<{ row: number; message: string }> } = {

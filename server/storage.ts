@@ -7,6 +7,7 @@ export interface IStorage {
   getMerchant(id: number): Promise<Merchant | undefined>;
   createMerchant(merchant: InsertMerchant): Promise<Merchant>;
   getMerchantCount(): Promise<number>;
+  deleteAllMerchants(): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -27,6 +28,10 @@ export class DatabaseStorage implements IStorage {
   async getMerchantCount(): Promise<number> {
     const result = await db.select().from(merchants);
     return result.length;
+  }
+
+  async deleteAllMerchants(): Promise<void> {
+    await db.delete(merchants);
   }
 }
 
