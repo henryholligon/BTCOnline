@@ -1,6 +1,6 @@
 import { type Merchant, type InsertMerchant, merchants } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, asc } from "drizzle-orm";
 
 export interface IStorage {
   getMerchants(): Promise<Merchant[]>;
@@ -12,7 +12,7 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   async getMerchants(): Promise<Merchant[]> {
-    return await db.select().from(merchants);
+    return await db.select().from(merchants).orderBy(asc(merchants.id));
   }
 
   async getMerchant(id: number): Promise<Merchant | undefined> {
