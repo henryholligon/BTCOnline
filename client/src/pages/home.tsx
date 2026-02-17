@@ -66,6 +66,15 @@ export default function Home() {
 
       return matchesSearch && matchesCategory && matchesCountry && matchesMadeIn && matchesProvider && matchesPaymentMethod;
     });
+
+    const promotedNames = ["Maple AI", "PayPerQ", "SLNT"];
+    return filtered.sort((a, b) => {
+      const aPromoted = promotedNames.includes(a.name);
+      const bPromoted = promotedNames.includes(b.name);
+      if (aPromoted && !bPromoted) return -1;
+      if (!aPromoted && bPromoted) return 1;
+      return 0;
+    });
   }, [merchants, searchQuery, selectedCategories, selectedCountry, selectedMadeIn, selectedProviders, selectedPaymentMethods]);
 
   const handleCategoryChange = (category: string) => {
