@@ -134,12 +134,12 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
             <img
               src="/assets/main-logo.png"
               alt="btconline"
-              className="h-9 w-9 object-contain dark:hidden mix-blend-multiply"
+              className="h-9 w-9 object-contain dark:hidden"
             />
             <img
               src="/assets/main-logo-dark.png"
               alt="btconline"
-              className="h-9 w-9 object-contain hidden dark:block mix-blend-screen"
+              className="h-9 w-9 object-contain hidden dark:block"
             />
             <ChevronDown className={`h-3 w-3 text-muted-foreground transition-transform ${logoMenuOpen ? "rotate-180" : ""}`} />
           </button>
