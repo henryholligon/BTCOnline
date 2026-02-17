@@ -136,13 +136,17 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             {merchant.categories.length > 0 && (
               <div className="space-y-1">
                 <span className="text-muted-foreground/70 uppercase tracking-wider text-[10px] font-semibold">Category</span>
-                <p className="text-foreground">{merchant.categories.map(cat => getCategoryEmoji(cat)).join(", ")}</p>
+                <div className="flex flex-col gap-1 text-foreground">
+                  {merchant.categories.map(cat => (
+                    <span key={cat}>{getCategoryEmoji(cat)}</span>
+                  ))}
+                </div>
               </div>
             )}
 
             <div className="space-y-1">
               <span className="text-muted-foreground/70 uppercase tracking-wider text-[10px] font-semibold">Payment</span>
-              <div className="flex items-center gap-2 text-foreground">
+              <div className="flex flex-col gap-1 text-foreground">
                 {merchant.lightningSupported && (
                   <span className="flex items-center gap-1 text-yellow-500">
                     <Zap className="h-3 w-3 fill-current animate-lightning-zap" /> Lightning
@@ -159,15 +163,15 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             {merchant.shippingCountries.length > 0 && (
               <div className="space-y-1">
                 <span className="text-muted-foreground/70 uppercase tracking-wider text-[10px] font-semibold">Ships to</span>
-                <p className="text-foreground">
+                <div className="flex flex-col gap-1 text-foreground">
                   {merchant.shippingCountries.some(c => c.toLowerCase().includes("worldwide"))
-                    ? "🌍 Worldwide"
+                    ? <span>🌍 Worldwide</span>
                     : merchant.shippingCountries.map(c => {
                         const pureCountry = c.replace(/[^\w\s]/gi, '').trim();
                         const hasEmoji = /\p{Emoji}/u.test(c);
-                        return hasEmoji ? c : `${getCountryEmoji(pureCountry)} ${c}`;
-                      }).join(", ")}
-                </p>
+                        return <span key={c}>{hasEmoji ? c : `${getCountryEmoji(pureCountry)} ${c}`}</span>;
+                      })}
+                </div>
               </div>
             )}
 
