@@ -54,7 +54,6 @@ function FilterDropdown({
   useEffect(() => {
     if (!open) {
       setSearch("");
-      onSearchChange?.("");
       return;
     }
     updatePosition();
@@ -111,11 +110,16 @@ function FilterDropdown({
               ref={inputRef}
               type="text"
               value={search}
-              onChange={(e) => { setSearch(e.target.value); onSearchChange?.(e.target.value); }}
+              onChange={(e) => setSearch(e.target.value)}
               placeholder={searchPlaceholder}
               className="bg-transparent border-none outline-none text-sm font-medium w-[80px] placeholder:text-muted-foreground/60"
               onKeyDown={(e) => {
                 if (e.key === "Escape") setOpen(false);
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  onSearchChange?.(search);
+                  setOpen(false);
+                }
               }}
               data-testid={`filter-search-${label.toLowerCase().replace(/\s+/g, '-')}`}
             />
