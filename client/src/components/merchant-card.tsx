@@ -156,13 +156,6 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
               </div>
             </div>
 
-            {merchant.paymentProvider && (
-              <div className="space-y-1">
-                <span className="text-muted-foreground/70 uppercase tracking-wider text-[10px] font-semibold">Provider</span>
-                <p className="text-foreground">{merchant.paymentProvider}</p>
-              </div>
-            )}
-
             {merchant.shippingCountries.length > 0 && (
               <div className="space-y-1">
                 <span className="text-muted-foreground/70 uppercase tracking-wider text-[10px] font-semibold">Ships to</span>
@@ -182,6 +175,13 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
               <div className="space-y-1">
                 <span className="text-muted-foreground/70 uppercase tracking-wider text-[10px] font-semibold">Made in</span>
                 <p className="text-foreground">{getCountryEmoji(merchant.countryMadeIn)} {merchant.countryMadeIn}</p>
+              </div>
+            )}
+
+            {merchant.paymentProvider && (
+              <div className="space-y-1">
+                <span className="text-muted-foreground/70 uppercase tracking-wider text-[10px] font-semibold">Provider</span>
+                <p className="text-foreground">{merchant.paymentProvider}</p>
               </div>
             )}
 
