@@ -19,18 +19,32 @@ interface FiltersProps {
   onClear: () => void;
 }
 
-function FilterDropdown({ label, children, active, closeOnSelect = true, searchable = false, searchPlaceholder = "Search..." }: { label: string; children: React.ReactNode | ((search: string) => React.ReactNode); active?: boolean; closeOnSelect?: boolean; searchable?: boolean; searchPlaceholder?: string }) {
+function FilterDropdown({
+  label,
+  children,
+  active,
+  closeOnSelect = true,
+  searchable = false,
+  searchPlaceholder = "Type...",
+}: {
+  label: string;
+  children: React.ReactNode | ((search: string) => React.ReactNode);
+  active?: boolean;
+  closeOnSelect?: boolean;
+  searchable?: boolean;
+  searchPlaceholder?: string;
+}) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const buttonRef = useRef<HTMLButtonElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [pos, setPos] = useState({ top: 0, left: 0 });
 
   const updatePosition = useCallback(() => {
-    if (buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      setPos({ top: rect.bottom + 8, left: rect.left });
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setPos({ top: rect.bottom + 4, left: rect.left });
     }
   }, []);
 
@@ -40,11 +54,13 @@ function FilterDropdown({ label, children, active, closeOnSelect = true, searcha
       return;
     }
     updatePosition();
-    setTimeout(() => searchInputRef.current?.focus(), 0);
+    if (searchable) {
+      setTimeout(() => inputRef.current?.focus(), 0);
+    }
     const handleClick = (e: MouseEvent) => {
       const target = e.target as Node;
       if (
-        buttonRef.current?.contains(target) ||
+        triggerRef.current?.contains(target) ||
         panelRef.current?.contains(target)
       ) return;
       setOpen(false);
@@ -58,48 +74,67 @@ function FilterDropdown({ label, children, active, closeOnSelect = true, searcha
       window.removeEventListener("scroll", handleScroll, true);
       window.removeEventListener("resize", handleScroll);
     };
-  }, [open, updatePosition]);
+  }, [open, updatePosition, searchable]);
 
   const handleItemClick = () => {
     if (closeOnSelect) setOpen(false);
   };
 
+  const parts = label.split(" ");
+  const emoji = parts.length > 1 && parts[0].length <= 2 ? parts[0] : "";
+  const textLabel = emoji ? parts.slice(1).join(" ") : label;
+
   return (
     <div className="shrink-0">
-      <button
-        ref={buttonRef}
-        type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
-          active
-            ? "bg-primary text-primary-foreground border-primary"
-            : "bg-muted/50 text-foreground border-border hover:border-primary/50 hover:bg-muted"
+      <div
+        ref={triggerRef}
+        className={`flex items-center gap-1.5 rounded-full text-sm font-medium border transition-colors whitespace-nowrap cursor-pointer ${
+          open
+            ? "bg-primary/10 border-primary ring-2 ring-primary/20"
+            : active
+              ? "bg-primary text-primary-foreground border-primary"
+              : "bg-muted/50 text-foreground border-border hover:border-primary/50 hover:bg-muted"
         }`}
+        onClick={() => {
+          if (!open) setOpen(true);
+        }}
         data-testid={`filter-${label.toLowerCase().replace(/\s+/g, '-')}`}
       >
-        {label}
-        <ChevronDown className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`} />
-      </button>
+        {searchable && open ? (
+          <div className="flex items-center gap-1.5 px-3 py-1.5">
+            {emoji && <span>{emoji}</span>}
+            <input
+              ref={inputRef}
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={searchPlaceholder}
+              className="bg-transparent border-none outline-none text-sm font-medium w-[80px] placeholder:text-muted-foreground/60"
+              onKeyDown={(e) => {
+                if (e.key === "Escape") setOpen(false);
+              }}
+              data-testid={`filter-search-${label.toLowerCase().replace(/\s+/g, '-')}`}
+            />
+            <ChevronDown className="h-3 w-3 rotate-180" />
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setOpen((prev) => !prev)}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-transparent border-none outline-none cursor-pointer"
+          >
+            {label}
+            <ChevronDown className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`} />
+          </button>
+        )}
+      </div>
       {open && createPortal(
         <div
           ref={panelRef}
           className="bg-popover border border-border rounded-lg shadow-lg p-2 max-h-[300px] overflow-y-auto"
-          style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999, display: 'inline-flex', flexDirection: 'column', maxWidth: '90vw', minWidth: searchable ? '200px' : undefined }}
+          style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999, display: 'inline-flex', flexDirection: 'column', maxWidth: '90vw', minWidth: '180px' }}
           onClick={handleItemClick}
         >
-          {searchable && (
-            <div className="pb-1.5 mb-1 border-b border-border/50 sticky top-0 bg-popover" onClick={(e) => e.stopPropagation()}>
-              <input
-                ref={searchInputRef}
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder={searchPlaceholder}
-                className="w-full px-2.5 py-1.5 text-sm rounded-md border border-input bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-                data-testid={`filter-search-${label.toLowerCase().replace(/\s+/g, '-')}`}
-              />
-            </div>
-          )}
           {typeof children === "function" ? (children as (search: string) => React.ReactNode)(search) : children}
         </div>,
         document.body
@@ -126,7 +161,7 @@ export default function Filters({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-        <FilterDropdown label="🔍 Search" active={selectedCategories.length > 0} searchable searchPlaceholder="Search categories...">
+        <FilterDropdown label="🔍 Search" active={selectedCategories.length > 0} searchable searchPlaceholder="Type...">
           {(search: string) => {
             const filtered = CATEGORIES.filter(cat => cat.toLowerCase().includes(search.toLowerCase()));
             return (
@@ -176,7 +211,7 @@ export default function Filters({
           ))}
         </FilterDropdown>
 
-        <FilterDropdown label="📦 Ships to" active={selectedCountry !== "All"} searchable searchPlaceholder="Search countries...">
+        <FilterDropdown label="📦 Ships to" active={selectedCountry !== "All"} searchable searchPlaceholder="Type...">
           {(search: string) => {
             const filtered = COUNTRIES.filter(c => c.toLowerCase().includes(search.toLowerCase()));
             return (
@@ -208,7 +243,7 @@ export default function Filters({
           }}
         </FilterDropdown>
 
-        <FilterDropdown label="👷 Made in" active={selectedMadeIn !== "All"} searchable searchPlaceholder="Search countries...">
+        <FilterDropdown label="👷 Made in" active={selectedMadeIn !== "All"} searchable searchPlaceholder="Type...">
           {(search: string) => {
             const filtered = COUNTRIES.filter(c => c.toLowerCase().includes(search.toLowerCase()));
             return (
@@ -240,7 +275,7 @@ export default function Filters({
           }}
         </FilterDropdown>
 
-        <FilterDropdown label="🔌 Provider" active={selectedProviders.length > 0} closeOnSelect={false} searchable searchPlaceholder="Search providers...">
+        <FilterDropdown label="🔌 Provider" active={selectedProviders.length > 0} closeOnSelect={false} searchable searchPlaceholder="Type...">
           {(search: string) => {
             const filtered = PAYMENT_PROVIDERS.filter(p => p.toLowerCase().includes(search.toLowerCase()));
             return (
