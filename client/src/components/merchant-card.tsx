@@ -132,15 +132,14 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
         <div className="border-t border-border/30 px-3 md:px-4 py-4 space-y-4" onClick={(e) => e.stopPropagation()}>
           <p className="text-sm text-muted-foreground">{merchant.description}</p>
 
-          <div className="flex flex-wrap gap-2">
-            {merchant.categories.map((cat) => (
-              <Badge key={cat} variant="secondary" className="text-xs py-0.5 px-2">
-                {getCategoryEmoji(cat)}
-              </Badge>
-            ))}
-          </div>
-
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+            {merchant.categories.length > 0 && (
+              <div className="space-y-1">
+                <span className="text-muted-foreground/70 uppercase tracking-wider text-[10px] font-semibold">Category</span>
+                <p className="text-foreground">{merchant.categories.map(cat => getCategoryEmoji(cat)).join(", ")}</p>
+              </div>
+            )}
+
             <div className="space-y-1">
               <span className="text-muted-foreground/70 uppercase tracking-wider text-[10px] font-semibold">Payment</span>
               <div className="flex items-center gap-2 text-foreground">
