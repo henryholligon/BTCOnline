@@ -69,7 +69,13 @@ export default function Home() {
   }, [merchants, searchQuery, selectedCategories, selectedCountry, selectedMadeIn, selectedProviders, selectedPaymentMethods]);
 
   const handleCategoryChange = (category: string) => {
-    setSelectedCategories(category === "All" || !category ? [] : [category]);
+    if (category === "All" || !category) {
+      setSelectedCategories([]);
+    } else if (selectedCategories.includes(category)) {
+      setSelectedCategories(selectedCategories.filter(c => c !== category));
+    } else {
+      setSelectedCategories([category]);
+    }
   };
 
   const handleProviderChange = (provider: string) => {
