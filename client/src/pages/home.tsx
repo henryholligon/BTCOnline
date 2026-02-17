@@ -3,7 +3,7 @@ import Navbar from "@/components/navbar";
 import Filters from "@/components/filters";
 import MerchantCard from "@/components/merchant-card";
 import { type Merchant } from "@shared/schema";
-import btcBgImage from "@assets/image_1771226498805.png";
+import btcBgImage from "@assets/image_1771295437083.png";
 import { motion } from "framer-motion";
 
 
