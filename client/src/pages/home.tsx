@@ -30,7 +30,7 @@ export default function Home() {
   const stripEmoji = (str: string) => str.replace(/[^\p{L}\p{N}\s&]/gu, '').trim();
 
   const filteredMerchants = useMemo(() => {
-    return merchants.filter((merchant) => {
+    const filtered = merchants.filter((merchant) => {
       const matchesSearch = 
         merchant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         merchant.description.toLowerCase().includes(searchQuery.toLowerCase());
