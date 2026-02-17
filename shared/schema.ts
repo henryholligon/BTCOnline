@@ -59,6 +59,7 @@ export const CATEGORIES = [
   "💄 Health & Beauty",
   "🧘 Wellness",
   "⚙️ Tech",
+  "🤖 AI",
   "👗 Fashion",
   "✨ Lifestyle",
   "🍷 Alcohol",
