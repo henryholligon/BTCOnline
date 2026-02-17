@@ -24,6 +24,9 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
   const [businessName, setBusinessName] = useState("");
   const [businessUrl, setBusinessUrl] = useState("");
   const [businessCategory, setBusinessCategory] = useState("");
+  const [dataSource, setDataSource] = useState("");
+  const [captchaAnswer, setCaptchaAnswer] = useState("");
+  const [captchaNumbers, setCaptchaNumbers] = useState({ a: 0, b: 0 });
   const logoRef = useRef<HTMLButtonElement>(null);
   const logoPanelRef = useRef<HTMLDivElement>(null);
   const [logoPos, setLogoPos] = useState({ top: 0, left: 0 });
@@ -43,8 +46,26 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [logoMenuOpen]);
 
+  const generateCaptcha = () => {
+    setCaptchaNumbers({ a: Math.floor(Math.random() * 10) + 1, b: Math.floor(Math.random() * 10) + 1 });
+    setCaptchaAnswer("");
+  };
+
+  useEffect(() => {
+    if (isAddOpen) generateCaptcha();
+  }, [isAddOpen]);
+
   const handleSubmitMerchant = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!dataSource) {
+      toast({ title: "Missing Field", description: "Please select a data source." });
+      return;
+    }
+    if (parseInt(captchaAnswer) !== captchaNumbers.a + captchaNumbers.b) {
+      toast({ title: "Incorrect Answer", description: "Please solve the math problem correctly." });
+      generateCaptcha();
+      return;
+    }
     setIsAddOpen(false);
     toast({
       title: "Merchant Submitted",
@@ -53,6 +74,8 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
     setBusinessName("");
     setBusinessUrl("");
     setBusinessCategory("");
+    setDataSource("");
+    setCaptchaAnswer("");
   };
 
   return (
@@ -109,6 +132,47 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Data Source</Label>
+                  <div className="flex flex-col gap-2">
+                    <label className="flex items-center gap-2 text-sm cursor-pointer">
+                      <input
+                        type="radio"
+                        name="dataSource"
+                        value="owner"
+                        checked={dataSource === "owner"}
+                        onChange={(e) => setDataSource(e.target.value)}
+                        className="accent-primary"
+                        data-testid="radio-data-source-owner"
+                      />
+                      I am the business owner
+                    </label>
+                    <label className="flex items-center gap-2 text-sm cursor-pointer">
+                      <input
+                        type="radio"
+                        name="dataSource"
+                        value="customer"
+                        checked={dataSource === "customer"}
+                        onChange={(e) => setDataSource(e.target.value)}
+                        className="accent-primary"
+                        data-testid="radio-data-source-customer"
+                      />
+                      I visited as a customer
+                    </label>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="captcha">What is {captchaNumbers.a} + {captchaNumbers.b}?</Label>
+                  <Input
+                    id="captcha"
+                    type="number"
+                    placeholder="Your answer"
+                    value={captchaAnswer}
+                    onChange={(e) => setCaptchaAnswer(e.target.value)}
+                    required
+                    data-testid="input-captcha"
+                  />
                 </div>
                 <DialogFooter>
                   <Button type="submit" data-testid="button-submit-merchant">Submit Merchant</Button>
