@@ -3,7 +3,7 @@ import Navbar from "@/components/navbar";
 import Filters from "@/components/filters";
 import MerchantCard from "@/components/merchant-card";
 import { type Merchant } from "@shared/schema";
-import btcBgImage from "@assets/image_1771295437083.png";
+import btcBgImage from "@assets/image_1771226498805.png";
 import { motion } from "framer-motion";
 
 
@@ -130,7 +130,7 @@ export default function Home() {
         </div>
       </div>
 
-      <main className="flex-1 relative" style={{ backgroundImage: `url(${btcBgImage})`, backgroundSize: '1000px', backgroundRepeat: 'repeat', backgroundPosition: 'center' }}>
+      <main className="flex-1 relative" style={{ backgroundImage: `url(${btcBgImage})`, backgroundSize: '600px', backgroundRepeat: 'repeat', backgroundPosition: 'center' }}>
         <div className="absolute inset-0 bg-background/85 dark:bg-background/80" />
         <div className="relative z-10 max-w-3xl mx-auto px-4 py-6">
           <div className="mb-4 flex items-center justify-between">
