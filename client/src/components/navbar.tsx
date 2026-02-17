@@ -24,7 +24,11 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
   const [businessName, setBusinessName] = useState("");
   const [businessUrl, setBusinessUrl] = useState("");
   const [businessCategory, setBusinessCategory] = useState("");
+  const [payOnchain, setPayOnchain] = useState(false);
+  const [payLightning, setPayLightning] = useState(false);
+  const [notes, setNotes] = useState("");
   const [dataSource, setDataSource] = useState("");
+  const [publicContact, setPublicContact] = useState("");
   const [captchaAnswer, setCaptchaAnswer] = useState("");
   const [captchaNumbers, setCaptchaNumbers] = useState({ a: 0, b: 0 });
   const logoRef = useRef<HTMLButtonElement>(null);
@@ -74,7 +78,11 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
     setBusinessName("");
     setBusinessUrl("");
     setBusinessCategory("");
+    setPayOnchain(false);
+    setPayLightning(false);
+    setNotes("");
     setDataSource("");
+    setPublicContact("");
     setCaptchaAnswer("");
   };
 
@@ -89,37 +97,26 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
                 Add Merchant
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Add a Merchant</DialogTitle>
+                <DialogTitle>Accept Bitcoin? Get listed.</DialogTitle>
                 <DialogDescription>
-                  Submit a business that accepts Bitcoin to be added to the directory.
+                  Fill out the form below and we will review your submission.
                 </DialogDescription>
               </DialogHeader>
-              <form onSubmit={handleSubmitMerchant} className="space-y-4 py-4">
+              <form onSubmit={handleSubmitMerchant} className="space-y-5 py-2">
                 <div className="space-y-2">
-                  <Label htmlFor="businessName">Business Name</Label>
+                  <Label htmlFor="businessName">Merchant Name</Label>
                   <Input
                     id="businessName"
-                    placeholder="Enter business name"
+                    placeholder="Enter merchant name"
                     value={businessName}
                     onChange={(e) => setBusinessName(e.target.value)}
                     required
                     data-testid="input-business-name"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="businessUrl">Website URL</Label>
-                  <Input
-                    id="businessUrl"
-                    type="url"
-                    placeholder="https://example.com"
-                    value={businessUrl}
-                    onChange={(e) => setBusinessUrl(e.target.value)}
-                    required
-                    data-testid="input-business-url"
-                  />
-                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="businessCategory">Category</Label>
                   <Select value={businessCategory} onValueChange={setBusinessCategory} required>
@@ -133,40 +130,88 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
                     </SelectContent>
                   </Select>
                 </div>
+
                 <div className="space-y-2">
-                  <Label>Data Source</Label>
+                  <Label>Accepted Payment Methods</Label>
                   <div className="flex flex-col gap-2">
-                    <label className="flex items-center gap-2 text-sm cursor-pointer">
+                    <label className="flex items-center gap-2 text-sm cursor-pointer" data-testid="checkbox-onchain">
                       <input
-                        type="radio"
-                        name="dataSource"
-                        value="owner"
-                        checked={dataSource === "owner"}
-                        onChange={(e) => setDataSource(e.target.value)}
-                        className="accent-primary"
-                        data-testid="radio-data-source-owner"
+                        type="checkbox"
+                        checked={payOnchain}
+                        onChange={(e) => setPayOnchain(e.target.checked)}
+                        className="rounded border-border accent-primary"
                       />
-                      I am the business owner
+                      <span className="text-orange-500">₿</span> On-chain
                     </label>
-                    <label className="flex items-center gap-2 text-sm cursor-pointer">
+                    <label className="flex items-center gap-2 text-sm cursor-pointer" data-testid="checkbox-lightning">
                       <input
-                        type="radio"
-                        name="dataSource"
-                        value="customer"
-                        checked={dataSource === "customer"}
-                        onChange={(e) => setDataSource(e.target.value)}
-                        className="accent-primary"
-                        data-testid="radio-data-source-customer"
+                        type="checkbox"
+                        checked={payLightning}
+                        onChange={(e) => setPayLightning(e.target.checked)}
+                        className="rounded border-border accent-primary"
                       />
-                      I visited as a customer
+                      <span className="text-yellow-400">⚡</span> Lightning
                     </label>
                   </div>
                 </div>
+
                 <div className="space-y-2">
-                  <Label htmlFor="captcha">What is {captchaNumbers.a} + {captchaNumbers.b}?</Label>
+                  <Label htmlFor="businessUrl">Website (optional)</Label>
+                  <Input
+                    id="businessUrl"
+                    type="url"
+                    placeholder="https://example.com"
+                    value={businessUrl}
+                    onChange={(e) => setBusinessUrl(e.target.value)}
+                    data-testid="input-business-url"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="notes">Notes (optional)</Label>
+                  <textarea
+                    id="notes"
+                    placeholder="Any additional information about this merchant..."
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    className="w-full min-h-[80px] rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    data-testid="input-notes"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Data Source</Label>
+                  <Select value={dataSource} onValueChange={setDataSource}>
+                    <SelectTrigger data-testid="select-data-source">
+                      <SelectValue placeholder="Please select an option" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="owner">I am the business owner</SelectItem>
+                      <SelectItem value="customer">I visited as a customer</SelectItem>
+                      <SelectItem value="other">Other method</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="publicContact">Public Contact</Label>
+                  <Input
+                    id="publicContact"
+                    placeholder="Email or Nostr npub"
+                    value={publicContact}
+                    onChange={(e) => setPublicContact(e.target.value)}
+                    data-testid="input-public-contact"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    If we have any follow-up questions we will contact you to add this merchant successfully.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="captcha">Bot Protection <span className="text-xs text-muted-foreground">(case-sensitive)</span></Label>
+                  <p className="text-sm text-muted-foreground">What is {captchaNumbers.a} + {captchaNumbers.b}?</p>
                   <Input
                     id="captcha"
-                    type="number"
                     placeholder="Your answer"
                     value={captchaAnswer}
                     onChange={(e) => setCaptchaAnswer(e.target.value)}
@@ -174,9 +219,10 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
                     data-testid="input-captcha"
                   />
                 </div>
-                <DialogFooter>
-                  <Button type="submit" data-testid="button-submit-merchant">Submit Merchant</Button>
-                </DialogFooter>
+
+                <Button type="submit" className="w-full" data-testid="button-submit-merchant">
+                  Submit Merchant
+                </Button>
               </form>
             </DialogContent>
           </Dialog>
