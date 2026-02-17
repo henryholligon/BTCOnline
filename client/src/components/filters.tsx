@@ -19,10 +19,12 @@ interface FiltersProps {
   onClear: () => void;
 }
 
-function FilterDropdown({ label, children, active, closeOnSelect = true }: { label: string; children: React.ReactNode; active?: boolean; closeOnSelect?: boolean }) {
+function FilterDropdown({ label, children, active, closeOnSelect = true, searchable = false, searchPlaceholder = "Search..." }: { label: string; children: React.ReactNode | ((search: string) => React.ReactNode); active?: boolean; closeOnSelect?: boolean; searchable?: boolean; searchPlaceholder?: string }) {
   const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
   const buttonRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [pos, setPos] = useState({ top: 0, left: 0 });
 
   const updatePosition = useCallback(() => {
@@ -33,8 +35,12 @@ function FilterDropdown({ label, children, active, closeOnSelect = true }: { lab
   }, []);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setSearch("");
+      return;
+    }
     updatePosition();
+    setTimeout(() => searchInputRef.current?.focus(), 0);
     const handleClick = (e: MouseEvent) => {
       const target = e.target as Node;
       if (
@@ -78,10 +84,23 @@ function FilterDropdown({ label, children, active, closeOnSelect = true }: { lab
         <div
           ref={panelRef}
           className="bg-popover border border-border rounded-lg shadow-lg p-2 max-h-[300px] overflow-y-auto"
-          style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999, display: 'inline-flex', flexDirection: 'column', maxWidth: '90vw' }}
+          style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999, display: 'inline-flex', flexDirection: 'column', maxWidth: '90vw', minWidth: searchable ? '200px' : undefined }}
           onClick={handleItemClick}
         >
-          {children}
+          {searchable && (
+            <div className="pb-1.5 mb-1 border-b border-border/50 sticky top-0 bg-popover" onClick={(e) => e.stopPropagation()}>
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={searchPlaceholder}
+                className="w-full px-2.5 py-1.5 text-sm rounded-md border border-input bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                data-testid={`filter-search-${label.toLowerCase().replace(/\s+/g, '-')}`}
+              />
+            </div>
+          )}
+          {typeof children === "function" ? (children as (search: string) => React.ReactNode)(search) : children}
         </div>,
         document.body
       )}
@@ -107,26 +126,36 @@ export default function Filters({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-        <FilterDropdown label="🔍 Search" active={selectedCategories.length > 0}>
-          <button
-            onClick={() => onCategoryChange("All")}
-            className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
-              selectedCategories.length === 0 ? "bg-primary/10 text-primary font-medium" : ""
-            }`}
-          >
-            All Categories
-          </button>
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => onCategoryChange(cat)}
-              className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
-                selectedCategories.includes(cat) ? "bg-primary/10 text-primary font-medium" : ""
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+        <FilterDropdown label="🔍 Search" active={selectedCategories.length > 0} searchable searchPlaceholder="Search categories...">
+          {(search: string) => {
+            const filtered = CATEGORIES.filter(cat => cat.toLowerCase().includes(search.toLowerCase()));
+            return (
+              <>
+                {!search && (
+                  <button
+                    onClick={() => onCategoryChange("All")}
+                    className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
+                      selectedCategories.length === 0 ? "bg-primary/10 text-primary font-medium" : ""
+                    }`}
+                  >
+                    All Categories
+                  </button>
+                )}
+                {filtered.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => onCategoryChange(cat)}
+                    className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
+                      selectedCategories.includes(cat) ? "bg-primary/10 text-primary font-medium" : ""
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+                {filtered.length === 0 && <p className="text-xs text-muted-foreground px-3 py-1.5">No matches</p>}
+              </>
+            );
+          }}
         </FilterDropdown>
 
         <FilterDropdown label="💵 Payment" active={selectedPaymentMethods.length > 0} closeOnSelect={false}>
@@ -147,63 +176,91 @@ export default function Filters({
           ))}
         </FilterDropdown>
 
-        <FilterDropdown label="📦 Ships to" active={selectedCountry !== "All"}>
-          <button
-            onClick={() => onCountryChange("All")}
-            className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
-              selectedCountry === "All" ? "bg-primary/10 text-primary font-medium" : ""
-            }`}
-          >
-            Anywhere
-          </button>
-          {COUNTRIES.map((country) => (
-            <button
-              key={country}
-              onClick={() => onCountryChange(country)}
-              className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
-                selectedCountry === country ? "bg-primary/10 text-primary font-medium" : ""
-              }`}
-            >
-              {country}
-            </button>
-          ))}
+        <FilterDropdown label="📦 Ships to" active={selectedCountry !== "All"} searchable searchPlaceholder="Search countries...">
+          {(search: string) => {
+            const filtered = COUNTRIES.filter(c => c.toLowerCase().includes(search.toLowerCase()));
+            return (
+              <>
+                {!search && (
+                  <button
+                    onClick={() => onCountryChange("All")}
+                    className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
+                      selectedCountry === "All" ? "bg-primary/10 text-primary font-medium" : ""
+                    }`}
+                  >
+                    Anywhere
+                  </button>
+                )}
+                {filtered.map((country) => (
+                  <button
+                    key={country}
+                    onClick={() => onCountryChange(country)}
+                    className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
+                      selectedCountry === country ? "bg-primary/10 text-primary font-medium" : ""
+                    }`}
+                  >
+                    {country}
+                  </button>
+                ))}
+                {filtered.length === 0 && <p className="text-xs text-muted-foreground px-3 py-1.5">No matches</p>}
+              </>
+            );
+          }}
         </FilterDropdown>
 
-        <FilterDropdown label="👷 Made in" active={selectedMadeIn !== "All"}>
-          <button
-            onClick={() => onMadeInChange("All")}
-            className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
-              selectedMadeIn === "All" ? "bg-primary/10 text-primary font-medium" : ""
-            }`}
-          >
-            Anywhere
-          </button>
-          {COUNTRIES.map((country) => (
-            <button
-              key={country}
-              onClick={() => onMadeInChange(country)}
-              className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
-                selectedMadeIn === country ? "bg-primary/10 text-primary font-medium" : ""
-              }`}
-            >
-              {country}
-            </button>
-          ))}
+        <FilterDropdown label="👷 Made in" active={selectedMadeIn !== "All"} searchable searchPlaceholder="Search countries...">
+          {(search: string) => {
+            const filtered = COUNTRIES.filter(c => c.toLowerCase().includes(search.toLowerCase()));
+            return (
+              <>
+                {!search && (
+                  <button
+                    onClick={() => onMadeInChange("All")}
+                    className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
+                      selectedMadeIn === "All" ? "bg-primary/10 text-primary font-medium" : ""
+                    }`}
+                  >
+                    Anywhere
+                  </button>
+                )}
+                {filtered.map((country) => (
+                  <button
+                    key={country}
+                    onClick={() => onMadeInChange(country)}
+                    className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
+                      selectedMadeIn === country ? "bg-primary/10 text-primary font-medium" : ""
+                    }`}
+                  >
+                    {country}
+                  </button>
+                ))}
+                {filtered.length === 0 && <p className="text-xs text-muted-foreground px-3 py-1.5">No matches</p>}
+              </>
+            );
+          }}
         </FilterDropdown>
 
-        <FilterDropdown label="🔌 Provider" active={selectedProviders.length > 0} closeOnSelect={false}>
-          {PAYMENT_PROVIDERS.map((provider) => (
-            <button
-              key={provider}
-              onClick={(e) => { e.stopPropagation(); onProviderChange(provider); }}
-              className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
-                selectedProviders.includes(provider) ? "bg-primary/10 text-primary font-medium" : ""
-              }`}
-              data-testid={`filter-provider-${provider.toLowerCase().replace(/\s+/g, '-')}`}
-            >
-              {provider}
-            </button>
-          ))}
+        <FilterDropdown label="🔌 Provider" active={selectedProviders.length > 0} closeOnSelect={false} searchable searchPlaceholder="Search providers...">
+          {(search: string) => {
+            const filtered = PAYMENT_PROVIDERS.filter(p => p.toLowerCase().includes(search.toLowerCase()));
+            return (
+              <>
+                {filtered.map((provider) => (
+                  <button
+                    key={provider}
+                    onClick={(e) => { e.stopPropagation(); onProviderChange(provider); }}
+                    className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
+                      selectedProviders.includes(provider) ? "bg-primary/10 text-primary font-medium" : ""
+                    }`}
+                    data-testid={`filter-provider-${provider.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
+                    {provider}
+                  </button>
+                ))}
+                {filtered.length === 0 && <p className="text-xs text-muted-foreground px-3 py-1.5">No matches</p>}
+              </>
+            );
+          }}
         </FilterDropdown>
 
         {hasActiveFilters && (
