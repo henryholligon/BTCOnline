@@ -4,12 +4,13 @@ import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTheme } from "next-themes";
 import { useToast } from "@/hooks/use-toast";
 import { CATEGORIES } from "@/lib/mock-data";
+import { Turnstile } from "@marsidev/react-turnstile";
 
 interface NavbarProps {
   onSearch: (query: string) => void;
@@ -24,13 +25,11 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
   const [businessName, setBusinessName] = useState("");
   const [businessUrl, setBusinessUrl] = useState("");
   const [businessCategory, setBusinessCategory] = useState("");
-  const [payOnchain, setPayOnchain] = useState(false);
-  const [payLightning, setPayLightning] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("");
   const [notes, setNotes] = useState("");
   const [dataSource, setDataSource] = useState("");
   const [publicContact, setPublicContact] = useState("");
-  const [captchaAnswer, setCaptchaAnswer] = useState("");
-  const [captchaNumbers, setCaptchaNumbers] = useState({ a: 0, b: 0 });
+  const [turnstileToken, setTurnstileToken] = useState("");
   const logoRef = useRef<HTMLButtonElement>(null);
   const logoPanelRef = useRef<HTMLDivElement>(null);
   const [logoPos, setLogoPos] = useState({ top: 0, left: 0 });
@@ -50,24 +49,10 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [logoMenuOpen]);
 
-  const generateCaptcha = () => {
-    setCaptchaNumbers({ a: Math.floor(Math.random() * 10) + 1, b: Math.floor(Math.random() * 10) + 1 });
-    setCaptchaAnswer("");
-  };
-
-  useEffect(() => {
-    if (isAddOpen) generateCaptcha();
-  }, [isAddOpen]);
-
   const handleSubmitMerchant = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!dataSource) {
-      toast({ title: "Missing Field", description: "Please select a data source." });
-      return;
-    }
-    if (parseInt(captchaAnswer) !== captchaNumbers.a + captchaNumbers.b) {
-      toast({ title: "Incorrect Answer", description: "Please solve the math problem correctly." });
-      generateCaptcha();
+    if (!turnstileToken) {
+      toast({ title: "Captcha Required", description: "Please complete the captcha verification." });
       return;
     }
     setIsAddOpen(false);
@@ -78,12 +63,11 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
     setBusinessName("");
     setBusinessUrl("");
     setBusinessCategory("");
-    setPayOnchain(false);
-    setPayLightning(false);
+    setPaymentMethod("");
     setNotes("");
     setDataSource("");
     setPublicContact("");
-    setCaptchaAnswer("");
+    setTurnstileToken("");
   };
 
   return (
@@ -132,37 +116,28 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Accepted Payment Methods</Label>
-                  <div className="flex flex-col gap-2">
-                    <label className="flex items-center gap-2 text-sm cursor-pointer" data-testid="checkbox-onchain">
-                      <input
-                        type="checkbox"
-                        checked={payOnchain}
-                        onChange={(e) => setPayOnchain(e.target.checked)}
-                        className="rounded border-border accent-primary"
-                      />
-                      <span className="text-orange-500">₿</span> On-chain
-                    </label>
-                    <label className="flex items-center gap-2 text-sm cursor-pointer" data-testid="checkbox-lightning">
-                      <input
-                        type="checkbox"
-                        checked={payLightning}
-                        onChange={(e) => setPayLightning(e.target.checked)}
-                        className="rounded border-border accent-primary"
-                      />
-                      <span className="text-yellow-400">⚡</span> Lightning
-                    </label>
-                  </div>
+                  <Label>Payment Method</Label>
+                  <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                    <SelectTrigger data-testid="select-payment-method">
+                      <SelectValue placeholder="Select payment method" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="onchain">₿ On-chain</SelectItem>
+                      <SelectItem value="lightning">⚡ Lightning</SelectItem>
+                      <SelectItem value="both">₿ On-chain + ⚡ Lightning</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="businessUrl">Website (optional)</Label>
+                  <Label htmlFor="businessUrl">Website</Label>
                   <Input
                     id="businessUrl"
                     type="url"
                     placeholder="https://example.com"
                     value={businessUrl}
                     onChange={(e) => setBusinessUrl(e.target.value)}
+                    required
                     data-testid="input-business-url"
                   />
                 </div>
@@ -194,7 +169,7 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="publicContact">Public Contact</Label>
+                  <Label htmlFor="publicContact">Public Contact (optional)</Label>
                   <Input
                     id="publicContact"
                     placeholder="Email or Nostr npub"
@@ -208,15 +183,15 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="captcha">Bot Protection <span className="text-xs text-muted-foreground">(case-sensitive)</span></Label>
-                  <p className="text-sm text-muted-foreground">What is {captchaNumbers.a} + {captchaNumbers.b}?</p>
-                  <Input
-                    id="captcha"
-                    placeholder="Your answer"
-                    value={captchaAnswer}
-                    onChange={(e) => setCaptchaAnswer(e.target.value)}
-                    required
-                    data-testid="input-captcha"
+                  <Turnstile
+                    siteKey="1x00000000000000000000AA"
+                    onSuccess={setTurnstileToken}
+                    onExpire={() => setTurnstileToken("")}
+                    onError={() => setTurnstileToken("")}
+                    options={{
+                      theme: theme === "dark" ? "dark" : "light",
+                      size: "normal",
+                    }}
                   />
                 </div>
 
