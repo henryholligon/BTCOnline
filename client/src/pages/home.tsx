@@ -127,7 +127,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-primary/20">
-      <Navbar onSearch={setSearchQuery} filtersSlot={filterComponent} />
+      <Navbar onSearch={setSearchQuery} filtersSlot={filterComponent} onClearFilters={clearFilters} />
       
       <div className="relative border-b border-border/50 overflow-hidden bg-background">
         <div className="max-w-3xl mx-auto relative z-10 px-4 py-10 md:py-20 text-center">

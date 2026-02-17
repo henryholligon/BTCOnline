@@ -15,9 +15,10 @@ import "altcha";
 interface NavbarProps {
   onSearch: (query: string) => void;
   filtersSlot?: React.ReactNode;
+  onClearFilters?: () => void;
 }
 
-export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
+export default function Navbar({ onSearch, filtersSlot, onClearFilters }: NavbarProps) {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -259,7 +260,7 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
               </button>
               <Link
                 href="/"
-                onClick={() => setLogoMenuOpen(false)}
+                onClick={() => { setLogoMenuOpen(false); onClearFilters?.(); }}
                 className="w-full text-left px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors flex items-center gap-2"
               >
                 Home
