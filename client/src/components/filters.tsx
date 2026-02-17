@@ -78,7 +78,7 @@ function FilterDropdown({ label, children, active, closeOnSelect = true }: { lab
         <div
           ref={panelRef}
           className="bg-popover border border-border rounded-lg shadow-lg p-2 max-h-[300px] overflow-y-auto"
-          style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999, width: 'fit-content', maxWidth: '90vw' }}
+          style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999, display: 'inline-flex', flexDirection: 'column', maxWidth: '90vw' }}
           onClick={handleItemClick}
         >
           {children}
