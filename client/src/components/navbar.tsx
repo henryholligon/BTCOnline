@@ -118,7 +118,7 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
           </Dialog>
 
           <Button asChild variant="outline" className="text-xs font-medium hover:text-primary transition-colors h-8 px-3 border-gray-300 dark:border-gray-600 border-2">
-            <a href="https://btcmap.org" target="_blank" rel="noopener noreferrer">
+            <a href="https://btcmap.org/map" target="_blank" rel="noopener noreferrer">
               In-person
             </a>
           </Button>
