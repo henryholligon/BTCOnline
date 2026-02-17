@@ -77,7 +77,7 @@ function FilterDropdown({ label, children, active, closeOnSelect = true }: { lab
       {open && createPortal(
         <div
           ref={panelRef}
-          className="fixed bg-popover border border-border rounded-lg shadow-lg p-2 max-h-[300px] overflow-y-auto"
+          className="fixed bg-popover border border-border rounded-lg shadow-lg p-2 max-h-[300px] overflow-y-auto w-fit"
           style={{ top: pos.top, left: pos.left, zIndex: 9999 }}
           onClick={handleItemClick}
         >
