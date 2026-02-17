@@ -23,12 +23,12 @@ function FilterDropdown({ label, children, active, closeOnSelect = true }: { lab
   const [open, setOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
-  const [pos, setPos] = useState({ top: 0, left: 0 });
+  const [pos, setPos] = useState({ top: 0, left: 0, width: 0 });
 
   const updatePosition = useCallback(() => {
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
-      setPos({ top: rect.bottom + 8, left: rect.left });
+      setPos({ top: rect.bottom + 8, left: rect.left, width: rect.width });
     }
   }, []);
 
@@ -77,8 +77,8 @@ function FilterDropdown({ label, children, active, closeOnSelect = true }: { lab
       {open && createPortal(
         <div
           ref={panelRef}
-          className="fixed bg-popover border border-border rounded-lg shadow-lg w-auto p-2 max-h-[300px] overflow-y-auto"
-          style={{ top: pos.top, left: pos.left, zIndex: 9999 }}
+          className="fixed bg-popover border border-border rounded-lg shadow-lg p-2 max-h-[300px] overflow-y-auto"
+          style={{ top: pos.top, left: pos.left, width: Math.max(pos.width, 120), zIndex: 9999 }}
           onClick={handleItemClick}
         >
           {children}
@@ -110,7 +110,7 @@ export default function Filters({
         <FilterDropdown label="🔍 Search" active={selectedCategories.length > 0}>
           <button
             onClick={() => onCategoryChange("All")}
-            className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
+            className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors truncate ${
               selectedCategories.length === 0 ? "bg-primary/10 text-primary font-medium" : ""
             }`}
           >
@@ -120,7 +120,7 @@ export default function Filters({
             <button
               key={cat}
               onClick={() => onCategoryChange(cat)}
-              className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
+              className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors truncate ${
                 selectedCategories.includes(cat) ? "bg-primary/10 text-primary font-medium" : ""
               }`}
             >
@@ -150,7 +150,7 @@ export default function Filters({
         <FilterDropdown label="📦 Ships to" active={selectedCountry !== "All"}>
           <button
             onClick={() => onCountryChange("All")}
-            className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
+            className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors truncate ${
               selectedCountry === "All" ? "bg-primary/10 text-primary font-medium" : ""
             }`}
           >
@@ -160,7 +160,7 @@ export default function Filters({
             <button
               key={country}
               onClick={() => onCountryChange(country)}
-              className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
+              className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors truncate ${
                 selectedCountry === country ? "bg-primary/10 text-primary font-medium" : ""
               }`}
             >
@@ -172,7 +172,7 @@ export default function Filters({
         <FilterDropdown label="👷 Made in" active={selectedMadeIn !== "All"}>
           <button
             onClick={() => onMadeInChange("All")}
-            className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
+            className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors truncate ${
               selectedMadeIn === "All" ? "bg-primary/10 text-primary font-medium" : ""
             }`}
           >
@@ -182,7 +182,7 @@ export default function Filters({
             <button
               key={country}
               onClick={() => onMadeInChange(country)}
-              className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
+              className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors truncate ${
                 selectedMadeIn === country ? "bg-primary/10 text-primary font-medium" : ""
               }`}
             >
@@ -196,7 +196,7 @@ export default function Filters({
             <button
               key={provider}
               onClick={(e) => { e.stopPropagation(); onProviderChange(provider); }}
-              className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
+              className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors truncate ${
                 selectedProviders.includes(provider) ? "bg-primary/10 text-primary font-medium" : ""
               }`}
               data-testid={`filter-provider-${provider.toLowerCase().replace(/\s+/g, '-')}`}
