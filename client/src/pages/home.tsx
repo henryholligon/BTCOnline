@@ -121,6 +121,7 @@ export default function Home() {
       selectedPaymentMethods={selectedPaymentMethods}
       onPaymentMethodChange={handlePaymentMethodChange}
       onClear={clearFilters}
+      onCategorySearch={setSearchQuery}
     />
   );
 

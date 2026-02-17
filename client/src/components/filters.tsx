@@ -17,6 +17,7 @@ interface FiltersProps {
   selectedPaymentMethods: string[];
   onPaymentMethodChange: (method: string) => void;
   onClear: () => void;
+  onCategorySearch?: (search: string) => void;
 }
 
 function FilterDropdown({
@@ -26,6 +27,7 @@ function FilterDropdown({
   closeOnSelect = true,
   searchable = false,
   searchPlaceholder = "Type...",
+  onSearchChange,
 }: {
   label: string;
   children: React.ReactNode | ((search: string) => React.ReactNode);
@@ -33,6 +35,7 @@ function FilterDropdown({
   closeOnSelect?: boolean;
   searchable?: boolean;
   searchPlaceholder?: string;
+  onSearchChange?: (search: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -51,6 +54,7 @@ function FilterDropdown({
   useEffect(() => {
     if (!open) {
       setSearch("");
+      onSearchChange?.("");
       return;
     }
     updatePosition();
@@ -107,7 +111,7 @@ function FilterDropdown({
               ref={inputRef}
               type="text"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => { setSearch(e.target.value); onSearchChange?.(e.target.value); }}
               placeholder={searchPlaceholder}
               className="bg-transparent border-none outline-none text-sm font-medium w-[80px] placeholder:text-muted-foreground/60"
               onKeyDown={(e) => {
@@ -155,13 +159,14 @@ export default function Filters({
   selectedPaymentMethods,
   onPaymentMethodChange,
   onClear,
+  onCategorySearch,
 }: FiltersProps) {
   const hasActiveFilters = selectedCategories.length > 0 || selectedCountry !== "All" || selectedMadeIn !== "All" || selectedProviders.length > 0 || selectedPaymentMethods.length > 0;
 
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-        <FilterDropdown label="🔍 Search" active={selectedCategories.length > 0} searchable searchPlaceholder="Type...">
+        <FilterDropdown label="🔍 Search" active={selectedCategories.length > 0} searchable searchPlaceholder="Type..." onSearchChange={onCategorySearch}>
           {(search: string) => {
             const filtered = CATEGORIES.filter(cat => cat.toLowerCase().includes(search.toLowerCase()));
             return (
