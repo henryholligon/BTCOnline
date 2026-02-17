@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useTheme } from "next-themes";
 import { useToast } from "@/hooks/use-toast";
 import { CATEGORIES } from "@/lib/mock-data";
-import { Turnstile } from "@marsidev/react-turnstile";
+import "altcha";
 
 interface NavbarProps {
   onSearch: (query: string) => void;
@@ -29,7 +29,8 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
   const [notes, setNotes] = useState("");
   const [dataSource, setDataSource] = useState("");
   const [publicContact, setPublicContact] = useState("");
-  const [turnstileToken, setTurnstileToken] = useState("");
+  const [altchaVerified, setAltchaVerified] = useState(false);
+  const altchaRef = useRef<HTMLElement>(null);
   const logoRef = useRef<HTMLButtonElement>(null);
   const logoPanelRef = useRef<HTMLDivElement>(null);
   const [logoPos, setLogoPos] = useState({ top: 0, left: 0 });
@@ -49,9 +50,20 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [logoMenuOpen]);
 
+  useEffect(() => {
+    const widget = altchaRef.current;
+    if (!widget) return;
+    const handleStateChange = (ev: Event) => {
+      const detail = (ev as CustomEvent).detail;
+      setAltchaVerified(detail?.state === "verified");
+    };
+    widget.addEventListener("statechange", handleStateChange);
+    return () => widget.removeEventListener("statechange", handleStateChange);
+  }, [isAddOpen]);
+
   const handleSubmitMerchant = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!turnstileToken) {
+    if (!altchaVerified) {
       toast({ title: "Captcha Required", description: "Please complete the captcha verification." });
       return;
     }
@@ -67,7 +79,7 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
     setNotes("");
     setDataSource("");
     setPublicContact("");
-    setTurnstileToken("");
+    setAltchaVerified(false);
   };
 
   return (
@@ -183,15 +195,11 @@ export default function Navbar({ onSearch, filtersSlot }: NavbarProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Turnstile
-                    siteKey="1x00000000000000000000AA"
-                    onSuccess={setTurnstileToken}
-                    onExpire={() => setTurnstileToken("")}
-                    onError={() => setTurnstileToken("")}
-                    options={{
-                      theme: theme === "dark" ? "dark" : "light",
-                      size: "normal",
-                    }}
+                  {/* @ts-ignore */}
+                  <altcha-widget
+                    ref={altchaRef}
+                    challengeurl="/api/altcha-challenge"
+                    style={{ '--altcha-max-width': '100%' } as React.CSSProperties}
                   />
                 </div>
 

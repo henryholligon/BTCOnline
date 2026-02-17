@@ -5,6 +5,7 @@ import { insertMerchantSchema } from "@shared/schema";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { createChallenge, verifySolution } from "altcha-lib";
 
 const logoStorage = multer.diskStorage({
   destination: (_req, _file, cb) => {
@@ -49,6 +50,20 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  const ALTCHA_HMAC_KEY = process.env.ALTCHA_HMAC_KEY || "btconline-altcha-secret-key-2025";
+
+  app.get("/api/altcha-challenge", async (_req, res) => {
+    try {
+      const challenge = await createChallenge({
+        hmacKey: ALTCHA_HMAC_KEY,
+        maxNumber: 50000,
+      });
+      res.json(challenge);
+    } catch (err: any) {
+      res.status(500).json({ message: "Failed to generate challenge" });
+    }
+  });
+
   app.get("/api/merchants", async (_req, res) => {
     const merchants = await storage.getMerchants();
     res.json(merchants);
