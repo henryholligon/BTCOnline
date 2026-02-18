@@ -122,6 +122,7 @@ export default function Home() {
       onPaymentMethodChange={handlePaymentMethodChange}
       onClear={clearFilters}
       onCategorySearch={setSearchQuery}
+      categorySearchQuery={searchQuery}
     />
   );
 

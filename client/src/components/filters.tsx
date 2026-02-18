@@ -18,6 +18,7 @@ interface FiltersProps {
   onPaymentMethodChange: (method: string) => void;
   onClear: () => void;
   onCategorySearch?: (search: string) => void;
+  categorySearchQuery?: string;
 }
 
 function FilterDropdown({
@@ -28,6 +29,8 @@ function FilterDropdown({
   searchable = false,
   searchPlaceholder = "Type...",
   onSearchChange,
+  onClearAll,
+  committedSearch: externalCommittedSearch,
 }: {
   label: string;
   children: React.ReactNode | ((search: string) => React.ReactNode);
@@ -36,9 +39,12 @@ function FilterDropdown({
   searchable?: boolean;
   searchPlaceholder?: string;
   onSearchChange?: (search: string) => void;
+  onClearAll?: () => void;
+  committedSearch?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const committedSearch = externalCommittedSearch || "";
   const triggerRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -53,12 +59,16 @@ function FilterDropdown({
 
   useEffect(() => {
     if (!open) {
-      setSearch("");
+      setSearch(committedSearch);
       return;
     }
+    setSearch(committedSearch);
     updatePosition();
     if (searchable) {
-      setTimeout(() => inputRef.current?.focus(), 0);
+      setTimeout(() => {
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }, 0);
     }
     const handleClick = (e: MouseEvent) => {
       const target = e.target as Node;
@@ -117,7 +127,13 @@ function FilterDropdown({
                 if (e.key === "Escape") setOpen(false);
                 if (e.key === "Enter") {
                   e.preventDefault();
-                  onSearchChange?.(search);
+                  const trimmed = search.trim();
+                  if (trimmed) {
+                    onSearchChange?.(trimmed);
+                  } else {
+                    onSearchChange?.("");
+                    onClearAll?.();
+                  }
                   setOpen(false);
                 }
               }}
@@ -131,7 +147,11 @@ function FilterDropdown({
             onClick={() => setOpen((prev) => !prev)}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-transparent border-none outline-none cursor-pointer"
           >
-            {label}
+            {committedSearch ? (
+              <>{emoji && <span>{emoji}</span>} {committedSearch}</>
+            ) : (
+              label
+            )}
             <ChevronDown className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`} />
           </button>
         )}
@@ -164,13 +184,14 @@ export default function Filters({
   onPaymentMethodChange,
   onClear,
   onCategorySearch,
+  categorySearchQuery,
 }: FiltersProps) {
   const hasActiveFilters = selectedCategories.length > 0 || selectedCountry !== "All" || selectedMadeIn !== "All" || selectedProviders.length > 0 || selectedPaymentMethods.length > 0;
 
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-        <FilterDropdown label="🔍 Search" active={selectedCategories.length > 0} searchable searchPlaceholder="Type..." onSearchChange={onCategorySearch}>
+        <FilterDropdown label="🔍 Search" active={selectedCategories.length > 0 || !!categorySearchQuery} searchable searchPlaceholder="Type..." onSearchChange={onCategorySearch} onClearAll={onClear} committedSearch={categorySearchQuery}>
           {(search: string) => {
             const filtered = CATEGORIES.filter(cat => cat.toLowerCase().includes(search.toLowerCase()));
             return (
