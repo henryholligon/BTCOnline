@@ -48,6 +48,7 @@ export const CATEGORY_EMOJIS: Record<string, string> = {
   "AI": "🤖",
   "Adult": "🔞",
   "Art": "🎨",
+  "Browser": "🧭",
   "Cellular": "📱",
   "Cellular, Privacy": "📲",
   "Charity": "❤️",
