@@ -76,6 +76,9 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex items-center gap-2">
             <h3 className="font-semibold text-sm md:text-base truncate">{merchant.name}</h3>
+            {merchant.name === "Obscura VPN" && (
+              <img src="/assets/firedone.apng" alt="" className="shrink-0 h-5 object-contain" style={{ marginTop: "-3px" }} />
+            )}
             {merchant.lightningSupported && (
               <Zap className="h-3.5 w-3.5 shrink-0 fill-yellow-400 text-yellow-400 animate-lightning-zap drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]" />
             )}
@@ -90,9 +93,6 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             )}
             {merchant.name === "SLNT" && (
               <span className="shrink-0 text-[11px] font-black px-1.5 py-0.5 rounded-sm uppercase tracking-wide animate-rainbow" style={{ background: "linear-gradient(90deg, #ff0000, #ff8800, #00ff00, #0088ff, #8800ff, #ff0088, #ff0000)", backgroundSize: "200% 100%", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>NEW</span>
-            )}
-            {merchant.name === "Obscura VPN" && (
-              <img src="/assets/firedone.apng" alt="" className="shrink-0 h-5 object-contain" style={{ marginTop: "-3px" }} />
             )}
           </div>
           <p className="text-xs md:text-sm text-muted-foreground truncate">{merchant.description}</p>
