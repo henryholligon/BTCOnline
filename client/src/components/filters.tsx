@@ -92,6 +92,8 @@ interface FiltersProps {
   onClear: () => void;
   onCategorySearch?: (search: string) => void;
   categorySearchQuery?: string;
+  sortBy?: string;
+  onSortChange?: (sort: string) => void;
 }
 
 function FilterDropdown({
@@ -259,6 +261,8 @@ export default function Filters({
   onClear,
   onCategorySearch,
   categorySearchQuery,
+  sortBy = "default",
+  onSortChange,
 }: FiltersProps) {
   const dynamicCategories = useMemo(() => {
     const catSet = new Set<string>();
@@ -288,7 +292,16 @@ export default function Filters({
     return Array.from(provSet).sort();
   }, [merchants]);
 
-  const hasActiveFilters = selectedCategories.length > 0 || selectedCountry !== "All" || selectedMadeIn !== "All" || selectedProviders.length > 0 || selectedPaymentMethods.length > 0;
+  const sortOptions = [
+    { id: "default", label: "Default" },
+    { id: "newest", label: "🆕 Newest" },
+    { id: "discounted", label: "💰 Discounted" },
+    { id: "hottest", label: "🔥 Hottest" },
+  ];
+
+  const currentSortLabel = sortOptions.find(o => o.id === sortBy)?.label || "Default";
+
+  const hasActiveFilters = selectedCategories.length > 0 || selectedCountry !== "All" || selectedMadeIn !== "All" || selectedProviders.length > 0 || selectedPaymentMethods.length > 0 || sortBy !== "default";
 
   return (
     <div className="flex flex-col gap-2">
@@ -430,6 +443,21 @@ export default function Filters({
           }}
         </FilterDropdown>
 
+        <FilterDropdown label={sortBy !== "default" ? `📊 ${currentSortLabel}` : "📊 Sort by"} active={sortBy !== "default"}>
+          {sortOptions.map((option) => (
+            <button
+              key={option.id}
+              onClick={() => onSortChange?.(option.id)}
+              className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
+                sortBy === option.id ? "bg-primary/10 text-primary font-medium" : ""
+              }`}
+              data-testid={`filter-sort-${option.id}`}
+            >
+              {option.label}
+            </button>
+          ))}
+        </FilterDropdown>
+
         {hasActiveFilters && (
           <Button
             variant="ghost"
@@ -470,6 +498,11 @@ export default function Filters({
               {p} <X className="h-2.5 w-2.5" />
             </Badge>
           ))}
+          {sortBy !== "default" && (
+            <Badge variant="secondary" className="text-xs py-0.5 px-2 gap-1 cursor-pointer hover:bg-destructive/10" onClick={() => onSortChange?.("default")}>
+              Sort: {currentSortLabel} <X className="h-2.5 w-2.5" />
+            </Badge>
+          )}
         </div>
       )}
     </div>

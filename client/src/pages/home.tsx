@@ -16,6 +16,7 @@ export default function Home() {
   const [selectedMadeIn, setSelectedMadeIn] = useState("All");
   const [selectedProviders, setSelectedProviders] = useState<string[]>([]);
   const [selectedPaymentMethods, setSelectedPaymentMethods] = useState<string[]>([]);
+  const [sortBy, setSortBy] = useState("default");
 
   useEffect(() => {
     fetch("/api/merchants")
@@ -68,6 +69,39 @@ export default function Home() {
     });
 
     const promotedNames = ["Maple AI", "PayPerQ", "SLNT"];
+    const newNames = ["SLNT"];
+    const discountedNames = ["Maple AI", "PayPerQ"];
+
+    if (sortBy === "newest") {
+      return filtered.sort((a, b) => {
+        const aNew = newNames.includes(a.name);
+        const bNew = newNames.includes(b.name);
+        if (aNew && !bNew) return -1;
+        if (!aNew && bNew) return 1;
+        return 0;
+      });
+    }
+
+    if (sortBy === "discounted") {
+      return filtered.sort((a, b) => {
+        const aDisc = discountedNames.includes(a.name);
+        const bDisc = discountedNames.includes(b.name);
+        if (aDisc && !bDisc) return -1;
+        if (!aDisc && bDisc) return 1;
+        return 0;
+      });
+    }
+
+    if (sortBy === "hottest") {
+      return filtered.sort((a, b) => {
+        const aHot = promotedNames.includes(a.name);
+        const bHot = promotedNames.includes(b.name);
+        if (aHot && !bHot) return -1;
+        if (!aHot && bHot) return 1;
+        return 0;
+      });
+    }
+
     return filtered.sort((a, b) => {
       const aPromoted = promotedNames.includes(a.name);
       const bPromoted = promotedNames.includes(b.name);
@@ -75,7 +109,7 @@ export default function Home() {
       if (!aPromoted && bPromoted) return 1;
       return 0;
     });
-  }, [merchants, searchQuery, selectedCategories, selectedCountry, selectedMadeIn, selectedProviders, selectedPaymentMethods]);
+  }, [merchants, searchQuery, selectedCategories, selectedCountry, selectedMadeIn, selectedProviders, selectedPaymentMethods, sortBy]);
 
   const handleCategoryChange = (category: string) => {
     if (category === "All" || !category) {
@@ -106,6 +140,7 @@ export default function Home() {
     setSelectedProviders([]);
     setSelectedPaymentMethods([]);
     setSearchQuery("");
+    setSortBy("default");
   };
 
   const filterComponent = (
@@ -124,6 +159,8 @@ export default function Home() {
       onClear={clearFilters}
       onCategorySearch={setSearchQuery}
       categorySearchQuery={searchQuery}
+      sortBy={sortBy}
+      onSortChange={setSortBy}
     />
   );
 
