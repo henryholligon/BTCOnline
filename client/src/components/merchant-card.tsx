@@ -95,6 +95,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
               <span className="shrink-0 inline-flex items-center bg-black rounded-full px-1.5 py-0.5 gap-0.5">
                 <video src="/assets/fire.webm" autoPlay loop muted playsInline className="h-4 w-4 object-cover" />
                 <span className="text-[10px] font-bold text-orange-400 uppercase tracking-wide">HOT</span>
+                <video src="/assets/fire.webm" autoPlay loop muted playsInline className="h-4 w-4 object-cover" style={{ transform: "scaleX(-1)" }} />
               </span>
             )}
           </div>
