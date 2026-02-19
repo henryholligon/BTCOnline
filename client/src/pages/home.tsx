@@ -12,8 +12,8 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedCountry, setSelectedCountry] = useState("All");
-  const [selectedMadeIn, setSelectedMadeIn] = useState("All");
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+  const [selectedMadeIn, setSelectedMadeIn] = useState<string[]>([]);
   const [selectedProviders, setSelectedProviders] = useState<string[]>([]);
   const [selectedPaymentMethods, setSelectedPaymentMethods] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState("default");
@@ -46,15 +46,19 @@ export default function Home() {
         });
 
       const matchesCountry = 
-        selectedCountry === "All" || 
+        selectedCountries.length === 0 || 
         merchant.shippingCountries.some(c => c.includes("Worldwide")) || 
-        merchant.shippingCountries.some(c => 
-          c === selectedCountry || stripEmoji(c).toLowerCase() === stripEmoji(selectedCountry).toLowerCase()
+        selectedCountries.some(sc => 
+          merchant.shippingCountries.some(c => 
+            c === sc || stripEmoji(c).toLowerCase() === stripEmoji(sc).toLowerCase()
+          )
         );
 
       const matchesMadeIn = 
-        selectedMadeIn === "All" || 
-        (merchant.countryMadeIn && stripEmoji(selectedMadeIn).toLowerCase().includes(merchant.countryMadeIn.toLowerCase()));
+        selectedMadeIn.length === 0 || 
+        (merchant.countryMadeIn && selectedMadeIn.some(mi => 
+          stripEmoji(mi).toLowerCase().includes(merchant.countryMadeIn!.toLowerCase())
+        ));
 
       const matchesProvider = 
         selectedProviders.length === 0 || 
@@ -113,15 +117,35 @@ export default function Home() {
       if (aPromoted && bPromoted) return aIdx - bIdx;
       return 0;
     });
-  }, [merchants, searchQuery, selectedCategories, selectedCountry, selectedMadeIn, selectedProviders, selectedPaymentMethods, sortBy]);
+  }, [merchants, searchQuery, selectedCategories, selectedCountries, selectedMadeIn, selectedProviders, selectedPaymentMethods, sortBy]);
 
   const handleCategoryChange = (category: string) => {
     if (category === "All" || !category) {
       setSelectedCategories([]);
-    } else if (selectedCategories.includes(category)) {
-      setSelectedCategories(selectedCategories.filter(c => c !== category));
     } else {
-      setSelectedCategories([category]);
+      setSelectedCategories(prev => 
+        prev.includes(category) ? prev.filter(c => c !== category) : [...prev, category]
+      );
+    }
+  };
+
+  const handleCountryChange = (country: string) => {
+    if (country === "All" || !country) {
+      setSelectedCountries([]);
+    } else {
+      setSelectedCountries(prev =>
+        prev.includes(country) ? prev.filter(c => c !== country) : [...prev, country]
+      );
+    }
+  };
+
+  const handleMadeInChange = (country: string) => {
+    if (country === "All" || !country) {
+      setSelectedMadeIn([]);
+    } else {
+      setSelectedMadeIn(prev =>
+        prev.includes(country) ? prev.filter(c => c !== country) : [...prev, country]
+      );
     }
   };
 
@@ -139,8 +163,8 @@ export default function Home() {
 
   const clearFilters = () => {
     setSelectedCategories([]);
-    setSelectedCountry("All");
-    setSelectedMadeIn("All");
+    setSelectedCountries([]);
+    setSelectedMadeIn([]);
     setSelectedProviders([]);
     setSelectedPaymentMethods([]);
     setSearchQuery("");
@@ -152,10 +176,10 @@ export default function Home() {
       merchants={merchants}
       selectedCategories={selectedCategories}
       onCategoryChange={handleCategoryChange}
-      selectedCountry={selectedCountry}
-      onCountryChange={setSelectedCountry}
+      selectedCountries={selectedCountries}
+      onCountryChange={handleCountryChange}
       selectedMadeIn={selectedMadeIn}
-      onMadeInChange={setSelectedMadeIn}
+      onMadeInChange={handleMadeInChange}
       selectedProviders={selectedProviders}
       onProviderChange={handleProviderChange}
       selectedPaymentMethods={selectedPaymentMethods}

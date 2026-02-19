@@ -81,9 +81,9 @@ interface FiltersProps {
   merchants: Merchant[];
   selectedCategories: string[];
   onCategoryChange: (category: string) => void;
-  selectedCountry: string;
+  selectedCountries: string[];
   onCountryChange: (country: string) => void;
-  selectedMadeIn: string;
+  selectedMadeIn: string[];
   onMadeInChange: (country: string) => void;
   selectedProviders: string[];
   onProviderChange: (provider: string) => void;
@@ -250,7 +250,7 @@ export default function Filters({
   merchants,
   selectedCategories,
   onCategoryChange,
-  selectedCountry,
+  selectedCountries,
   onCountryChange,
   selectedMadeIn,
   onMadeInChange,
@@ -301,19 +301,19 @@ export default function Filters({
 
   const currentSortLabel = sortOptions.find(o => o.id === sortBy)?.label || "Default";
 
-  const hasActiveFilters = selectedCategories.length > 0 || selectedCountry !== "All" || selectedMadeIn !== "All" || selectedProviders.length > 0 || selectedPaymentMethods.length > 0 || sortBy !== "default";
+  const hasActiveFilters = selectedCategories.length > 0 || selectedCountries.length > 0 || selectedMadeIn.length > 0 || selectedProviders.length > 0 || selectedPaymentMethods.length > 0 || sortBy !== "default";
 
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-        <FilterDropdown label="🔍 Search" active={selectedCategories.length > 0 || !!categorySearchQuery} searchable searchPlaceholder="Type..." onSearchChange={onCategorySearch} onClearAll={onClear} committedSearch={categorySearchQuery}>
+        <FilterDropdown label="🔍 Search" active={selectedCategories.length > 0 || !!categorySearchQuery} closeOnSelect={false} searchable searchPlaceholder="Type..." onSearchChange={onCategorySearch} onClearAll={onClear} committedSearch={categorySearchQuery}>
           {(search: string) => {
             const filtered = dynamicCategories.filter(cat => getCategoryWithEmoji(cat).toLowerCase().includes(search.toLowerCase()));
             return (
               <>
                 {!search && (
                   <button
-                    onClick={() => onCategoryChange("All")}
+                    onClick={(e) => { e.stopPropagation(); onCategoryChange("All"); }}
                     className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
                       selectedCategories.length === 0 ? "bg-primary/10 text-primary font-medium" : ""
                     }`}
@@ -324,7 +324,7 @@ export default function Filters({
                 {filtered.map((cat) => (
                   <button
                     key={cat}
-                    onClick={() => onCategoryChange(cat)}
+                    onClick={(e) => { e.stopPropagation(); onCategoryChange(cat); }}
                     className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
                       selectedCategories.includes(cat) ? "bg-primary/10 text-primary font-medium" : ""
                     }`}
@@ -356,16 +356,16 @@ export default function Filters({
           ))}
         </FilterDropdown>
 
-        <FilterDropdown label="📦 Ships to" active={selectedCountry !== "All"} searchable searchPlaceholder="Type...">
+        <FilterDropdown label="📦 Ships to" active={selectedCountries.length > 0} closeOnSelect={false} searchable searchPlaceholder="Type...">
           {(search: string) => {
             const filtered = dynamicCountries.filter(c => c.toLowerCase().includes(search.toLowerCase()));
             return (
               <>
                 {!search && (
                   <button
-                    onClick={() => onCountryChange("All")}
+                    onClick={(e) => { e.stopPropagation(); onCountryChange("All"); }}
                     className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
-                      selectedCountry === "All" ? "bg-primary/10 text-primary font-medium" : ""
+                      selectedCountries.length === 0 ? "bg-primary/10 text-primary font-medium" : ""
                     }`}
                   >
                     🌐 Anywhere
@@ -374,9 +374,9 @@ export default function Filters({
                 {filtered.map((country) => (
                   <button
                     key={country}
-                    onClick={() => onCountryChange(country)}
+                    onClick={(e) => { e.stopPropagation(); onCountryChange(country); }}
                     className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
-                      selectedCountry === country ? "bg-primary/10 text-primary font-medium" : ""
+                      selectedCountries.includes(country) ? "bg-primary/10 text-primary font-medium" : ""
                     }`}
                   >
                     {getCountryWithFlag(country)}
@@ -388,16 +388,16 @@ export default function Filters({
           }}
         </FilterDropdown>
 
-        <FilterDropdown label="👷 Made in" active={selectedMadeIn !== "All"} searchable searchPlaceholder="Type...">
+        <FilterDropdown label="👷 Made in" active={selectedMadeIn.length > 0} closeOnSelect={false} searchable searchPlaceholder="Type...">
           {(search: string) => {
             const filtered = dynamicMadeIn.filter(c => c.toLowerCase().includes(search.toLowerCase()));
             return (
               <>
                 {!search && (
                   <button
-                    onClick={() => onMadeInChange("All")}
+                    onClick={(e) => { e.stopPropagation(); onMadeInChange("All"); }}
                     className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
-                      selectedMadeIn === "All" ? "bg-primary/10 text-primary font-medium" : ""
+                      selectedMadeIn.length === 0 ? "bg-primary/10 text-primary font-medium" : ""
                     }`}
                   >
                     🌐 Anywhere
@@ -406,9 +406,9 @@ export default function Filters({
                 {filtered.map((country) => (
                   <button
                     key={country}
-                    onClick={() => onMadeInChange(country)}
+                    onClick={(e) => { e.stopPropagation(); onMadeInChange(country); }}
                     className={`w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors ${
-                      selectedMadeIn === country ? "bg-primary/10 text-primary font-medium" : ""
+                      selectedMadeIn.includes(country) ? "bg-primary/10 text-primary font-medium" : ""
                     }`}
                   >
                     {getCountryWithFlag(country)}
@@ -483,16 +483,16 @@ export default function Filters({
               {m === "lightning" ? "⚡ Lightning" : "₿ On-Chain"} <X className="h-2.5 w-2.5" />
             </Badge>
           ))}
-          {selectedCountry !== "All" && (
-            <Badge variant="secondary" className="text-xs py-0.5 px-2 gap-1 cursor-pointer hover:bg-destructive/10" onClick={() => onCountryChange("All")}>
-              Ships to: {getCountryWithFlag(selectedCountry)} <X className="h-2.5 w-2.5" />
+          {selectedCountries.map((c) => (
+            <Badge key={`ship-${c}`} variant="secondary" className="text-xs py-0.5 px-2 gap-1 cursor-pointer hover:bg-destructive/10" onClick={() => onCountryChange(c)}>
+              Ships to: {getCountryWithFlag(c)} <X className="h-2.5 w-2.5" />
             </Badge>
-          )}
-          {selectedMadeIn !== "All" && (
-            <Badge variant="secondary" className="text-xs py-0.5 px-2 gap-1 cursor-pointer hover:bg-destructive/10" onClick={() => onMadeInChange("All")}>
-              Made in: {getCountryWithFlag(selectedMadeIn)} <X className="h-2.5 w-2.5" />
+          ))}
+          {selectedMadeIn.map((c) => (
+            <Badge key={`made-${c}`} variant="secondary" className="text-xs py-0.5 px-2 gap-1 cursor-pointer hover:bg-destructive/10" onClick={() => onMadeInChange(c)}>
+              Made in: {getCountryWithFlag(c)} <X className="h-2.5 w-2.5" />
             </Badge>
-          )}
+          ))}
           {selectedProviders.map((p) => (
             <Badge key={p} variant="secondary" className="text-xs py-0.5 px-2 gap-1 cursor-pointer hover:bg-destructive/10" onClick={() => onProviderChange(p)}>
               {p} <X className="h-2.5 w-2.5" />
