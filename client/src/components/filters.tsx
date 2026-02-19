@@ -443,7 +443,7 @@ export default function Filters({
           }}
         </FilterDropdown>
 
-        <FilterDropdown label={sortBy !== "default" ? `📊 ${currentSortLabel}` : "📊 Sort by"} active={sortBy !== "default"}>
+        <FilterDropdown label={sortBy !== "default" ? `🦴 ${currentSortLabel}` : "🦴 Sort by"} active={sortBy !== "default"}>
           {sortOptions.map((option) => (
             <button
               key={option.id}
