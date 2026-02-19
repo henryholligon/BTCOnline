@@ -92,7 +92,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
               <span className="shrink-0 text-[11px] font-black px-1.5 py-0.5 rounded-sm uppercase tracking-wide animate-rainbow" style={{ background: "linear-gradient(90deg, #ff0000, #ff8800, #00ff00, #0088ff, #8800ff, #ff0088, #ff0000)", backgroundSize: "200% 100%", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>NEW</span>
             )}
             {merchant.name === "Obscura VPN" && (
-              <span className="shrink-0 text-[11px] font-black px-1.5 py-0.5 rounded-sm uppercase tracking-wide animate-fire" style={{ background: "radial-gradient(ellipse at 50% 100%, #fff7a1 0%, #ffdd57 10%, #ffb400 20%, #ff8c00 30%, #ff5e00 40%, #ff3d00 50%, #e63900 60%, #cc0000 70%, #990000 85%, #4d0000 100%)", backgroundSize: "200% 200%", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>🔥 HOT</span>
+              <span className="shrink-0 text-[11px] font-black px-1.5 py-0.5 rounded-sm uppercase tracking-wide animate-fire" style={{ background: "radial-gradient(ellipse at 50% 100%, #f0c040 0%, #e6a820 10%, #dd9000 20%, #ff8c00 30%, #ff5e00 40%, #ff3d00 50%, #e63900 60%, #cc0000 70%, #990000 85%, #4d0000 100%)", backgroundSize: "200% 200%", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>🔥 HOT</span>
             )}
           </div>
           <p className="text-xs md:text-sm text-muted-foreground truncate">{merchant.description}</p>
