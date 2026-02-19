@@ -92,7 +92,19 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
               <span className="shrink-0 text-[11px] font-black px-1.5 py-0.5 rounded-sm uppercase tracking-wide animate-rainbow" style={{ background: "linear-gradient(90deg, #ff0000, #ff8800, #00ff00, #0088ff, #8800ff, #ff0088, #ff0000)", backgroundSize: "200% 100%", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>NEW</span>
             )}
             {merchant.name === "Obscura VPN" && (
-              <video autoPlay loop muted playsInline className="shrink-0 h-5 w-5 object-cover rounded-sm" style={{ marginTop: "-3px" }} src="/assets/firedone.mp4" />
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                // @ts-ignore
+                webkit-playsinline=""
+                preload="auto"
+                className="shrink-0 h-5 w-5 object-cover rounded-sm"
+                style={{ marginTop: "-3px" }}
+                src="/assets/firedone.mp4"
+                ref={(el) => { if (el) el.play().catch(() => {}); }}
+              />
             )}
           </div>
           <p className="text-xs md:text-sm text-muted-foreground truncate">{merchant.description}</p>
