@@ -1,6 +1,6 @@
 import { type Merchant, type InsertMerchant, merchants } from "@shared/schema";
 import { db } from "./db";
-import { eq, asc } from "drizzle-orm";
+import { eq, asc, count } from "drizzle-orm";
 
 export interface IStorage {
   getMerchants(): Promise<Merchant[]>;
@@ -26,8 +26,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMerchantCount(): Promise<number> {
-    const result = await db.select().from(merchants);
-    return result.length;
+    const [result] = await db.select({ value: count() }).from(merchants);
+    return result.value;
   }
 
   async deleteAllMerchants(): Promise<void> {
