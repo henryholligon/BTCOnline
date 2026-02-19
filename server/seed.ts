@@ -61,19 +61,9 @@ export async function seed() {
 
   const existing = await db.select().from(merchants);
 
-  const expectedNames = SEED_MERCHANTS.map(m => m.name).sort();
-  const existingNames = existing.map(m => m.name).sort();
-  const isUpToDate = existing.length === SEED_MERCHANTS.length &&
-    expectedNames.every((name, i) => name === existingNames[i]);
-
-  if (existing.length > 0 && isUpToDate) {
-    console.log(`Database already has ${existing.length} correct merchants. Skipping seed.`);
-    return;
-  }
-
   if (existing.length > 0) {
-    console.log(`Database has ${existing.length} outdated merchants. Replacing with ${SEED_MERCHANTS.length} updated merchants...`);
-    await db.delete(merchants);
+    console.log(`Database already has ${existing.length} merchants. Skipping seed (use admin import to update data).`);
+    return;
   }
 
   await db.insert(merchants).values(SEED_MERCHANTS);

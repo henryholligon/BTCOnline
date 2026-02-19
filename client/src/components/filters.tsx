@@ -1,11 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CATEGORIES, COUNTRIES, PAYMENT_PROVIDERS } from "@shared/schema";
+import { type Merchant, CATEGORIES } from "@shared/schema";
 import { Bitcoin, ChevronDown, X, Zap } from "lucide-react";
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
 
+const CATEGORY_EMOJI_MAP: Record<string, string> = {};
+CATEGORIES.forEach(c => {
+  const stripped = c.replace(/[^\p{L}\p{N}\s&,]/gu, '').trim();
+  CATEGORY_EMOJI_MAP[stripped.toLowerCase()] = c;
+});
+
 interface FiltersProps {
+  merchants: Merchant[];
   selectedCategories: string[];
   onCategoryChange: (category: string) => void;
   selectedCountry: string;
@@ -172,6 +179,7 @@ function FilterDropdown({
 }
 
 export default function Filters({
+  merchants,
   selectedCategories,
   onCategoryChange,
   selectedCountry,
@@ -186,6 +194,34 @@ export default function Filters({
   onCategorySearch,
   categorySearchQuery,
 }: FiltersProps) {
+  const dynamicCategories = useMemo(() => {
+    const catSet = new Set<string>();
+    merchants.forEach(m => m.categories.forEach(c => catSet.add(c)));
+    return Array.from(catSet).sort((a, b) => {
+      const aText = a.replace(/[^\p{L}\p{N}\s&,]/gu, '').trim();
+      const bText = b.replace(/[^\p{L}\p{N}\s&,]/gu, '').trim();
+      return aText.localeCompare(bText);
+    });
+  }, [merchants]);
+
+  const dynamicCountries = useMemo(() => {
+    const countrySet = new Set<string>();
+    merchants.forEach(m => m.shippingCountries.forEach(c => countrySet.add(c)));
+    return Array.from(countrySet).sort();
+  }, [merchants]);
+
+  const dynamicMadeIn = useMemo(() => {
+    const madeInSet = new Set<string>();
+    merchants.forEach(m => { if (m.countryMadeIn) madeInSet.add(m.countryMadeIn); });
+    return Array.from(madeInSet).sort();
+  }, [merchants]);
+
+  const dynamicProviders = useMemo(() => {
+    const provSet = new Set<string>();
+    merchants.forEach(m => { if (m.paymentProvider) provSet.add(m.paymentProvider); });
+    return Array.from(provSet).sort();
+  }, [merchants]);
+
   const hasActiveFilters = selectedCategories.length > 0 || selectedCountry !== "All" || selectedMadeIn !== "All" || selectedProviders.length > 0 || selectedPaymentMethods.length > 0;
 
   return (
@@ -193,7 +229,7 @@ export default function Filters({
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
         <FilterDropdown label="🔍 Search" active={selectedCategories.length > 0 || !!categorySearchQuery} searchable searchPlaceholder="Type..." onSearchChange={onCategorySearch} onClearAll={onClear} committedSearch={categorySearchQuery}>
           {(search: string) => {
-            const filtered = CATEGORIES.filter(cat => cat.toLowerCase().includes(search.toLowerCase()));
+            const filtered = dynamicCategories.filter(cat => cat.toLowerCase().includes(search.toLowerCase()));
             return (
               <>
                 {!search && (
@@ -243,7 +279,7 @@ export default function Filters({
 
         <FilterDropdown label="📦 Ships to" active={selectedCountry !== "All"} searchable searchPlaceholder="Type...">
           {(search: string) => {
-            const filtered = COUNTRIES.filter(c => c.toLowerCase().includes(search.toLowerCase()));
+            const filtered = dynamicCountries.filter(c => c.toLowerCase().includes(search.toLowerCase()));
             return (
               <>
                 {!search && (
@@ -275,7 +311,7 @@ export default function Filters({
 
         <FilterDropdown label="👷 Made in" active={selectedMadeIn !== "All"} searchable searchPlaceholder="Type...">
           {(search: string) => {
-            const filtered = COUNTRIES.filter(c => c.toLowerCase().includes(search.toLowerCase()));
+            const filtered = dynamicMadeIn.filter(c => c.toLowerCase().includes(search.toLowerCase()));
             return (
               <>
                 {!search && (
@@ -307,7 +343,7 @@ export default function Filters({
 
         <FilterDropdown label="🔌 Provider" active={selectedProviders.length > 0} closeOnSelect={false} searchable searchPlaceholder="Type...">
           {(search: string) => {
-            const filtered = PAYMENT_PROVIDERS.filter(p => p.toLowerCase().includes(search.toLowerCase()));
+            const filtered = dynamicProviders.filter(p => p.toLowerCase().includes(search.toLowerCase()));
             return (
               <>
                 {filtered.map((provider) => (

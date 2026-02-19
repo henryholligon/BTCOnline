@@ -110,6 +110,7 @@ export default function Home() {
 
   const filterComponent = (
     <Filters
+      merchants={merchants}
       selectedCategories={selectedCategories}
       onCategoryChange={handleCategoryChange}
       selectedCountry={selectedCountry}
