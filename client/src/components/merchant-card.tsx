@@ -93,7 +93,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             )}
             {merchant.name === "Obscura VPN" && (
               <span className="shrink-0 inline-flex items-center gap-0.5">
-                <video src="/assets/fire.webm" autoPlay loop muted playsInline className="h-4 w-4 object-contain" />
+                <video src="/assets/fire.webm" autoPlay loop muted playsInline className="h-4 w-4 object-contain" style={{ mixBlendMode: "screen" }} />
                 <span className="text-[11px] font-black uppercase tracking-wide" style={{ background: "linear-gradient(180deg, #ef4444, #f97316, #eab308)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>HOT</span>
               </span>
             )}
