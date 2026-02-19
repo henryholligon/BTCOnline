@@ -76,11 +76,13 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex items-center gap-2">
             <h3 className="font-semibold text-sm md:text-base truncate">{merchant.name}</h3>
-            {merchant.name === "Obscura VPN" && (
-              <img src="/assets/firedone.apng" alt="" className="shrink-0 h-5 object-contain" style={{ marginTop: "-3px" }} />
-            )}
             {merchant.lightningSupported && (
-              <Zap className="h-3.5 w-3.5 shrink-0 fill-yellow-400 text-yellow-400 animate-lightning-zap drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]" />
+              <span className="shrink-0 flex items-center gap-0">
+                <Zap className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400 animate-lightning-zap drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]" />
+                {merchant.name === "Obscura VPN" && (
+                  <img src="/assets/firedone.apng" alt="" className="h-5 object-contain" style={{ marginLeft: "-2px", marginTop: "-3px" }} />
+                )}
+              </span>
             )}
             {merchant.onchainSupported && (
               <Bitcoin className="h-3.5 w-3.5 shrink-0 fill-orange-500 text-orange-500" />
