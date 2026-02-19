@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { type Merchant } from "@shared/schema";
+import { type Merchant, getCategoryWithEmoji } from "@shared/schema";
 import { ExternalLink, Zap, Bitcoin, Clock } from "lucide-react";
 import { useState } from "react";
 
@@ -10,19 +10,6 @@ interface MerchantCardProps {
 
 export default function MerchantCard({ merchant }: MerchantCardProps) {
   const [expanded, setExpanded] = useState(false);
-
-  const getCategoryEmoji = (category: string) => {
-    const hasEmoji = /\p{Emoji}/u.test(category);
-    if (hasEmoji) return category;
-    const categoryEmojis: Record<string, string> = {
-      "Electronics": "💻", "Clothing": "👕", "Food & Drink": "🍴", "Travel": "✈️",
-      "Gift Cards": "🎁", "VPN & Privacy": "🛡️", "Hosting": "🌐", "Books": "📚",
-      "Art": "🎨", "Charity": "❤️", "Services": "🔧", "Health": "🏥", "Alcohol": "🍷",
-      "Sweets": "🍬", "Health & Beauty": "💄", "Wellness": "🧘", "Auto": "🚗",
-      "Lifestyle": "✨", "Entertainment": "🎭", "Tech": "⚙️", "Fashion": "👗",
-    };
-    return `${categoryEmojis[category] || "📦"} ${category}`;
-  };
 
   const getCountryEmoji = (countryName: string) => {
     const pureName = countryName.replace(/[^\w\s]/gi, '').trim();
@@ -115,14 +102,14 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             <div className="flex md:hidden items-center gap-1.5">
               {merchant.categories.slice(0, 1).map((cat) => (
                 <Badge key={cat} variant="secondary" className="text-[10px] py-0 px-1.5">
-                  {getCategoryEmoji(cat)}
+                  {getCategoryWithEmoji(cat)}
                 </Badge>
               ))}
             </div>
             <div className="hidden md:flex items-center gap-1.5">
               {merchant.categories.slice(0, 2).map((cat) => (
                 <Badge key={cat} variant="secondary" className="text-[10px] py-0 px-1.5">
-                  {getCategoryEmoji(cat)}
+                  {getCategoryWithEmoji(cat)}
                 </Badge>
               ))}
             </div>
@@ -141,7 +128,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
                 <span className="text-muted-foreground/70 uppercase tracking-wider text-[10px] font-semibold">Category</span>
                 <div className="flex flex-col gap-1 text-foreground">
                   {merchant.categories.map(cat => (
-                    <span key={cat}>{getCategoryEmoji(cat)}</span>
+                    <span key={cat}>{getCategoryWithEmoji(cat)}</span>
                   ))}
                 </div>
               </div>

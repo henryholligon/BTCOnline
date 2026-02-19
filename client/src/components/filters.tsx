@@ -1,15 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { type Merchant, CATEGORIES } from "@shared/schema";
+import { type Merchant, getCategoryWithEmoji } from "@shared/schema";
 import { Bitcoin, ChevronDown, X, Zap } from "lucide-react";
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
-
-const CATEGORY_EMOJI_MAP: Record<string, string> = {};
-CATEGORIES.forEach(c => {
-  const stripped = c.replace(/[^\p{L}\p{N}\s&,]/gu, '').trim();
-  CATEGORY_EMOJI_MAP[stripped.toLowerCase()] = c;
-});
 
 interface FiltersProps {
   merchants: Merchant[];
@@ -229,7 +223,7 @@ export default function Filters({
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
         <FilterDropdown label="🔍 Search" active={selectedCategories.length > 0 || !!categorySearchQuery} searchable searchPlaceholder="Type..." onSearchChange={onCategorySearch} onClearAll={onClear} committedSearch={categorySearchQuery}>
           {(search: string) => {
-            const filtered = dynamicCategories.filter(cat => cat.toLowerCase().includes(search.toLowerCase()));
+            const filtered = dynamicCategories.filter(cat => getCategoryWithEmoji(cat).toLowerCase().includes(search.toLowerCase()));
             return (
               <>
                 {!search && (
@@ -250,7 +244,7 @@ export default function Filters({
                       selectedCategories.includes(cat) ? "bg-primary/10 text-primary font-medium" : ""
                     }`}
                   >
-                    {cat}
+                    {getCategoryWithEmoji(cat)}
                   </button>
                 ))}
                 {filtered.length === 0 && <p className="text-xs text-muted-foreground px-3 py-1.5">No matches</p>}
@@ -381,7 +375,7 @@ export default function Filters({
         <div className="flex items-center gap-1.5 flex-wrap">
           {selectedCategories.map((cat) => (
             <Badge key={cat} variant="secondary" className="text-xs py-0.5 px-2 gap-1 cursor-pointer hover:bg-destructive/10" onClick={() => onCategoryChange(cat)}>
-              {cat} <X className="h-2.5 w-2.5" />
+              {getCategoryWithEmoji(cat)} <X className="h-2.5 w-2.5" />
             </Badge>
           ))}
           {selectedPaymentMethods.map((m) => (
