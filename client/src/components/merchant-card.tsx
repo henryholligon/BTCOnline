@@ -91,6 +91,9 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             {merchant.name === "SLNT" && (
               <span className="shrink-0 text-[11px] font-black px-1.5 py-0.5 rounded-sm uppercase tracking-wide animate-rainbow" style={{ background: "linear-gradient(90deg, #ff0000, #ff8800, #00ff00, #0088ff, #8800ff, #ff0088, #ff0000)", backgroundSize: "200% 100%", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>NEW</span>
             )}
+            {merchant.name === "Obscura VPN" && (
+              <span className="shrink-0 text-[10px] font-bold bg-red-500 text-white px-1.5 py-0.5 rounded-sm uppercase tracking-wide">🔥 HOT</span>
+            )}
           </div>
           <p className="text-xs md:text-sm text-muted-foreground truncate">{merchant.description}</p>
           <div className="flex items-center gap-2">

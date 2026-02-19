@@ -68,9 +68,10 @@ export default function Home() {
       return matchesSearch && matchesCategory && matchesCountry && matchesMadeIn && matchesProvider && matchesPaymentMethod;
     });
 
-    const promotedNames = ["Maple AI", "PayPerQ", "SLNT"];
+    const promotedNames = ["Obscura VPN", "Maple AI", "PayPerQ", "SLNT"];
     const newNames = ["SLNT"];
     const discountedNames = ["Maple AI", "PayPerQ"];
+    const hottestNames = ["Obscura VPN"];
 
     if (sortBy === "newest") {
       return filtered.sort((a, b) => {
@@ -94,8 +95,8 @@ export default function Home() {
 
     if (sortBy === "hottest") {
       return filtered.sort((a, b) => {
-        const aHot = promotedNames.includes(a.name);
-        const bHot = promotedNames.includes(b.name);
+        const aHot = hottestNames.includes(a.name);
+        const bHot = hottestNames.includes(b.name);
         if (aHot && !bHot) return -1;
         if (!aHot && bHot) return 1;
         return 0;
@@ -103,10 +104,13 @@ export default function Home() {
     }
 
     return filtered.sort((a, b) => {
-      const aPromoted = promotedNames.includes(a.name);
-      const bPromoted = promotedNames.includes(b.name);
+      const aIdx = promotedNames.indexOf(a.name);
+      const bIdx = promotedNames.indexOf(b.name);
+      const aPromoted = aIdx !== -1;
+      const bPromoted = bIdx !== -1;
       if (aPromoted && !bPromoted) return -1;
       if (!aPromoted && bPromoted) return 1;
+      if (aPromoted && bPromoted) return aIdx - bIdx;
       return 0;
     });
   }, [merchants, searchQuery, selectedCategories, selectedCountry, selectedMadeIn, selectedProviders, selectedPaymentMethods, sortBy]);
