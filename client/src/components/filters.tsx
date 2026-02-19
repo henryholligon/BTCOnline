@@ -5,6 +5,78 @@ import { Bitcoin, ChevronDown, X, Zap } from "lucide-react";
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
 
+const COUNTRY_FLAGS: Record<string, string> = {
+  "Worldwide": "🌍",
+  "United States": "🇺🇸",
+  "United Kingdom": "🇬🇧",
+  "Canada": "🇨🇦",
+  "Australia": "🇦🇺",
+  "Europe": "🇪🇺",
+  "Sweden": "🇸🇪",
+  "Switzerland": "🇨🇭",
+  "Singapore": "🇸🇬",
+  "New Zealand": "🇳🇿",
+  "Netherlands": "🇳🇱",
+  "Lithuania": "🇱🇹",
+  "Mexico": "🇲🇽",
+  "Columbia": "🇨🇴",
+  "Monaco": "🇲🇨",
+  "United Arab Emirates": "🇦🇪",
+  "Curacoa": "🇨🇼",
+  "El Salvador": "🇸🇻",
+  "Norway": "🇳🇴",
+  "Italy": "🇮🇹",
+  "Croatia": "🇭🇷",
+  "Austria": "🇦🇹",
+  "Germany": "🇩🇪",
+  "Ireland": "🇮🇪",
+  "South Africa": "🇿🇦",
+  "France": "🇫🇷",
+  "Japan": "🇯🇵",
+  "Brazil": "🇧🇷",
+  "India": "🇮🇳",
+  "South Korea": "🇰🇷",
+  "Spain": "🇪🇸",
+  "Portugal": "🇵🇹",
+  "Poland": "🇵🇱",
+  "Czech Republic": "🇨🇿",
+  "Denmark": "🇩🇰",
+  "Finland": "🇫🇮",
+  "Israel": "🇮🇱",
+  "China": "🇨🇳",
+  "Taiwan": "🇹🇼",
+  "Thailand": "🇹🇭",
+  "Hong Kong": "🇭🇰",
+  "Philippines": "🇵🇭",
+  "Malaysia": "🇲🇾",
+  "Indonesia": "🇮🇩",
+  "Vietnam": "🇻🇳",
+  "Argentina": "🇦🇷",
+  "Chile": "🇨🇱",
+  "Colombia": "🇨🇴",
+  "Turkey": "🇹🇷",
+  "Romania": "🇷🇴",
+  "Hungary": "🇭🇺",
+  "Greece": "🇬🇷",
+  "Belgium": "🇧🇪",
+  "Iceland": "🇮🇸",
+  "Estonia": "🇪🇪",
+  "Latvia": "🇱🇻",
+  "Costa Rica": "🇨🇷",
+  "Panama": "🇵🇦",
+  "Uruguay": "🇺🇾",
+  "Peru": "🇵🇪",
+  "Nigeria": "🇳🇬",
+  "Kenya": "🇰🇪",
+  "Ghana": "🇬🇭",
+  "Egypt": "🇪🇬",
+};
+
+function getCountryWithFlag(country: string): string {
+  const flag = COUNTRY_FLAGS[country];
+  return flag ? `${flag} ${country}` : country;
+}
+
 interface FiltersProps {
   merchants: Merchant[];
   selectedCategories: string[];
@@ -283,7 +355,7 @@ export default function Filters({
                       selectedCountry === "All" ? "bg-primary/10 text-primary font-medium" : ""
                     }`}
                   >
-                    Anywhere
+                    🌐 Anywhere
                   </button>
                 )}
                 {filtered.map((country) => (
@@ -294,7 +366,7 @@ export default function Filters({
                       selectedCountry === country ? "bg-primary/10 text-primary font-medium" : ""
                     }`}
                   >
-                    {country}
+                    {getCountryWithFlag(country)}
                   </button>
                 ))}
                 {filtered.length === 0 && <p className="text-xs text-muted-foreground px-3 py-1.5">No matches</p>}
@@ -315,7 +387,7 @@ export default function Filters({
                       selectedMadeIn === "All" ? "bg-primary/10 text-primary font-medium" : ""
                     }`}
                   >
-                    Anywhere
+                    🌐 Anywhere
                   </button>
                 )}
                 {filtered.map((country) => (
@@ -326,7 +398,7 @@ export default function Filters({
                       selectedMadeIn === country ? "bg-primary/10 text-primary font-medium" : ""
                     }`}
                   >
-                    {country}
+                    {getCountryWithFlag(country)}
                   </button>
                 ))}
                 {filtered.length === 0 && <p className="text-xs text-muted-foreground px-3 py-1.5">No matches</p>}
@@ -385,12 +457,12 @@ export default function Filters({
           ))}
           {selectedCountry !== "All" && (
             <Badge variant="secondary" className="text-xs py-0.5 px-2 gap-1 cursor-pointer hover:bg-destructive/10" onClick={() => onCountryChange("All")}>
-              Ships to: {selectedCountry} <X className="h-2.5 w-2.5" />
+              Ships to: {getCountryWithFlag(selectedCountry)} <X className="h-2.5 w-2.5" />
             </Badge>
           )}
           {selectedMadeIn !== "All" && (
             <Badge variant="secondary" className="text-xs py-0.5 px-2 gap-1 cursor-pointer hover:bg-destructive/10" onClick={() => onMadeInChange("All")}>
-              Made in: {selectedMadeIn} <X className="h-2.5 w-2.5" />
+              Made in: {getCountryWithFlag(selectedMadeIn)} <X className="h-2.5 w-2.5" />
             </Badge>
           )}
           {selectedProviders.map((p) => (
