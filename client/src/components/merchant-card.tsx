@@ -93,7 +93,7 @@ export default function MerchantCard({ merchant }: MerchantCardProps) {
             )}
             {merchant.name === "Obscura VPN" && (
               <span className="shrink-0 flex items-end gap-0.5">
-                <video autoPlay loop muted playsInline className="h-4 w-4 object-cover rounded-sm" src="/assets/whtefire.mp4" />
+                <video autoPlay loop muted playsInline className="h-6 w-6 object-cover rounded-sm" src="/assets/whtefire.mp4" />
                 <span className="text-[11px] font-black uppercase tracking-wide leading-none animate-fire" style={{ background: "radial-gradient(ellipse at 50% 100%, #f0c040 0%, #e6a820 10%, #dd9000 20%, #ff8c00 30%, #ff5e00 40%, #ff3d00 50%, #e63900 60%, #cc0000 70%, #990000 85%, #4d0000 100%)", backgroundSize: "200% 200%", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>HOT</span>
               </span>
             )}
