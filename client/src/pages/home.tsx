@@ -204,7 +204,7 @@ export default function Home() {
             transition={{ duration: 0.5 }}
           >
             <h1 className="text-3xl md:text-6xl font-display font-bold tracking-tight mb-4 leading-tight">
-              Find places to spend <span className="text-primary">Bitcoin online</span>
+              Find places to spend <span className="text-primary">₿itcoin online</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               A free and open source directory of merchants that accept Bitcoin
