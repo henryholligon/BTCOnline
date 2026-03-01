@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { type Merchant, getCategoryWithEmoji } from "@shared/schema";
-import { ExternalLink, Zap, Bitcoin, Clock, Copy, Check } from "lucide-react";
+import { ExternalLink, Zap, Bitcoin, Clock, Copy, Check, QrCode } from "lucide-react";
 import { useRef, useEffect, useState, memo } from "react";
 import { slugify } from "@/lib/utils";
 import { QRCodeSVG } from "qrcode.react";
@@ -229,14 +229,20 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               onClick={() => {
                 navigator.clipboard.writeText(merchantUrl);
                 setCopied(true);
-                setShowQr(true);
                 setTimeout(() => setCopied(false), 2000);
               }}
               data-testid={`button-share-${merchant.id}`}
             >
-              {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
               {copied ? "Copied!" : "Share Merchant"}
+              {copied ? <Check className="ml-1 h-3.5 w-3.5 text-green-500" /> : <Copy className="ml-1 h-3.5 w-3.5" />}
             </Button>
+            <button
+              onClick={() => setShowQr(!showQr)}
+              className="p-1.5 rounded-md border border-border hover:bg-muted transition-colors"
+              data-testid={`button-qr-${merchant.id}`}
+            >
+              <QrCode className="h-4 w-4 text-muted-foreground" />
+            </button>
             {showQr && (
               <div className="p-1.5 bg-white rounded-md border border-border shadow-sm">
                 <QRCodeSVG value={merchantUrl} size={56} bgColor="#ffffff" fgColor="#000000" />
