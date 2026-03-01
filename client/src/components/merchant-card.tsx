@@ -214,40 +214,40 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 </p>
               </div>
             )}
-          </div>
 
-          <div className="pt-1 flex items-center gap-3 md:justify-end">
-            <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
-              <a href={merchant.website} target="_blank" rel="noopener noreferrer" data-testid={`link-visit-${merchant.id}`}>
-                Visit Website <ExternalLink className="ml-2 h-3 w-3" />
-              </a>
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="gap-1.5"
-              onClick={() => {
-                navigator.clipboard.writeText(merchantUrl);
-                setCopied(true);
-                setTimeout(() => setCopied(false), 2000);
-              }}
-              data-testid={`button-share-${merchant.id}`}
-            >
-              {copied ? "Copied!" : "Share Merchant"}
-              {copied ? <Check className="ml-1 h-3.5 w-3.5 text-green-500" /> : <Copy className="ml-1 h-3.5 w-3.5" />}
-            </Button>
-            <button
-              onClick={() => setShowQr(!showQr)}
-              className="p-1.5 rounded-md border border-border hover:bg-muted transition-colors"
-              data-testid={`button-qr-${merchant.id}`}
-            >
-              <QrCode className="h-4 w-4 text-muted-foreground" />
-            </button>
-            {showQr && (
-              <div className="p-1.5 bg-white rounded-md border border-border shadow-sm">
-                <QRCodeSVG value={merchantUrl} size={56} bgColor="#ffffff" fgColor="#000000" />
-              </div>
-            )}
+            <div className="col-span-2 md:col-span-4 flex items-center gap-3 pt-1">
+              <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
+                <a href={merchant.website} target="_blank" rel="noopener noreferrer" data-testid={`link-visit-${merchant.id}`}>
+                  Visit Website <ExternalLink className="ml-2 h-3 w-3" />
+                </a>
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1.5"
+                onClick={() => {
+                  navigator.clipboard.writeText(merchantUrl);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                }}
+                data-testid={`button-share-${merchant.id}`}
+              >
+                {copied ? "Copied!" : "Share Merchant"}
+                {copied ? <Check className="ml-1 h-3.5 w-3.5 text-green-500" /> : <Copy className="ml-1 h-3.5 w-3.5" />}
+              </Button>
+              <button
+                onClick={() => setShowQr(!showQr)}
+                className="p-1.5 rounded-md border border-border hover:bg-muted transition-colors"
+                data-testid={`button-qr-${merchant.id}`}
+              >
+                <QrCode className="h-4 w-4 text-muted-foreground" />
+              </button>
+              {showQr && (
+                <div className="p-1.5 bg-white rounded-md border border-border shadow-sm">
+                  <QRCodeSVG value={merchantUrl} size={56} bgColor="#ffffff" fgColor="#000000" />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
