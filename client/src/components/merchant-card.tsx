@@ -237,18 +237,22 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 {copied ? "Copied!" : "Share Merchant"}
                 {copied ? <Check className="ml-1 h-3.5 w-3.5 text-green-500" /> : <Copy className="ml-1 h-3.5 w-3.5" />}
               </Button>
-              <button
-                onClick={() => setShowQr(!showQr)}
-                className="p-1.5 rounded-md border border-border hover:bg-muted transition-colors"
-                data-testid={`button-qr-${merchant.id}`}
+              <div className="relative"
+                onMouseEnter={() => setShowQr(true)}
+                onMouseLeave={() => setShowQr(false)}
               >
-                <QrCode className="h-4 w-4 text-muted-foreground" />
-              </button>
-              {showQr && (
-                <div className="p-1.5 bg-white rounded-md border border-border shadow-sm">
-                  <QRCodeSVG value={merchantUrl} size={56} bgColor="#ffffff" fgColor="#000000" />
-                </div>
-              )}
+                <button
+                  className="p-1.5 rounded-md border border-border hover:bg-muted transition-colors"
+                  data-testid={`button-qr-${merchant.id}`}
+                >
+                  <QrCode className="h-4 w-4 text-muted-foreground" />
+                </button>
+                {showQr && (
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-2 bg-white rounded-lg border border-border shadow-lg z-50">
+                    <QRCodeSVG value={merchantUrl} size={80} bgColor="#ffffff" fgColor="#000000" />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
