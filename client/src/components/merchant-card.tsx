@@ -1,8 +1,10 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { type Merchant, getCategoryWithEmoji } from "@shared/schema";
-import { ExternalLink, Zap, Bitcoin, Clock } from "lucide-react";
-import { useState, memo } from "react";
+import { ExternalLink, Zap, Bitcoin, Clock, QrCode } from "lucide-react";
+import { useRef, useEffect, useState, memo } from "react";
+import { slugify } from "@/lib/utils";
+import { QRCodeSVG } from "qrcode.react";
 
 const COUNTRY_EMOJI_MAP: Record<string, string> = {
   "USA": "🇺🇸", "United States": "🇺🇸", "Canada": "🇨🇦", "Sweden": "🇸🇪",
@@ -40,10 +42,36 @@ function getCountryEmoji(countryName: string): string {
 
 interface MerchantCardProps {
   merchant: Merchant;
+  expanded: boolean;
+  onToggleExpand: () => void;
+  scrollIntoView?: boolean;
+  onScrolledIntoView?: () => void;
 }
 
-export default memo(function MerchantCard({ merchant }: MerchantCardProps) {
-  const [expanded, setExpanded] = useState(false);
+export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, scrollIntoView, onScrolledIntoView }: MerchantCardProps) {
+  const [showQr, setShowQr] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const qrRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (expanded && scrollIntoView && cardRef.current) {
+      setTimeout(() => {
+        cardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        onScrolledIntoView?.();
+      }, 300);
+    }
+  }, [expanded, scrollIntoView, onScrolledIntoView]);
+
+  useEffect(() => {
+    if (!showQr) return;
+    function handleEscape(e: KeyboardEvent) {
+      if (e.key === "Escape") setShowQr(false);
+    }
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [showQr]);
+
+  const merchantUrl = `${window.location.origin}/merchant/${slugify(merchant.name)}`;
 
   const shippingText = merchant.shippingCountries.length > 0
     ? merchant.shippingCountries.some(c => c.toLowerCase().includes("worldwide"))
@@ -57,8 +85,9 @@ export default memo(function MerchantCard({ merchant }: MerchantCardProps) {
 
   return (
     <div
+      ref={cardRef}
       className="w-full bg-white dark:bg-card border border-border dark:border-border/80 hover:border-primary/30 rounded-lg transition-all duration-200 cursor-pointer group"
-      onClick={() => setExpanded(!expanded)}
+      onClick={onToggleExpand}
       data-testid={`card-merchant-${merchant.id}`}
     >
       <div className="flex items-center gap-3 md:gap-4 p-4 md:p-4">
@@ -196,12 +225,31 @@ export default memo(function MerchantCard({ merchant }: MerchantCardProps) {
             )}
           </div>
 
-          <div className="pt-1">
+          <div className="pt-1 flex items-center gap-2">
             <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
               <a href={merchant.website} target="_blank" rel="noopener noreferrer" data-testid={`link-visit-${merchant.id}`}>
                 Visit Website <ExternalLink className="ml-2 h-3 w-3" />
               </a>
             </Button>
+            <div className="relative" ref={qrRef} onMouseLeave={() => setShowQr(false)}>
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1.5"
+                onClick={() => setShowQr(!showQr)}
+                onMouseEnter={() => setShowQr(true)}
+                data-testid={`button-share-${merchant.id}`}
+              >
+                <QrCode className="h-3.5 w-3.5" />
+                Share
+              </Button>
+              {showQr && (
+                <div className="absolute bottom-full left-0 mb-2 p-3 bg-white dark:bg-card border border-border rounded-lg shadow-lg z-50">
+                  <QRCodeSVG value={merchantUrl} size={140} bgColor="transparent" fgColor="currentColor" className="text-foreground" />
+                  <p className="text-[10px] text-muted-foreground mt-1.5 text-center max-w-[140px] truncate">{merchantUrl}</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

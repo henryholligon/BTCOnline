@@ -4,6 +4,9 @@
 A free and open-source directory of businesses that accept Bitcoin online. Displays merchant listings with categories, payment methods (Lightning/On-chain), shipping information, and website links.
 
 ## Recent Changes
+- Added unique merchant URLs via slug-based routing (/merchant/:slug) with auto-scroll on deep link
+- Added Share button with QR code popover in expanded merchant cards
+- Multi-select filters for all dropdowns (categories, countries, payment, provider)
 - Added admin page (/admin) with CSV bulk import and multi-logo upload (drag & drop)
 - CSV import validates through insertMerchantSchema, supports flexible field names (snake_case and camelCase)
 - Logo uploads saved to client/public/assets/ with collision-safe filenames
@@ -31,6 +34,7 @@ A free and open-source directory of businesses that accept Bitcoin online. Displ
 - `client/src/pages/home.tsx` - Main page with filtering logic
 - `client/src/components/merchant-card.tsx` - Merchant card component
 - `client/src/components/filters.tsx` - Filter sidebar component
+- `client/src/lib/utils.ts` - Utility functions including slugify for merchant URLs
 - `client/src/lib/mock-data.ts` - Legacy mock data (no longer used by frontend)
 
 ## User Preferences

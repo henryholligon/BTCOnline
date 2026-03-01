@@ -1,15 +1,21 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { useRoute, useLocation } from "wouter";
 import Navbar from "@/components/navbar";
 import Filters from "@/components/filters";
 import MerchantCard from "@/components/merchant-card";
 import { type Merchant } from "@shared/schema";
+import { slugify } from "@/lib/utils";
 import btcBgImage from "@assets/image_1771226498805.png";
 import { motion } from "framer-motion";
 
 
 export default function Home() {
+  const [, params] = useRoute("/merchant/:slug");
+  const [, setLocation] = useLocation();
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedSlug, setExpandedSlug] = useState<string | null>(params?.slug || null);
+  const [needsScroll, setNeedsScroll] = useState<string | null>(params?.slug || null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
@@ -17,6 +23,13 @@ export default function Home() {
   const [selectedProviders, setSelectedProviders] = useState<string[]>([]);
   const [selectedPaymentMethods, setSelectedPaymentMethods] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState("default");
+
+  useEffect(() => {
+    if (params?.slug) {
+      setExpandedSlug(params.slug);
+      setNeedsScroll(params.slug);
+    }
+  }, [params?.slug]);
 
   useEffect(() => {
     fetch("/api/merchants")
@@ -27,6 +40,30 @@ export default function Home() {
       })
       .catch(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (!loading && merchants.length > 0 && expandedSlug) {
+      const validSlugs = merchants.map(m => slugify(m.name));
+      if (!validSlugs.includes(expandedSlug)) {
+        setExpandedSlug(null);
+        setNeedsScroll(null);
+        setLocation("/", { replace: true });
+      }
+    }
+  }, [loading, merchants, expandedSlug, setLocation]);
+
+  const handleToggleExpand = useCallback((merchant: Merchant) => {
+    const slug = slugify(merchant.name);
+    if (expandedSlug === slug) {
+      setExpandedSlug(null);
+      setNeedsScroll(null);
+      setLocation("/", { replace: true });
+    } else {
+      setExpandedSlug(slug);
+      setNeedsScroll(null);
+      setLocation(`/merchant/${slug}`, { replace: true });
+    }
+  }, [expandedSlug, setLocation]);
 
   const stripEmoji = (str: string) => str.replace(/[^\p{L}\p{N}\s&]/gu, '').trim();
 
@@ -235,7 +272,13 @@ export default function Home() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.5) }}
                 >
-                  <MerchantCard merchant={merchant} />
+                  <MerchantCard
+                    merchant={merchant}
+                    expanded={slugify(merchant.name) === expandedSlug}
+                    onToggleExpand={() => handleToggleExpand(merchant)}
+                    scrollIntoView={slugify(merchant.name) === needsScroll}
+                    onScrolledIntoView={() => setNeedsScroll(null)}
+                  />
                 </motion.div>
               ))}
             </div>
