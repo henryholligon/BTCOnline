@@ -222,7 +222,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 </a>
               </Button>
             </div>
-            <div className="col-span-1 md:col-start-4 pt-1 flex items-center gap-2">
+            <div className="pt-1 flex items-center gap-2">
               <Button
                 size="sm"
                 variant="outline"
