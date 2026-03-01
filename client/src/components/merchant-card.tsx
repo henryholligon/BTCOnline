@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { type Merchant, getCategoryWithEmoji } from "@shared/schema";
-import { ExternalLink, Zap, Bitcoin, Clock, QrCode } from "lucide-react";
+import { ExternalLink, Zap, Bitcoin, Clock, Copy, Check } from "lucide-react";
 import { useRef, useEffect, useState, memo } from "react";
 import { slugify } from "@/lib/utils";
 import { QRCodeSVG } from "qrcode.react";
@@ -50,8 +50,8 @@ interface MerchantCardProps {
 
 export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, scrollIntoView, onScrolledIntoView }: MerchantCardProps) {
   const [showQr, setShowQr] = useState(false);
+  const [copied, setCopied] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
-  const qrRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (expanded && scrollIntoView && cardRef.current) {
@@ -61,15 +61,6 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
       }, 300);
     }
   }, [expanded, scrollIntoView, onScrolledIntoView]);
-
-  useEffect(() => {
-    if (!showQr) return;
-    function handleEscape(e: KeyboardEvent) {
-      if (e.key === "Escape") setShowQr(false);
-    }
-    document.addEventListener("keydown", handleEscape);
-    return () => document.removeEventListener("keydown", handleEscape);
-  }, [showQr]);
 
   const merchantUrl = `${window.location.origin}/merchant/${slugify(merchant.name)}`;
 
@@ -225,32 +216,37 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
             )}
           </div>
 
-          <div className="pt-1 flex items-center gap-2">
+          <div className="pt-1 flex items-center gap-3">
             <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
               <a href={merchant.website} target="_blank" rel="noopener noreferrer" data-testid={`link-visit-${merchant.id}`}>
                 Visit Website <ExternalLink className="ml-2 h-3 w-3" />
               </a>
             </Button>
-            <div className="relative" ref={qrRef} onMouseLeave={() => setShowQr(false)}>
-              <Button
-                size="sm"
-                variant="outline"
-                className="gap-1.5"
-                onClick={() => setShowQr(!showQr)}
-                onMouseEnter={() => setShowQr(true)}
-                data-testid={`button-share-${merchant.id}`}
-              >
-                <QrCode className="h-3.5 w-3.5" />
-                Share
-              </Button>
-              {showQr && (
-                <div className="absolute bottom-full left-0 mb-2 p-3 bg-white dark:bg-card border border-border rounded-lg shadow-lg z-50">
-                  <QRCodeSVG value={merchantUrl} size={140} bgColor="transparent" fgColor="currentColor" className="text-foreground" />
-                  <p className="text-[10px] text-muted-foreground mt-1.5 text-center max-w-[140px] truncate">{merchantUrl}</p>
-                </div>
-              )}
-            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5"
+              onClick={() => {
+                navigator.clipboard.writeText(merchantUrl);
+                setCopied(true);
+                setShowQr(true);
+                setTimeout(() => setCopied(false), 2000);
+              }}
+              data-testid={`button-share-${merchant.id}`}
+            >
+              {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
+              {copied ? "Copied!" : "Share Merchant"}
+            </Button>
           </div>
+          {showQr && (
+            <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border border-border/50">
+              <QRCodeSVG value={merchantUrl} size={100} bgColor="transparent" fgColor="currentColor" className="text-foreground shrink-0" />
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-foreground mb-1">Scan to share</p>
+                <p className="text-[11px] text-muted-foreground break-all">{merchantUrl}</p>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
