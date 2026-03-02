@@ -215,12 +215,14 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               </div>
             )}
 
-            <div className="pt-1 flex items-center gap-2 md:hidden">
+            <div className="pt-1 md:hidden">
               <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
                 <a href={merchant.website} target="_blank" rel="noopener noreferrer" data-testid={`link-visit-mobile-${merchant.id}`}>
                   Visit Website <ExternalLink className="ml-2 h-3 w-3" />
                 </a>
               </Button>
+            </div>
+            <div className="pt-1 md:hidden">
               <Button
                 size="sm"
                 variant="outline"
