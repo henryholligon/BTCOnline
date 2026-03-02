@@ -356,7 +356,7 @@ export default function Filters({
           ))}
         </FilterDropdown>
 
-        <FilterDropdown label="📦 Ships to" active={selectedCountries.length > 0} closeOnSelect={false} searchable searchPlaceholder="Type...">
+        <FilterDropdown label="📦 Availability" active={selectedCountries.length > 0} closeOnSelect={false} searchable searchPlaceholder="Type...">
           {(search: string) => {
             const filtered = dynamicCountries.filter(c => c.toLowerCase().includes(search.toLowerCase()));
             return (
@@ -485,7 +485,7 @@ export default function Filters({
           ))}
           {selectedCountries.map((c) => (
             <Badge key={`ship-${c}`} variant="secondary" className="text-xs py-0.5 px-2 gap-1 cursor-pointer hover:bg-destructive/10" onClick={() => onCountryChange(c)}>
-              Ships to: {getCountryWithFlag(c)} <X className="h-2.5 w-2.5" />
+              Availability: {getCountryWithFlag(c)} <X className="h-2.5 w-2.5" />
             </Badge>
           ))}
           {selectedMadeIn.map((c) => (

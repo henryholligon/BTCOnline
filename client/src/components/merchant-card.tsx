@@ -66,12 +66,12 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
 
   const shippingText = merchant.shippingCountries.length > 0
     ? merchant.shippingCountries.some(c => c.toLowerCase().includes("worldwide"))
-      ? "🌍 Worldwide shipping"
+      ? "🌍 Worldwide"
       : merchant.shippingCountries.map(c => {
           const pureCountry = c.replace(/[^\w\s]/gi, '').trim();
           const hasEmoji = /\p{Emoji}/u.test(c);
           return hasEmoji ? c : `${getCountryEmoji(pureCountry)} ${c}`;
-        }).slice(0, 2).join(", ") + (merchant.shippingCountries.length > 2 ? "..." : "") + " shipping"
+        }).slice(0, 2).join(", ") + (merchant.shippingCountries.length > 2 ? "..." : "")
     : null;
 
   return (
@@ -178,7 +178,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
 
             {merchant.shippingCountries.length > 0 && (
               <div className="space-y-1">
-                <span className="text-muted-foreground/70 uppercase tracking-wider text-[10px] font-semibold">Ships to</span>
+                <span className="text-muted-foreground/70 uppercase tracking-wider text-[10px] font-semibold">Availability</span>
                 <div className="flex flex-col gap-1 text-foreground">
                   {merchant.shippingCountries.some(c => c.toLowerCase().includes("worldwide"))
                     ? <span>🌍 Worldwide</span>
