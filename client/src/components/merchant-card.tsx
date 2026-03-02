@@ -66,12 +66,12 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
 
   const shippingText = merchant.shippingCountries.length > 0
     ? merchant.shippingCountries.some(c => c.toLowerCase().includes("worldwide"))
-      ? "🌍 Worldwide"
+      ? "🌍 Worldwide availability"
       : merchant.shippingCountries.map(c => {
           const pureCountry = c.replace(/[^\w\s]/gi, '').trim();
           const hasEmoji = /\p{Emoji}/u.test(c);
           return hasEmoji ? c : `${getCountryEmoji(pureCountry)} ${c}`;
-        }).slice(0, 2).join(", ") + (merchant.shippingCountries.length > 2 ? "..." : "")
+        }).slice(0, 2).join(", ") + (merchant.shippingCountries.length > 2 ? "..." : "") + " availability"
     : null;
 
   return (
