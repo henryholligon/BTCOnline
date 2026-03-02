@@ -237,7 +237,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 {copied ? "Copied!" : "Share Merchant"}
                 {copied ? <Check className="ml-1 h-3.5 w-3.5 text-green-500" /> : <Copy className="ml-1 h-3.5 w-3.5" />}
               </Button>
-              <div className="relative"
+              <div className="relative hidden md:block"
                 onMouseEnter={() => setShowQr(true)}
                 onMouseLeave={() => setShowQr(false)}
               >
