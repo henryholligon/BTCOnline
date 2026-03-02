@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import { db } from "./db";
 import { merchants } from "@shared/schema";
 
@@ -13,7 +14,7 @@ const SEED_MERCHANTS = [
   { name: "Maple AI", description: "Private AI chat with end-to-end encryption.", logo: "/assets/mapleai.png", categories: ["AI", "Privacy", "Open-source"], shippingCountries: ["Worldwide"], website: "https://trymaple.ai/", lightningSupported: true, onchainSupported: true, paymentProvider: "Zaprite", countryMadeIn: "United States", lastSurveyed: "2026-02-15" },
   { name: "Hill Helicopters", description: "Experience the future of private helicopter aviation.", logo: "/assets/hillhelicopters.png", categories: ["Vehicle"], shippingCountries: ["Worldwide"], website: "https://www.hillhelicopters.com/", lightningSupported: true, onchainSupported: true, paymentProvider: "CoinCorner", countryMadeIn: "United Kingdom", lastSurveyed: "2026-02-15" },
   { name: "Atoms", description: "The most comfortable shoes for everyday wear.", logo: "/assets/atoms.png", categories: ["Fashion"], shippingCountries: ["Worldwide"], website: "https://atoms.com/", lightningSupported: true, onchainSupported: true, paymentProvider: "Open Node", countryMadeIn: "United States", lastSurveyed: "2026-02-15" },
-  { name: "Mullvad VPN", description: "VPN service that helps keep your online activity, identity, and location private.", logo: "/assets/mullvad.png", categories: ["Travel"], shippingCountries: ["Worldwide"], website: "https://mullvad.net/en", lightningSupported: true, onchainSupported: true, paymentProvider: "Self-hosted", countryMadeIn: "Sweden", lastSurveyed: "2026-02-15" },
+  { name: "Mullvad VPN", description: "VPN service that helps keep your online activity, identity, and location private.", logo: "/assets/mullvad.png", categories: ["VPN", "Privacy", "Browser"], shippingCountries: ["Worldwide"], website: "https://mullvad.net/en", lightningSupported: true, onchainSupported: true, paymentProvider: "Self-hosted", countryMadeIn: "Sweden", lastSurveyed: "2026-02-15" },
   { name: "Overstock", description: "Find the best online deals on everything for your home and more.", logo: "/assets/overstock.png", categories: ["Home Goods", "Jewellery"], shippingCountries: ["United States"], website: "https://www.overstock.com/", lightningSupported: true, onchainSupported: true, paymentProvider: "COINPAYMENTS", countryMadeIn: "United States", lastSurveyed: "2026-02-15" },
   { name: "Save the Children", description: "A leading humanitarian organization for children that has changed the lives of over 1 billion children around the world.", logo: "/assets/savethechildren.png", categories: ["Charity"], shippingCountries: ["Worldwide"], website: "https://www.savethechildren.org/", lightningSupported: false, onchainSupported: true, paymentProvider: "The Giving Block", countryMadeIn: null, lastSurveyed: "2026-02-15" },
   { name: "Signal", description: "Share text, voice messages, photos, videos, GIFs and files for free securely.", logo: "/assets/signal.png", categories: ["Social Media", "Privacy", "Foundation", "Open-source"], shippingCountries: ["Worldwide"], website: "https://signal.org/", lightningSupported: false, onchainSupported: true, paymentProvider: "The Giving Block", countryMadeIn: "United States", lastSurveyed: "2026-02-15" },
@@ -54,30 +55,69 @@ const SEED_MERCHANTS = [
   { name: "SALT OF THE EARTH", description: "Premium, zero-sugar electrolyte drink mix designed to combat fatigue and improve hydration using Pink Himalayan Salt and essential minerals.", logo: "/assets/saltoftheearth.png", categories: ["Food & Drink", "Supplement"], shippingCountries: ["Worldwide"], website: "https://drinksote.com/", lightningSupported: true, onchainSupported: true, paymentProvider: "Strike", countryMadeIn: "United States", lastSurveyed: "2026-02-18" },
 ];
 
-const SEED_VERSION = 4;
+function merchantDataMatches(existing: any, seed: any): boolean {
+  const fields = ["name", "description", "logo", "website", "lightningSupported", "onchainSupported", "paymentProvider", "countryMadeIn", "lastSurveyed"] as const;
+  for (const f of fields) {
+    if ((existing[f] ?? null) !== (seed[f] ?? null)) return false;
+  }
+  const arrFields = ["categories", "shippingCountries"] as const;
+  for (const f of arrFields) {
+    const a = existing[f] || [];
+    const b = seed[f] || [];
+    if (a.length !== b.length || !a.every((v: string, i: number) => v === b[i])) return false;
+  }
+  return true;
+}
 
 export async function seed() {
   console.log("Seeding database...");
 
   const existing = await db.select().from(merchants);
+  const existingByName = new Map(existing.map(m => [m.name, m]));
+  const seedNames = new Set(SEED_MERCHANTS.map(m => m.name));
 
-  const expectedNames = SEED_MERCHANTS.map(m => m.name);
-  const existingNames = existing.map(m => m.name);
-  const isUpToDate = existing.length === SEED_MERCHANTS.length &&
-    expectedNames.every((name, i) => name === existingNames[i]);
-
-  if (existing.length > 0 && isUpToDate) {
-    console.log(`Database already has ${existing.length} correct merchants in order. Skipping seed.`);
-    return;
+  if (existing.length === SEED_MERCHANTS.length) {
+    const allMatch = SEED_MERCHANTS.every(s => {
+      const ex = existingByName.get(s.name);
+      return ex && merchantDataMatches(ex, s);
+    });
+    if (allMatch) {
+      console.log(`Database already has ${existing.length} correct merchants. Skipping seed.`);
+      return;
+    }
   }
 
-  if (existing.length > 0) {
-    console.log(`Database has ${existing.length} merchants (mismatch detected). Replacing with ${SEED_MERCHANTS.length} updated merchants...`);
-    await db.delete(merchants);
-  }
+  await db.transaction(async (tx) => {
+    let updated = 0;
+    let inserted = 0;
+    let removed = 0;
 
-  await db.insert(merchants).values(SEED_MERCHANTS);
-  console.log(`Seeded ${SEED_MERCHANTS.length} merchants.`);
+    for (const seedMerchant of SEED_MERCHANTS) {
+      const ex = existingByName.get(seedMerchant.name);
+      if (ex) {
+        if (!merchantDataMatches(ex, seedMerchant)) {
+          await tx.update(merchants).set(seedMerchant).where(eq(merchants.name, seedMerchant.name));
+          updated++;
+        }
+      } else {
+        await tx.insert(merchants).values(seedMerchant);
+        inserted++;
+      }
+    }
+
+    for (const ex of existing) {
+      if (!seedNames.has(ex.name)) {
+        await tx.delete(merchants).where(eq(merchants.name, ex.name));
+        removed++;
+      }
+    }
+
+    if (updated || inserted || removed) {
+      console.log(`Seed sync: ${updated} updated, ${inserted} inserted, ${removed} removed.`);
+    } else {
+      console.log(`Database has ${existing.length} merchants, all up to date.`);
+    }
+  });
 }
 
 const isDirectRun = process.argv[1]?.includes('seed');
