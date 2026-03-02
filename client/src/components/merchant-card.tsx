@@ -215,12 +215,35 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               </div>
             )}
 
-            <div className="pt-1 md:col-start-1 col-span-full md:col-span-1 flex items-center gap-2 flex-wrap">
+            <div className="pt-1 flex items-center gap-2 md:hidden">
+              <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
+                <a href={merchant.website} target="_blank" rel="noopener noreferrer" data-testid={`link-visit-mobile-${merchant.id}`}>
+                  Visit Website <ExternalLink className="ml-2 h-3 w-3" />
+                </a>
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1.5"
+                onClick={() => {
+                  navigator.clipboard.writeText(merchantUrl);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                }}
+                data-testid={`button-share-mobile-${merchant.id}`}
+              >
+                {copied ? "Copied!" : "Share Merchant"}
+                {copied ? <Check className="ml-1 h-3.5 w-3.5 text-green-500" /> : <Copy className="ml-1 h-3.5 w-3.5" />}
+              </Button>
+            </div>
+            <div className="pt-1 md:col-start-1 hidden md:block">
               <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
                 <a href={merchant.website} target="_blank" rel="noopener noreferrer" data-testid={`link-visit-${merchant.id}`}>
                   Visit Website <ExternalLink className="ml-2 h-3 w-3" />
                 </a>
               </Button>
+            </div>
+            <div className="pt-1 md:col-start-2 hidden md:flex items-center gap-2">
               <Button
                 size="sm"
                 variant="outline"
@@ -235,7 +258,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 {copied ? "Copied!" : "Share Merchant"}
                 {copied ? <Check className="ml-1 h-3.5 w-3.5 text-green-500" /> : <Copy className="ml-1 h-3.5 w-3.5" />}
               </Button>
-              <div className="relative hidden md:block"
+              <div className="relative"
                 onMouseEnter={() => setShowQr(true)}
                 onMouseLeave={() => setShowQr(false)}
               >
