@@ -4,6 +4,9 @@
 A free and open-source directory of businesses that accept Bitcoin online. Displays merchant listings with categories, payment methods (Lightning/On-chain), shipping information, and website links.
 
 ## Recent Changes
+- Added `bitcoinDiscount` field (nullable text) to merchants table for data-driven discount/promo badges
+  - "NEW" value renders rainbow animated tag; any other value renders green discount badge
+  - Supported in CSV import via `bitcoinDiscount` or `bitcoin_discount` column
 - Added unique merchant URLs via slug-based routing (/merchant/:slug) with auto-scroll on deep link
 - Added Share button with QR code popover in expanded merchant cards
 - Multi-select filters for all dropdowns (categories, countries, payment, provider)

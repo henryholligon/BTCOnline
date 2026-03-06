@@ -140,6 +140,7 @@ export async function registerRoutes(
             countryMadeIn: row.countrymadein || row.country_made_in || null,
             countryShippedFrom: row.countryshippedfrom || row.country_shipped_from || null,
             lastSurveyed: row.lastsurveyed || row.last_surveyed || new Date().toISOString().split('T')[0],
+            bitcoinDiscount: row.bitcoindiscount || row.bitcoin_discount || null,
           };
 
           const validated = insertMerchantSchema.safeParse(prepared);

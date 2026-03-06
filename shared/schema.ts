@@ -18,6 +18,7 @@ export const merchants = pgTable("merchants", {
   countryMadeIn: text("country_made_in"),
   countryShippedFrom: text("country_shipped_from"),
   lastSurveyed: text("last_surveyed"),
+  bitcoinDiscount: text("bitcoin_discount"),
 });
 
 export const insertMerchantSchema = createInsertSchema(merchants).omit({

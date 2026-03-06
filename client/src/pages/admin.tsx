@@ -19,6 +19,7 @@ interface ParsedMerchant {
   countryMadeIn: string;
   countryShippedFrom: string;
   lastSurveyed: string;
+  bitcoinDiscount: string;
   [key: string]: string;
 }
 
@@ -231,6 +232,7 @@ export default function Admin() {
                 <span><strong>paymentProvider</strong> — e.g. BTCPay Server</span>
                 <span><strong>countryMadeIn</strong> — e.g. USA</span>
                 <span><strong>lastSurveyed</strong> — e.g. 2026-02-11</span>
+                <span><strong>bitcoinDiscount</strong> — e.g. 10% off with BTC</span>
               </div>
             </div>
           </Card>
@@ -282,6 +284,7 @@ export default function Admin() {
                     <th className="text-left p-2 font-medium">On-chain</th>
                     <th className="text-left p-2 font-medium">Payment Provider</th>
                     <th className="text-left p-2 font-medium">Shipping</th>
+                    <th className="text-left p-2 font-medium">BTC Discount</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -320,6 +323,7 @@ export default function Admin() {
                       </td>
                       <td className="p-2 max-w-[120px] truncate text-muted-foreground">{row.paymentProvider || row.payment_provider || "—"}</td>
                       <td className="p-2 max-w-[120px] truncate text-muted-foreground">{row.shippingCountries || row.shipping_countries || "—"}</td>
+                      <td className="p-2 max-w-[120px] truncate text-muted-foreground">{row.bitcoinDiscount || row.bitcoin_discount || "—"}</td>
                     </tr>
                   ))}
                 </tbody>
