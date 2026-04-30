@@ -12,7 +12,7 @@ A free and open-source directory of businesses that accept Bitcoin online. Displ
 - Multi-select filters for all dropdowns (categories, countries, payment, provider)
 - Added admin page (/admin) with CSV bulk import and multi-logo upload (drag & drop)
 - CSV import validates through insertMerchantSchema, supports flexible field names (snake_case and camelCase)
-- Logo uploads saved to client/public/assets/ with collision-safe filenames
+- Logo uploads saved to Replit App Storage (GCS) — persist across deployments, served as public https:// URLs
 - Migrated merchant data from mock-data.ts to PostgreSQL database
 - Created API routes for serving merchant data (GET /api/merchants, POST /api/merchants)
 - Frontend fetches merchants from API instead of importing static data

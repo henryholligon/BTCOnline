@@ -4,36 +4,20 @@ import { storage } from "./storage";
 import { insertMerchantSchema } from "@shared/schema";
 import multer from "multer";
 import path from "path";
-import fs from "fs";
 import { createChallenge, verifySolution } from "altcha-lib";
+import { objectStorageClient } from "./replit_integrations/object_storage/objectStorage";
 
-const logoStorage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    const dir = path.join(process.cwd(), "client", "public", "assets");
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    cb(null, dir);
-  },
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const name = path.basename(file.originalname, ext)
-      .toLowerCase()
-      .replace(/[^a-z0-9-]/g, '-')
-      .replace(/-+/g, '-');
-    const destDir = path.join(process.cwd(), "client", "public", "assets");
-    const candidate = `${name}${ext}`;
-    if (fs.existsSync(path.join(destDir, candidate))) {
-      const uniqueSuffix = Date.now().toString(36);
-      cb(null, `${name}-${uniqueSuffix}${ext}`);
-    } else {
-      cb(null, candidate);
-    }
-  },
-});
+const LOGO_FOLDER = "logos";
+
+function getLogoBucket() {
+  const searchPaths = (process.env.PUBLIC_OBJECT_SEARCH_PATHS || "").split(",").map(s => s.trim()).filter(Boolean);
+  if (!searchPaths.length) throw new Error("PUBLIC_OBJECT_SEARCH_PATHS not set");
+  const bucketName = searchPaths[0].replace(/^\//, "").split("/")[0];
+  return objectStorageClient.bucket(bucketName);
+}
 
 const upload = multer({
-  storage: logoStorage,
+  storage: multer.memoryStorage(),
   fileFilter: (_req, file, cb) => {
     const allowed = ['.png', '.jpg', '.jpeg', '.webp', '.svg'];
     const ext = path.extname(file.originalname).toLowerCase();
@@ -91,17 +75,34 @@ export async function registerRoutes(
     res.status(201).json(merchant);
   });
 
-  app.post("/api/upload-logos", upload.array("logos", 100), (req, res) => {
+  app.post("/api/upload-logos", upload.array("logos", 100), async (req, res) => {
     const files = req.files as Express.Multer.File[];
     if (!files || files.length === 0) {
       return res.status(400).json({ message: "No files uploaded" });
     }
-    const uploaded = files.map(f => ({
-      originalName: f.originalname,
-      savedAs: f.filename,
-      path: `/assets/${f.filename}`,
-    }));
-    res.json({ uploaded });
+    try {
+      const bucket = getLogoBucket();
+      const uploaded = await Promise.all(files.map(async (f) => {
+        const ext = path.extname(f.originalname).toLowerCase();
+        const name = path.basename(f.originalname, ext)
+          .toLowerCase()
+          .replace(/[^a-z0-9-]/g, '-')
+          .replace(/-+/g, '-');
+        const objectName = `${LOGO_FOLDER}/${name}-${Date.now().toString(36)}${ext}`;
+        const gcsFile = bucket.file(objectName);
+        await gcsFile.save(f.buffer, {
+          contentType: f.mimetype,
+          metadata: { cacheControl: "public, max-age=31536000" },
+        });
+        await gcsFile.makePublic();
+        const publicUrl = `https://storage.googleapis.com/${bucket.name}/${objectName}`;
+        return { originalName: f.originalname, savedAs: objectName, path: publicUrl };
+      }));
+      res.json({ uploaded });
+    } catch (err: any) {
+      console.error("Logo upload to object storage failed:", err);
+      res.status(500).json({ message: "Upload failed: " + (err.message || "Unknown error") });
+    }
   });
 
   app.post("/api/merchants/import", async (req, res) => {
@@ -163,15 +164,21 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/uploaded-logos", (_req, res) => {
-    const dir = path.join(process.cwd(), "client", "public", "assets");
-    if (!fs.existsSync(dir)) {
-      return res.json({ logos: [] });
+  app.get("/api/uploaded-logos", async (_req, res) => {
+    try {
+      const bucket = getLogoBucket();
+      const [files] = await bucket.getFiles({ prefix: `${LOGO_FOLDER}/` });
+      const logos = files
+        .filter(f => /\.(png|jpg|jpeg|webp|svg)$/i.test(f.name))
+        .map(f => ({
+          name: path.basename(f.name),
+          path: `https://storage.googleapis.com/${bucket.name}/${f.name}`,
+        }));
+      res.json({ logos });
+    } catch (err: any) {
+      console.error("Failed to list logos from object storage:", err);
+      res.json({ logos: [] });
     }
-    const files = fs.readdirSync(dir)
-      .filter(f => /\.(png|jpg|jpeg|webp|svg)$/i.test(f))
-      .map(f => ({ name: f, path: `/assets/${f}` }));
-    res.json({ logos: files });
   });
 
   return httpServer;
