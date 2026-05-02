@@ -114,13 +114,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               <span className="shrink-0 text-[10px] font-bold bg-green-500 text-white px-1.5 py-0.5 rounded-sm uppercase tracking-wide">{merchant.bitcoinDiscount}</span>
             ) : null}
           </div>
-        </div>
-
-      </div>
-
-      {expanded && (
-        <div className="border-t border-border/30 px-3 md:px-4 py-4 space-y-4" onClick={(e) => e.stopPropagation()}>
-          <p className="text-xs md:text-sm text-muted-foreground">{merchant.description}</p>
+          <p className="text-xs md:text-sm text-muted-foreground truncate">{merchant.description}</p>
           <div className="flex items-center gap-2">
             {shippingText && (
               <Badge variant="secondary" className="text-[10px] py-0 px-1.5">
@@ -142,6 +136,12 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               ))}
             </div>
           </div>
+        </div>
+
+      </div>
+
+      {expanded && (
+        <div className="border-t border-border/30 px-3 md:px-4 py-4 space-y-4" onClick={(e) => e.stopPropagation()}>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
 
             <div className="space-y-1">
