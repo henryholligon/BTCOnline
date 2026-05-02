@@ -142,7 +142,19 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
 
       {expanded && (
         <div className="border-t border-border/30 px-3 md:px-4 py-4 space-y-4" onClick={(e) => e.stopPropagation()}>
+          <p className="text-sm text-muted-foreground">{merchant.description}</p>
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+            {merchant.categories.length > 0 && (
+              <div className="space-y-1">
+                <span className="text-muted-foreground/70 uppercase tracking-wider text-[10px] font-semibold">Category</span>
+                <div className="flex flex-col gap-1 text-foreground">
+                  {merchant.categories.map(cat => (
+                    <span key={cat}>{getCategoryWithEmoji(cat)}</span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="space-y-1">
               <span className="text-muted-foreground/70 uppercase tracking-wider text-[10px] font-semibold">Payment</span>
