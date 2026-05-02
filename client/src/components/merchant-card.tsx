@@ -114,28 +114,30 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               <span className="shrink-0 text-[10px] font-bold bg-green-500 text-white px-1.5 py-0.5 rounded-sm uppercase tracking-wide">{merchant.bitcoinDiscount}</span>
             ) : null}
           </div>
-          <p className="text-xs md:text-sm text-muted-foreground truncate">{merchant.description}</p>
-          <div className="flex items-center gap-2">
-            {shippingText && (
-              <Badge variant="secondary" className="text-[10px] py-0 px-1.5">
-                {shippingText}
-              </Badge>
-            )}
-            <div className="flex md:hidden items-center gap-1.5">
-              {merchant.categories.slice(0, 1).map((cat) => (
-                <Badge key={cat} variant="secondary" className="text-[10px] py-0 px-1.5">
-                  {getCategoryWithEmoji(cat)}
+          {!expanded && <p className="text-xs md:text-sm text-muted-foreground truncate">{merchant.description}</p>}
+          {!expanded && (
+            <div className="flex items-center gap-2">
+              {shippingText && (
+                <Badge variant="secondary" className="text-[10px] py-0 px-1.5">
+                  {shippingText}
                 </Badge>
-              ))}
+              )}
+              <div className="flex md:hidden items-center gap-1.5">
+                {merchant.categories.slice(0, 1).map((cat) => (
+                  <Badge key={cat} variant="secondary" className="text-[10px] py-0 px-1.5">
+                    {getCategoryWithEmoji(cat)}
+                  </Badge>
+                ))}
+              </div>
+              <div className="hidden md:flex items-center gap-1.5">
+                {merchant.categories.slice(0, 2).map((cat) => (
+                  <Badge key={cat} variant="secondary" className="text-[10px] py-0 px-1.5">
+                    {getCategoryWithEmoji(cat)}
+                  </Badge>
+                ))}
+              </div>
             </div>
-            <div className="hidden md:flex items-center gap-1.5">
-              {merchant.categories.slice(0, 2).map((cat) => (
-                <Badge key={cat} variant="secondary" className="text-[10px] py-0 px-1.5">
-                  {getCategoryWithEmoji(cat)}
-                </Badge>
-              ))}
-            </div>
-          </div>
+          )}
         </div>
 
       </div>
