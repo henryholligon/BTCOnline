@@ -114,32 +114,35 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               <span className="shrink-0 text-[10px] font-bold bg-green-500 text-white px-1.5 py-0.5 rounded-sm uppercase tracking-wide">{merchant.bitcoinDiscount}</span>
             ) : null}
           </div>
-          {shippingText && (
-            <div className="flex items-center gap-2">
+          <p className="text-xs md:text-sm text-muted-foreground truncate">{merchant.description}</p>
+          <div className="flex items-center gap-2">
+            {shippingText && (
               <Badge variant="secondary" className="text-[10px] py-0 px-1.5">
                 {shippingText}
               </Badge>
+            )}
+            <div className="flex md:hidden items-center gap-1.5">
+              {merchant.categories.slice(0, 1).map((cat) => (
+                <Badge key={cat} variant="secondary" className="text-[10px] py-0 px-1.5">
+                  {getCategoryWithEmoji(cat)}
+                </Badge>
+              ))}
             </div>
-          )}
+            <div className="hidden md:flex items-center gap-1.5">
+              {merchant.categories.slice(0, 2).map((cat) => (
+                <Badge key={cat} variant="secondary" className="text-[10px] py-0 px-1.5">
+                  {getCategoryWithEmoji(cat)}
+                </Badge>
+              ))}
+            </div>
+          </div>
         </div>
 
       </div>
 
       {expanded && (
         <div className="border-t border-border/30 px-3 md:px-4 py-4 space-y-4" onClick={(e) => e.stopPropagation()}>
-          <p className="text-sm text-muted-foreground">{merchant.description}</p>
-
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-            {merchant.categories.length > 0 && (
-              <div className="space-y-1">
-                <span className="text-muted-foreground/70 uppercase tracking-wider text-[10px] font-semibold">Category</span>
-                <div className="flex flex-col gap-1 text-foreground">
-                  {merchant.categories.map(cat => (
-                    <span key={cat}>{getCategoryWithEmoji(cat)}</span>
-                  ))}
-                </div>
-              </div>
-            )}
 
             <div className="space-y-1">
               <span className="text-muted-foreground/70 uppercase tracking-wider text-[10px] font-semibold">Payment</span>
