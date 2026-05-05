@@ -5,16 +5,9 @@ import { insertMerchantSchema } from "@shared/schema";
 import multer from "multer";
 import path from "path";
 import { createChallenge, verifySolution } from "altcha-lib";
-import { objectStorageClient } from "./replit_integrations/object_storage/objectStorage";
 
 const LOGO_FOLDER = "logos";
-
-function getLogoBucket() {
-  const searchPaths = (process.env.PUBLIC_OBJECT_SEARCH_PATHS || "").split(",").map(s => s.trim()).filter(Boolean);
-  if (!searchPaths.length) throw new Error("PUBLIC_OBJECT_SEARCH_PATHS not set");
-  const bucketName = searchPaths[0].replace(/^\//, "").split("/")[0];
-  return objectStorageClient.bucket(bucketName);
-}
+const REPLIT_SIDECAR = "http://127.0.0.1:1106";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -97,23 +90,47 @@ export async function registerRoutes(
     if (!files || files.length === 0) {
       return res.status(400).json({ message: "No files uploaded" });
     }
+    const privateDir = (process.env.PRIVATE_OBJECT_DIR || "").replace(/^\//, "");
+    if (!privateDir) return res.status(500).json({ message: "Object storage not configured" });
+    const parts = privateDir.split("/");
+    const bucketName = parts[0];
+    const baseDir = parts.slice(1).join("/"); // e.g. ".private"
+
     try {
-      const bucket = getLogoBucket();
       const uploaded = await Promise.all(files.map(async (f) => {
         const ext = path.extname(f.originalname).toLowerCase();
         const name = path.basename(f.originalname, ext)
           .toLowerCase()
           .replace(/[^a-z0-9-]/g, '-')
           .replace(/-+/g, '-');
-        const objectName = `${LOGO_FOLDER}/${name}-${Date.now().toString(36)}${ext}`;
-        const gcsFile = bucket.file(objectName);
-        await gcsFile.save(f.buffer, {
-          contentType: f.mimetype,
-          metadata: { cacheControl: "public, max-age=31536000" },
+        const uniqueSuffix = Date.now().toString(36);
+        const objectName = `${baseDir}/${LOGO_FOLDER}/${name}-${uniqueSuffix}${ext}`;
+
+        // Get a presigned PUT URL from the Replit sidecar (avoids ACL issues)
+        const signRes = await fetch(`${REPLIT_SIDECAR}/object-storage/signed-object-url`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            bucket_name: bucketName,
+            object_name: objectName,
+            method: "PUT",
+            expires_at: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+          }),
         });
-        await gcsFile.makePublic();
-        const publicUrl = `https://storage.googleapis.com/${bucket.name}/${objectName}`;
-        return { originalName: f.originalname, savedAs: objectName, path: publicUrl };
+        if (!signRes.ok) throw new Error(`Sidecar sign failed: ${signRes.status}`);
+        const { signed_url } = await signRes.json();
+
+        // PUT the file bytes directly to GCS via the signed URL
+        const putRes = await fetch(signed_url, {
+          method: "PUT",
+          headers: { "Content-Type": f.mimetype },
+          body: f.buffer,
+        });
+        if (!putRes.ok) throw new Error(`GCS PUT failed: ${putRes.status}`);
+
+        // Serve via the app's /objects/ proxy route
+        const serveUrl = `/objects/${LOGO_FOLDER}/${name}-${uniqueSuffix}${ext}`;
+        return { originalName: f.originalname, savedAs: objectName, path: serveUrl };
       }));
       res.json({ uploaded });
     } catch (err: any) {
