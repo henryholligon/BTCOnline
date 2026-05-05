@@ -75,6 +75,23 @@ export async function registerRoutes(
     res.status(201).json(merchant);
   });
 
+  app.put("/api/merchants/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ message: "Invalid merchant ID" });
+    const result = insertMerchantSchema.partial().safeParse(req.body);
+    if (!result.success) return res.status(400).json({ message: "Invalid merchant data", errors: result.error.issues });
+    const updated = await storage.updateMerchant(id, result.data);
+    if (!updated) return res.status(404).json({ message: "Merchant not found" });
+    res.json(updated);
+  });
+
+  app.delete("/api/merchants/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ message: "Invalid merchant ID" });
+    await storage.deleteMerchant(id);
+    res.status(204).end();
+  });
+
   app.post("/api/upload-logos", upload.array("logos", 100), async (req, res) => {
     const files = req.files as Express.Multer.File[];
     if (!files || files.length === 0) {

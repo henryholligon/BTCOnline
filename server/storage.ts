@@ -6,6 +6,8 @@ export interface IStorage {
   getMerchants(): Promise<Merchant[]>;
   getMerchant(id: number): Promise<Merchant | undefined>;
   createMerchant(merchant: InsertMerchant): Promise<Merchant>;
+  updateMerchant(id: number, merchant: Partial<InsertMerchant>): Promise<Merchant | undefined>;
+  deleteMerchant(id: number): Promise<void>;
   getMerchantCount(): Promise<number>;
   deleteAllMerchants(): Promise<void>;
 }
@@ -23,6 +25,15 @@ export class DatabaseStorage implements IStorage {
   async createMerchant(merchant: InsertMerchant): Promise<Merchant> {
     const [created] = await db.insert(merchants).values(merchant).returning();
     return created;
+  }
+
+  async updateMerchant(id: number, merchant: Partial<InsertMerchant>): Promise<Merchant | undefined> {
+    const [updated] = await db.update(merchants).set(merchant).where(eq(merchants.id, id)).returning();
+    return updated;
+  }
+
+  async deleteMerchant(id: number): Promise<void> {
+    await db.delete(merchants).where(eq(merchants.id, id));
   }
 
   async getMerchantCount(): Promise<number> {
