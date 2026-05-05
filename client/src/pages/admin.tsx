@@ -398,10 +398,26 @@ export default function Admin() {
                   <SectionLabel>Additional Details</SectionLabel>
                   <div className="grid sm:grid-cols-3 gap-3">
                     <Field label="Made In">
-                      <Input placeholder="e.g. United States" value={form.countryMadeIn} onChange={e => setField("countryMadeIn", e.target.value)} data-testid="input-country-made-in" />
+                      <select
+                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        value={form.countryMadeIn}
+                        onChange={e => setField("countryMadeIn", e.target.value)}
+                        data-testid="select-country-made-in"
+                      >
+                        <option value="">— Select country —</option>
+                        {COUNTRIES.filter(c => !c.toLowerCase().includes("worldwide")).map(c => <option key={c} value={c}>{c}</option>)}
+                      </select>
                     </Field>
                     <Field label="Shipped From">
-                      <Input placeholder="e.g. Germany" value={form.countryShippedFrom} onChange={e => setField("countryShippedFrom", e.target.value)} data-testid="input-country-shipped-from" />
+                      <select
+                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        value={form.countryShippedFrom}
+                        onChange={e => setField("countryShippedFrom", e.target.value)}
+                        data-testid="select-country-shipped-from"
+                      >
+                        <option value="">— Select country —</option>
+                        {COUNTRIES.filter(c => !c.toLowerCase().includes("worldwide")).map(c => <option key={c} value={c}>{c}</option>)}
+                      </select>
                     </Field>
                     <Field label="Last Surveyed">
                       <Input type="date" value={form.lastSurveyed} onChange={e => setField("lastSurveyed", e.target.value)} data-testid="input-last-surveyed" />
