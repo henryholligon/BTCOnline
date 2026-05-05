@@ -5,6 +5,7 @@ import { insertMerchantSchema } from "@shared/schema";
 import multer from "multer";
 import path from "path";
 import { createChallenge, verifySolution } from "altcha-lib";
+import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 
 const LOGO_FOLDER = "logos";
 const REPLIT_SIDECAR = "http://127.0.0.1:1106";
@@ -128,14 +129,39 @@ export async function registerRoutes(
         });
         if (!putRes.ok) throw new Error(`GCS PUT failed: ${putRes.status}`);
 
-        // Serve via the app's /objects/ proxy route
-        const serveUrl = `/objects/${LOGO_FOLDER}/${name}-${uniqueSuffix}${ext}`;
+        const serveUrl = `/api/logos/${name}-${uniqueSuffix}${ext}`;
         return { originalName: f.originalname, savedAs: objectName, path: serveUrl };
       }));
       res.json({ uploaded });
     } catch (err: any) {
       console.error("Logo upload to object storage failed:", err);
       res.status(500).json({ message: "Upload failed: " + (err.message || "Unknown error") });
+    }
+  });
+
+  app.get("/api/logos/:filename(*)", async (req, res) => {
+    const privateDir = (process.env.PRIVATE_OBJECT_DIR || "").replace(/^\//, "");
+    if (!privateDir) return res.status(500).json({ message: "Object storage not configured" });
+    const parts = privateDir.split("/");
+    const bucketName = parts[0];
+    const baseDir = parts.slice(1).join("/");
+    const objectName = `${baseDir}/${LOGO_FOLDER}/${req.params.filename}`;
+    try {
+      const signRes = await fetch(`${REPLIT_SIDECAR}/object-storage/signed-object-url`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bucket_name: bucketName,
+          object_name: objectName,
+          method: "GET",
+          expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+        }),
+      });
+      if (!signRes.ok) return res.status(404).json({ message: "Logo not found" });
+      const { signed_url } = await signRes.json();
+      res.redirect(302, signed_url);
+    } catch {
+      res.status(404).json({ message: "Logo not found" });
     }
   });
 
@@ -214,6 +240,8 @@ export async function registerRoutes(
       res.json({ logos: [] });
     }
   });
+
+  registerObjectStorageRoutes(app);
 
   return httpServer;
 }
