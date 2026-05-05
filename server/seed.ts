@@ -74,23 +74,19 @@ export async function seed() {
 
   const existing = await db.select().from(merchants);
   const existingByName = new Map(existing.map(m => [m.name, m]));
-  const seedNames = new Set(SEED_MERCHANTS.map(m => m.name));
 
-  if (existing.length === SEED_MERCHANTS.length) {
-    const allMatch = SEED_MERCHANTS.every(s => {
-      const ex = existingByName.get(s.name);
-      return ex && merchantDataMatches(ex, s);
-    });
-    if (allMatch) {
-      console.log(`Database already has ${existing.length} correct merchants. Skipping seed.`);
-      return;
-    }
+  const allMatch = SEED_MERCHANTS.every(s => {
+    const ex = existingByName.get(s.name);
+    return ex && merchantDataMatches(ex, s);
+  });
+  if (allMatch) {
+    console.log(`Database already has ${existing.length} correct merchants. Skipping seed.`);
+    return;
   }
 
   await db.transaction(async (tx) => {
     let updated = 0;
     let inserted = 0;
-    let removed = 0;
 
     for (const seedMerchant of SEED_MERCHANTS) {
       const ex = existingByName.get(seedMerchant.name);
@@ -105,15 +101,8 @@ export async function seed() {
       }
     }
 
-    for (const ex of existing) {
-      if (!seedNames.has(ex.name)) {
-        await tx.delete(merchants).where(eq(merchants.name, ex.name));
-        removed++;
-      }
-    }
-
-    if (updated || inserted || removed) {
-      console.log(`Seed sync: ${updated} updated, ${inserted} inserted, ${removed} removed.`);
+    if (updated || inserted) {
+      console.log(`Seed sync: ${updated} updated, ${inserted} inserted.`);
     } else {
       console.log(`Database has ${existing.length} merchants, all up to date.`);
     }
