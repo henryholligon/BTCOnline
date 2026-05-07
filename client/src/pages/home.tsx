@@ -3,7 +3,7 @@ import { useRoute, useLocation } from "wouter";
 import Navbar from "@/components/navbar";
 import Filters from "@/components/filters";
 import MerchantCard from "@/components/merchant-card";
-import { type Merchant } from "@shared/schema";
+import { type Merchant, type BadgePreset } from "@shared/schema";
 import { slugify } from "@/lib/utils";
 import btcBgImage from "@assets/image_1771226498805.png";
 import { motion } from "framer-motion";
@@ -14,6 +14,7 @@ export default function Home() {
   const [, setLocation] = useLocation();
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [loading, setLoading] = useState(true);
+  const [badgePresets, setBadgePresets] = useState<BadgePreset[]>([]);
   const [expandedSlug, setExpandedSlug] = useState<string | null>(params?.slug || null);
   const [needsScroll, setNeedsScroll] = useState<string | null>(params?.slug || null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -39,6 +40,13 @@ export default function Home() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/badge-presets")
+      .then(r => r.json())
+      .then(setBadgePresets)
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -278,6 +286,7 @@ export default function Home() {
                     onToggleExpand={() => handleToggleExpand(merchant)}
                     scrollIntoView={slugify(merchant.name) === needsScroll}
                     onScrolledIntoView={() => setNeedsScroll(null)}
+                    badgePresets={badgePresets}
                   />
                 </motion.div>
               ))}

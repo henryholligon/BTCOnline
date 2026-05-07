@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { type Server } from "http";
 import { storage } from "./storage";
-import { insertMerchantSchema } from "@shared/schema";
+import { insertMerchantSchema, insertBadgePresetSchema } from "@shared/schema";
 import multer from "multer";
 import path from "path";
 import { createChallenge, verifySolution } from "altcha-lib";
@@ -83,6 +83,25 @@ export async function registerRoutes(
     const id = parseInt(req.params.id);
     if (isNaN(id)) return res.status(400).json({ message: "Invalid merchant ID" });
     await storage.deleteMerchant(id);
+    res.status(204).end();
+  });
+
+  app.get("/api/badge-presets", async (_req, res) => {
+    const presets = await storage.getBadgePresets();
+    res.json(presets);
+  });
+
+  app.post("/api/badge-presets", async (req, res) => {
+    const result = insertBadgePresetSchema.safeParse(req.body);
+    if (!result.success) return res.status(400).json({ message: "Invalid badge preset data", errors: result.error.issues });
+    const preset = await storage.createBadgePreset(result.data);
+    res.status(201).json(preset);
+  });
+
+  app.delete("/api/badge-presets/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ message: "Invalid ID" });
+    await storage.deleteBadgePreset(id);
     res.status(204).end();
   });
 

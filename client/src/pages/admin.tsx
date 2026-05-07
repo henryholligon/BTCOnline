@@ -5,10 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, FileSpreadsheet, Image, Check, AlertCircle, ArrowLeft, Trash2, Plus, Zap, Bitcoin, Store, Pencil, Search, X } from "lucide-react";
+import { Upload, FileSpreadsheet, Image, Check, AlertCircle, ArrowLeft, Trash2, Plus, Zap, Bitcoin, Store, Pencil, Search, X, Tag } from "lucide-react";
 import Papa from "papaparse";
 import { Link } from "wouter";
-import { CATEGORIES, COUNTRIES, PAYMENT_PROVIDERS, getCategoryWithEmoji, type Merchant } from "@shared/schema";
+import { CATEGORIES, COUNTRIES, PAYMENT_PROVIDERS, BADGE_STYLES, getCategoryWithEmoji, type Merchant, type BadgePreset } from "@shared/schema";
 
 interface ParsedMerchant {
   name: string; description: string; logo: string; categories: string;
@@ -67,6 +67,12 @@ export default function Admin() {
   const [editResult, setEditResult] = useState<{ success: boolean; message: string } | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
+  // ── Badge presets ──
+  const [badgePresets, setBadgePresets] = useState<BadgePreset[]>([]);
+  const [newBadgeLabel, setNewBadgeLabel] = useState("");
+  const [newBadgeStyle, setNewBadgeStyle] = useState<string>("green");
+  const [badgeSaving, setBadgeSaving] = useState(false);
+
   // ── Bulk import ──
   const [csvData, setCsvData] = useState<ParsedMerchant[]>([]);
   const [csvFileName, setCsvFileName] = useState("");
@@ -91,6 +97,39 @@ export default function Admin() {
   useEffect(() => {
     if (activeTab === "edit") fetchMerchants();
   }, [activeTab, fetchMerchants]);
+
+  const fetchBadgePresets = useCallback(async () => {
+    try {
+      const res = await fetch("/api/badge-presets");
+      const data = await res.json();
+      setBadgePresets(data);
+    } catch { console.error("Failed to fetch badge presets"); }
+  }, []);
+
+  useEffect(() => { fetchBadgePresets(); }, [fetchBadgePresets]);
+
+  const handleCreateBadge = async () => {
+    if (!newBadgeLabel.trim()) return;
+    setBadgeSaving(true);
+    try {
+      await fetch("/api/badge-presets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ label: newBadgeLabel.trim(), style: newBadgeStyle }),
+      });
+      setNewBadgeLabel("");
+      setNewBadgeStyle("green");
+      await fetchBadgePresets();
+    } catch { console.error("Failed to create badge"); }
+    finally { setBadgeSaving(false); }
+  };
+
+  const handleDeleteBadge = async (id: number) => {
+    try {
+      await fetch(`/api/badge-presets/${id}`, { method: "DELETE" });
+      await fetchBadgePresets();
+    } catch { console.error("Failed to delete badge"); }
+  };
 
   // ── Add form helpers ──
   const setField = <K extends keyof MerchantForm>(key: K, value: MerchantForm[K]) => {
@@ -237,10 +276,11 @@ export default function Admin() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full max-w-sm grid-cols-3">
+          <TabsList className="grid w-full max-w-lg grid-cols-4">
             <TabsTrigger value="add" data-testid="tab-add-merchant"><Plus className="h-3.5 w-3.5 mr-1.5" />Add</TabsTrigger>
             <TabsTrigger value="edit" data-testid="tab-edit-merchant"><Pencil className="h-3.5 w-3.5 mr-1.5" />Edit</TabsTrigger>
-            <TabsTrigger value="import" data-testid="tab-bulk-import"><FileSpreadsheet className="h-3.5 w-3.5 mr-1.5" />Bulk Import</TabsTrigger>
+            <TabsTrigger value="import" data-testid="tab-bulk-import"><FileSpreadsheet className="h-3.5 w-3.5 mr-1.5" />Import</TabsTrigger>
+            <TabsTrigger value="badges" data-testid="tab-badges"><Tag className="h-3.5 w-3.5 mr-1.5" />Badges</TabsTrigger>
           </TabsList>
 
           {/* ───── ADD TAB ───── */}
@@ -252,6 +292,7 @@ export default function Admin() {
                   logoPreview={logoPreview} setLogoPreview={setLogoPreview}
                   logoUploading={logoUploading}
                   onLogoFileUpload={f => handleLogoFileUpload(f, "add")}
+                  badgePresets={badgePresets}
                 />
                 {submitResult && <ResultBanner result={submitResult} />}
                 <Button className="w-full" size="lg" onClick={handleSubmit} disabled={submitting} data-testid="button-add-merchant">
@@ -315,6 +356,7 @@ export default function Admin() {
                     logoPreview={editLogoPreview} setLogoPreview={setEditLogoPreview}
                     logoUploading={editLogoUploading}
                     onLogoFileUpload={f => handleLogoFileUpload(f, "edit")}
+                    badgePresets={badgePresets}
                   />
 
                   {editResult && <ResultBanner result={editResult} />}
@@ -442,6 +484,99 @@ export default function Admin() {
               </Card>
             )}
           </TabsContent>
+
+          {/* ───── BADGES TAB ───── */}
+          <TabsContent value="badges" className="mt-6 space-y-6">
+            <div className="grid md:grid-cols-2 gap-6 items-start">
+              {/* Create badge */}
+              <Card className="p-6 space-y-4">
+                <div className="flex items-center gap-2"><Tag className="h-5 w-5 text-primary" /><CardTitle className="text-lg">Create Badge</CardTitle></div>
+                <CardDescription>Define a badge preset that appears as a quick-select when adding or editing a merchant.</CardDescription>
+                <Field label="Badge Label" required>
+                  <Input
+                    placeholder='e.g. 10% off, SALE, HOT'
+                    value={newBadgeLabel}
+                    onChange={e => setNewBadgeLabel(e.target.value)}
+                    onKeyDown={e => { if (e.key === "Enter") handleCreateBadge(); }}
+                    data-testid="input-badge-label"
+                  />
+                </Field>
+                <Field label="Style">
+                  <div className="flex flex-wrap gap-2">
+                    {BADGE_STYLES.map(s => {
+                      const isRainbow = s === "rainbow";
+                      const styleClasses: Record<string, string> = {
+                        green: "bg-green-500 text-white", gold: "bg-yellow-500 text-black",
+                        red: "bg-red-500 text-white", orange: "bg-orange-500 text-white",
+                        blue: "bg-blue-500 text-white", purple: "bg-purple-500 text-white",
+                      };
+                      return (
+                        <button
+                          key={s} type="button"
+                          onClick={() => setNewBadgeStyle(s)}
+                          className={`text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide border-2 transition-all ${newBadgeStyle === s ? "border-foreground scale-110" : "border-transparent"} ${isRainbow ? "" : styleClasses[s]}`}
+                          style={isRainbow ? { background: "linear-gradient(90deg,#ff0000,#ff8800,#00ff00,#0088ff,#8800ff,#ff0088)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" } : {}}
+                          data-testid={`badge-style-${s}`}
+                        >
+                          {s}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </Field>
+                {newBadgeLabel.trim() && (
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Preview:</p>
+                    <div className="flex items-center gap-2">
+                      {newBadgeStyle === "rainbow"
+                        ? <span className="text-[11px] font-black px-1.5 py-0.5 rounded-sm uppercase tracking-wide" style={{ background: "linear-gradient(90deg,#ff0000,#ff8800,#00ff00,#0088ff,#8800ff,#ff0088,#ff0000)", backgroundSize: "200% 100%", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>{newBadgeLabel}</span>
+                        : <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-sm uppercase tracking-wide ${{ green: "bg-green-500 text-white", gold: "bg-yellow-500 text-black", red: "bg-red-500 text-white", orange: "bg-orange-500 text-white", blue: "bg-blue-500 text-white", purple: "bg-purple-500 text-white" }[newBadgeStyle] || "bg-green-500 text-white"}`}>{newBadgeLabel}</span>
+                      }
+                    </div>
+                  </div>
+                )}
+                <Button onClick={handleCreateBadge} disabled={badgeSaving || !newBadgeLabel.trim()} className="w-full" data-testid="button-create-badge">
+                  {badgeSaving ? "Saving…" : <><Plus className="h-4 w-4 mr-2" />Create Badge</>}
+                </Button>
+              </Card>
+
+              {/* Badge list */}
+              <Card className="p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2"><Tag className="h-5 w-5 text-primary" /><CardTitle className="text-lg">Badge Presets</CardTitle></div>
+                  <span className="text-xs text-muted-foreground">{badgePresets.length} badge{badgePresets.length !== 1 ? "s" : ""}</span>
+                </div>
+                {badgePresets.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground space-y-2 rounded-xl border border-dashed border-border">
+                    <Tag className="h-8 w-8 opacity-30" />
+                    <p className="text-sm">No badge presets yet</p>
+                    <p className="text-xs">Create a badge to get started</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col divide-y divide-border rounded-xl border border-border overflow-hidden">
+                    {badgePresets.map(preset => {
+                      const styleClasses: Record<string, string> = {
+                        green: "bg-green-500 text-white", gold: "bg-yellow-500 text-black",
+                        red: "bg-red-500 text-white", orange: "bg-orange-500 text-white",
+                        blue: "bg-blue-500 text-white", purple: "bg-purple-500 text-white",
+                      };
+                      return (
+                        <div key={preset.id} className="flex items-center justify-between gap-3 px-3 py-2.5">
+                          {preset.style === "rainbow"
+                            ? <span className="text-[11px] font-black px-1.5 py-0.5 rounded-sm uppercase tracking-wide" style={{ background: "linear-gradient(90deg,#ff0000,#ff8800,#00ff00,#0088ff,#8800ff,#ff0088,#ff0000)", backgroundSize:"200% 100%", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>{preset.label}</span>
+                            : <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-sm uppercase tracking-wide ${styleClasses[preset.style] || "bg-green-500 text-white"}`}>{preset.label}</span>
+                          }
+                          <button onClick={() => handleDeleteBadge(preset.id)} className="text-muted-foreground hover:text-red-500 transition-colors shrink-0" data-testid={`delete-badge-${preset.id}`}>
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </Card>
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
     </div>
@@ -449,7 +584,7 @@ export default function Admin() {
 }
 
 // ── Shared form fields component ──
-function MerchantFormFields({ form, setField, toggleItem, logoPreview, setLogoPreview, logoUploading, onLogoFileUpload }: {
+function MerchantFormFields({ form, setField, toggleItem, logoPreview, setLogoPreview, logoUploading, onLogoFileUpload, badgePresets }: {
   form: MerchantForm;
   setField: <K extends keyof MerchantForm>(key: K, value: MerchantForm[K]) => void;
   toggleItem: (key: "categories" | "shippingCountries", item: string) => void;
@@ -457,6 +592,7 @@ function MerchantFormFields({ form, setField, toggleItem, logoPreview, setLogoPr
   setLogoPreview: (v: string) => void;
   logoUploading: boolean;
   onLogoFileUpload: (file: File) => void;
+  badgePresets?: BadgePreset[];
 }) {
   return (
     <div className="space-y-4">
@@ -473,8 +609,34 @@ function MerchantFormFields({ form, setField, toggleItem, logoPreview, setLogoPr
         <Field label="Description" required>
           <textarea className="w-full min-h-[80px] rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none" placeholder="A short description of what this merchant sells or offers..." value={form.description} onChange={e => setField("description", e.target.value)} data-testid="input-merchant-description" />
         </Field>
-        <Field label="Bitcoin Discount Badge" hint='Use "NEW" for a rainbow badge, or any text (e.g. "10% off") for a green badge.'>
+        <Field label="Bitcoin Discount Badge" hint={badgePresets && badgePresets.length > 0 ? "Click a preset or type your own badge text." : 'Type any badge text, e.g. "10% off". Create presets in the Badges tab.'}>
           <Input placeholder='e.g. 10% off with BTC  or  NEW' value={form.bitcoinDiscount} onChange={e => setField("bitcoinDiscount", e.target.value)} data-testid="input-bitcoin-discount" />
+          {badgePresets && badgePresets.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {badgePresets.map(preset => {
+                const active = form.bitcoinDiscount?.toLowerCase() === preset.label.toLowerCase();
+                const styleClasses: Record<string, string> = {
+                  green: "bg-green-500 text-white", gold: "bg-yellow-500 text-black",
+                  red: "bg-red-500 text-white", orange: "bg-orange-500 text-white",
+                  blue: "bg-blue-500 text-white", purple: "bg-purple-500 text-white",
+                };
+                return (
+                  <button
+                    key={preset.id} type="button"
+                    onClick={() => setField("bitcoinDiscount", active ? "" : preset.label)}
+                    className={`text-[10px] font-bold px-1.5 py-0.5 rounded-sm uppercase tracking-wide transition-all border-2 ${active ? "border-foreground scale-105" : "border-transparent opacity-80 hover:opacity-100"} ${preset.style === "rainbow" ? "" : styleClasses[preset.style] || "bg-green-500 text-white"}`}
+                    style={preset.style === "rainbow" ? { background: "linear-gradient(90deg,#ff0000,#ff8800,#00ff00,#0088ff,#8800ff,#ff0088,#ff0000)", backgroundSize: "200% 100%", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" } : {}}
+                    data-testid={`badge-chip-${preset.id}`}
+                  >
+                    {preset.label}
+                  </button>
+                );
+              })}
+              {form.bitcoinDiscount && (
+                <button type="button" onClick={() => setField("bitcoinDiscount", "")} className="text-[10px] text-muted-foreground hover:text-foreground px-1.5 py-0.5">✕ clear</button>
+              )}
+            </div>
+          )}
         </Field>
       </Card>
 

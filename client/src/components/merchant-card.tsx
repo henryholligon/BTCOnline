@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { type Merchant, getCategoryWithEmoji } from "@shared/schema";
+import { type Merchant, type BadgePreset, getCategoryWithEmoji } from "@shared/schema";
 import { ExternalLink, Zap, Bitcoin, Clock, Copy, Check, QrCode } from "lucide-react";
 import { useRef, useEffect, useState, memo } from "react";
 import { slugify } from "@/lib/utils";
@@ -40,15 +40,38 @@ function getCountryEmoji(countryName: string): string {
   return COUNTRY_EMOJI_MAP[pureName] || COUNTRY_EMOJI_MAP[countryName] || "🏳️";
 }
 
+const BADGE_STYLE_MAP: Record<string, string> = {
+  green: "bg-green-500 text-white",
+  gold: "bg-yellow-500 text-black",
+  red: "bg-red-500 text-white",
+  orange: "bg-orange-500 text-white",
+  blue: "bg-blue-500 text-white",
+  purple: "bg-purple-500 text-white",
+};
+
+function renderBadge(text: string, style: string) {
+  if (style === "rainbow") {
+    return (
+      <span className="shrink-0 text-[11px] font-black px-1.5 py-0.5 rounded-sm uppercase tracking-wide animate-rainbow"
+        style={{ background: "linear-gradient(90deg, #ff0000, #ff8800, #00ff00, #0088ff, #8800ff, #ff0088, #ff0000)", backgroundSize: "200% 100%", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+        {text}
+      </span>
+    );
+  }
+  const cls = BADGE_STYLE_MAP[style] || BADGE_STYLE_MAP.green;
+  return <span className={`shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-sm uppercase tracking-wide ${cls}`}>{text}</span>;
+}
+
 interface MerchantCardProps {
   merchant: Merchant;
   expanded: boolean;
   onToggleExpand: () => void;
   scrollIntoView?: boolean;
   onScrolledIntoView?: () => void;
+  badgePresets?: BadgePreset[];
 }
 
-export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, scrollIntoView, onScrolledIntoView }: MerchantCardProps) {
+export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, scrollIntoView, onScrolledIntoView, badgePresets }: MerchantCardProps) {
   const [showQr, setShowQr] = useState(false);
   const [copied, setCopied] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -108,11 +131,11 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
             {merchant.onchainSupported && (
               <Bitcoin className="h-3.5 w-3.5 shrink-0 fill-orange-500 text-orange-500" />
             )}
-            {merchant.bitcoinDiscount && merchant.bitcoinDiscount.toUpperCase() === "NEW" ? (
-              <span className="shrink-0 text-[11px] font-black px-1.5 py-0.5 rounded-sm uppercase tracking-wide animate-rainbow" style={{ background: "linear-gradient(90deg, #ff0000, #ff8800, #00ff00, #0088ff, #8800ff, #ff0088, #ff0000)", backgroundSize: "200% 100%", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>NEW</span>
-            ) : merchant.bitcoinDiscount ? (
-              <span className="shrink-0 text-[10px] font-bold bg-green-500 text-white px-1.5 py-0.5 rounded-sm uppercase tracking-wide">{merchant.bitcoinDiscount}</span>
-            ) : null}
+            {merchant.bitcoinDiscount ? (() => {
+              const preset = badgePresets?.find(p => p.label.toLowerCase() === merchant.bitcoinDiscount!.toLowerCase());
+              const style = preset ? preset.style : (merchant.bitcoinDiscount.toUpperCase() === "NEW" ? "rainbow" : "green");
+              return renderBadge(merchant.bitcoinDiscount, style);
+            })() : null}
           </div>
           {!expanded && <p className="text-xs md:text-sm text-muted-foreground truncate">{merchant.description}</p>}
           {!expanded && (

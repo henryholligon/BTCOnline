@@ -1,4 +1,4 @@
-import { type Merchant, type InsertMerchant, merchants } from "@shared/schema";
+import { type Merchant, type InsertMerchant, merchants, type BadgePreset, type InsertBadgePreset, badgePresets } from "@shared/schema";
 import { db } from "./db";
 import { eq, asc, count } from "drizzle-orm";
 
@@ -10,6 +10,9 @@ export interface IStorage {
   deleteMerchant(id: number): Promise<void>;
   getMerchantCount(): Promise<number>;
   deleteAllMerchants(): Promise<void>;
+  getBadgePresets(): Promise<BadgePreset[]>;
+  createBadgePreset(preset: InsertBadgePreset): Promise<BadgePreset>;
+  deleteBadgePreset(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -43,6 +46,19 @@ export class DatabaseStorage implements IStorage {
 
   async deleteAllMerchants(): Promise<void> {
     await db.delete(merchants);
+  }
+
+  async getBadgePresets(): Promise<BadgePreset[]> {
+    return await db.select().from(badgePresets).orderBy(asc(badgePresets.id));
+  }
+
+  async createBadgePreset(preset: InsertBadgePreset): Promise<BadgePreset> {
+    const [created] = await db.insert(badgePresets).values(preset).returning();
+    return created;
+  }
+
+  async deleteBadgePreset(id: number): Promise<void> {
+    await db.delete(badgePresets).where(eq(badgePresets.id, id));
   }
 }
 

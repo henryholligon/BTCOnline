@@ -97,6 +97,19 @@ export function getCategoryWithEmoji(category: string): string {
 
 export const CATEGORIES = Object.keys(CATEGORY_EMOJIS);
 
+export const badgePresets = pgTable("badge_presets", {
+  id: serial("id").primaryKey(),
+  label: text("label").notNull(),
+  style: text("style").notNull().default("green"),
+});
+
+export const insertBadgePresetSchema = createInsertSchema(badgePresets).omit({ id: true });
+export type InsertBadgePreset = z.infer<typeof insertBadgePresetSchema>;
+export type BadgePreset = typeof badgePresets.$inferSelect;
+
+export const BADGE_STYLES = ["rainbow", "green", "gold", "red", "orange", "blue", "purple"] as const;
+export type BadgeStyle = typeof BADGE_STYLES[number];
+
 export const COUNTRIES = [
   "🌍 Worldwide",
   "🇺🇸 USA",
