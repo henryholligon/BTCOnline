@@ -192,7 +192,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
             {merchant.countryMadeIn && (
               <div className="space-y-1">
                 <span className="text-muted-foreground/70 uppercase tracking-wider text-[10px] font-semibold">Made in</span>
-                <p className="text-foreground">{getCountryEmoji(merchant.countryMadeIn)} {merchant.countryMadeIn}</p>
+                <p className="text-foreground">{(() => { const hasEmoji = /\p{Emoji}/u.test(merchant.countryMadeIn); const pure = merchant.countryMadeIn.replace(/[^\w\s]/gi, '').trim(); return hasEmoji ? merchant.countryMadeIn : `${getCountryEmoji(pure)} ${merchant.countryMadeIn}`; })()}</p>
               </div>
             )}
 
