@@ -43,7 +43,7 @@ export async function registerRoutes(
   });
 
   app.get("/api/merchants", async (_req, res) => {
-    res.set("Cache-Control", "public, max-age=60, stale-while-revalidate=120");
+    res.set("Cache-Control", "no-cache");
     const merchants = await storage.getMerchants();
     res.json(merchants);
   });

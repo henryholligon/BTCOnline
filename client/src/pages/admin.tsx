@@ -96,7 +96,7 @@ export default function Admin() {
   const fetchMerchants = useCallback(async () => {
     setMerchantsLoading(true);
     try {
-      const res = await fetch("/api/merchants");
+      const res = await fetch(`/api/merchants?_=${Date.now()}`, { cache: "no-store" });
       const data = await res.json();
       setAllMerchants(data);
     } catch { console.error("Failed to fetch merchants"); }
@@ -245,10 +245,10 @@ export default function Admin() {
       const payload = { ...editForm, logo: editForm.logo || "🏪", lastSurveyed: editForm.lastSurveyed || null, paymentProvider: editForm.paymentProvider || null, countryMadeIn: editForm.countryMadeIn || null, countryShippedFrom: editForm.countryShippedFrom || null, bitcoinDiscount: editForm.bitcoinDiscount || null };
       const res = await fetch(`/api/merchants/${editingMerchant.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       if (res.ok) {
-        setEditResult({ success: true, message: `"${editForm.name}" updated successfully!` });
-        await fetchMerchants();
         const updated = await res.json();
         setEditingMerchant(updated);
+        setEditResult({ success: true, message: `"${editForm.name}" updated successfully!` });
+        await fetchMerchants();
       } else {
         const err = await res.json();
         setEditResult({ success: false, message: err.message || "Failed to update merchant." });
