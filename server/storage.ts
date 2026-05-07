@@ -1,4 +1,4 @@
-import { type Merchant, type InsertMerchant, merchants, type BadgePreset, type InsertBadgePreset, badgePresets } from "@shared/schema";
+import { type Merchant, type InsertMerchant, merchants, type BadgePreset, type InsertBadgePreset, badgePresets, type DirectoryOption, type InsertDirectoryOption, directoryOptions } from "@shared/schema";
 import { db } from "./db";
 import { eq, asc, count } from "drizzle-orm";
 
@@ -13,6 +13,9 @@ export interface IStorage {
   getBadgePresets(): Promise<BadgePreset[]>;
   createBadgePreset(preset: InsertBadgePreset): Promise<BadgePreset>;
   deleteBadgePreset(id: number): Promise<void>;
+  getDirectoryOptions(type?: string): Promise<DirectoryOption[]>;
+  createDirectoryOption(option: InsertDirectoryOption): Promise<DirectoryOption>;
+  deleteDirectoryOption(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -59,6 +62,22 @@ export class DatabaseStorage implements IStorage {
 
   async deleteBadgePreset(id: number): Promise<void> {
     await db.delete(badgePresets).where(eq(badgePresets.id, id));
+  }
+
+  async getDirectoryOptions(type?: string): Promise<DirectoryOption[]> {
+    if (type) {
+      return await db.select().from(directoryOptions).where(eq(directoryOptions.type, type)).orderBy(asc(directoryOptions.id));
+    }
+    return await db.select().from(directoryOptions).orderBy(asc(directoryOptions.id));
+  }
+
+  async createDirectoryOption(option: InsertDirectoryOption): Promise<DirectoryOption> {
+    const [created] = await db.insert(directoryOptions).values(option).returning();
+    return created;
+  }
+
+  async deleteDirectoryOption(id: number): Promise<void> {
+    await db.delete(directoryOptions).where(eq(directoryOptions.id, id));
   }
 }
 

@@ -97,6 +97,17 @@ export function getCategoryWithEmoji(category: string): string {
 
 export const CATEGORIES = Object.keys(CATEGORY_EMOJIS);
 
+export const directoryOptions = pgTable("directory_options", {
+  id: serial("id").primaryKey(),
+  type: text("type").notNull(),
+  label: text("label").notNull(),
+  emoji: text("emoji"),
+});
+
+export const insertDirectoryOptionSchema = createInsertSchema(directoryOptions).omit({ id: true });
+export type InsertDirectoryOption = z.infer<typeof insertDirectoryOptionSchema>;
+export type DirectoryOption = typeof directoryOptions.$inferSelect;
+
 export const badgePresets = pgTable("badge_presets", {
   id: serial("id").primaryKey(),
   label: text("label").notNull(),

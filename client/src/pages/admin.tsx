@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Upload, FileSpreadsheet, Image, Check, AlertCircle, ArrowLeft, Trash2, Plus, Zap, Bitcoin, Store, Pencil, Search, X, Tag } from "lucide-react";
 import Papa from "papaparse";
 import { Link } from "wouter";
-import { CATEGORIES, COUNTRIES, PAYMENT_PROVIDERS, BADGE_STYLES, getCategoryWithEmoji, type Merchant, type BadgePreset } from "@shared/schema";
+import { CATEGORIES, COUNTRIES, PAYMENT_PROVIDERS, BADGE_STYLES, getCategoryWithEmoji, type Merchant, type BadgePreset, type DirectoryOption } from "@shared/schema";
 
 interface ParsedMerchant {
   name: string; description: string; logo: string; categories: string;
@@ -73,6 +73,15 @@ export default function Admin() {
   const [newBadgeStyle, setNewBadgeStyle] = useState<string>("green");
   const [badgeSaving, setBadgeSaving] = useState(false);
 
+  // ── Directory options (custom countries/categories/providers) ──
+  const [directoryOpts, setDirectoryOpts] = useState<DirectoryOption[]>([]);
+  const [newCountryEmoji, setNewCountryEmoji] = useState("");
+  const [newCountryName, setNewCountryName] = useState("");
+  const [newCategoryEmoji, setNewCategoryEmoji] = useState("");
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [newProviderName, setNewProviderName] = useState("");
+  const [optsSaving, setOptsSaving] = useState<string | null>(null);
+
   // ── Bulk import ──
   const [csvData, setCsvData] = useState<ParsedMerchant[]>([]);
   const [csvFileName, setCsvFileName] = useState("");
@@ -130,6 +139,40 @@ export default function Admin() {
       await fetchBadgePresets();
     } catch { console.error("Failed to delete badge"); }
   };
+
+  const fetchDirectoryOpts = useCallback(async () => {
+    try {
+      const res = await fetch("/api/directory-options");
+      setDirectoryOpts(await res.json());
+    } catch { console.error("Failed to fetch directory options"); }
+  }, []);
+
+  useEffect(() => { fetchDirectoryOpts(); }, [fetchDirectoryOpts]);
+
+  const addDirectoryOption = async (type: string, label: string, emoji?: string) => {
+    if (!label.trim()) return;
+    setOptsSaving(type);
+    try {
+      await fetch("/api/directory-options", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type, label: label.trim(), emoji: emoji?.trim() || null }),
+      });
+      await fetchDirectoryOpts();
+    } catch { console.error("Failed to add option"); }
+    finally { setOptsSaving(null); }
+  };
+
+  const deleteDirectoryOption = async (id: number) => {
+    try {
+      await fetch(`/api/directory-options/${id}`, { method: "DELETE" });
+      await fetchDirectoryOpts();
+    } catch { console.error("Failed to delete option"); }
+  };
+
+  const customCountries = directoryOpts.filter(o => o.type === "country").map(o => o.emoji ? `${o.emoji} ${o.label}` : o.label);
+  const customCategories = directoryOpts.filter(o => o.type === "category").map(o => o.emoji ? `${o.emoji} ${o.label}` : o.label);
+  const customProviders = directoryOpts.filter(o => o.type === "provider").map(o => o.label);
 
   // ── Add form helpers ──
   const setField = <K extends keyof MerchantForm>(key: K, value: MerchantForm[K]) => {
@@ -276,11 +319,12 @@ export default function Admin() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full max-w-lg grid-cols-4">
-            <TabsTrigger value="add" data-testid="tab-add-merchant"><Plus className="h-3.5 w-3.5 mr-1.5" />Add</TabsTrigger>
-            <TabsTrigger value="edit" data-testid="tab-edit-merchant"><Pencil className="h-3.5 w-3.5 mr-1.5" />Edit</TabsTrigger>
-            <TabsTrigger value="import" data-testid="tab-bulk-import"><FileSpreadsheet className="h-3.5 w-3.5 mr-1.5" />Import</TabsTrigger>
-            <TabsTrigger value="badges" data-testid="tab-badges"><Tag className="h-3.5 w-3.5 mr-1.5" />Badges</TabsTrigger>
+          <TabsList className="grid w-full max-w-2xl grid-cols-5">
+            <TabsTrigger value="add" data-testid="tab-add-merchant"><Plus className="h-3.5 w-3.5 mr-1" />Add</TabsTrigger>
+            <TabsTrigger value="edit" data-testid="tab-edit-merchant"><Pencil className="h-3.5 w-3.5 mr-1" />Edit</TabsTrigger>
+            <TabsTrigger value="import" data-testid="tab-bulk-import"><FileSpreadsheet className="h-3.5 w-3.5 mr-1" />Import</TabsTrigger>
+            <TabsTrigger value="badges" data-testid="tab-badges"><Tag className="h-3.5 w-3.5 mr-1" />Badges</TabsTrigger>
+            <TabsTrigger value="lists" data-testid="tab-lists"><Plus className="h-3.5 w-3.5 mr-1" />Lists</TabsTrigger>
           </TabsList>
 
           {/* ───── ADD TAB ───── */}
@@ -293,6 +337,9 @@ export default function Admin() {
                   logoUploading={logoUploading}
                   onLogoFileUpload={f => handleLogoFileUpload(f, "add")}
                   badgePresets={badgePresets}
+                  customCategories={customCategories}
+                  customCountries={customCountries}
+                  customProviders={customProviders}
                 />
                 {submitResult && <ResultBanner result={submitResult} />}
                 <Button className="w-full" size="lg" onClick={handleSubmit} disabled={submitting} data-testid="button-add-merchant">
@@ -357,6 +404,9 @@ export default function Admin() {
                     logoUploading={editLogoUploading}
                     onLogoFileUpload={f => handleLogoFileUpload(f, "edit")}
                     badgePresets={badgePresets}
+                    customCategories={customCategories}
+                    customCountries={customCountries}
+                    customProviders={customProviders}
                   />
 
                   {editResult && <ResultBanner result={editResult} />}
@@ -485,6 +535,85 @@ export default function Admin() {
             )}
           </TabsContent>
 
+          {/* ───── LISTS TAB ───── */}
+          <TabsContent value="lists" className="mt-6 space-y-6">
+            <p className="text-sm text-muted-foreground">Add new countries, categories, and payment providers that will appear in the merchant form dropdowns.</p>
+            <div className="grid md:grid-cols-3 gap-6">
+
+              {/* ── Countries ── */}
+              <Card className="p-5 space-y-4">
+                <CardTitle className="text-base flex items-center gap-2">🌍 Countries</CardTitle>
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <Input placeholder="🇫🇷" value={newCountryEmoji} onChange={e => setNewCountryEmoji(e.target.value)} className="w-16 shrink-0 text-center" data-testid="input-country-emoji" />
+                    <Input placeholder="e.g. France" value={newCountryName} onChange={e => setNewCountryName(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && newCountryName.trim()) { addDirectoryOption("country", newCountryName, newCountryEmoji); setNewCountryEmoji(""); setNewCountryName(""); }}} data-testid="input-country-name" />
+                  </div>
+                  <Button size="sm" className="w-full" disabled={!newCountryName.trim() || optsSaving === "country"} onClick={() => { addDirectoryOption("country", newCountryName, newCountryEmoji); setNewCountryEmoji(""); setNewCountryName(""); }} data-testid="button-add-country">
+                    {optsSaving === "country" ? "Adding…" : <><Plus className="h-3.5 w-3.5 mr-1" />Add Country</>}
+                  </Button>
+                </div>
+                <div className="space-y-1">
+                  {directoryOpts.filter(o => o.type === "country").length === 0
+                    ? <p className="text-xs text-muted-foreground text-center py-4">No custom countries yet</p>
+                    : directoryOpts.filter(o => o.type === "country").map(o => (
+                      <div key={o.id} className="flex items-center justify-between gap-2 text-sm py-1 px-2 rounded hover:bg-muted/40">
+                        <span>{o.emoji} {o.label}</span>
+                        <button onClick={() => deleteDirectoryOption(o.id)} className="text-muted-foreground hover:text-red-500 shrink-0" data-testid={`delete-country-${o.id}`}><Trash2 className="h-3.5 w-3.5" /></button>
+                      </div>
+                    ))
+                  }
+                </div>
+              </Card>
+
+              {/* ── Categories ── */}
+              <Card className="p-5 space-y-4">
+                <CardTitle className="text-base flex items-center gap-2">🏷️ Categories</CardTitle>
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <Input placeholder="🎭" value={newCategoryEmoji} onChange={e => setNewCategoryEmoji(e.target.value)} className="w-16 shrink-0 text-center" data-testid="input-category-emoji" />
+                    <Input placeholder="e.g. Theater" value={newCategoryName} onChange={e => setNewCategoryName(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && newCategoryName.trim()) { addDirectoryOption("category", newCategoryName, newCategoryEmoji); setNewCategoryEmoji(""); setNewCategoryName(""); }}} data-testid="input-category-name" />
+                  </div>
+                  <Button size="sm" className="w-full" disabled={!newCategoryName.trim() || optsSaving === "category"} onClick={() => { addDirectoryOption("category", newCategoryName, newCategoryEmoji); setNewCategoryEmoji(""); setNewCategoryName(""); }} data-testid="button-add-category">
+                    {optsSaving === "category" ? "Adding…" : <><Plus className="h-3.5 w-3.5 mr-1" />Add Category</>}
+                  </Button>
+                </div>
+                <div className="space-y-1">
+                  {directoryOpts.filter(o => o.type === "category").length === 0
+                    ? <p className="text-xs text-muted-foreground text-center py-4">No custom categories yet</p>
+                    : directoryOpts.filter(o => o.type === "category").map(o => (
+                      <div key={o.id} className="flex items-center justify-between gap-2 text-sm py-1 px-2 rounded hover:bg-muted/40">
+                        <span>{o.emoji} {o.label}</span>
+                        <button onClick={() => deleteDirectoryOption(o.id)} className="text-muted-foreground hover:text-red-500 shrink-0" data-testid={`delete-category-${o.id}`}><Trash2 className="h-3.5 w-3.5" /></button>
+                      </div>
+                    ))
+                  }
+                </div>
+              </Card>
+
+              {/* ── Providers ── */}
+              <Card className="p-5 space-y-4">
+                <CardTitle className="text-base flex items-center gap-2">⚡ Providers</CardTitle>
+                <div className="space-y-2">
+                  <Input placeholder="e.g. LNbits" value={newProviderName} onChange={e => setNewProviderName(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && newProviderName.trim()) { addDirectoryOption("provider", newProviderName); setNewProviderName(""); }}} data-testid="input-provider-name" />
+                  <Button size="sm" className="w-full" disabled={!newProviderName.trim() || optsSaving === "provider"} onClick={() => { addDirectoryOption("provider", newProviderName); setNewProviderName(""); }} data-testid="button-add-provider">
+                    {optsSaving === "provider" ? "Adding…" : <><Plus className="h-3.5 w-3.5 mr-1" />Add Provider</>}
+                  </Button>
+                </div>
+                <div className="space-y-1">
+                  {directoryOpts.filter(o => o.type === "provider").length === 0
+                    ? <p className="text-xs text-muted-foreground text-center py-4">No custom providers yet</p>
+                    : directoryOpts.filter(o => o.type === "provider").map(o => (
+                      <div key={o.id} className="flex items-center justify-between gap-2 text-sm py-1 px-2 rounded hover:bg-muted/40">
+                        <span>{o.label}</span>
+                        <button onClick={() => deleteDirectoryOption(o.id)} className="text-muted-foreground hover:text-red-500 shrink-0" data-testid={`delete-provider-${o.id}`}><Trash2 className="h-3.5 w-3.5" /></button>
+                      </div>
+                    ))
+                  }
+                </div>
+              </Card>
+            </div>
+          </TabsContent>
+
           {/* ───── BADGES TAB ───── */}
           <TabsContent value="badges" className="mt-6 space-y-6">
             <div className="grid md:grid-cols-2 gap-6 items-start">
@@ -584,7 +713,7 @@ export default function Admin() {
 }
 
 // ── Shared form fields component ──
-function MerchantFormFields({ form, setField, toggleItem, logoPreview, setLogoPreview, logoUploading, onLogoFileUpload, badgePresets }: {
+function MerchantFormFields({ form, setField, toggleItem, logoPreview, setLogoPreview, logoUploading, onLogoFileUpload, badgePresets, customCategories, customCountries, customProviders }: {
   form: MerchantForm;
   setField: <K extends keyof MerchantForm>(key: K, value: MerchantForm[K]) => void;
   toggleItem: (key: "categories" | "shippingCountries", item: string) => void;
@@ -593,7 +722,13 @@ function MerchantFormFields({ form, setField, toggleItem, logoPreview, setLogoPr
   logoUploading: boolean;
   onLogoFileUpload: (file: File) => void;
   badgePresets?: BadgePreset[];
+  customCategories?: string[];
+  customCountries?: string[];
+  customProviders?: string[];
 }) {
+  const allCategories = [...CATEGORIES, ...(customCategories || [])];
+  const allCountries = [...COUNTRIES, ...(customCountries || [])];
+  const allProviders = [...PAYMENT_PROVIDERS, ...(customProviders || [])];
   return (
     <div className="space-y-4">
       <Card className="p-5 space-y-4">
@@ -675,7 +810,7 @@ function MerchantFormFields({ form, setField, toggleItem, logoPreview, setLogoPr
         <Field label="Payment Provider">
           <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" value={form.paymentProvider} onChange={e => setField("paymentProvider", e.target.value)} data-testid="select-payment-provider">
             <option value="">— Select provider —</option>
-            {PAYMENT_PROVIDERS.map(p => <option key={p} value={p}>{p}</option>)}
+            {allProviders.map(p => <option key={p} value={p}>{p}</option>)}
           </select>
         </Field>
       </Card>
@@ -683,9 +818,10 @@ function MerchantFormFields({ form, setField, toggleItem, logoPreview, setLogoPr
       <Card className="p-5 space-y-3">
         <SectionLabel>Categories {form.categories.length > 0 && <span className="ml-2 text-primary font-semibold">{form.categories.length} selected</span>}</SectionLabel>
         <div className="flex flex-wrap gap-2" data-testid="category-selector">
-          {CATEGORIES.map(cat => {
+          {allCategories.map(cat => {
             const active = form.categories.includes(cat);
-            return <button key={cat} type="button" onClick={() => toggleItem("categories", cat)} className={`text-xs px-2.5 py-1 rounded-full border transition-all ${active ? "bg-primary text-primary-foreground border-primary font-medium shadow-sm" : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"}`} data-testid={`category-${cat}`}>{getCategoryWithEmoji(cat)}</button>;
+            const label = getCategoryWithEmoji(cat);
+            return <button key={cat} type="button" onClick={() => toggleItem("categories", cat)} className={`text-xs px-2.5 py-1 rounded-full border transition-all ${active ? "bg-primary text-primary-foreground border-primary font-medium shadow-sm" : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"}`} data-testid={`category-${cat}`}>{label}</button>;
           })}
         </div>
       </Card>
@@ -693,7 +829,7 @@ function MerchantFormFields({ form, setField, toggleItem, logoPreview, setLogoPr
       <Card className="p-5 space-y-3">
         <SectionLabel>Availability / Ships To {form.shippingCountries.length > 0 && <span className="ml-2 text-primary font-semibold">{form.shippingCountries.length} selected</span>}</SectionLabel>
         <div className="flex flex-wrap gap-2" data-testid="country-selector">
-          {COUNTRIES.map(country => {
+          {allCountries.map(country => {
             const active = form.shippingCountries.includes(country);
             return <button key={country} type="button" onClick={() => toggleItem("shippingCountries", country)} className={`text-xs px-2.5 py-1 rounded-full border transition-all ${active ? "bg-primary text-primary-foreground border-primary font-medium shadow-sm" : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"}`} data-testid={`country-${country}`}>{country}</button>;
           })}
@@ -706,13 +842,13 @@ function MerchantFormFields({ form, setField, toggleItem, logoPreview, setLogoPr
           <Field label="Made In">
             <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" value={form.countryMadeIn} onChange={e => setField("countryMadeIn", e.target.value)} data-testid="select-country-made-in">
               <option value="">— Select country —</option>
-              {COUNTRIES.filter(c => !c.toLowerCase().includes("worldwide")).map(c => <option key={c} value={c}>{c}</option>)}
+              {allCountries.filter(c => !c.toLowerCase().includes("worldwide")).map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </Field>
           <Field label="Shipped From">
             <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" value={form.countryShippedFrom} onChange={e => setField("countryShippedFrom", e.target.value)} data-testid="select-country-shipped-from">
               <option value="">— Select country —</option>
-              {COUNTRIES.filter(c => !c.toLowerCase().includes("worldwide")).map(c => <option key={c} value={c}>{c}</option>)}
+              {allCountries.filter(c => !c.toLowerCase().includes("worldwide")).map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </Field>
           <Field label="Last Surveyed">

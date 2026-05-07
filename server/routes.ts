@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { type Server } from "http";
 import { storage } from "./storage";
-import { insertMerchantSchema, insertBadgePresetSchema } from "@shared/schema";
+import { insertMerchantSchema, insertBadgePresetSchema, insertDirectoryOptionSchema } from "@shared/schema";
 import multer from "multer";
 import path from "path";
 import { createChallenge, verifySolution } from "altcha-lib";
@@ -102,6 +102,26 @@ export async function registerRoutes(
     const id = parseInt(req.params.id);
     if (isNaN(id)) return res.status(400).json({ message: "Invalid ID" });
     await storage.deleteBadgePreset(id);
+    res.status(204).end();
+  });
+
+  app.get("/api/directory-options", async (req, res) => {
+    const type = req.query.type as string | undefined;
+    const options = await storage.getDirectoryOptions(type);
+    res.json(options);
+  });
+
+  app.post("/api/directory-options", async (req, res) => {
+    const result = insertDirectoryOptionSchema.safeParse(req.body);
+    if (!result.success) return res.status(400).json({ message: "Invalid data", errors: result.error.issues });
+    const option = await storage.createDirectoryOption(result.data);
+    res.status(201).json(option);
+  });
+
+  app.delete("/api/directory-options/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ message: "Invalid ID" });
+    await storage.deleteDirectoryOption(id);
     res.status(204).end();
   });
 
