@@ -33,13 +33,48 @@ const emptyForm: MerchantForm = {
   countryMadeIn: "", countryShippedFrom: "", lastSurveyed: "", bitcoinDiscount: "",
 };
 
+// Map legacy/plain stored values to the current emoji-prefixed COUNTRIES format
+const COUNTRY_ALIASES: Record<string, string> = {
+  "worldwide": "🌍 Worldwide",
+  "united states": "🇺🇸 USA",
+  "usa": "🇺🇸 USA",
+  "us": "🇺🇸 USA",
+  "europe": "🇪🇺 Europe",
+  "eu": "🇪🇺 Europe",
+  "canada": "🇨🇦 Canada",
+  "united kingdom": "🇬🇧 UK",
+  "uk": "🇬🇧 UK",
+  "gb": "🇬🇧 UK",
+  "great britain": "🇬🇧 UK",
+  "australia": "🇦🇺 Australia",
+  "el salvador": "🇸🇻 El Salvador",
+  "sweden": "🇸🇪 Sweden",
+  "netherlands": "🇳🇱 Netherlands",
+  "norway": "🇳🇴 Norway",
+  "italy": "🇮🇹 Italy",
+  "croatia": "🇭🇷 Croatia",
+  "lithuania": "🇱🇹 Lithuania",
+  "austria": "🇦🇹 Austria",
+  "germany": "🇩🇪 Germany",
+  "ireland": "🇮🇪 Ireland",
+  "singapore": "🇸🇬 Singapore",
+  "south africa": "🇿🇦 South Africa",
+};
+
+function normalizeCountry(value: string): string {
+  if (!value) return value;
+  return COUNTRY_ALIASES[value.toLowerCase()] ?? value;
+}
+
 function merchantToForm(m: Merchant): MerchantForm {
   return {
     name: m.name, website: m.website, description: m.description, logo: m.logo,
     lightningSupported: m.lightningSupported, onchainSupported: m.onchainSupported,
     paymentProvider: m.paymentProvider || "", categories: m.categories,
-    shippingCountries: m.shippingCountries, countryMadeIn: m.countryMadeIn || "",
-    countryShippedFrom: m.countryShippedFrom || "", lastSurveyed: m.lastSurveyed || "",
+    shippingCountries: m.shippingCountries.map(normalizeCountry),
+    countryMadeIn: normalizeCountry(m.countryMadeIn || ""),
+    countryShippedFrom: normalizeCountry(m.countryShippedFrom || ""),
+    lastSurveyed: m.lastSurveyed || "",
     bitcoinDiscount: m.bitcoinDiscount || "",
   };
 }
@@ -833,6 +868,9 @@ function MerchantFormFields({ form, setField, toggleItem, logoPreview, setLogoPr
             const active = form.shippingCountries.includes(country);
             return <button key={country} type="button" onClick={() => toggleItem("shippingCountries", country)} className={`text-xs px-2.5 py-1 rounded-full border transition-all ${active ? "bg-primary text-primary-foreground border-primary font-medium shadow-sm" : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"}`} data-testid={`country-${country}`}>{country}</button>;
           })}
+          {form.shippingCountries.filter(c => !allCountries.includes(c)).map(orphan => (
+            <button key={orphan} type="button" onClick={() => toggleItem("shippingCountries", orphan)} className="text-xs px-2.5 py-1 rounded-full border bg-primary text-primary-foreground border-primary font-medium shadow-sm" data-testid={`country-orphan-${orphan}`}>{orphan}</button>
+          ))}
         </div>
       </Card>
 
@@ -842,12 +880,18 @@ function MerchantFormFields({ form, setField, toggleItem, logoPreview, setLogoPr
           <Field label="Made In">
             <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" value={form.countryMadeIn} onChange={e => setField("countryMadeIn", e.target.value)} data-testid="select-country-made-in">
               <option value="">— Select country —</option>
+              {form.countryMadeIn && !allCountries.filter(c => !c.toLowerCase().includes("worldwide")).includes(form.countryMadeIn) && (
+                <option value={form.countryMadeIn}>{form.countryMadeIn}</option>
+              )}
               {allCountries.filter(c => !c.toLowerCase().includes("worldwide")).map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </Field>
           <Field label="Shipped From">
             <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" value={form.countryShippedFrom} onChange={e => setField("countryShippedFrom", e.target.value)} data-testid="select-country-shipped-from">
               <option value="">— Select country —</option>
+              {form.countryShippedFrom && !allCountries.filter(c => !c.toLowerCase().includes("worldwide")).includes(form.countryShippedFrom) && (
+                <option value={form.countryShippedFrom}>{form.countryShippedFrom}</option>
+              )}
               {allCountries.filter(c => !c.toLowerCase().includes("worldwide")).map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </Field>
