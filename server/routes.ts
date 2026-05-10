@@ -43,7 +43,7 @@ export async function registerRoutes(
   });
 
   app.get("/api/merchants", async (_req, res) => {
-    res.set("Cache-Control", "no-cache");
+    res.set("Cache-Control", "no-store");
     const merchants = await storage.getMerchants();
     res.json(merchants);
   });

@@ -33,7 +33,7 @@ export default function Home() {
   }, [params?.slug]);
 
   useEffect(() => {
-    fetch("/api/merchants")
+    fetch("/api/merchants", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         setMerchants(data);
