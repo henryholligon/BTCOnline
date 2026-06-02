@@ -88,7 +88,11 @@ export async function runSheetSync(): Promise<{ count: number; errors: number }>
 
     const existing = await storage.getMerchantByName(name);
     if (existing) {
-      await storage.updateMerchantByName(name, validated.data);
+      const merged = { ...validated.data };
+      // Preserve existing logo and discount badge if sheet row has none
+      if (!merged.logo && existing.logo) merged.logo = existing.logo;
+      if (!merged.bitcoinDiscount && existing.bitcoinDiscount) merged.bitcoinDiscount = existing.bitcoinDiscount;
+      await storage.updateMerchantByName(name, merged);
     } else {
       await storage.createMerchant(validated.data);
     }
