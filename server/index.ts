@@ -3,6 +3,9 @@ import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 import { seed } from "./seed";
+import { startSheetSyncPoller } from "./sheetSync";
+import { db } from "./db";
+import { sql } from "drizzle-orm";
 
 const app = express();
 const httpServer = createServer(app);
@@ -61,8 +64,19 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  await db.execute(sql`
+    CREATE TABLE IF NOT EXISTS sheet_sync_config (
+      id SERIAL PRIMARY KEY,
+      csv_url TEXT NOT NULL DEFAULT '',
+      enabled BOOLEAN NOT NULL DEFAULT false,
+      last_sync_at TEXT,
+      last_sync_status TEXT,
+      last_sync_count INTEGER
+    )
+  `);
   await seed();
   await registerRoutes(httpServer, app);
+  startSheetSyncPoller();
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

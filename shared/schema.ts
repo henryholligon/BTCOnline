@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, boolean, serial } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, boolean, serial, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -120,6 +120,17 @@ export type BadgePreset = typeof badgePresets.$inferSelect;
 
 export const BADGE_STYLES = ["rainbow", "green", "gold", "red", "orange", "blue", "purple"] as const;
 export type BadgeStyle = typeof BADGE_STYLES[number];
+
+export const sheetSyncConfig = pgTable("sheet_sync_config", {
+  id: serial("id").primaryKey(),
+  csvUrl: text("csv_url").notNull().default(""),
+  enabled: boolean("enabled").notNull().default(false),
+  lastSyncAt: text("last_sync_at"),
+  lastSyncStatus: text("last_sync_status"),
+  lastSyncCount: integer("last_sync_count"),
+});
+
+export type SheetSyncConfig = typeof sheetSyncConfig.$inferSelect;
 
 export const COUNTRIES = [
   "🌍 Worldwide",

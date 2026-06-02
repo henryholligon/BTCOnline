@@ -1,12 +1,14 @@
-import { type Merchant, type InsertMerchant, merchants, type BadgePreset, type InsertBadgePreset, badgePresets, type DirectoryOption, type InsertDirectoryOption, directoryOptions } from "@shared/schema";
+import { type Merchant, type InsertMerchant, merchants, type BadgePreset, type InsertBadgePreset, badgePresets, type DirectoryOption, type InsertDirectoryOption, directoryOptions, sheetSyncConfig, type SheetSyncConfig } from "@shared/schema";
 import { db } from "./db";
 import { eq, asc, count } from "drizzle-orm";
 
 export interface IStorage {
   getMerchants(): Promise<Merchant[]>;
   getMerchant(id: number): Promise<Merchant | undefined>;
+  getMerchantByName(name: string): Promise<Merchant | undefined>;
   createMerchant(merchant: InsertMerchant): Promise<Merchant>;
   updateMerchant(id: number, merchant: Partial<InsertMerchant>): Promise<Merchant | undefined>;
+  updateMerchantByName(name: string, merchant: Partial<InsertMerchant>): Promise<Merchant | undefined>;
   deleteMerchant(id: number): Promise<void>;
   getMerchantCount(): Promise<number>;
   deleteAllMerchants(): Promise<void>;
@@ -16,6 +18,8 @@ export interface IStorage {
   getDirectoryOptions(type?: string): Promise<DirectoryOption[]>;
   createDirectoryOption(option: InsertDirectoryOption): Promise<DirectoryOption>;
   deleteDirectoryOption(id: number): Promise<void>;
+  getSheetSyncConfig(): Promise<SheetSyncConfig>;
+  updateSheetSyncConfig(config: Partial<Omit<SheetSyncConfig, "id">>): Promise<SheetSyncConfig>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -45,6 +49,16 @@ export class DatabaseStorage implements IStorage {
   async getMerchantCount(): Promise<number> {
     const [result] = await db.select({ value: count() }).from(merchants);
     return result.value;
+  }
+
+  async getMerchantByName(name: string): Promise<Merchant | undefined> {
+    const [merchant] = await db.select().from(merchants).where(eq(merchants.name, name));
+    return merchant;
+  }
+
+  async updateMerchantByName(name: string, merchant: Partial<InsertMerchant>): Promise<Merchant | undefined> {
+    const [updated] = await db.update(merchants).set(merchant).where(eq(merchants.name, name)).returning();
+    return updated;
   }
 
   async deleteAllMerchants(): Promise<void> {
@@ -78,6 +92,19 @@ export class DatabaseStorage implements IStorage {
 
   async deleteDirectoryOption(id: number): Promise<void> {
     await db.delete(directoryOptions).where(eq(directoryOptions.id, id));
+  }
+
+  async getSheetSyncConfig(): Promise<SheetSyncConfig> {
+    const [row] = await db.select().from(sheetSyncConfig).where(eq(sheetSyncConfig.id, 1));
+    if (row) return row;
+    const [created] = await db.insert(sheetSyncConfig).values({ id: 1, csvUrl: "", enabled: false }).returning();
+    return created;
+  }
+
+  async updateSheetSyncConfig(config: Partial<Omit<SheetSyncConfig, "id">>): Promise<SheetSyncConfig> {
+    await this.getSheetSyncConfig();
+    const [updated] = await db.update(sheetSyncConfig).set(config).where(eq(sheetSyncConfig.id, 1)).returning();
+    return updated;
   }
 }
 

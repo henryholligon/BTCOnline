@@ -6,6 +6,7 @@ import multer from "multer";
 import path from "path";
 import { createChallenge, verifySolution } from "altcha-lib";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
+import { runSheetSync } from "./sheetSync";
 
 const LOGO_FOLDER = "logos";
 const REPLIT_SIDECAR = "http://127.0.0.1:1106";
@@ -277,6 +278,44 @@ export async function registerRoutes(
     } catch (err: any) {
       console.error("Failed to list logos from object storage:", err);
       res.json({ logos: [] });
+    }
+  });
+
+  app.get("/api/sheet-sync", async (_req, res) => {
+    try {
+      const config = await storage.getSheetSyncConfig();
+      res.json(config);
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+
+  app.put("/api/sheet-sync", async (req, res) => {
+    try {
+      const { csvUrl, enabled } = req.body;
+      const config = await storage.updateSheetSyncConfig({ csvUrl, enabled });
+      res.json(config);
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+
+  app.post("/api/sheet-sync/trigger", async (_req, res) => {
+    try {
+      const { count, errors } = await runSheetSync();
+      await storage.updateSheetSyncConfig({
+        lastSyncAt: new Date().toISOString(),
+        lastSyncStatus: errors > 0 ? `ok-with-errors` : "ok",
+        lastSyncCount: count,
+      });
+      res.json({ success: true, count, errors });
+    } catch (err: any) {
+      await storage.updateSheetSyncConfig({
+        lastSyncAt: new Date().toISOString(),
+        lastSyncStatus: `error: ${err.message}`,
+        lastSyncCount: 0,
+      }).catch(() => {});
+      res.status(500).json({ success: false, message: err.message });
     }
   });
 

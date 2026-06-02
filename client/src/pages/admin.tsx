@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, FileSpreadsheet, Image, Check, AlertCircle, ArrowLeft, Trash2, Plus, Zap, Bitcoin, Store, Pencil, Search, X, Tag } from "lucide-react";
+import { Upload, FileSpreadsheet, Image, Check, AlertCircle, ArrowLeft, Trash2, Plus, Zap, Bitcoin, Store, Pencil, Search, X, Tag, RefreshCw, Link2 } from "lucide-react";
 import Papa from "papaparse";
 import { Link } from "wouter";
 import { CATEGORIES, COUNTRIES, PAYMENT_PROVIDERS, BADGE_STYLES, getCategoryWithEmoji, type Merchant, type BadgePreset, type DirectoryOption } from "@shared/schema";
@@ -116,6 +116,50 @@ export default function Admin() {
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newProviderName, setNewProviderName] = useState("");
   const [optsSaving, setOptsSaving] = useState<string | null>(null);
+
+  // ── Sheet sync ──
+  const [syncUrl, setSyncUrl] = useState("");
+  const [syncEnabled, setSyncEnabled] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<{ lastSyncAt: string | null; lastSyncStatus: string | null; lastSyncCount: number | null } | null>(null);
+  const [syncSaving, setSyncSaving] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<{ success: boolean; message: string } | null>(null);
+
+  const fetchSyncConfig = useCallback(async () => {
+    try {
+      const res = await fetch("/api/sheet-sync");
+      const data = await res.json();
+      setSyncUrl(data.csvUrl || "");
+      setSyncEnabled(data.enabled || false);
+      setSyncStatus({ lastSyncAt: data.lastSyncAt, lastSyncStatus: data.lastSyncStatus, lastSyncCount: data.lastSyncCount });
+    } catch {}
+  }, []);
+
+  useEffect(() => { if (activeTab === "sync") fetchSyncConfig(); }, [activeTab, fetchSyncConfig]);
+
+  const handleSaveSync = async () => {
+    setSyncSaving(true); setSyncResult(null);
+    try {
+      await fetch("/api/sheet-sync", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ csvUrl: syncUrl, enabled: syncEnabled }) });
+      setSyncResult({ success: true, message: "Settings saved." });
+    } catch { setSyncResult({ success: false, message: "Failed to save." }); }
+    finally { setSyncSaving(false); }
+  };
+
+  const handleManualSync = async () => {
+    setSyncing(true); setSyncResult(null);
+    try {
+      const res = await fetch("/api/sheet-sync/trigger", { method: "POST" });
+      const data = await res.json();
+      if (data.success) {
+        setSyncResult({ success: true, message: `Sync complete — ${data.count} merchants updated${data.errors > 0 ? `, ${data.errors} errors` : ""}.` });
+        await fetchSyncConfig();
+      } else {
+        setSyncResult({ success: false, message: data.message || "Sync failed." });
+      }
+    } catch { setSyncResult({ success: false, message: "Sync request failed." }); }
+    finally { setSyncing(false); }
+  };
 
   // ── Bulk import ──
   const [csvData, setCsvData] = useState<ParsedMerchant[]>([]);
@@ -354,12 +398,13 @@ export default function Admin() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full max-w-2xl grid-cols-5">
+          <TabsList className="grid w-full max-w-2xl grid-cols-6">
             <TabsTrigger value="add" data-testid="tab-add-merchant"><Plus className="h-3.5 w-3.5 mr-1" />Add</TabsTrigger>
             <TabsTrigger value="edit" data-testid="tab-edit-merchant"><Pencil className="h-3.5 w-3.5 mr-1" />Edit</TabsTrigger>
             <TabsTrigger value="import" data-testid="tab-bulk-import"><FileSpreadsheet className="h-3.5 w-3.5 mr-1" />Import</TabsTrigger>
             <TabsTrigger value="badges" data-testid="tab-badges"><Tag className="h-3.5 w-3.5 mr-1" />Badges</TabsTrigger>
             <TabsTrigger value="lists" data-testid="tab-lists"><Plus className="h-3.5 w-3.5 mr-1" />Lists</TabsTrigger>
+            <TabsTrigger value="sync" data-testid="tab-sync"><RefreshCw className="h-3.5 w-3.5 mr-1" />Sync</TabsTrigger>
           </TabsList>
 
           {/* ───── ADD TAB ───── */}
@@ -740,6 +785,69 @@ export default function Admin() {
                 )}
               </Card>
             </div>
+          </TabsContent>
+
+          {/* ───── SYNC TAB ───── */}
+          <TabsContent value="sync" className="mt-6 space-y-6">
+            <Card className="p-6 space-y-5">
+              <div className="flex items-center gap-2">
+                <Link2 className="h-5 w-5 text-primary" />
+                <CardTitle className="text-lg">Google Sheet Auto-Sync</CardTitle>
+              </div>
+              <CardDescription>
+                Paste your Google Sheet's public CSV link. The site will automatically sync every 5 minutes — any changes you make in the sheet appear on the site without lifting a finger.
+              </CardDescription>
+
+              <div className="rounded-lg bg-muted/40 border border-border p-4 space-y-2 text-sm">
+                <p className="font-medium">How to get your CSV link:</p>
+                <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
+                  <li>Open your Google Sheet</li>
+                  <li>Go to <strong>File → Share → Publish to web</strong></li>
+                  <li>Select your sheet, choose <strong>CSV</strong> format</li>
+                  <li>Click <strong>Publish</strong> and copy the link</li>
+                </ol>
+              </div>
+
+              <Field label="Google Sheet CSV URL">
+                <Input
+                  placeholder="https://docs.google.com/spreadsheets/d/.../pub?output=csv"
+                  value={syncUrl}
+                  onChange={e => { setSyncUrl(e.target.value); setSyncResult(null); }}
+                  data-testid="input-sync-url"
+                />
+              </Field>
+
+              <div className="flex items-center justify-between rounded-lg border border-border p-4">
+                <div>
+                  <p className="text-sm font-medium">Auto-sync every 5 minutes</p>
+                  <p className="text-xs text-muted-foreground">Keeps the site in sync automatically while enabled</p>
+                </div>
+                <Switch
+                  checked={syncEnabled}
+                  onCheckedChange={v => { setSyncEnabled(v); setSyncResult(null); }}
+                  data-testid="switch-sync-enabled"
+                />
+              </div>
+
+              {syncStatus?.lastSyncAt && (
+                <div className={`rounded-lg border p-3 text-xs space-y-1 ${syncStatus.lastSyncStatus?.startsWith("error") ? "border-red-300 bg-red-50 dark:bg-red-950/20" : "border-green-300 bg-green-50 dark:bg-green-950/20"}`}>
+                  <p className="font-medium">{syncStatus.lastSyncStatus?.startsWith("error") ? "⚠️ Last sync failed" : `✅ Last sync: ${syncStatus.lastSyncCount ?? 0} merchants updated`}</p>
+                  <p className="text-muted-foreground">{new Date(syncStatus.lastSyncAt).toLocaleString()} · Status: {syncStatus.lastSyncStatus}</p>
+                </div>
+              )}
+
+              {syncResult && <ResultBanner result={syncResult} />}
+
+              <div className="flex gap-3">
+                <Button onClick={handleSaveSync} disabled={syncSaving} data-testid="button-save-sync">
+                  {syncSaving ? "Saving…" : "Save Settings"}
+                </Button>
+                <Button variant="outline" onClick={handleManualSync} disabled={syncing || !syncUrl.trim()} data-testid="button-manual-sync">
+                  <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`} />
+                  {syncing ? "Syncing…" : "Sync Now"}
+                </Button>
+              </div>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
