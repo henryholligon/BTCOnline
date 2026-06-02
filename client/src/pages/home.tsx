@@ -133,11 +133,17 @@ export default function Home() {
     }
 
     if (sortBy === "discounted") {
+      const discountValue = (d: string | null | undefined) => {
+        if (!d) return -1;
+        const match = d.match(/(\d+)/);
+        return match ? parseInt(match[1], 10) : 0;
+      };
       return filtered.sort((a, b) => {
-        const aDisc = discountedNames.includes(a.name);
-        const bDisc = discountedNames.includes(b.name);
-        if (aDisc && !bDisc) return -1;
-        if (!aDisc && bDisc) return 1;
+        const aHas = !!a.bitcoinDiscount;
+        const bHas = !!b.bitcoinDiscount;
+        if (aHas && !bHas) return -1;
+        if (!aHas && bHas) return 1;
+        if (aHas && bHas) return discountValue(b.bitcoinDiscount) - discountValue(a.bitcoinDiscount);
         return 0;
       });
     }
