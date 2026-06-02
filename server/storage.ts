@@ -52,8 +52,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMerchantByName(name: string): Promise<Merchant | undefined> {
-    const [merchant] = await db.select().from(merchants).where(eq(merchants.name, name));
-    return merchant;
+    const [exact] = await db.select().from(merchants).where(eq(merchants.name, name));
+    if (exact) return exact;
+    const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const target = normalize(name);
+    const all = await db.select().from(merchants).orderBy(asc(merchants.id));
+    return all.find(m => normalize(m.name) === target);
   }
 
   async updateMerchantByName(name: string, merchant: Partial<InsertMerchant>): Promise<Merchant | undefined> {

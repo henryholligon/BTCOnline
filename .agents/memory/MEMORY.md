@@ -1,0 +1,2 @@
+- [Backend no hot-reload](backend-hot-reload.md) — dev server runs plain tsx (not watch); server code changes need a workflow restart before they take effect.
+- [Sheet sync field mapping](sheet-sync.md) — Google Sheet CSV headers differ from DB field names; sync relies on column-name aliases + normalized name matching to avoid wiping/duplicating data.

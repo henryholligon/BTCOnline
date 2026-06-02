@@ -70,17 +70,17 @@ export async function runSheetSync(): Promise<{ count: number; errors: number }>
       name,
       description: String(row.description || "").trim(),
       logo: String(row.logo || "").trim(),
-      categories: parseArrayField(row.categories),
-      shippingCountries: parseArrayField(row.shippingcountries || row.shippingcountry || row.shipping_countries || ""),
+      categories: parseArrayField(row.categories || row.category),
+      shippingCountries: parseArrayField(row.shippingcountries || row.shippingcountry || row.shipping_countries || row.deliveryto || row.delivery_to || row.shipping || ""),
       website: String(row.website || "").trim(),
       lightningSupported: parseBool(row.lightningsupported || row.lightning_supported || row.lightning),
       onchainSupported: parseBool(row.onchainsupported || row.onchain_supported || row.onchain),
       paymentProvider: row.paymentprovider || row.payment_provider || null,
       featured: false,
-      countryMadeIn: row.countrymadein || row.country_made_in || null,
+      countryMadeIn: row.countrymadein || row.country_made_in || row.madein || row.made_in || null,
       countryShippedFrom: row.countryshippedfrom || row.country_shipped_from || null,
       lastSurveyed: row.lastsurveyed || row.last_surveyed || new Date().toISOString().split("T")[0],
-      bitcoinDiscount: row.bitcoindiscount || row.bitcoin_discount || null,
+      bitcoinDiscount: row.bitcoindiscount || row.bitcoin_discount || row.discount || null,
     };
 
     const validated = insertMerchantSchema.safeParse(prepared);
@@ -92,7 +92,8 @@ export async function runSheetSync(): Promise<{ count: number; errors: number }>
       // Preserve existing logo and discount badge if sheet row has none
       if (!merged.logo && existing.logo) merged.logo = existing.logo;
       if (!merged.bitcoinDiscount && existing.bitcoinDiscount) merged.bitcoinDiscount = existing.bitcoinDiscount;
-      await storage.updateMerchantByName(name, merged);
+      // Update by id so normalized name matches (e.g. "NIC NAC" vs "NICNAC") don't create duplicates
+      await storage.updateMerchant(existing.id, merged);
     } else {
       await storage.createMerchant(validated.data);
     }
