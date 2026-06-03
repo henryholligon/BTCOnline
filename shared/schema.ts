@@ -76,7 +76,7 @@ export const CATEGORY_EMOJIS: Record<string, string> = {
   "Password Manager": "🔑",
   "Passwords": "🔐",
   "Payments": "💳",
-  "Privacy": "🕶️",
+  "Privacy": "🔒",
   "Publication": "📰",
   "Real Estate": "🏡",
   "Skateboarding": "🛹",
