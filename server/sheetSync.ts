@@ -1,7 +1,13 @@
 import { storage } from "./storage";
 import { insertMerchantSchema } from "@shared/schema";
+import { getLogoUrlMap, cloudinaryConfigured } from "./cloudinary";
 
 const POLL_INTERVAL_MS = 5 * 60 * 1000;
+
+// Default published Google Sheet CSV — used to bootstrap a fresh DB (e.g. production)
+// so the directory auto-syncs without manual setup. Only applied when no URL is configured.
+const DEFAULT_CSV_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRTDjKqx5LRxgvpFjtEvFfVF8bNFMoCHWS8JBiEXQhYSb08XFQZEcHUC7ZxmuyrORco1x765AfPHYpt/pub?output=csv";
 
 function parseArrayField(value: any): string[] {
   if (Array.isArray(value)) return value.map(String);
@@ -64,6 +70,14 @@ export async function runSheetSync(): Promise<{ count: number; errors: number; r
   let errors = 0;
   const seen = new Set<string>();
 
+  // Cloudinary folder is the source of truth for logos (sheet has no logo column).
+  const logoMap = cloudinaryConfigured()
+    ? await getLogoUrlMap().catch((e: any) => {
+        console.error("[sheet-sync] Cloudinary logo lookup failed:", e.message);
+        return new Map<string, string>();
+      })
+    : new Map<string, string>();
+
   for (const rawRow of rows) {
     const row = normalizeKeys(rawRow);
     const name = String(row.name || "").trim();
@@ -89,16 +103,19 @@ export async function runSheetSync(): Promise<{ count: number; errors: number; r
     const validated = insertMerchantSchema.safeParse(prepared);
     if (!validated.success) { errors++; continue; }
 
+    const cloudLogo = logoMap.get(normalizeName(name));
     const existing = await storage.getMerchantByName(name);
     if (existing) {
       const merged = { ...validated.data };
-      // Preserve existing logo and discount badge if sheet row has none
-      if (!merged.logo && existing.logo) merged.logo = existing.logo;
+      // Logo priority when sheet row has none: Cloudinary folder > existing logo
+      if (!merged.logo) merged.logo = cloudLogo || existing.logo || "";
       if (!merged.bitcoinDiscount && existing.bitcoinDiscount) merged.bitcoinDiscount = existing.bitcoinDiscount;
       // Update by id so normalized name matches (e.g. "NIC NAC" vs "NICNAC") don't create duplicates
       await storage.updateMerchant(existing.id, merged);
     } else {
-      await storage.createMerchant(validated.data);
+      const created = { ...validated.data };
+      if (!created.logo) created.logo = cloudLogo || "";
+      await storage.createMerchant(created);
     }
     seen.add(normalizeName(name));
     count++;
@@ -107,8 +124,19 @@ export async function runSheetSync(): Promise<{ count: number; errors: number; r
   // Prune: CSV is the source of truth — remove merchants not present in the sheet
   let removed = 0;
   const all = await storage.getMerchants();
-  for (const m of all) {
-    if (!seen.has(normalizeName(m.name))) {
+  const toDelete = all.filter((m) => !seen.has(normalizeName(m.name)));
+
+  // Safety guardrail: refuse to prune if a single sync would wipe out a large
+  // share of the directory (e.g. a malformed/partial CSV). Prevents mass data loss.
+  const wouldGutDirectory =
+    all.length >= 10 && toDelete.length > Math.floor(all.length * 0.5);
+  if (wouldGutDirectory) {
+    console.warn(
+      `[sheet-sync] Prune aborted: would delete ${toDelete.length}/${all.length} merchants ` +
+        `(>50%). Treating CSV as suspect; keeping existing data.`,
+    );
+  } else {
+    for (const m of toDelete) {
       await storage.deleteMerchant(m.id);
       removed++;
     }
@@ -120,6 +148,19 @@ export async function runSheetSync(): Promise<{ count: number; errors: number; r
 let pollTimer: ReturnType<typeof setInterval> | null = null;
 
 export async function startSheetSyncPoller() {
+  // Bootstrap a fresh/unconfigured DB (e.g. production) so it auto-syncs.
+  // Only on a DB that has never synced — so clearing the URL later (to intentionally
+  // disable sync) is respected and not reverted on restart.
+  try {
+    const cfg = await storage.getSheetSyncConfig();
+    if (!cfg.csvUrl && !cfg.lastSyncAt) {
+      await storage.updateSheetSyncConfig({ csvUrl: DEFAULT_CSV_URL, enabled: true });
+      console.log("[sheet-sync] Fresh DB with no CSV URL — bootstrapped default + enabled");
+    }
+  } catch (e: any) {
+    console.error("[sheet-sync] Config bootstrap failed:", e.message);
+  }
+
   const tick = async () => {
     try {
       const config = await storage.getSheetSyncConfig();
