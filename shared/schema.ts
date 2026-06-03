@@ -82,6 +82,7 @@ export const CATEGORY_EMOJIS: Record<string, string> = {
   "Social Media": "💬",
   "Storage": "💾",
   "Supplement": "💊",
+  "Toys": "🧸",
   "Toys & Boardgames": "🧸",
   "Travel": "✈️",
   "VPN": "🛡️",
@@ -89,8 +90,12 @@ export const CATEGORY_EMOJIS: Record<string, string> = {
   "Vehicles": "🚗",
 };
 
+const CATEGORY_EMOJIS_NORMALIZED: Record<string, string> = Object.fromEntries(
+  Object.entries(CATEGORY_EMOJIS).map(([key, emoji]) => [key.trim().toLowerCase(), emoji]),
+);
+
 export function getCategoryWithEmoji(category: string): string {
-  const emoji = CATEGORY_EMOJIS[category];
+  const emoji = CATEGORY_EMOJIS_NORMALIZED[category.trim().toLowerCase()];
   if (emoji) return `${emoji} ${category}`;
   return category;
 }
