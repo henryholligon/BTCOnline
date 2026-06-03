@@ -47,7 +47,9 @@ function parseCSV(csvText: string): Record<string, string>[] {
   });
 }
 
-export async function runSheetSync(): Promise<{ count: number; errors: number }> {
+const normalizeName = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+export async function runSheetSync(): Promise<{ count: number; errors: number; removed: number }> {
   const config = await storage.getSheetSyncConfig();
   if (!config.csvUrl) throw new Error("No Google Sheet URL configured");
 
@@ -60,6 +62,7 @@ export async function runSheetSync(): Promise<{ count: number; errors: number }>
 
   let count = 0;
   let errors = 0;
+  const seen = new Set<string>();
 
   for (const rawRow of rows) {
     const row = normalizeKeys(rawRow);
@@ -97,10 +100,21 @@ export async function runSheetSync(): Promise<{ count: number; errors: number }>
     } else {
       await storage.createMerchant(validated.data);
     }
+    seen.add(normalizeName(name));
     count++;
   }
 
-  return { count, errors };
+  // Prune: CSV is the source of truth — remove merchants not present in the sheet
+  let removed = 0;
+  const all = await storage.getMerchants();
+  for (const m of all) {
+    if (!seen.has(normalizeName(m.name))) {
+      await storage.deleteMerchant(m.id);
+      removed++;
+    }
+  }
+
+  return { count, errors, removed };
 }
 
 let pollTimer: ReturnType<typeof setInterval> | null = null;
@@ -111,13 +125,13 @@ export async function startSheetSyncPoller() {
       const config = await storage.getSheetSyncConfig();
       if (!config.enabled || !config.csvUrl) return;
       console.log("[sheet-sync] Syncing from Google Sheet…");
-      const { count, errors } = await runSheetSync();
+      const { count, errors, removed } = await runSheetSync();
       await storage.updateSheetSyncConfig({
         lastSyncAt: new Date().toISOString(),
         lastSyncStatus: errors > 0 ? `ok-with-errors` : "ok",
         lastSyncCount: count,
       });
-      console.log(`[sheet-sync] Done — ${count} upserted, ${errors} errors`);
+      console.log(`[sheet-sync] Done — ${count} upserted, ${removed} removed, ${errors} errors`);
     } catch (err: any) {
       console.error("[sheet-sync] Error:", err.message);
       try {

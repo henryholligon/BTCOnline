@@ -240,13 +240,13 @@ export async function registerRoutes(
 
   app.post("/api/sheet-sync/trigger", async (_req, res) => {
     try {
-      const { count, errors } = await runSheetSync();
+      const { count, errors, removed } = await runSheetSync();
       await storage.updateSheetSyncConfig({
         lastSyncAt: new Date().toISOString(),
         lastSyncStatus: errors > 0 ? `ok-with-errors` : "ok",
         lastSyncCount: count,
       });
-      res.json({ success: true, count, errors });
+      res.json({ success: true, count, errors, removed });
     } catch (err: any) {
       await storage.updateSheetSyncConfig({
         lastSyncAt: new Date().toISOString(),

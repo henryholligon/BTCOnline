@@ -4,6 +4,7 @@
 A free and open-source directory of businesses that accept Bitcoin online. Displays merchant listings with categories, payment methods (Lightning/On-chain), shipping information, and website links.
 
 ## Recent Changes
+- Sheet sync now treats the CSV as the source of truth: merchants absent from the sheet are pruned (deleted) on every sync (auto every 5 min + manual trigger). `runSheetSync` returns `removed` count.
 - Merchant logos now served from Cloudinary folder "BTC Online Merchant Logos" (cloud: dqd8n9tnn)
   - All merchant logos point to that folder's Cloudinary URLs; no Replit Object Storage reliance
   - Account uses Cloudinary "dynamic folders" — list/find assets via Search API (`asset_folder="..."`), NOT `api.resources({prefix})` which returns 0
