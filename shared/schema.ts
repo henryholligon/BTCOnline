@@ -79,6 +79,7 @@ export const CATEGORY_EMOJIS: Record<string, string> = {
   "Privacy": "🕶️",
   "Publication": "📰",
   "Real Estate": "🏡",
+  "Skateboarding": "🛹",
   "Social Media": "💬",
   "Storage": "💾",
   "Supplement": "💊",
