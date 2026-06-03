@@ -4,6 +4,11 @@
 A free and open-source directory of businesses that accept Bitcoin online. Displays merchant listings with categories, payment methods (Lightning/On-chain), shipping information, and website links.
 
 ## Recent Changes
+- Merchant logos now served from Cloudinary folder "BTC Online Merchant Logos" (cloud: dqd8n9tnn)
+  - All merchant logos point to that folder's Cloudinary URLs; no Replit Object Storage reliance
+  - Account uses Cloudinary "dynamic folders" — list/find assets via Search API (`asset_folder="..."`), NOT `api.resources({prefix})` which returns 0
+  - Admin uploads (/api/upload-logos) go to the same folder with collision-safe unique filenames; listing (/api/uploaded-logos) uses Search API
+  - Removed dead object-storage logo route (/api/logos) and constants
 - Added `bitcoinDiscount` field (nullable text) to merchants table for data-driven discount/promo badges
   - "NEW" value renders rainbow animated tag; any other value renders green discount badge
   - Supported in CSV import via `bitcoinDiscount` or `bitcoin_discount` column

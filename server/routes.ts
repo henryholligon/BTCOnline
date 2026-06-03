@@ -9,9 +9,6 @@ import { registerObjectStorageRoutes } from "./replit_integrations/object_storag
 import { runSheetSync } from "./sheetSync";
 import { uploadLogoBuffer, listLogos, cloudinaryConfigured } from "./cloudinary";
 
-const LOGO_FOLDER = "logos";
-const REPLIT_SIDECAR = "http://127.0.0.1:1106";
-
 const upload = multer({
   storage: multer.memoryStorage(),
   fileFilter: (_req, file, cb) => {
@@ -139,45 +136,17 @@ export async function registerRoutes(
     try {
       const uploaded = await Promise.all(files.map(async (f) => {
         const ext = path.extname(f.originalname).toLowerCase();
-        const publicId = path.basename(f.originalname, ext)
-          .toLowerCase()
-          .replace(/[^a-z0-9-]/g, '-')
-          .replace(/-+/g, '-')
-          .replace(/^-|-$/g, '');
+        const filenameBase = path.basename(f.originalname, ext)
+          .replace(/[^a-zA-Z0-9-_ ]/g, '')
+          .trim() || 'logo';
 
-        const { secureUrl, publicId: savedId } = await uploadLogoBuffer(f.buffer, publicId);
+        const { secureUrl, publicId: savedId } = await uploadLogoBuffer(f.buffer, filenameBase);
         return { originalName: f.originalname, savedAs: savedId, path: secureUrl };
       }));
       res.json({ uploaded });
     } catch (err: any) {
       console.error("Logo upload to Cloudinary failed:", err);
       res.status(500).json({ message: "Upload failed: " + (err.message || "Unknown error") });
-    }
-  });
-
-  app.get("/api/logos/:filename(*)", async (req, res) => {
-    const privateDir = (process.env.PRIVATE_OBJECT_DIR || "").replace(/^\//, "");
-    if (!privateDir) return res.status(500).json({ message: "Object storage not configured" });
-    const parts = privateDir.split("/");
-    const bucketName = parts[0];
-    const baseDir = parts.slice(1).join("/");
-    const objectName = `${baseDir}/${LOGO_FOLDER}/${req.params.filename}`;
-    try {
-      const signRes = await fetch(`${REPLIT_SIDECAR}/object-storage/signed-object-url`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          bucket_name: bucketName,
-          object_name: objectName,
-          method: "GET",
-          expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
-        }),
-      });
-      if (!signRes.ok) return res.status(404).json({ message: "Logo not found" });
-      const { signed_url } = await signRes.json();
-      res.redirect(302, signed_url);
-    } catch {
-      res.status(404).json({ message: "Logo not found" });
     }
   });
 

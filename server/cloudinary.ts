@@ -1,6 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 
-export const CLOUDINARY_FOLDER = "btconline/logos";
+export const CLOUDINARY_FOLDER = "BTC Online Merchant Logos";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -19,17 +19,17 @@ export function cloudinaryConfigured(): boolean {
 
 export function uploadLogoBuffer(
   buffer: Buffer,
-  publicId: string,
+  filenameBase: string,
 ): Promise<{ secureUrl: string; publicId: string }> {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
-        folder: CLOUDINARY_FOLDER,
-        public_id: publicId,
-        overwrite: true,
+        asset_folder: CLOUDINARY_FOLDER,
+        use_filename: true,
+        filename_override: filenameBase,
+        unique_filename: true,
+        overwrite: false,
         invalidate: true,
-        unique_filename: false,
-        use_filename: false,
         resource_type: "image",
       },
       (err, result) => {
@@ -42,11 +42,10 @@ export function uploadLogoBuffer(
 }
 
 export async function listLogos(): Promise<{ name: string; path: string }[]> {
-  const res = await cloudinary.api.resources({
-    type: "upload",
-    prefix: `${CLOUDINARY_FOLDER}/`,
-    max_results: 500,
-  });
+  const res = await cloudinary.search
+    .expression(`asset_folder="${CLOUDINARY_FOLDER}"`)
+    .max_results(500)
+    .execute();
   return (res.resources || []).map((r: any) => ({
     name: String(r.public_id).split("/").pop() || r.public_id,
     path: r.secure_url,
