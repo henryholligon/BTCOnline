@@ -69,7 +69,7 @@ export async function runSheetSync(): Promise<{ count: number; errors: number }>
     const prepared = {
       name,
       description: String(row.description || "").trim(),
-      logo: String(row.logo || "").trim(),
+      logo: String(row.logo || row.logourl || row.logolink || row.image || row.imageurl || "").trim(),
       categories: parseArrayField(row.categories || row.category),
       shippingCountries: parseArrayField(row.shippingcountries || row.shippingcountry || row.shipping_countries || row.deliveryto || row.delivery_to || row.shipping || ""),
       website: String(row.website || "").trim(),

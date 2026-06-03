@@ -7,6 +7,7 @@ import path from "path";
 import { createChallenge, verifySolution } from "altcha-lib";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { runSheetSync } from "./sheetSync";
+import { uploadLogoBuffer, listLogos, cloudinaryConfigured } from "./cloudinary";
 
 const LOGO_FOLDER = "logos";
 const REPLIT_SIDECAR = "http://127.0.0.1:1106";
@@ -131,50 +132,25 @@ export async function registerRoutes(
     if (!files || files.length === 0) {
       return res.status(400).json({ message: "No files uploaded" });
     }
-    const privateDir = (process.env.PRIVATE_OBJECT_DIR || "").replace(/^\//, "");
-    if (!privateDir) return res.status(500).json({ message: "Object storage not configured" });
-    const parts = privateDir.split("/");
-    const bucketName = parts[0];
-    const baseDir = parts.slice(1).join("/"); // e.g. ".private"
+    if (!cloudinaryConfigured()) {
+      return res.status(500).json({ message: "Cloudinary is not configured" });
+    }
 
     try {
       const uploaded = await Promise.all(files.map(async (f) => {
         const ext = path.extname(f.originalname).toLowerCase();
-        const name = path.basename(f.originalname, ext)
+        const publicId = path.basename(f.originalname, ext)
           .toLowerCase()
           .replace(/[^a-z0-9-]/g, '-')
-          .replace(/-+/g, '-');
-        const uniqueSuffix = Date.now().toString(36);
-        const objectName = `${baseDir}/${LOGO_FOLDER}/${name}-${uniqueSuffix}${ext}`;
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '');
 
-        // Get a presigned PUT URL from the Replit sidecar (avoids ACL issues)
-        const signRes = await fetch(`${REPLIT_SIDECAR}/object-storage/signed-object-url`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            bucket_name: bucketName,
-            object_name: objectName,
-            method: "PUT",
-            expires_at: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
-          }),
-        });
-        if (!signRes.ok) throw new Error(`Sidecar sign failed: ${signRes.status}`);
-        const { signed_url } = await signRes.json();
-
-        // PUT the file bytes directly to GCS via the signed URL
-        const putRes = await fetch(signed_url, {
-          method: "PUT",
-          headers: { "Content-Type": f.mimetype },
-          body: f.buffer,
-        });
-        if (!putRes.ok) throw new Error(`GCS PUT failed: ${putRes.status}`);
-
-        const serveUrl = `/api/logos/${name}-${uniqueSuffix}${ext}`;
-        return { originalName: f.originalname, savedAs: objectName, path: serveUrl };
+        const { secureUrl, publicId: savedId } = await uploadLogoBuffer(f.buffer, publicId);
+        return { originalName: f.originalname, savedAs: savedId, path: secureUrl };
       }));
       res.json({ uploaded });
     } catch (err: any) {
-      console.error("Logo upload to object storage failed:", err);
+      console.error("Logo upload to Cloudinary failed:", err);
       res.status(500).json({ message: "Upload failed: " + (err.message || "Unknown error") });
     }
   });
@@ -230,7 +206,7 @@ export async function registerRoutes(
           const prepared = {
             name,
             description: String(row.description || "").trim(),
-            logo: String(row.logo || "").trim(),
+            logo: String(row.logo || row.logourl || row.logolink || row.image || row.imageurl || "").trim(),
             categories: parseArrayField(row.categories),
             shippingCountries: parseArrayField(row.shippingcountries || row.shipping_countries),
             website: String(row.website || "").trim(),
@@ -266,17 +242,10 @@ export async function registerRoutes(
 
   app.get("/api/uploaded-logos", async (_req, res) => {
     try {
-      const bucket = getLogoBucket();
-      const [files] = await bucket.getFiles({ prefix: `${LOGO_FOLDER}/` });
-      const logos = files
-        .filter(f => /\.(png|jpg|jpeg|webp|svg)$/i.test(f.name))
-        .map(f => ({
-          name: path.basename(f.name),
-          path: `https://storage.googleapis.com/${bucket.name}/${f.name}`,
-        }));
+      const logos = await listLogos();
       res.json({ logos });
     } catch (err: any) {
-      console.error("Failed to list logos from object storage:", err);
+      console.error("Failed to list logos from Cloudinary:", err);
       res.json({ logos: [] });
     }
   });
