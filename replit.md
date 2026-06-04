@@ -4,6 +4,7 @@
 A free and open-source directory of businesses that accept Bitcoin online. Displays merchant listings with categories, payment methods (Lightning/On-chain), shipping information, and website links.
 
 ## Recent Changes
+- Category tags auto-get an emoji: `getCategoryWithEmoji` now falls back to a keyword matcher (`autoEmojiForCategory` in `shared/schema.ts`) for categories not in `CATEGORY_EMOJIS`, with a generic 🏷️ fallback. Explicit `CATEGORY_EMOJIS` entries still override (the "unless I say otherwise" case).
 - Production fix (separate prod DB): published site was stale because production runs its own database that dev edits never reach (and prod DB is read-only via tools). The app now self-heals on deploy:
   - Logos resolve from the Cloudinary folder during sync via `getLogoUrlMap()` (name-normalized + override map for filename typos); sheet logo column would take priority if added. No more reliance on manual DB logo edits.
   - `startSheetSyncPoller` bootstraps a `DEFAULT_CSV_URL` + enables sync when the DB has no csvUrl, so a fresh/production DB auto-syncs (prunes to the sheet + applies Cloudinary logos) without manual setup.
@@ -55,3 +56,4 @@ A free and open-source directory of businesses that accept Bitcoin online. Displ
 - Open-source project (license TBD)
 - Merchant data manageable via spreadsheets (Proton Sheets)
 - Logo sizes to be standardized (64x64 or 128x128 PNG/WebP)
+- New merchant categories should auto-generate an appropriate emoji (built-in keyword matcher, no AI) unless an explicit emoji is set in `CATEGORY_EMOJIS`
