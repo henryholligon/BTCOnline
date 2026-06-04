@@ -95,105 +95,10 @@ const CATEGORY_EMOJIS_NORMALIZED: Record<string, string> = Object.fromEntries(
   Object.entries(CATEGORY_EMOJIS).map(([key, emoji]) => [key.trim().toLowerCase(), emoji]),
 );
 
-// Generic icon used when no explicit mapping or keyword rule matches a category.
-export const GENERIC_CATEGORY_EMOJI = "🏷️";
-
-// Keyword → emoji rules for auto-assigning an icon to categories not in the
-// explicit CATEGORY_EMOJIS map. Single-word entries match whole tokens (and their
-// singular form); multi-word entries match as a substring. Earlier rules win, so
-// list more specific rules before broader ones.
-const KEYWORD_EMOJI_RULES: { match: string[]; emoji: string }[] = [
-  { match: ["real estate", "property", "properties", "realty"], emoji: "🏡" },
-  { match: ["skate", "skateboard", "skateboarding"], emoji: "🛹" },
-  { match: ["gift card", "giftcard", "giftcards", "gift"], emoji: "🎁" },
-  { match: ["password", "passwords"], emoji: "🔑" },
-  { match: ["vpn", "privacy", "security", "encryption", "anonymity"], emoji: "🔒" },
-  { match: ["shoe", "shoes", "footwear", "sneaker", "sneakers"], emoji: "👟" },
-  { match: ["watch", "watches", "timepiece"], emoji: "⌚" },
-  { match: ["bag", "bags", "handbag", "backpack", "luggage"], emoji: "👜" },
-  { match: ["clothing", "clothes", "apparel", "fashion", "wear", "garment"], emoji: "👗" },
-  { match: ["jewel", "jewelry", "jewellery"], emoji: "💎" },
-  { match: ["coffee", "cafe", "tea"], emoji: "☕" },
-  { match: ["wine", "beer", "alcohol", "spirits", "liquor", "brewery"], emoji: "🍷" },
-  { match: ["food", "grocery", "groceries", "restaurant", "snack", "snacks", "drink", "drinks"], emoji: "🍴" },
-  { match: ["tobacco", "nicotine", "vape", "cigar", "smoke", "smoking", "niccotine"], emoji: "🚬" },
-  { match: ["supplement", "supplements", "vitamin", "vitamins", "nutrition"], emoji: "💊" },
-  { match: ["health", "medical", "medicine", "pharmacy", "wellness", "clinic"], emoji: "🏥" },
-  { match: ["beauty", "cosmetic", "cosmetics", "makeup", "skincare"], emoji: "💄" },
-  { match: ["sport", "sports", "fitness", "gym", "outdoor", "outdoors", "athletic"], emoji: "🏅" },
-  { match: ["gambling", "casino", "bet", "betting", "poker", "lottery"], emoji: "🎰" },
-  { match: ["toy", "toys", "boardgame", "boardgames", "board game", "puzzle"], emoji: "🧸" },
-  { match: ["game", "games", "gaming"], emoji: "🎮" },
-  { match: ["book", "books", "publication", "publications", "magazine", "news", "reading"], emoji: "📚" },
-  { match: ["music", "audio", "vinyl", "record", "records", "headphone", "headphones"], emoji: "🎵" },
-  { match: ["art", "arts", "painting", "gallery", "artwork"], emoji: "🎨" },
-  { match: ["photo", "photos", "photography", "camera", "cameras"], emoji: "📷" },
-  { match: ["video", "film", "films", "movie", "movies", "streaming", "cinema"], emoji: "🎬" },
-  { match: ["email", "mail"], emoji: "📧" },
-  { match: ["hosting", "server", "servers", "domain", "domains", "cloud"], emoji: "🌐" },
-  { match: ["software", "saas", "app", "apps", "application", "applications"], emoji: "💾" },
-  { match: ["storage"], emoji: "💾" },
-  { match: ["phone", "phones", "mobile", "cellular", "smartphone"], emoji: "📱" },
-  { match: ["electronic", "electronics", "gadget", "gadgets", "tech", "technology", "hardware"], emoji: "💻" },
-  { match: ["ai", "artificial intelligence"], emoji: "🤖" },
-  { match: ["vehicle", "vehicles", "car", "cars", "auto", "automotive", "motorcycle"], emoji: "🚗" },
-  { match: ["travel", "flight", "flights", "hotel", "hotels", "tourism", "vacation"], emoji: "✈️" },
-  { match: ["shipping", "delivery", "logistics", "courier"], emoji: "🚚" },
-  { match: ["furniture", "decor", "home", "household", "homeware", "homewares", "kitchen"], emoji: "🏠" },
-  { match: ["garden", "gardening", "plant", "plants", "nursery"], emoji: "🌱" },
-  { match: ["tool", "tools", "diy"], emoji: "🛠️" },
-  { match: ["charity", "donation", "donations", "nonprofit", "foundation", "fundraising"], emoji: "❤️" },
-  { match: ["crypto", "bitcoin", "wallet", "wallets", "exchange"], emoji: "🪙" },
-  { match: ["payment", "payments", "finance", "financial", "bank", "banking", "money"], emoji: "💳" },
-  { match: ["adult", "xxx", "nsfw"], emoji: "🔞" },
-  { match: ["pet", "pets", "animal", "animals", "dog", "cat"], emoji: "🐾" },
-  { match: ["education", "course", "courses", "learn", "learning", "school", "training", "tutorial"], emoji: "🎓" },
-  { match: ["energy", "solar", "power", "electricity"], emoji: "⚡" },
-  { match: ["insurance"], emoji: "🏦" },
-  { match: ["legal", "law", "lawyer", "attorney"], emoji: "⚖️" },
-  { match: ["ticket", "tickets", "event", "events", "concert"], emoji: "🎟️" },
-  { match: ["baby", "kids", "children", "toddler"], emoji: "🍼" },
-  { match: ["print", "printing", "printer"], emoji: "🖨️" },
-  { match: ["office", "stationery", "stationary"], emoji: "📎" },
-  { match: ["social", "social media", "community", "messaging", "chat"], emoji: "💬" },
-  { match: ["document", "documents"], emoji: "📄" },
-  { match: ["browser", "browsers"], emoji: "🧭" },
-];
-
-function singularize(token: string): string {
-  return token.endsWith("s") && token.length > 3 ? token.slice(0, -1) : token;
-}
-
-// Picks an appropriate emoji for a category using keyword rules; falls back to a
-// generic icon. Used for categories without an explicit CATEGORY_EMOJIS entry.
-export function autoEmojiForCategory(category: string): string {
-  const norm = category.trim().toLowerCase();
-  if (!norm) return GENERIC_CATEGORY_EMOJI;
-  const tokens = norm.split(/[^a-z0-9]+/).filter(Boolean);
-  const tokenSet = new Set<string>();
-  for (const t of tokens) {
-    tokenSet.add(t);
-    tokenSet.add(singularize(t));
-  }
-  for (const rule of KEYWORD_EMOJI_RULES) {
-    for (const kw of rule.match) {
-      if (kw.includes(" ")) {
-        if (norm.includes(kw)) return rule.emoji;
-      } else if (tokenSet.has(kw)) {
-        return rule.emoji;
-      }
-    }
-  }
-  return GENERIC_CATEGORY_EMOJI;
-}
-
 export function getCategoryWithEmoji(category: string): string {
-  const trimmed = category.trim();
-  // Already emoji-prefixed (e.g. admin custom categories like "🎭 Theater") — leave as-is.
-  if (/^(\p{Extended_Pictographic}|\p{Regional_Indicator})/u.test(trimmed)) return category;
-  const explicit = CATEGORY_EMOJIS_NORMALIZED[trimmed.toLowerCase()];
-  const emoji = explicit || autoEmojiForCategory(category);
-  return `${emoji} ${category}`;
+  const emoji = CATEGORY_EMOJIS_NORMALIZED[category.trim().toLowerCase()];
+  if (emoji) return `${emoji} ${category}`;
+  return category;
 }
 
 export const CATEGORIES = Object.keys(CATEGORY_EMOJIS);
