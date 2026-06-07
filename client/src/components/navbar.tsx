@@ -25,8 +25,10 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
   const [logoMenuOpen, setLogoMenuOpen] = useState(false);
   const [businessName, setBusinessName] = useState("");
   const [businessUrl, setBusinessUrl] = useState("");
-  const [businessCategory, setBusinessCategory] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("");
+  const [businessCategories, setBusinessCategories] = useState<string[]>([]);
+  const [paymentMethods, setPaymentMethods] = useState<string[]>([]);
+  const toggleCategory = (c: string) => setBusinessCategories(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]);
+  const togglePayment = (m: string) => setPaymentMethods(prev => prev.includes(m) ? prev.filter(x => x !== m) : [...prev, m]);
   const [notes, setNotes] = useState("");
   const [dataSource, setDataSource] = useState("");
   const [publicContact, setPublicContact] = useState("");
@@ -64,6 +66,10 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
 
   const handleSubmitMerchant = (e: React.FormEvent) => {
     e.preventDefault();
+    if (businessCategories.length === 0) {
+      toast({ title: "Category Required", description: "Please select at least one category." });
+      return;
+    }
     if (!altchaVerified) {
       toast({ title: "Captcha Required", description: "Please complete the captcha verification." });
       return;
@@ -75,8 +81,8 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
     });
     setBusinessName("");
     setBusinessUrl("");
-    setBusinessCategory("");
-    setPaymentMethod("");
+    setBusinessCategories([]);
+    setPaymentMethods([]);
     setNotes("");
     setDataSource("");
     setPublicContact("");
@@ -115,31 +121,45 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="businessCategory">Category</Label>
-                  <Select value={businessCategory} onValueChange={setBusinessCategory} required>
-                    <SelectTrigger data-testid="select-business-category">
-                      <SelectValue placeholder="Select a category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CATEGORIES.map((cat) => (
-                        <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Label>Category {businessCategories.length > 0 && <span className="text-primary font-semibold text-xs">({businessCategories.length} selected)</span>}</Label>
+                  <p className="text-xs text-muted-foreground">Select all that apply.</p>
+                  <div className="flex flex-wrap gap-2" data-testid="category-selector">
+                    {CATEGORIES.map((cat) => {
+                      const active = businessCategories.includes(cat);
+                      return (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => toggleCategory(cat)}
+                          className={`text-xs px-2.5 py-1 rounded-full border transition-all ${active ? "bg-primary text-primary-foreground border-primary font-medium shadow-sm" : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"}`}
+                          data-testid={`category-option-${cat}`}
+                        >
+                          {cat}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Payment Method</Label>
-                  <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                    <SelectTrigger data-testid="select-payment-method">
-                      <SelectValue placeholder="Select payment method" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="onchain">₿ On-chain</SelectItem>
-                      <SelectItem value="lightning">⚡ Lightning</SelectItem>
-                      <SelectItem value="both">₿ On-chain + ⚡ Lightning</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label>Payment Method {paymentMethods.length > 0 && <span className="text-primary font-semibold text-xs">({paymentMethods.length} selected)</span>}</Label>
+                  <p className="text-xs text-muted-foreground">Select all that apply.</p>
+                  <div className="flex flex-wrap gap-2" data-testid="payment-method-selector">
+                    {[{ value: "onchain", label: "₿ On-chain" }, { value: "lightning", label: "⚡ Lightning" }].map((m) => {
+                      const active = paymentMethods.includes(m.value);
+                      return (
+                        <button
+                          key={m.value}
+                          type="button"
+                          onClick={() => togglePayment(m.value)}
+                          className={`text-xs px-2.5 py-1 rounded-full border transition-all ${active ? "bg-primary text-primary-foreground border-primary font-medium shadow-sm" : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"}`}
+                          data-testid={`payment-option-${m.value}`}
+                        >
+                          {m.label}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 <div className="space-y-2">

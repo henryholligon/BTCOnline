@@ -13,7 +13,7 @@ export const merchants = pgTable("merchants", {
   website: text("website").notNull(),
   lightningSupported: boolean("lightning_supported").notNull().default(false),
   onchainSupported: boolean("onchain_supported").notNull().default(false),
-  paymentProviders: text("payment_providers").array(),
+  paymentProvider: text("payment_provider"),
   featured: boolean("featured").default(false),
   countryMadeIn: text("country_made_in"),
   countryShippedFrom: text("country_shipped_from"),

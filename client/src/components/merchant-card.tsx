@@ -221,10 +221,10 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               </div>
             )}
 
-            {merchant.paymentProviders && merchant.paymentProviders.length > 0 && (
+            {merchant.paymentProvider && (
               <div className="space-y-1">
                 <span className="text-muted-foreground/70 uppercase tracking-wider text-[10px] font-semibold">Provider</span>
-                <p className="text-foreground">{merchant.paymentProviders.join(", ")}</p>
+                <p className="text-foreground">{merchant.paymentProvider}</p>
               </div>
             )}
 
