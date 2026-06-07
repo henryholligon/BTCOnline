@@ -473,7 +473,7 @@ export default function NostrLoginModal() {
 
   const tabs: { id: Tab; label: string; icon: ReactNode }[] = [
     { id: "extension", label: "Extension", icon: <ShieldCheck className="h-3.5 w-3.5" /> },
-    { id: "bunker", label: "Bunker / Import", icon: <Wifi className="h-3.5 w-3.5" /> },
+    { id: "bunker", label: "Bunker / Key", icon: <Wifi className="h-3.5 w-3.5" /> },
     { id: "new", label: "New Account", icon: <Key className="h-3.5 w-3.5" /> },
   ];
 

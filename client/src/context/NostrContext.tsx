@@ -232,8 +232,8 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
   const restoreGeneratedSession = useCallback(async (ncryptsec: string, password: string) => {
     const sk = ncryptsecDecrypt(ncryptsec, password);
     secretKeyRef.current = sk;
-    const session = loadSession();
-    const pubkey = session?.pubkey ?? getPublicKey(sk);
+    const pubkey = getPublicKey(sk);
+    saveSession({ pubkey, method: 'generated', ncryptsec });
     setRestoringNcryptsec(null);
     setIsLoginModalOpen(false);
     await initUser(pubkey, 'generated');
