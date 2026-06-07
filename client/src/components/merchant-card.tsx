@@ -169,7 +169,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
           )}
         </div>
 
-        <div className="shrink-0 self-start mt-1 flex items-center gap-1">
+        <div className="shrink-0 self-start mt-1 hidden md:flex items-center gap-1">
           <button
             type="button"
             className={`h-8 w-8 flex items-center justify-center rounded-lg transition-colors ${user && favourites.has(merchant.website) ? "text-red-500 hover:text-red-600" : "text-muted-foreground/40 hover:text-red-400"}`}
@@ -330,6 +330,73 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 {copied ? "Copied!" : "Share Merchant"}
                 {copied ? <Check className="ml-1 h-3.5 w-3.5 text-green-500" /> : <Copy className="ml-1 h-3.5 w-3.5" />}
               </Button>
+            </div>
+            <div className="pt-1 md:hidden flex items-center gap-2 col-span-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className={`gap-1.5 ${user && favourites.has(merchant.website) ? "text-red-500 border-red-500/40" : ""}`}
+                onClick={() => toggleFavourite(merchant.website)}
+                data-testid={`button-favourite-mobile-${merchant.id}`}
+              >
+                <Heart className={`h-3.5 w-3.5 ${user && favourites.has(merchant.website) ? "fill-current" : ""}`} />
+                {user && favourites.has(merchant.website) ? "Saved" : "Favourite"}
+              </Button>
+              {!user ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1.5"
+                  onClick={openLoginModal}
+                  data-testid={`button-add-to-list-mobile-${merchant.id}`}
+                >
+                  <ListPlus className="h-3.5 w-3.5" />
+                  Add to List
+                </Button>
+              ) : (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1.5"
+                      data-testid={`button-add-to-list-mobile-${merchant.id}`}
+                    >
+                      <ListPlus className="h-3.5 w-3.5" />
+                      Add to List
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-52 p-2" align="start">
+                    {lists.length === 0 ? (
+                      <div className="py-2 text-center space-y-1">
+                        <p className="text-xs text-muted-foreground">No lists yet.</p>
+                        <Link href="/lists" className="text-xs text-primary hover:underline">Create a list</Link>
+                      </div>
+                    ) : (
+                      <div className="space-y-0.5">
+                        <p className="text-xs font-medium text-muted-foreground mb-1.5 px-1">Add to list</p>
+                        {lists.map(list => {
+                          const inList = list.urls.includes(merchant.website);
+                          return (
+                            <button
+                              key={list.dTag}
+                              type="button"
+                              onClick={() => toggleListMember(list.dTag, merchant.website, inList)}
+                              className="flex items-center gap-2 w-full rounded px-2 py-1.5 text-sm hover:bg-muted transition-colors"
+                              data-testid={`button-toggle-list-mobile-${list.dTag}-${merchant.id}`}
+                            >
+                              <div className={`h-3.5 w-3.5 rounded border flex items-center justify-center shrink-0 ${inList ? "bg-primary border-primary" : "border-input"}`}>
+                                {inList && <Check className="h-2.5 w-2.5 text-primary-foreground" />}
+                              </div>
+                              <span className="truncate text-left">{list.title}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </PopoverContent>
+                </Popover>
+              )}
             </div>
             <div className="pt-1 md:col-start-1 hidden md:block">
               <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
