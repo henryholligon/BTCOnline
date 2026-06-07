@@ -82,7 +82,22 @@ export async function fetchFavourites(pubkey: string, relays: string[]): Promise
 }
 
 export async function fetchUserLists(pubkey: string, relays: string[]): Promise<Event[]> {
-  return poolQuerySync(relays, { kinds: [30004], authors: [pubkey] });
+  const events = await poolQuerySync(relays, { kinds: [30004], authors: [pubkey] });
+
+  // Parametrized replaceable events: keep only the latest event per d-tag
+  const latestByDTag = new Map<string, Event>();
+  for (const event of events) {
+    const dTag = event.tags.find(t => t[0] === 'd')?.[1] ?? event.id;
+    const existing = latestByDTag.get(dTag);
+    if (!existing || event.created_at > existing.created_at) {
+      latestByDTag.set(dTag, event);
+    }
+  }
+
+  // Exclude tombstoned / deleted lists
+  return Array.from(latestByDTag.values()).filter(
+    event => !event.tags.some(t => t[0] === 'deleted' && t[1] === 'true')
+  );
 }
 
 export function getListTitle(event: Event): string {

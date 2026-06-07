@@ -252,7 +252,8 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
 
   const publishEvent = useCallback(async (template: EventTemplate) => {
     const signed = await signEvent(template);
-    await Promise.any(writeRelays.map(relay => pool.publish([relay], signed)));
+    const promises = pool.publish(writeRelays, signed);
+    await Promise.any(promises);
     return signed;
   }, [signEvent, writeRelays]);
 
