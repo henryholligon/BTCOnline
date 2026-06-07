@@ -22,14 +22,14 @@ interface ImportResult { success: number; errors: Array<{ row: number; message: 
 interface UploadedLogo { originalName: string; savedAs: string; path: string; }
 interface MerchantForm {
   name: string; website: string; description: string; logo: string;
-  lightningSupported: boolean; onchainSupported: boolean; paymentProvider: string;
+  lightningSupported: boolean; onchainSupported: boolean; paymentProviders: string[];
   categories: string[]; shippingCountries: string[];
   countryMadeIn: string; countryShippedFrom: string; lastSurveyed: string; bitcoinDiscount: string;
 }
 
 const emptyForm: MerchantForm = {
   name: "", website: "", description: "", logo: "",
-  lightningSupported: false, onchainSupported: false, paymentProvider: "",
+  lightningSupported: false, onchainSupported: false, paymentProviders: [],
   categories: [], shippingCountries: [],
   countryMadeIn: "", countryShippedFrom: "", lastSurveyed: "", bitcoinDiscount: "",
 };
@@ -71,7 +71,7 @@ function merchantToForm(m: Merchant): MerchantForm {
   return {
     name: m.name, website: m.website, description: m.description, logo: m.logo,
     lightningSupported: m.lightningSupported, onchainSupported: m.onchainSupported,
-    paymentProvider: m.paymentProvider || "", categories: m.categories,
+    paymentProviders: m.paymentProviders || [], categories: m.categories,
     shippingCountries: m.shippingCountries.map(normalizeCountry),
     countryMadeIn: normalizeCountry(m.countryMadeIn || ""),
     countryShippedFrom: normalizeCountry(m.countryShippedFrom || ""),
@@ -260,7 +260,7 @@ export default function Admin() {
   const setField = <K extends keyof MerchantForm>(key: K, value: MerchantForm[K]) => {
     setForm(f => ({ ...f, [key]: value })); setSubmitResult(null);
   };
-  const toggleItem = (key: "categories" | "shippingCountries", item: string) => {
+  const toggleItem = (key: "categories" | "shippingCountries" | "paymentProviders", item: string) => {
     setForm(f => ({ ...f, [key]: f[key].includes(item) ? f[key].filter(x => x !== item) : [...f[key], item] }));
     setSubmitResult(null);
   };
@@ -269,7 +269,7 @@ export default function Admin() {
   const setEditField = <K extends keyof MerchantForm>(key: K, value: MerchantForm[K]) => {
     setEditForm(f => ({ ...f, [key]: value })); setEditResult(null); setConfirmDelete(false);
   };
-  const toggleEditItem = (key: "categories" | "shippingCountries", item: string) => {
+  const toggleEditItem = (key: "categories" | "shippingCountries" | "paymentProviders", item: string) => {
     setEditForm(f => ({ ...f, [key]: f[key].includes(item) ? f[key].filter(x => x !== item) : [...f[key], item] }));
     setEditResult(null);
   };
@@ -304,7 +304,7 @@ export default function Admin() {
     }
     setSubmitting(true); setSubmitResult(null);
     try {
-      const payload = { ...form, logo: form.logo || "🏪", lastSurveyed: form.lastSurveyed || null, paymentProvider: form.paymentProvider || null, countryMadeIn: form.countryMadeIn || null, countryShippedFrom: form.countryShippedFrom || null, bitcoinDiscount: form.bitcoinDiscount || null };
+      const payload = { ...form, logo: form.logo || "🏪", lastSurveyed: form.lastSurveyed || null, paymentProviders: form.paymentProviders.length > 0 ? form.paymentProviders : null, countryMadeIn: form.countryMadeIn || null, countryShippedFrom: form.countryShippedFrom || null, bitcoinDiscount: form.bitcoinDiscount || null };
       const res = await fetch("/api/merchants", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       if (res.ok) {
         setSubmitResult({ success: true, message: `"${form.name}" has been added to the directory!` });
@@ -324,7 +324,7 @@ export default function Admin() {
     }
     setSaving(true); setEditResult(null);
     try {
-      const payload = { ...editForm, logo: editForm.logo || "🏪", lastSurveyed: editForm.lastSurveyed || null, paymentProvider: editForm.paymentProvider || null, countryMadeIn: editForm.countryMadeIn || null, countryShippedFrom: editForm.countryShippedFrom || null, bitcoinDiscount: editForm.bitcoinDiscount || null };
+      const payload = { ...editForm, logo: editForm.logo || "🏪", lastSurveyed: editForm.lastSurveyed || null, paymentProviders: editForm.paymentProviders.length > 0 ? editForm.paymentProviders : null, countryMadeIn: editForm.countryMadeIn || null, countryShippedFrom: editForm.countryShippedFrom || null, bitcoinDiscount: editForm.bitcoinDiscount || null };
       const res = await fetch(`/api/merchants/${editingMerchant.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       if (res.ok) {
         const updated = await res.json();
@@ -564,7 +564,7 @@ export default function Admin() {
                     <span><strong className="text-foreground">shippingCountries</strong> — By ;</span>
                     <span><strong className="text-foreground">lightning</strong> — true/false</span>
                     <span><strong className="text-foreground">onchain</strong> — true/false</span>
-                    <span><strong className="text-foreground">paymentProvider</strong> — e.g. BTCPay</span>
+                    <span><strong className="text-foreground">paymentProviders</strong> — Separated by ;</span>
                     <span><strong className="text-foreground">countryMadeIn</strong> — e.g. USA</span>
                     <span><strong className="text-foreground">lastSurveyed</strong> — YYYY-MM-DD</span>
                     <span><strong className="text-foreground">bitcoinDiscount</strong> — e.g. 10% off</span>
@@ -598,7 +598,7 @@ export default function Admin() {
                           <td className="p-2"><a href={row.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline truncate block max-w-[150px]">{row.website}</a></td>
                           <td className="p-2">{parseBoolDisplay(row.lightningSupported||row.lightning_supported||row.lightning) ? <Badge variant="secondary" className="text-[9px]">Yes</Badge> : <span className="text-muted-foreground">No</span>}</td>
                           <td className="p-2">{parseBoolDisplay(row.onchainSupported||row.onchain_supported||row.onchain) ? <Badge variant="secondary" className="text-[9px]">Yes</Badge> : <span className="text-muted-foreground">No</span>}</td>
-                          <td className="p-2 max-w-[120px] truncate text-muted-foreground">{row.paymentProvider||row.payment_provider||"—"}</td>
+                          <td className="p-2 max-w-[120px] truncate text-muted-foreground">{row.paymentProviders||row.payment_providers||row.paymentProvider||row.payment_provider||"—"}</td>
                           <td className="p-2 max-w-[120px] truncate text-muted-foreground">{row.shippingCountries||row.shipping_countries||"—"}</td>
                           <td className="p-2 max-w-[120px] truncate text-muted-foreground">{row.bitcoinDiscount||row.bitcoin_discount||"—"}</td>
                         </tr>
@@ -871,7 +871,7 @@ export default function Admin() {
 function MerchantFormFields({ form, setField, toggleItem, logoPreview, setLogoPreview, logoUploading, onLogoFileUpload, badgePresets, customCategories, customCountries, customProviders }: {
   form: MerchantForm;
   setField: <K extends keyof MerchantForm>(key: K, value: MerchantForm[K]) => void;
-  toggleItem: (key: "categories" | "shippingCountries", item: string) => void;
+  toggleItem: (key: "categories" | "shippingCountries" | "paymentProviders", item: string) => void;
   logoPreview: string;
   setLogoPreview: (v: string) => void;
   logoUploading: boolean;
@@ -963,12 +963,18 @@ function MerchantFormFields({ form, setField, toggleItem, logoPreview, setLogoPr
             <Switch checked={form.onchainSupported} onCheckedChange={v => setField("onchainSupported", v)} />
           </label>
         </div>
-        <Field label="Payment Provider">
-          <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" value={form.paymentProvider} onChange={e => setField("paymentProvider", e.target.value)} data-testid="select-payment-provider">
-            <option value="">— Select provider —</option>
-            {allProviders.map(p => <option key={p} value={p}>{p}</option>)}
-          </select>
-        </Field>
+        <div className="space-y-1.5">
+          <span className="text-xs font-medium text-muted-foreground">Payment Providers {form.paymentProviders.length > 0 && <span className="ml-1 text-primary font-semibold">{form.paymentProviders.length} selected</span>}</span>
+          <div className="flex flex-wrap gap-2" data-testid="provider-selector">
+            {allProviders.map(p => {
+              const active = form.paymentProviders.includes(p);
+              return <button key={p} type="button" onClick={() => toggleItem("paymentProviders", p)} className={`text-xs px-2.5 py-1 rounded-full border transition-all ${active ? "bg-primary text-primary-foreground border-primary font-medium shadow-sm" : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"}`} data-testid={`provider-${p}`}>{p}</button>;
+            })}
+            {form.paymentProviders.filter(p => !allProviders.includes(p)).map(orphan => (
+              <button key={orphan} type="button" onClick={() => toggleItem("paymentProviders", orphan)} className="text-xs px-2.5 py-1 rounded-full border bg-primary text-primary-foreground border-primary font-medium shadow-sm" data-testid={`provider-orphan-${orphan}`}>{orphan}</button>
+            ))}
+          </div>
+        </div>
       </Card>
 
       <Card className="p-5 space-y-3">
@@ -1056,7 +1062,7 @@ function LivePreview({ form, logoPreview, shippingText }: { form: MerchantForm; 
       </div>
       <div className="rounded-xl border border-border p-4 space-y-2 text-xs bg-muted/20">
         <Row label="Payment" value={[form.lightningSupported && "⚡ Lightning", form.onchainSupported && "₿ On-Chain"].filter(Boolean).join("  ") || "—"} />
-        <Row label="Provider" value={form.paymentProvider || "—"} />
+        <Row label="Provider" value={form.paymentProviders.length > 0 ? form.paymentProviders.join(", ") : "—"} />
         <Row label="Categories" value={form.categories.length > 0 ? `${form.categories.length} selected` : "—"} />
         <Row label="Availability" value={form.shippingCountries.length > 0 ? `${form.shippingCountries.length} region(s)` : "—"} />
         {form.countryMadeIn && <Row label="Made in" value={form.countryMadeIn} />}

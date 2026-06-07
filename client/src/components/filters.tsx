@@ -290,7 +290,7 @@ export default function Filters({
 
   const dynamicProviders = useMemo(() => {
     const provSet = new Set<string>();
-    merchants.forEach(m => { if (m.paymentProvider) provSet.add(m.paymentProvider); });
+    merchants.forEach(m => { m.paymentProviders?.forEach(p => provSet.add(p)); });
     return Array.from(provSet).sort();
   }, [merchants]);
 

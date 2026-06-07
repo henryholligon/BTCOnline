@@ -107,7 +107,7 @@ export default function Home() {
 
       const matchesProvider = 
         selectedProviders.length === 0 || 
-        (merchant.paymentProvider && selectedProviders.includes(merchant.paymentProvider));
+        (merchant.paymentProviders != null && merchant.paymentProviders.some(p => selectedProviders.includes(p)));
 
       const matchesPaymentMethod = 
         selectedPaymentMethods.length === 0 || 

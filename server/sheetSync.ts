@@ -130,7 +130,7 @@ export async function runSheetSync(): Promise<{ count: number; errors: number; r
       website: String(row.website || "").trim(),
       lightningSupported: parseBool(row.lightningsupported || row.lightning_supported || row.lightning),
       onchainSupported: parseBool(row.onchainsupported || row.onchain_supported || row.onchain),
-      paymentProvider: row.paymentprovider || row.payment_provider || null,
+      paymentProviders: parseArrayField(row.paymentproviders || row.payment_providers || row.paymentprovider || row.payment_provider || ""),
       featured: false,
       countryMadeIn: row.countrymadein || row.country_made_in || row.madein || row.made_in || null,
       countryShippedFrom: row.countryshippedfrom || row.country_shipped_from || null,
