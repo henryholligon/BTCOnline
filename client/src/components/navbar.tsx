@@ -25,10 +25,8 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
   const [logoMenuOpen, setLogoMenuOpen] = useState(false);
   const [businessName, setBusinessName] = useState("");
   const [businessUrl, setBusinessUrl] = useState("");
-  const [businessCategories, setBusinessCategories] = useState<string[]>([]);
-  const [paymentMethods, setPaymentMethods] = useState<string[]>([]);
-  const toggleCategory = (c: string) => setBusinessCategories(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]);
-  const togglePayment = (m: string) => setPaymentMethods(prev => prev.includes(m) ? prev.filter(x => x !== m) : [...prev, m]);
+  const [businessCategory, setBusinessCategory] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("");
   const [notes, setNotes] = useState("");
   const [dataSource, setDataSource] = useState("");
   const [publicContact, setPublicContact] = useState("");
@@ -66,10 +64,6 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
 
   const handleSubmitMerchant = (e: React.FormEvent) => {
     e.preventDefault();
-    if (businessCategories.length === 0) {
-      toast({ title: "Category Required", description: "Please select at least one category." });
-      return;
-    }
     if (!altchaVerified) {
       toast({ title: "Captcha Required", description: "Please complete the captcha verification." });
       return;
@@ -81,8 +75,8 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
     });
     setBusinessName("");
     setBusinessUrl("");
-    setBusinessCategories([]);
-    setPaymentMethods([]);
+    setBusinessCategory("");
+    setPaymentMethod("");
     setNotes("");
     setDataSource("");
     setPublicContact("");
