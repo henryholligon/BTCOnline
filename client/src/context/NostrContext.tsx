@@ -32,7 +32,7 @@ export interface NostrList {
   dTag: string;
   title: string;
   urls: string[];
-  event: Event;
+  event: Event | null;
 }
 
 interface StoredSession {
@@ -282,7 +282,7 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
       tags: [['d', dTag], ['title', name]],
       content: '',
     });
-    setLists(prev => [...prev, { dTag, title: name, urls: [], event: {} as Event }]);
+    setLists(prev => [...prev, { dTag, title: name, urls: [], event: null }]);
   }, [user, publishEvent]);
 
   const deleteList = useCallback(async (dTag: string) => {

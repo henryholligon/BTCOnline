@@ -24,10 +24,11 @@ export function hexToBytes(hex: string): Uint8Array {
 
 export async function poolGet(relays: string[], filter: Filter, timeout = 5000): Promise<Event | null> {
   try {
-    return await Promise.race([
-      pool.get(relays, filter),
-      new Promise<null>(resolve => setTimeout(() => resolve(null), timeout)),
-    ]);
+    // Collect all responses within the window and return the one with the
+    // highest created_at so we never serve stale replaceable-event data.
+    const events = await pool.querySync(relays, filter, { maxWait: timeout });
+    if (events.length === 0) return null;
+    return events.reduce((best, e) => (e.created_at > best.created_at ? e : best));
   } catch {
     return null;
   }
