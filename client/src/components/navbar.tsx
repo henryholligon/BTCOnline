@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Sun, Moon, Plus, ChevronDown } from "lucide-react";
+import { Sun, Moon, Plus, ChevronDown, Check } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,75 @@ interface NavbarProps {
   onClearFilters?: () => void;
 }
 
+const PAYMENT_OPTIONS = [
+  { value: "onchain", label: "₿ On-chain" },
+  { value: "lightning", label: "⚡ Lightning" },
+];
+
+function MultiSelect({ options, selected, onChange, placeholder, testId }: {
+  options: { value: string; label: string }[];
+  selected: string[];
+  onChange: (vals: string[]) => void;
+  placeholder: string;
+  testId: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  const toggle = (val: string) => {
+    onChange(selected.includes(val) ? selected.filter(v => v !== val) : [...selected, val]);
+  };
+
+  const label = selected.length === 0
+    ? placeholder
+    : selected.length === 1
+      ? options.find(o => o.value === selected[0])?.label ?? selected[0]
+      : `${selected.length} selected`;
+
+  return (
+    <div ref={ref} className="relative" data-testid={testId}>
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+        data-testid={`${testId}-trigger`}
+      >
+        <span className={selected.length === 0 ? "text-muted-foreground" : ""}>{label}</span>
+        <ChevronDown className={`h-4 w-4 opacity-50 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="absolute z-50 mt-1 w-full rounded-md border border-border bg-popover shadow-md">
+          <div className="max-h-60 overflow-auto p-1">
+            {options.map(opt => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => toggle(opt.value)}
+                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground"
+                data-testid={`${testId}-option-${opt.value}`}
+              >
+                <div className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${selected.includes(opt.value) ? "border-primary bg-primary text-primary-foreground" : "border-input"}`}>
+                  {selected.includes(opt.value) && <Check className="h-3 w-3" />}
+                </div>
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Navbar({ onSearch, filtersSlot, onClearFilters }: NavbarProps) {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
@@ -25,8 +94,8 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
   const [logoMenuOpen, setLogoMenuOpen] = useState(false);
   const [businessName, setBusinessName] = useState("");
   const [businessUrl, setBusinessUrl] = useState("");
-  const [businessCategory, setBusinessCategory] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("");
+  const [businessCategories, setBusinessCategories] = useState<string[]>([]);
+  const [paymentMethods, setPaymentMethods] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
   const [dataSource, setDataSource] = useState("");
   const [publicContact, setPublicContact] = useState("");
@@ -75,13 +144,15 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
     });
     setBusinessName("");
     setBusinessUrl("");
-    setBusinessCategory("");
-    setPaymentMethod("");
+    setBusinessCategories([]);
+    setPaymentMethods([]);
     setNotes("");
     setDataSource("");
     setPublicContact("");
     setAltchaVerified(false);
   };
+
+  const categoryOptions = CATEGORIES.map(c => ({ value: c, label: c }));
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
@@ -115,45 +186,25 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Category {businessCategories.length > 0 && <span className="text-primary font-semibold text-xs">({businessCategories.length} selected)</span>}</Label>
-                  <p className="text-xs text-muted-foreground">Select all that apply.</p>
-                  <div className="flex flex-wrap gap-2" data-testid="category-selector">
-                    {CATEGORIES.map((cat) => {
-                      const active = businessCategories.includes(cat);
-                      return (
-                        <button
-                          key={cat}
-                          type="button"
-                          onClick={() => toggleCategory(cat)}
-                          className={`text-xs px-2.5 py-1 rounded-full border transition-all ${active ? "bg-primary text-primary-foreground border-primary font-medium shadow-sm" : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"}`}
-                          data-testid={`category-option-${cat}`}
-                        >
-                          {cat}
-                        </button>
-                      );
-                    })}
-                  </div>
+                  <Label>Category</Label>
+                  <MultiSelect
+                    options={categoryOptions}
+                    selected={businessCategories}
+                    onChange={setBusinessCategories}
+                    placeholder="Select categories"
+                    testId="select-business-category"
+                  />
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Payment Method {paymentMethods.length > 0 && <span className="text-primary font-semibold text-xs">({paymentMethods.length} selected)</span>}</Label>
-                  <p className="text-xs text-muted-foreground">Select all that apply.</p>
-                  <div className="flex flex-wrap gap-2" data-testid="payment-method-selector">
-                    {[{ value: "onchain", label: "₿ On-chain" }, { value: "lightning", label: "⚡ Lightning" }].map((m) => {
-                      const active = paymentMethods.includes(m.value);
-                      return (
-                        <button
-                          key={m.value}
-                          type="button"
-                          onClick={() => togglePayment(m.value)}
-                          className={`text-xs px-2.5 py-1 rounded-full border transition-all ${active ? "bg-primary text-primary-foreground border-primary font-medium shadow-sm" : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"}`}
-                          data-testid={`payment-option-${m.value}`}
-                        >
-                          {m.label}
-                        </button>
-                      );
-                    })}
-                  </div>
+                  <Label>Payment Method</Label>
+                  <MultiSelect
+                    options={PAYMENT_OPTIONS}
+                    selected={paymentMethods}
+                    onChange={setPaymentMethods}
+                    placeholder="Select payment methods"
+                    testId="select-payment-method"
+                  />
                 </div>
 
                 <div className="space-y-2">
