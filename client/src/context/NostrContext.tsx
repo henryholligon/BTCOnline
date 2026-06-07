@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { generateSecretKey, getPublicKey, finalizeEvent } from 'nostr-tools';
 import { npubEncode, nsecEncode } from 'nostr-tools/nip19';
+import { decrypt as ncryptsecDecrypt } from 'nostr-tools/nip49';
 import { BunkerSigner } from 'nostr-tools/nip46';
 import type { Event, EventTemplate, VerifiedEvent } from 'nostr-tools';
 import {
@@ -37,7 +38,7 @@ export interface NostrList {
 interface StoredSession {
   pubkey: string;
   method: LoginMethod;
-  skHex?: string;
+  ncryptsec?: string;
   bunkerUri?: string;
   bunkerLocalSkHex?: string;
 }
@@ -52,13 +53,16 @@ interface NostrContextValue {
   isLoginModalOpen: boolean;
   loginNip07: () => Promise<void>;
   loginWithBunker: (bunkerUri: string) => Promise<void>;
-  loginWithGeneratedKey: (sk: Uint8Array) => Promise<void>;
+  loginWithGeneratedKey: (sk: Uint8Array, ncryptsec?: string) => Promise<void>;
+  restoreGeneratedSession: (ncryptsec: string, password: string) => Promise<void>;
   logout: () => void;
   signEvent: (template: EventTemplate) => Promise<VerifiedEvent>;
   toggleFavourite: (merchantUrl: string) => Promise<void>;
   createList: (name: string) => Promise<void>;
   deleteList: (dTag: string) => Promise<void>;
+  renameList: (dTag: string, newTitle: string) => Promise<void>;
   toggleListMember: (dTag: string, merchantUrl: string, currentlyInList: boolean) => Promise<void>;
+  restoringNcryptsec: string | null;
   openLoginModal: () => void;
   closeLoginModal: () => void;
 }
@@ -98,12 +102,16 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
   const [lists, setLists] = useState<NostrList[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [restoringNcryptsec, setRestoringNcryptsec] = useState<string | null>(null);
 
   const secretKeyRef = useRef<Uint8Array | null>(null);
   const bunkerSignerRef = useRef<BunkerSigner | null>(null);
 
   const openLoginModal = useCallback(() => setIsLoginModalOpen(true), []);
-  const closeLoginModal = useCallback(() => setIsLoginModalOpen(false), []);
+  const closeLoginModal = useCallback(() => {
+    setIsLoginModalOpen(false);
+    setRestoringNcryptsec(prev => { if (prev) clearSession(); return null; });
+  }, []);
 
   const signEvent = useCallback(async (template: EventTemplate): Promise<VerifiedEvent> => {
     const session = loadSession();
@@ -168,10 +176,13 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
       } else {
         clearSession();
       }
-    } else if (session.method === 'generated' && session.skHex) {
-      const sk = hexToBytes(session.skHex);
-      secretKeyRef.current = sk;
-      initUser(session.pubkey, 'generated');
+    } else if (session.method === 'generated') {
+      if (session.ncryptsec) {
+        setRestoringNcryptsec(session.ncryptsec);
+        setIsLoginModalOpen(true);
+      } else {
+        clearSession();
+      }
     } else if (session.method === 'nip46' && session.bunkerUri && session.bunkerLocalSkHex) {
       const localSk = hexToBytes(session.bunkerLocalSkHex);
       BunkerSigner.fromURI(localSk, session.bunkerUri, {
@@ -209,13 +220,24 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
     closeLoginModal();
   }, [initUser, closeLoginModal]);
 
-  const loginWithGeneratedKey = useCallback(async (sk: Uint8Array) => {
+  const loginWithGeneratedKey = useCallback(async (sk: Uint8Array, ncryptsec?: string) => {
     secretKeyRef.current = sk;
     const pubkey = getPublicKey(sk);
-    saveSession({ pubkey, method: 'generated', skHex: bytesToHex(sk) });
+    saveSession({ pubkey, method: 'generated', ncryptsec });
     await initUser(pubkey, 'generated');
+    setRestoringNcryptsec(null);
     closeLoginModal();
   }, [initUser, closeLoginModal]);
+
+  const restoreGeneratedSession = useCallback(async (ncryptsec: string, password: string) => {
+    const sk = ncryptsecDecrypt(ncryptsec, password);
+    secretKeyRef.current = sk;
+    const session = loadSession();
+    const pubkey = session?.pubkey ?? getPublicKey(sk);
+    setRestoringNcryptsec(null);
+    setIsLoginModalOpen(false);
+    await initUser(pubkey, 'generated');
+  }, [initUser]);
 
   const logout = useCallback(() => {
     clearSession();
@@ -273,6 +295,24 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
     setLists(prev => prev.filter(l => l.dTag !== dTag));
   }, [user, publishEvent]);
 
+  const renameList = useCallback(async (dTag: string, newTitle: string) => {
+    if (!user) return;
+    const list = lists.find(l => l.dTag === dTag);
+    if (!list) return;
+    const tags: string[][] = [
+      ['d', dTag],
+      ['title', newTitle],
+      ...list.urls.map(url => ['r', url]),
+    ];
+    await publishEvent({
+      kind: 30004,
+      created_at: Math.floor(Date.now() / 1000),
+      tags,
+      content: '',
+    });
+    setLists(prev => prev.map(l => l.dTag === dTag ? { ...l, title: newTitle } : l));
+  }, [user, lists, publishEvent]);
+
   const toggleListMember = useCallback(async (dTag: string, merchantUrl: string, currentlyInList: boolean) => {
     if (!user) return;
     const list = lists.find(l => l.dTag === dTag);
@@ -304,10 +344,10 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
     <NostrContext.Provider value={{
       user, readRelays, writeRelays, favourites, lists,
       isLoading, isLoginModalOpen,
-      loginNip07, loginWithBunker, loginWithGeneratedKey,
+      loginNip07, loginWithBunker, loginWithGeneratedKey, restoreGeneratedSession,
       logout, signEvent,
-      toggleFavourite, createList, deleteList, toggleListMember,
-      openLoginModal, closeLoginModal,
+      toggleFavourite, createList, deleteList, renameList, toggleListMember,
+      restoringNcryptsec, openLoginModal, closeLoginModal,
     }}>
       {children}
       <NostrLoginModal />

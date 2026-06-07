@@ -5,7 +5,7 @@ import Navbar from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { type Merchant } from "@shared/schema";
-import { Plus, Trash2, ExternalLink, List, ArrowLeft, Loader2 } from "lucide-react";
+import { Plus, Trash2, ExternalLink, List, ArrowLeft, Loader2, Pencil, Check, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import btcBgImage from "@assets/image_1771226498805.png";
 
@@ -43,12 +43,13 @@ function MerchantChip({ url, merchants }: { url: string; merchants: Merchant[] }
 }
 
 export default function ListsPage() {
-  const { user, lists, isLoading, createList, deleteList, toggleListMember, openLoginModal } = useNostr();
+  const { user, lists, isLoading, createList, deleteList, renameList, toggleListMember, openLoginModal } = useNostr();
   const { toast } = useToast();
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [newListName, setNewListName] = useState("");
   const [creatingList, setCreatingList] = useState(false);
   const [expandedList, setExpandedList] = useState<string | null>(null);
+  const [editingList, setEditingList] = useState<{ dTag: string; title: string } | null>(null);
 
   useEffect(() => {
     fetch("/api/merchants", { cache: "no-store" })
@@ -77,6 +78,17 @@ export default function ListsPage() {
       toast({ title: "List deleted", description: `"${title}" has been removed.` });
     } catch (e: any) {
       toast({ title: "Failed to delete list", description: e.message, variant: "destructive" });
+    }
+  };
+
+  const handleRenameList = async (dTag: string, newTitle: string) => {
+    if (!newTitle.trim()) return;
+    try {
+      await renameList(dTag, newTitle.trim());
+      setEditingList(null);
+      toast({ title: "List renamed" });
+    } catch (e: any) {
+      toast({ title: "Failed to rename list", description: e.message, variant: "destructive" });
     }
   };
 
@@ -146,13 +158,65 @@ export default function ListsPage() {
                     >
                       <div
                         className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-muted/40 transition-colors"
-                        onClick={() => setExpandedList(expandedList === list.dTag ? null : list.dTag)}
+                        onClick={() => {
+                          if (editingList?.dTag === list.dTag) return;
+                          setExpandedList(expandedList === list.dTag ? null : list.dTag);
+                        }}
                       >
-                        <div>
-                          <p className="font-medium text-sm">{list.title}</p>
-                          <p className="text-xs text-muted-foreground">{list.urls.length} merchant{list.urls.length !== 1 ? "s" : ""}</p>
+                        <div className="flex-1 min-w-0 mr-2">
+                          {editingList?.dTag === list.dTag ? (
+                            <div
+                              className="flex items-center gap-2"
+                              onClick={e => e.stopPropagation()}
+                            >
+                              <Input
+                                value={editingList.title}
+                                onChange={e => setEditingList({ ...editingList, title: e.target.value })}
+                                onKeyDown={e => {
+                                  if (e.key === "Enter") handleRenameList(list.dTag, editingList.title);
+                                  if (e.key === "Escape") setEditingList(null);
+                                }}
+                                className="h-7 text-sm"
+                                autoFocus
+                                data-testid={`input-rename-list-${list.dTag}`}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => handleRenameList(list.dTag, editingList.title)}
+                                className="h-7 w-7 flex items-center justify-center rounded-md text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors shrink-0"
+                                data-testid={`button-save-rename-${list.dTag}`}
+                              >
+                                <Check className="h-3.5 w-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setEditingList(null)}
+                                className="h-7 w-7 flex items-center justify-center rounded-md text-muted-foreground hover:bg-muted transition-colors shrink-0"
+                                data-testid={`button-cancel-rename-${list.dTag}`}
+                              >
+                                <X className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          ) : (
+                            <>
+                              <p className="font-medium text-sm truncate">{list.title}</p>
+                              <p className="text-xs text-muted-foreground">{list.urls.length} merchant{list.urls.length !== 1 ? "s" : ""}</p>
+                            </>
+                          )}
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            type="button"
+                            onClick={e => {
+                              e.stopPropagation();
+                              setEditingList(editingList?.dTag === list.dTag ? null : { dTag: list.dTag, title: list.title });
+                            }}
+                            className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                            data-testid={`button-rename-list-${list.dTag}`}
+                            title="Rename list"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
                           <button
                             type="button"
                             onClick={e => { e.stopPropagation(); handleDeleteList(list.dTag, list.title); }}

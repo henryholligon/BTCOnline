@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -99,20 +99,30 @@ function ExtensionTab() {
   );
 }
 
+type BunkerMode = "bunker" | "ncryptsec";
+
 function BunkerTab() {
-  const { loginWithBunker } = useNostr();
+  const { loginWithBunker, restoreGeneratedSession } = useNostr();
+  const [mode, setMode] = useState<BunkerMode>("bunker");
   const [uri, setUri] = useState("");
+  const [ncryptsec, setNcryptsec] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleConnect = async () => {
     setError("");
-    if (!uri.trim()) { setError("Please enter a bunker URI"); return; }
     setLoading(true);
     try {
-      await loginWithBunker(uri.trim());
+      if (mode === "bunker") {
+        if (!uri.trim()) { setError("Please enter a bunker URI"); setLoading(false); return; }
+        await loginWithBunker(uri.trim());
+      } else {
+        if (!ncryptsec.trim()) { setError("Please enter an ncryptsec string"); setLoading(false); return; }
+        await restoreGeneratedSession(ncryptsec.trim(), password);
+      }
     } catch (e: any) {
-      setError(e.message || "Failed to connect to bunker");
+      setError(mode === "bunker" ? (e.message || "Failed to connect to bunker") : "Incorrect password or invalid ncryptsec");
     } finally {
       setLoading(false);
     }
@@ -120,34 +130,87 @@ function BunkerTab() {
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
-        Connect via a remote signer (NIP-46). Works with Amber on Android, or any NIP-46 compatible bunker.
-      </p>
-
-      <div className="space-y-2">
-        <Label htmlFor="bunker-uri">Bunker URI</Label>
-        <Input
-          id="bunker-uri"
-          placeholder="bunker://pubkey?relay=wss://..."
-          value={uri}
-          onChange={e => setUri(e.target.value)}
-          className="font-mono text-xs"
-          data-testid="input-bunker-uri"
-        />
-        <p className="text-xs text-muted-foreground">
-          Paste the <code>bunker://</code> URI from your signer app.
-        </p>
+      <div className="flex rounded-lg border border-border overflow-hidden">
+        <button
+          type="button"
+          onClick={() => { setMode("bunker"); setError(""); }}
+          className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${mode === "bunker" ? "bg-primary text-primary-foreground" : "hover:bg-muted text-muted-foreground"}`}
+          data-testid="tab-bunker-uri"
+        >
+          bunker:// URI
+        </button>
+        <button
+          type="button"
+          onClick={() => { setMode("ncryptsec"); setError(""); }}
+          className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${mode === "ncryptsec" ? "bg-primary text-primary-foreground" : "hover:bg-muted text-muted-foreground"}`}
+          data-testid="tab-ncryptsec-import"
+        >
+          ncryptsec
+        </button>
       </div>
+
+      {mode === "bunker" ? (
+        <>
+          <p className="text-sm text-muted-foreground">
+            Connect via a remote signer (NIP-46). Works with Amber on Android, or any NIP-46 compatible bunker.
+          </p>
+          <div className="space-y-2">
+            <Label htmlFor="bunker-uri">Bunker URI</Label>
+            <Input
+              id="bunker-uri"
+              placeholder="bunker://pubkey?relay=wss://..."
+              value={uri}
+              onChange={e => setUri(e.target.value)}
+              className="font-mono text-xs"
+              data-testid="input-bunker-uri"
+            />
+            <p className="text-xs text-muted-foreground">
+              Paste the <code>bunker://</code> URI from your signer app.
+            </p>
+          </div>
+        </>
+      ) : (
+        <>
+          <p className="text-sm text-muted-foreground">
+            Import an encrypted private key (NIP-49) and the password used to encrypt it.
+          </p>
+          <div className="space-y-2">
+            <Label htmlFor="ncryptsec-input">Encrypted Key (ncryptsec)</Label>
+            <Input
+              id="ncryptsec-input"
+              placeholder="ncryptsec1..."
+              value={ncryptsec}
+              onChange={e => setNcryptsec(e.target.value)}
+              className="font-mono text-xs"
+              data-testid="input-ncryptsec"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="ncryptsec-password">Password</Label>
+            <Input
+              id="ncryptsec-password"
+              type="password"
+              placeholder="Password used to encrypt this key"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleConnect()}
+              data-testid="input-ncryptsec-password"
+            />
+          </div>
+        </>
+      )}
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
       <Button
         className="w-full"
         onClick={handleConnect}
-        disabled={loading || !uri.trim()}
+        disabled={loading || (mode === "bunker" ? !uri.trim() : !ncryptsec.trim())}
         data-testid="button-connect-bunker"
       >
-        {loading ? "Connecting to bunker…" : "Connect"}
+        {loading
+          ? (mode === "bunker" ? "Connecting to bunker…" : "Decrypting…")
+          : (mode === "bunker" ? "Connect" : "Import Key")}
       </Button>
     </div>
   );
@@ -202,7 +265,7 @@ function NewAccountTab() {
     setLoading(true);
     setError("");
     try {
-      await loginWithGeneratedKey(generatedSk);
+      await loginWithGeneratedKey(generatedSk, ncryptsec || undefined);
     } catch (e: any) {
       setError(e.message || "Failed to log in");
     } finally {
@@ -235,7 +298,7 @@ function NewAccountTab() {
             data-testid="input-new-password"
           />
           <p className="text-xs text-muted-foreground">
-            If set, your key will be stored as an encrypted ncryptsec (NIP-49).
+            If set, your key will be stored as an encrypted ncryptsec (NIP-49). You'll need this password to restore your session.
           </p>
         </div>
 
@@ -336,13 +399,81 @@ function NewAccountTab() {
   );
 }
 
+function RestoreSessionView() {
+  const { restoringNcryptsec, restoreGeneratedSession, closeLoginModal } = useNostr();
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleRestore = async () => {
+    if (!restoringNcryptsec) return;
+    setError("");
+    setLoading(true);
+    try {
+      await restoreGeneratedSession(restoringNcryptsec, password);
+    } catch {
+      setError("Incorrect password. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-start gap-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg px-3 py-2.5">
+        <ShieldCheck className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+        <div>
+          <p className="text-xs font-semibold text-blue-800 dark:text-blue-300">Welcome back</p>
+          <p className="text-xs text-blue-700 dark:text-blue-400">
+            Enter your password to decrypt and restore your Nostr identity.
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="restore-password">Password</Label>
+        <Input
+          id="restore-password"
+          type="password"
+          placeholder="Your encryption password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && handleRestore()}
+          autoFocus
+          data-testid="input-restore-password"
+        />
+      </div>
+
+      {error && <p className="text-sm text-destructive">{error}</p>}
+
+      <Button
+        className="w-full"
+        onClick={handleRestore}
+        disabled={loading || !password}
+        data-testid="button-restore-session"
+      >
+        {loading ? "Decrypting…" : "Restore Session"}
+      </Button>
+
+      <button
+        type="button"
+        onClick={closeLoginModal}
+        className="w-full text-xs text-muted-foreground hover:text-foreground text-center transition-colors"
+        data-testid="button-use-different-account"
+      >
+        Use a different account
+      </button>
+    </div>
+  );
+}
+
 export default function NostrLoginModal() {
-  const { isLoginModalOpen, closeLoginModal } = useNostr();
+  const { isLoginModalOpen, closeLoginModal, restoringNcryptsec } = useNostr();
   const [tab, setTab] = useState<Tab>("extension");
 
-  const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
+  const tabs: { id: Tab; label: string; icon: ReactNode }[] = [
     { id: "extension", label: "Extension", icon: <ShieldCheck className="h-3.5 w-3.5" /> },
-    { id: "bunker", label: "Bunker", icon: <Wifi className="h-3.5 w-3.5" /> },
+    { id: "bunker", label: "Bunker / Import", icon: <Wifi className="h-3.5 w-3.5" /> },
     { id: "new", label: "New Account", icon: <Key className="h-3.5 w-3.5" /> },
   ];
 
@@ -351,34 +482,40 @@ export default function NostrLoginModal() {
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto" data-testid="modal-nostr-login">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            Sign in with Nostr
+            {restoringNcryptsec ? "Restore Your Session" : "Sign in with Nostr"}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex rounded-lg border border-border overflow-hidden mb-2">
-          {tabs.map(t => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => setTab(t.id)}
-              className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 text-xs font-medium transition-colors ${
-                tab === t.id
-                  ? "bg-primary text-primary-foreground"
-                  : "hover:bg-muted text-muted-foreground"
-              }`}
-              data-testid={`tab-${t.id}`}
-            >
-              {t.icon}
-              {t.label}
-            </button>
-          ))}
-        </div>
+        {restoringNcryptsec ? (
+          <RestoreSessionView />
+        ) : (
+          <>
+            <div className="flex rounded-lg border border-border overflow-hidden mb-2">
+              {tabs.map(t => (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setTab(t.id)}
+                  className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 text-xs font-medium transition-colors ${
+                    tab === t.id
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-muted text-muted-foreground"
+                  }`}
+                  data-testid={`tab-${t.id}`}
+                >
+                  {t.icon}
+                  {t.label}
+                </button>
+              ))}
+            </div>
 
-        <div className="py-1">
-          {tab === "extension" && <ExtensionTab />}
-          {tab === "bunker" && <BunkerTab />}
-          {tab === "new" && <NewAccountTab />}
-        </div>
+            <div className="py-1">
+              {tab === "extension" && <ExtensionTab />}
+              {tab === "bunker" && <BunkerTab />}
+              {tab === "new" && <NewAccountTab />}
+            </div>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );
