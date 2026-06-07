@@ -7,12 +7,15 @@ import { ThemeProvider } from "next-themes";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Admin from "@/pages/admin";
+import Lists from "@/pages/lists";
+import { NostrProvider } from "@/context/NostrContext";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/merchant/:slug" component={Home} />
+      <Route path="/lists" component={Lists} />
       <Route path="/x7k2m9p4r1qn" component={Admin} />
       <Route component={NotFound} />
     </Switch>
@@ -24,8 +27,10 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="dark">
         <TooltipProvider>
-          <Toaster />
-          <Router />
+          <NostrProvider>
+            <Toaster />
+            <Router />
+          </NostrProvider>
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>

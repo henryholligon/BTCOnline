@@ -1,6 +1,7 @@
 import { Link } from "wouter";
-import { Sun, Moon, Plus, ChevronDown, Check } from "lucide-react";
+import { Sun, Moon, Plus, ChevronDown, Check, Zap } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { useNostr } from "@/context/NostrContext";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -81,6 +82,73 @@ function MultiSelect({ options, selected, onChange, placeholder, testId }: {
               </button>
             ))}
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function NostrUserButton() {
+  const { user, logout, openLoginModal } = useNostr();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  if (!user) {
+    return (
+      <button
+        onClick={openLoginModal}
+        className="h-8 px-3 text-xs font-medium rounded-md border border-border hover:bg-muted transition-colors flex items-center gap-1.5"
+        data-testid="button-nostr-signin"
+      >
+        <Zap className="h-3.5 w-3.5 text-yellow-500" />
+        Sign in
+      </button>
+    );
+  }
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="flex items-center gap-1.5 h-8 px-2 rounded-md border border-border hover:bg-muted transition-colors"
+        data-testid="button-nostr-user-menu"
+      >
+        {user.picture ? (
+          <img src={user.picture} alt={user.displayName} className="h-6 w-6 rounded-full object-cover shrink-0" />
+        ) : (
+          <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary shrink-0">
+            {user.displayName[0]?.toUpperCase() || "⚡"}
+          </div>
+        )}
+        <span className="text-xs font-medium max-w-[80px] truncate hidden sm:block">{user.displayName}</span>
+        <ChevronDown className={`h-3 w-3 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full mt-1 bg-popover border border-border rounded-lg shadow-lg min-w-[140px] p-1 z-50">
+          <Link
+            href="/lists"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-muted transition-colors"
+            data-testid="link-my-lists"
+          >
+            📋 My Lists
+          </Link>
+          <button
+            onClick={() => { logout(); setOpen(false); }}
+            className="w-full text-left flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-muted transition-colors text-muted-foreground"
+            data-testid="button-nostr-signout"
+          >
+            Sign out
+          </button>
         </div>
       )}
     </div>
@@ -281,6 +349,7 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
               In-person
             </a>
           </Button>
+          <NostrUserButton />
         </div>
 
         <div className="flex items-center py-2 gap-3">

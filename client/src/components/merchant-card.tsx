@@ -2,10 +2,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { type Merchant, type BadgePreset } from "@shared/schema";
 import { useCategoryEmojis } from "@/hooks/use-category-emojis";
-import { ExternalLink, Zap, Bitcoin, Clock, Copy, Check, QrCode } from "lucide-react";
+import { ExternalLink, Zap, Bitcoin, Clock, Copy, Check, QrCode, Heart, ListPlus } from "lucide-react";
 import { useRef, useEffect, useState, memo } from "react";
 import { slugify } from "@/lib/utils";
 import { QRCodeSVG } from "qrcode.react";
+import { Link } from "wouter";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useNostr } from "@/context/NostrContext";
 
 const COUNTRY_EMOJI_MAP: Record<string, string> = {
   "USA": "🇺🇸", "United States": "🇺🇸", "Canada": "🇨🇦", "Sweden": "🇸🇪",
@@ -77,6 +80,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
   const [copied, setCopied] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const { getCategoryWithEmoji } = useCategoryEmojis();
+  const { user, favourites, toggleFavourite, lists, toggleListMember, openLoginModal } = useNostr();
 
   useEffect(() => {
     if (expanded && scrollIntoView && cardRef.current) {
@@ -165,6 +169,15 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
           )}
         </div>
 
+        <button
+          type="button"
+          className={`shrink-0 self-start mt-1 h-8 w-8 flex items-center justify-center rounded-lg transition-colors ${user && favourites.has(merchant.website) ? "text-red-500 hover:text-red-600" : "text-muted-foreground/40 hover:text-red-400"}`}
+          onClick={(e) => { e.stopPropagation(); toggleFavourite(merchant.website); }}
+          title={user ? (favourites.has(merchant.website) ? "Remove from favourites" : "Add to favourites") : "Sign in to save favourites"}
+          data-testid={`button-favourite-${merchant.id}`}
+        >
+          <Heart className={`h-4 w-4 ${user && favourites.has(merchant.website) ? "fill-current" : ""}`} />
+        </button>
       </div>
 
       {expanded && (
@@ -299,6 +312,51 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                   </div>
                 )}
               </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    className="p-1.5 rounded-md border border-border hover:bg-muted transition-colors"
+                    title="Add to list"
+                    data-testid={`button-add-to-list-${merchant.id}`}
+                  >
+                    <ListPlus className="h-4 w-4 text-muted-foreground" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-52 p-2" align="end">
+                  {!user ? (
+                    <div className="text-center py-2 space-y-1">
+                      <p className="text-xs text-muted-foreground">Sign in to manage lists</p>
+                      <button onClick={openLoginModal} className="text-xs text-primary hover:underline">Sign in with Nostr</button>
+                    </div>
+                  ) : lists.length === 0 ? (
+                    <div className="py-2 text-center space-y-1">
+                      <p className="text-xs text-muted-foreground">No lists yet.</p>
+                      <Link href="/lists" className="text-xs text-primary hover:underline">Create a list</Link>
+                    </div>
+                  ) : (
+                    <div className="space-y-0.5">
+                      <p className="text-xs font-medium text-muted-foreground mb-1.5 px-1">Add to list</p>
+                      {lists.map(list => {
+                        const inList = list.urls.includes(merchant.website);
+                        return (
+                          <button
+                            key={list.dTag}
+                            type="button"
+                            onClick={() => toggleListMember(list.dTag, merchant.website, inList)}
+                            className="flex items-center gap-2 w-full rounded px-2 py-1.5 text-sm hover:bg-muted transition-colors"
+                            data-testid={`button-toggle-list-${list.dTag}-${merchant.id}`}
+                          >
+                            <div className={`h-3.5 w-3.5 rounded border flex items-center justify-center shrink-0 ${inList ? "bg-primary border-primary" : "border-input"}`}>
+                              {inList && <Check className="h-2.5 w-2.5 text-primary-foreground" />}
+                            </div>
+                            <span className="truncate text-left">{list.title}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
         </div>
