@@ -8,7 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Upload, FileSpreadsheet, Image, Check, AlertCircle, ArrowLeft, Trash2, Plus, Zap, Bitcoin, Store, Pencil, Search, X, Tag, RefreshCw, Link2 } from "lucide-react";
 import Papa from "papaparse";
 import { Link } from "wouter";
-import { CATEGORIES, COUNTRIES, PAYMENT_PROVIDERS, BADGE_STYLES, getCategoryWithEmoji, type Merchant, type BadgePreset, type DirectoryOption } from "@shared/schema";
+import { CATEGORIES, COUNTRIES, PAYMENT_PROVIDERS, BADGE_STYLES, type Merchant, type BadgePreset, type DirectoryOption } from "@shared/schema";
+import { useCategoryEmojis } from "@/hooks/use-category-emojis";
 
 interface ParsedMerchant {
   name: string; description: string; logo: string; categories: string;
@@ -119,6 +120,7 @@ export default function Admin() {
 
   // ── Sheet sync ──
   const [syncUrl, setSyncUrl] = useState("");
+  const [emojiUrl, setEmojiUrl] = useState("");
   const [syncEnabled, setSyncEnabled] = useState(false);
   const [syncStatus, setSyncStatus] = useState<{ lastSyncAt: string | null; lastSyncStatus: string | null; lastSyncCount: number | null } | null>(null);
   const [syncSaving, setSyncSaving] = useState(false);
@@ -130,6 +132,7 @@ export default function Admin() {
       const res = await fetch("/api/sheet-sync");
       const data = await res.json();
       setSyncUrl(data.csvUrl || "");
+      setEmojiUrl(data.emojiCsvUrl || "");
       setSyncEnabled(data.enabled || false);
       setSyncStatus({ lastSyncAt: data.lastSyncAt, lastSyncStatus: data.lastSyncStatus, lastSyncCount: data.lastSyncCount });
     } catch {}
@@ -140,7 +143,7 @@ export default function Admin() {
   const handleSaveSync = async () => {
     setSyncSaving(true); setSyncResult(null);
     try {
-      await fetch("/api/sheet-sync", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ csvUrl: syncUrl, enabled: syncEnabled }) });
+      await fetch("/api/sheet-sync", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ csvUrl: syncUrl, emojiCsvUrl: emojiUrl, enabled: syncEnabled }) });
       setSyncResult({ success: true, message: "Settings saved." });
     } catch { setSyncResult({ success: false, message: "Failed to save." }); }
     finally { setSyncSaving(false); }
@@ -817,6 +820,15 @@ export default function Admin() {
                 />
               </Field>
 
+              <Field label="Category Emoji CSV URL" hint="Optional. A separate published tab with two columns — category name and emoji. Edit emojis in the sheet and they update on the site after a sync.">
+                <Input
+                  placeholder="https://docs.google.com/spreadsheets/d/.../pub?gid=...&output=csv"
+                  value={emojiUrl}
+                  onChange={e => { setEmojiUrl(e.target.value); setSyncResult(null); }}
+                  data-testid="input-emoji-url"
+                />
+              </Field>
+
               <div className="flex items-center justify-between rounded-lg border border-border p-4">
                 <div>
                   <p className="text-sm font-medium">Auto-sync every 5 minutes</p>
@@ -869,6 +881,7 @@ function MerchantFormFields({ form, setField, toggleItem, logoPreview, setLogoPr
   customCountries?: string[];
   customProviders?: string[];
 }) {
+  const { getCategoryWithEmoji } = useCategoryEmojis();
   const allCategories = [...CATEGORIES, ...(customCategories || [])];
   const allCountries = [...COUNTRIES, ...(customCountries || [])];
   const allProviders = [...PAYMENT_PROVIDERS, ...(customProviders || [])];
@@ -1013,6 +1026,7 @@ function MerchantFormFields({ form, setField, toggleItem, logoPreview, setLogoPr
 }
 
 function LivePreview({ form, logoPreview, shippingText }: { form: MerchantForm; logoPreview: string; shippingText: string | null }) {
+  const { getCategoryWithEmoji } = useCategoryEmojis();
   return (
     <div className="space-y-3 lg:sticky lg:top-6">
       <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Live Preview</p>

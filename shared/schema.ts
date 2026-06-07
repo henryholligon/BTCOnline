@@ -91,14 +91,23 @@ export const CATEGORY_EMOJIS: Record<string, string> = {
   "Vehicles": "🚗",
 };
 
-const CATEGORY_EMOJIS_NORMALIZED: Record<string, string> = Object.fromEntries(
+export const CATEGORY_EMOJIS_NORMALIZED: Record<string, string> = Object.fromEntries(
   Object.entries(CATEGORY_EMOJIS).map(([key, emoji]) => [key.trim().toLowerCase(), emoji]),
 );
 
-export function getCategoryWithEmoji(category: string): string {
-  const emoji = CATEGORY_EMOJIS_NORMALIZED[category.trim().toLowerCase()];
+// Resolve a category label to "<emoji> <label>" using a runtime, case-insensitive
+// emoji map. Categories that already begin with an emoji are returned untouched.
+export function categoryWithEmoji(category: string, map: Record<string, string>): string {
+  const trimmed = category.trim();
+  if (/^\p{Extended_Pictographic}/u.test(trimmed)) return category;
+  const emoji = map[trimmed.toLowerCase()];
   if (emoji) return `${emoji} ${category}`;
   return category;
+}
+
+// Static fallback used server-side and as a default when no runtime map is loaded.
+export function getCategoryWithEmoji(category: string): string {
+  return categoryWithEmoji(category, CATEGORY_EMOJIS_NORMALIZED);
 }
 
 export const CATEGORIES = Object.keys(CATEGORY_EMOJIS);
@@ -130,6 +139,7 @@ export type BadgeStyle = typeof BADGE_STYLES[number];
 export const sheetSyncConfig = pgTable("sheet_sync_config", {
   id: serial("id").primaryKey(),
   csvUrl: text("csv_url").notNull().default(""),
+  emojiCsvUrl: text("emoji_csv_url").notNull().default(""),
   enabled: boolean("enabled").notNull().default(false),
   lastSyncAt: text("last_sync_at"),
   lastSyncStatus: text("last_sync_status"),
@@ -137,6 +147,18 @@ export const sheetSyncConfig = pgTable("sheet_sync_config", {
 });
 
 export type SheetSyncConfig = typeof sheetSyncConfig.$inferSelect;
+
+// Category → emoji map, sourced from a dedicated published CSV tab and synced
+// alongside the merchant sheet so emojis are editable without code changes.
+export const categoryEmojis = pgTable("category_emojis", {
+  id: serial("id").primaryKey(),
+  category: text("category").notNull(),
+  emoji: text("emoji").notNull(),
+});
+
+export const insertCategoryEmojiSchema = createInsertSchema(categoryEmojis).omit({ id: true });
+export type InsertCategoryEmoji = z.infer<typeof insertCategoryEmojiSchema>;
+export type CategoryEmoji = typeof categoryEmojis.$inferSelect;
 
 export const COUNTRIES = [
   "🌍 Worldwide",

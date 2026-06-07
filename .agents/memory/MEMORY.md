@@ -2,3 +2,4 @@
 - [Sheet sync field mapping](sheet-sync.md) — Google Sheet CSV headers differ from DB field names; sync relies on column-name aliases + normalized name matching to avoid wiping/duplicating data.
 - [Cloudinary dynamic folders](cloudinary-dynamic-folders.md) — account uses dynamic folders; list/upload via Search API + asset_folder, not resources({prefix}); logos in "BTC Online Merchant Logos".
 - [Dev vs prod DB separation](prod-db-separation.md) — prod has its own DB; dev edits don't reach it & prod is read-only via tools; data/logos must self-heal via sheet sync + Cloudinary on redeploy.
+- [Category emoji sync](category-emoji-sync.md) — emojis are data-driven from a separate sheet tab → category_emojis table → /api/category-emojis; static map is fallback/seed; self-heals like merchant sync.

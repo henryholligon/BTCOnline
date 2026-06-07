@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { type Merchant, type BadgePreset, getCategoryWithEmoji } from "@shared/schema";
+import { type Merchant, type BadgePreset } from "@shared/schema";
+import { useCategoryEmojis } from "@/hooks/use-category-emojis";
 import { ExternalLink, Zap, Bitcoin, Clock, Copy, Check, QrCode } from "lucide-react";
 import { useRef, useEffect, useState, memo } from "react";
 import { slugify } from "@/lib/utils";
@@ -75,6 +76,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
   const [showQr, setShowQr] = useState(false);
   const [copied, setCopied] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const { getCategoryWithEmoji } = useCategoryEmojis();
 
   useEffect(() => {
     if (expanded && scrollIntoView && cardRef.current) {

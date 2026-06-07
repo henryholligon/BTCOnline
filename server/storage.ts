@@ -1,4 +1,4 @@
-import { type Merchant, type InsertMerchant, merchants, type BadgePreset, type InsertBadgePreset, badgePresets, type DirectoryOption, type InsertDirectoryOption, directoryOptions, sheetSyncConfig, type SheetSyncConfig } from "@shared/schema";
+import { type Merchant, type InsertMerchant, merchants, type BadgePreset, type InsertBadgePreset, badgePresets, type DirectoryOption, type InsertDirectoryOption, directoryOptions, sheetSyncConfig, type SheetSyncConfig, categoryEmojis, type CategoryEmoji, type InsertCategoryEmoji } from "@shared/schema";
 import { db } from "./db";
 import { eq, asc, count } from "drizzle-orm";
 
@@ -20,6 +20,8 @@ export interface IStorage {
   deleteDirectoryOption(id: number): Promise<void>;
   getSheetSyncConfig(): Promise<SheetSyncConfig>;
   updateSheetSyncConfig(config: Partial<Omit<SheetSyncConfig, "id">>): Promise<SheetSyncConfig>;
+  getCategoryEmojis(): Promise<CategoryEmoji[]>;
+  setCategoryEmojis(entries: InsertCategoryEmoji[]): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -109,6 +111,19 @@ export class DatabaseStorage implements IStorage {
     await this.getSheetSyncConfig();
     const [updated] = await db.update(sheetSyncConfig).set(config).where(eq(sheetSyncConfig.id, 1)).returning();
     return updated;
+  }
+
+  async getCategoryEmojis(): Promise<CategoryEmoji[]> {
+    return await db.select().from(categoryEmojis).orderBy(asc(categoryEmojis.id));
+  }
+
+  async setCategoryEmojis(entries: InsertCategoryEmoji[]): Promise<void> {
+    await db.transaction(async (tx) => {
+      await tx.delete(categoryEmojis);
+      if (entries.length > 0) {
+        await tx.insert(categoryEmojis).values(entries);
+      }
+    });
   }
 }
 

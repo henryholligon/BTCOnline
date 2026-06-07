@@ -1,5 +1,5 @@
 import { storage } from "./storage";
-import { insertMerchantSchema } from "@shared/schema";
+import { insertMerchantSchema, CATEGORY_EMOJIS, type InsertCategoryEmoji } from "@shared/schema";
 import { getLogoUrlMap, cloudinaryConfigured } from "./cloudinary";
 
 const POLL_INTERVAL_MS = 5 * 60 * 1000;
@@ -55,7 +55,45 @@ function parseCSV(csvText: string): Record<string, string>[] {
 
 const normalizeName = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
 
-export async function runSheetSync(): Promise<{ count: number; errors: number; removed: number }> {
+// Parse the emoji tab CSV into {category, emoji} entries. Tolerant of header
+// naming and blank rows; rows with a blank/invalid emoji are skipped so the
+// category renders with no emoji rather than breaking.
+function parseEmojiRows(csvText: string): InsertCategoryEmoji[] {
+  const rows = parseCSV(csvText);
+  const out: InsertCategoryEmoji[] = [];
+  const seen = new Set<string>();
+  for (const rawRow of rows) {
+    const row = normalizeKeys(rawRow);
+    const category = String(
+      row.category ?? row.categoryname ?? row.name ?? row.label ?? row.tag ?? "",
+    ).trim();
+    const emoji = String(row.emoji ?? row.icon ?? row.symbol ?? row.emojis ?? "").trim();
+    if (!category || !emoji) continue;
+    const key = category.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({ category, emoji });
+  }
+  return out;
+}
+
+// Sync the category→emoji map from its dedicated CSV tab. The tab is the source
+// of truth, but on any failure (unreachable/empty/parse error) we keep the last
+// known-good map rather than wiping it.
+async function syncCategoryEmojis(emojiCsvUrl: string): Promise<number> {
+  if (!emojiCsvUrl) return 0;
+  const res = await fetch(emojiCsvUrl);
+  if (!res.ok) throw new Error(`Failed to fetch emoji sheet: HTTP ${res.status}`);
+  const csvText = await res.text();
+  const entries = parseEmojiRows(csvText);
+  if (entries.length === 0) {
+    throw new Error("Emoji sheet has no usable rows");
+  }
+  await storage.setCategoryEmojis(entries);
+  return entries.length;
+}
+
+export async function runSheetSync(): Promise<{ count: number; errors: number; removed: number; emojis: number }> {
   const config = await storage.getSheetSyncConfig();
   if (!config.csvUrl) throw new Error("No Google Sheet URL configured");
 
@@ -142,7 +180,33 @@ export async function runSheetSync(): Promise<{ count: number; errors: number; r
     }
   }
 
-  return { count, errors, removed };
+  // Sync category emojis from their dedicated tab. Independent of the merchant
+  // sync — a failure here must never break merchant data; we keep the last map.
+  let emojis = 0;
+  try {
+    emojis = await syncCategoryEmojis(config.emojiCsvUrl || "");
+  } catch (e: any) {
+    console.error("[sheet-sync] Emoji sync failed (keeping last known-good map):", e.message);
+  }
+
+  return { count, errors, removed, emojis };
+}
+
+// Seed the category→emoji table from the static map when it's empty, so a
+// fresh/production DB shows emojis with no visual regression even before an
+// emoji CSV tab is configured.
+async function bootstrapCategoryEmojis() {
+  try {
+    const existing = await storage.getCategoryEmojis();
+    if (existing.length > 0) return;
+    const entries: InsertCategoryEmoji[] = Object.entries(CATEGORY_EMOJIS).map(
+      ([category, emoji]) => ({ category, emoji }),
+    );
+    await storage.setCategoryEmojis(entries);
+    console.log(`[sheet-sync] Seeded ${entries.length} category emojis from static map`);
+  } catch (e: any) {
+    console.error("[sheet-sync] Category emoji bootstrap failed:", e.message);
+  }
 }
 
 let pollTimer: ReturnType<typeof setInterval> | null = null;
@@ -161,18 +225,20 @@ export async function startSheetSyncPoller() {
     console.error("[sheet-sync] Config bootstrap failed:", e.message);
   }
 
+  await bootstrapCategoryEmojis();
+
   const tick = async () => {
     try {
       const config = await storage.getSheetSyncConfig();
       if (!config.enabled || !config.csvUrl) return;
       console.log("[sheet-sync] Syncing from Google Sheet…");
-      const { count, errors, removed } = await runSheetSync();
+      const { count, errors, removed, emojis } = await runSheetSync();
       await storage.updateSheetSyncConfig({
         lastSyncAt: new Date().toISOString(),
         lastSyncStatus: errors > 0 ? `ok-with-errors` : "ok",
         lastSyncCount: count,
       });
-      console.log(`[sheet-sync] Done — ${count} upserted, ${removed} removed, ${errors} errors`);
+      console.log(`[sheet-sync] Done — ${count} upserted, ${removed} removed, ${emojis} emojis, ${errors} errors`);
     } catch (err: any) {
       console.error("[sheet-sync] Error:", err.message);
       try {

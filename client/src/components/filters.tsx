@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { type Merchant, getCategoryWithEmoji } from "@shared/schema";
+import { type Merchant } from "@shared/schema";
+import { useCategoryEmojis } from "@/hooks/use-category-emojis";
 import { Bitcoin, ChevronDown, X, Zap } from "lucide-react";
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
@@ -264,6 +265,7 @@ export default function Filters({
   sortBy = "default",
   onSortChange,
 }: FiltersProps) {
+  const { getCategoryWithEmoji } = useCategoryEmojis();
   const dynamicCategories = useMemo(() => {
     const catSet = new Set<string>();
     merchants.forEach(m => m.categories.forEach(c => catSet.add(c)));

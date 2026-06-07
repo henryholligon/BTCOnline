@@ -230,9 +230,26 @@ export async function registerRoutes(
 
   app.put("/api/sheet-sync", async (req, res) => {
     try {
-      const { csvUrl, enabled } = req.body;
-      const config = await storage.updateSheetSyncConfig({ csvUrl, enabled });
+      const { csvUrl, emojiCsvUrl, enabled } = req.body;
+      const update: Record<string, unknown> = {};
+      if (csvUrl !== undefined) update.csvUrl = csvUrl;
+      if (emojiCsvUrl !== undefined) update.emojiCsvUrl = emojiCsvUrl;
+      if (enabled !== undefined) update.enabled = enabled;
+      const config = await storage.updateSheetSyncConfig(update);
       res.json(config);
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+
+  app.get("/api/category-emojis", async (_req, res) => {
+    try {
+      const rows = await storage.getCategoryEmojis();
+      const map: Record<string, string> = {};
+      for (const row of rows) {
+        map[row.category.trim().toLowerCase()] = row.emoji;
+      }
+      res.json(map);
     } catch (err: any) {
       res.status(500).json({ message: err.message });
     }
@@ -240,13 +257,13 @@ export async function registerRoutes(
 
   app.post("/api/sheet-sync/trigger", async (_req, res) => {
     try {
-      const { count, errors, removed } = await runSheetSync();
+      const { count, errors, removed, emojis } = await runSheetSync();
       await storage.updateSheetSyncConfig({
         lastSyncAt: new Date().toISOString(),
         lastSyncStatus: errors > 0 ? `ok-with-errors` : "ok",
         lastSyncCount: count,
       });
-      res.json({ success: true, count, errors, removed });
+      res.json({ success: true, count, errors, removed, emojis });
     } catch (err: any) {
       await storage.updateSheetSyncConfig({
         lastSyncAt: new Date().toISOString(),
