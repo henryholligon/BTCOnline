@@ -8,6 +8,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Admin from "@/pages/admin";
 import Lists from "@/pages/lists";
+import Favourites from "@/pages/favourites";
 import { NostrProvider } from "@/context/NostrContext";
 
 function Router() {
@@ -15,6 +16,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/merchant/:slug" component={Home} />
+      <Route path="/favourites" component={Favourites} />
       <Route path="/lists" component={Lists} />
       <Route path="/x7k2m9p4r1qn" component={Admin} />
       <Route component={NotFound} />
