@@ -24,6 +24,8 @@ export default function Home() {
   const [selectedProviders, setSelectedProviders] = useState<string[]>([]);
   const [selectedPaymentMethods, setSelectedPaymentMethods] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState("default");
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 50;
 
   useEffect(() => {
     if (params?.slug) {
@@ -170,6 +172,11 @@ export default function Home() {
     });
   }, [merchants, searchQuery, selectedCategories, selectedCountries, selectedMadeIn, selectedProviders, selectedPaymentMethods, sortBy]);
 
+  useEffect(() => { setCurrentPage(1); }, [searchQuery, selectedCategories, selectedCountries, selectedMadeIn, selectedProviders, selectedPaymentMethods, sortBy]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredMerchants.length / PAGE_SIZE));
+  const pagedMerchants = filteredMerchants.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
   const handleCategoryChange = (category: string) => {
     if (category === "All" || !category) {
       setSelectedCategories([]);
@@ -269,7 +276,8 @@ export default function Home() {
         <div className="relative z-10 max-w-3xl mx-auto px-4 py-6">
           <div className="mb-4 flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              Showing <span className="font-mono text-foreground font-medium">{filteredMerchants.length}</span> merchants
+              Showing <span className="font-mono text-foreground font-medium">{pagedMerchants.length}</span> of <span className="font-mono text-foreground font-medium">{filteredMerchants.length}</span> merchants
+              {totalPages > 1 && <span className="ml-2 text-xs">(page {currentPage} of {totalPages})</span>}
             </p>
           </div>
 
@@ -278,25 +286,50 @@ export default function Home() {
               <p className="text-muted-foreground text-lg">Loading merchants...</p>
             </div>
           ) : filteredMerchants.length > 0 ? (
-            <div className="flex flex-col gap-4">
-              {filteredMerchants.map((merchant, index) => (
-                <motion.div
-                  key={merchant.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.5) }}
-                >
-                  <MerchantCard
-                    merchant={merchant}
-                    expanded={slugify(merchant.name) === expandedSlug}
-                    onToggleExpand={() => handleToggleExpand(merchant)}
-                    scrollIntoView={slugify(merchant.name) === needsScroll}
-                    onScrolledIntoView={() => setNeedsScroll(null)}
-                    badgePresets={badgePresets}
-                  />
-                </motion.div>
-              ))}
-            </div>
+            <>
+              <div className="flex flex-col gap-4">
+                {pagedMerchants.map((merchant, index) => (
+                  <motion.div
+                    key={merchant.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.5) }}
+                  >
+                    <MerchantCard
+                      merchant={merchant}
+                      expanded={slugify(merchant.name) === expandedSlug}
+                      onToggleExpand={() => handleToggleExpand(merchant)}
+                      scrollIntoView={slugify(merchant.name) === needsScroll}
+                      onScrolledIntoView={() => setNeedsScroll(null)}
+                      badgePresets={badgePresets}
+                    />
+                  </motion.div>
+                ))}
+              </div>
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 mt-8 mb-2">
+                  <button
+                    onClick={() => { setCurrentPage(p => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 rounded-md border border-border text-sm font-medium disabled:opacity-40 hover:bg-muted transition-colors"
+                    data-testid="pagination-prev"
+                  >
+                    ← Prev
+                  </button>
+                  <span className="text-sm text-muted-foreground px-2">
+                    {currentPage} / {totalPages}
+                  </span>
+                  <button
+                    onClick={() => { setCurrentPage(p => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 rounded-md border border-border text-sm font-medium disabled:opacity-40 hover:bg-muted transition-colors"
+                    data-testid="pagination-next"
+                  >
+                    Next →
+                  </button>
+                </div>
+              )}
+            </>
           ) : (
             <div className="text-center py-20 border border-dashed border-border rounded-lg bg-card/20">
               <p className="text-muted-foreground text-lg">No merchants found.</p>
