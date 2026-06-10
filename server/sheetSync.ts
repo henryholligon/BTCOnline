@@ -120,7 +120,7 @@ async function syncCategoryEmojis(emojiCsvUrl: string): Promise<number> {
   return entries.length;
 }
 
-export async function runSheetSync(): Promise<{ count: number; errors: number; removed: number; emojis: number }> {
+export async function runSheetSync(): Promise<{ count: number; errors: number; removed: number; emojis: number; countryEmojis: number }> {
   const config = await storage.getSheetSyncConfig();
   if (!config.csvUrl) throw new Error("No Google Sheet URL configured");
 
