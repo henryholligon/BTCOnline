@@ -45,56 +45,6 @@ export const PAYMENT_PROVIDERS = [
   "Zaprite",
 ];
 
-export const CATEGORY_EMOJIS: Record<string, string> = {
-  "AI": "🤖",
-  "Adult": "🔞",
-  "Art": "🎨",
-  "Browser": "🧭",
-  "Cellular": "📱",
-  "Cellular, Privacy": "📲",
-  "Charity": "❤️",
-  "Delivery": "🚚",
-  "Digital Privacy": "🔒",
-  "Documents": "📄",
-  "Electronics": "💻",
-  "Email": "📧",
-  "Fashion": "👗",
-  "Food & Drink": "🍴",
-  "Foundation": "🏛️",
-  "Gambling": "🎰",
-  "Gaming": "🎮",
-  "Giftcard": "🎁",
-  "Giftcards": "🎁",
-  "Health": "🏥",
-  "Home Goods": "🏠",
-  "Hosting": "🌐",
-  "Insurance": "🏦",
-  "Jewellery": "💎",
-  "Lifestyle": "✨",
-  "Niccotine": "🚬",
-  "Open-source": "🔓",
-  "Password Manager": "🔑",
-  "Passwords": "🔐",
-  "Payments": "💳",
-  "Privacy": "🔒",
-  "Publication": "📰",
-  "Real Estate": "🏡",
-  "Skateboarding": "🛹",
-  "Social Media": "💬",
-  "Storage": "💾",
-  "Supplement": "💊",
-  "Toys": "🧸",
-  "Toys & Boardgames": "🧸",
-  "Travel": "✈️",
-  "VPN": "🛡️",
-  "Vehicle": "🚗",
-  "Vehicles": "🚗",
-};
-
-export const CATEGORY_EMOJIS_NORMALIZED: Record<string, string> = Object.fromEntries(
-  Object.entries(CATEGORY_EMOJIS).map(([key, emoji]) => [key.trim().toLowerCase(), emoji]),
-);
-
 // Resolve a category label to "<emoji> <label>" using a runtime, case-insensitive
 // emoji map. Categories that already begin with an emoji are returned untouched.
 export function categoryWithEmoji(category: string, map: Record<string, string>): string {
@@ -105,12 +55,16 @@ export function categoryWithEmoji(category: string, map: Record<string, string>)
   return category;
 }
 
-// Static fallback used server-side and as a default when no runtime map is loaded.
-export function getCategoryWithEmoji(category: string): string {
-  return categoryWithEmoji(category, CATEGORY_EMOJIS_NORMALIZED);
-}
-
-export const CATEGORIES = Object.keys(CATEGORY_EMOJIS);
+export const CATEGORIES = [
+  "AI", "Adult", "Art", "Browser", "Cellular", "Cellular, Privacy", "Charity",
+  "Delivery", "Digital Privacy", "Documents", "Electronics", "Email", "Fashion",
+  "Food & Drink", "Foundation", "Gambling", "Gaming", "Giftcard", "Giftcards",
+  "Health", "Home Goods", "Hosting", "Insurance", "Jewellery", "Lifestyle",
+  "Niccotine", "Open-source", "Password Manager", "Passwords", "Payments",
+  "Privacy", "Publication", "Real Estate", "Skateboarding", "Social Media",
+  "Storage", "Supplement", "Toys", "Toys & Boardgames", "Travel", "VPN",
+  "Vehicle", "Vehicles",
+];
 
 export const directoryOptions = pgTable("directory_options", {
   id: serial("id").primaryKey(),

@@ -1,5 +1,5 @@
 import { storage } from "./storage";
-import { insertMerchantSchema, CATEGORY_EMOJIS, type InsertCategoryEmoji, type InsertCountryEmoji } from "@shared/schema";
+import { insertMerchantSchema, type InsertCategoryEmoji, type InsertCountryEmoji } from "@shared/schema";
 import { getLogoUrlMap, cloudinaryConfigured } from "./cloudinary";
 
 const POLL_INTERVAL_MS = 5 * 60 * 1000;
@@ -227,22 +227,6 @@ export async function runSheetSync(): Promise<{ count: number; errors: number; r
   return { count, errors, removed, emojis, countryEmojis };
 }
 
-// Seed the category→emoji table from the static map when it's empty, so a
-// fresh/production DB shows emojis with no visual regression even before an
-// emoji CSV tab is configured.
-async function bootstrapCategoryEmojis() {
-  try {
-    const existing = await storage.getCategoryEmojis();
-    if (existing.length > 0) return;
-    const entries: InsertCategoryEmoji[] = Object.entries(CATEGORY_EMOJIS).map(
-      ([category, emoji]) => ({ category, emoji }),
-    );
-    await storage.setCategoryEmojis(entries);
-    console.log(`[sheet-sync] Seeded ${entries.length} category emojis from static map`);
-  } catch (e: any) {
-    console.error("[sheet-sync] Category emoji bootstrap failed:", e.message);
-  }
-}
 
 let pollTimer: ReturnType<typeof setInterval> | null = null;
 
@@ -259,8 +243,6 @@ export async function startSheetSyncPoller() {
   } catch (e: any) {
     console.error("[sheet-sync] Config bootstrap failed:", e.message);
   }
-
-  await bootstrapCategoryEmojis();
 
   const tick = async () => {
     try {
