@@ -121,6 +121,7 @@ export default function Admin() {
   // ── Sheet sync ──
   const [syncUrl, setSyncUrl] = useState("");
   const [emojiUrl, setEmojiUrl] = useState("");
+  const [countryEmojiUrl, setCountryEmojiUrl] = useState("");
   const [syncEnabled, setSyncEnabled] = useState(false);
   const [syncStatus, setSyncStatus] = useState<{ lastSyncAt: string | null; lastSyncStatus: string | null; lastSyncCount: number | null } | null>(null);
   const [syncSaving, setSyncSaving] = useState(false);
@@ -133,6 +134,7 @@ export default function Admin() {
       const data = await res.json();
       setSyncUrl(data.csvUrl || "");
       setEmojiUrl(data.emojiCsvUrl || "");
+      setCountryEmojiUrl(data.countryEmojiCsvUrl || "");
       setSyncEnabled(data.enabled || false);
       setSyncStatus({ lastSyncAt: data.lastSyncAt, lastSyncStatus: data.lastSyncStatus, lastSyncCount: data.lastSyncCount });
     } catch {}
@@ -143,7 +145,7 @@ export default function Admin() {
   const handleSaveSync = async () => {
     setSyncSaving(true); setSyncResult(null);
     try {
-      await fetch("/api/sheet-sync", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ csvUrl: syncUrl, emojiCsvUrl: emojiUrl, enabled: syncEnabled }) });
+      await fetch("/api/sheet-sync", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ csvUrl: syncUrl, emojiCsvUrl: emojiUrl, countryEmojiCsvUrl: countryEmojiUrl, enabled: syncEnabled }) });
       setSyncResult({ success: true, message: "Settings saved." });
     } catch { setSyncResult({ success: false, message: "Failed to save." }); }
     finally { setSyncSaving(false); }
@@ -820,12 +822,21 @@ export default function Admin() {
                 />
               </Field>
 
-              <Field label="Category Emoji CSV URL" hint="Optional. A separate published tab with two columns — category name and emoji. Edit emojis in the sheet and they update on the site after a sync.">
+              <Field label="Category Emoji CSV URL" hint="Optional. A separate published tab with two columns — category name and emoji.">
                 <Input
                   placeholder="https://docs.google.com/spreadsheets/d/.../pub?gid=...&output=csv"
                   value={emojiUrl}
                   onChange={e => { setEmojiUrl(e.target.value); setSyncResult(null); }}
                   data-testid="input-emoji-url"
+                />
+              </Field>
+
+              <Field label="Country Emoji CSV URL" hint="Optional. A separate published tab with two columns — country name and flag emoji.">
+                <Input
+                  placeholder="https://docs.google.com/spreadsheets/d/.../pub?gid=...&output=csv"
+                  value={countryEmojiUrl}
+                  onChange={e => { setCountryEmojiUrl(e.target.value); setSyncResult(null); }}
+                  data-testid="input-country-emoji-url"
                 />
               </Field>
 

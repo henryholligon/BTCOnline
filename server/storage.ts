@@ -1,4 +1,4 @@
-import { type Merchant, type InsertMerchant, merchants, type BadgePreset, type InsertBadgePreset, badgePresets, type DirectoryOption, type InsertDirectoryOption, directoryOptions, sheetSyncConfig, type SheetSyncConfig, categoryEmojis, type CategoryEmoji, type InsertCategoryEmoji } from "@shared/schema";
+import { type Merchant, type InsertMerchant, merchants, type BadgePreset, type InsertBadgePreset, badgePresets, type DirectoryOption, type InsertDirectoryOption, directoryOptions, sheetSyncConfig, type SheetSyncConfig, categoryEmojis, type CategoryEmoji, type InsertCategoryEmoji, countryEmojis, type CountryEmoji, type InsertCountryEmoji } from "@shared/schema";
 import { db } from "./db";
 import { eq, asc, count } from "drizzle-orm";
 
@@ -22,6 +22,8 @@ export interface IStorage {
   updateSheetSyncConfig(config: Partial<Omit<SheetSyncConfig, "id">>): Promise<SheetSyncConfig>;
   getCategoryEmojis(): Promise<CategoryEmoji[]>;
   setCategoryEmojis(entries: InsertCategoryEmoji[]): Promise<void>;
+  getCountryEmojis(): Promise<CountryEmoji[]>;
+  setCountryEmojis(entries: InsertCountryEmoji[]): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -122,6 +124,19 @@ export class DatabaseStorage implements IStorage {
       await tx.delete(categoryEmojis);
       if (entries.length > 0) {
         await tx.insert(categoryEmojis).values(entries);
+      }
+    });
+  }
+
+  async getCountryEmojis(): Promise<CountryEmoji[]> {
+    return await db.select().from(countryEmojis).orderBy(asc(countryEmojis.id));
+  }
+
+  async setCountryEmojis(entries: InsertCountryEmoji[]): Promise<void> {
+    await db.transaction(async (tx) => {
+      await tx.delete(countryEmojis);
+      if (entries.length > 0) {
+        await tx.insert(countryEmojis).values(entries);
       }
     });
   }

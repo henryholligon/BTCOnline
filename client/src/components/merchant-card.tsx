@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { type Merchant, type BadgePreset } from "@shared/schema";
 import { useCategoryEmojis } from "@/hooks/use-category-emojis";
+import { useCountryEmojis } from "@/hooks/use-country-emojis";
 import { ExternalLink, Zap, Bitcoin, Clock, Copy, Check, QrCode, Heart, ListPlus } from "lucide-react";
 import { useRef, useEffect, useState, memo } from "react";
 import { slugify } from "@/lib/utils";
@@ -39,10 +40,6 @@ const COUNTRY_EMOJI_MAP: Record<string, string> = {
   "Rwanda": "🇷🇼", "Senegal": "🇸🇳", "Scotland": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
 };
 
-function getCountryEmoji(countryName: string): string {
-  const pureName = countryName.replace(/[^\w\s]/gi, '').trim();
-  return COUNTRY_EMOJI_MAP[pureName] || COUNTRY_EMOJI_MAP[countryName] || "🏳️";
-}
 
 const BADGE_STYLE_MAP: Record<string, string> = {
   green: "bg-green-500 text-white",
@@ -80,6 +77,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
   const [copied, setCopied] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const { getCategoryWithEmoji } = useCategoryEmojis();
+  const { getCountryEmoji } = useCountryEmojis();
   const { user, favourites, toggleFavourite, lists, toggleListMember, openLoginModal } = useNostr();
 
   useEffect(() => {

@@ -230,10 +230,11 @@ export async function registerRoutes(
 
   app.put("/api/sheet-sync", async (req, res) => {
     try {
-      const { csvUrl, emojiCsvUrl, enabled } = req.body;
+      const { csvUrl, emojiCsvUrl, countryEmojiCsvUrl, enabled } = req.body;
       const update: Record<string, unknown> = {};
       if (csvUrl !== undefined) update.csvUrl = csvUrl;
       if (emojiCsvUrl !== undefined) update.emojiCsvUrl = emojiCsvUrl;
+      if (countryEmojiCsvUrl !== undefined) update.countryEmojiCsvUrl = countryEmojiCsvUrl;
       if (enabled !== undefined) update.enabled = enabled;
       const config = await storage.updateSheetSyncConfig(update);
       res.json(config);
@@ -248,6 +249,19 @@ export async function registerRoutes(
       const map: Record<string, string> = {};
       for (const row of rows) {
         map[row.category.trim().toLowerCase()] = row.emoji;
+      }
+      res.json(map);
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+
+  app.get("/api/country-emojis", async (_req, res) => {
+    try {
+      const rows = await storage.getCountryEmojis();
+      const map: Record<string, string> = {};
+      for (const row of rows) {
+        map[row.country.trim().toLowerCase()] = row.emoji;
       }
       res.json(map);
     } catch (err: any) {

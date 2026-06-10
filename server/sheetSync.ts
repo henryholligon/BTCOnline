@@ -1,5 +1,5 @@
 import { storage } from "./storage";
-import { insertMerchantSchema, CATEGORY_EMOJIS, type InsertCategoryEmoji } from "@shared/schema";
+import { insertMerchantSchema, CATEGORY_EMOJIS, type InsertCategoryEmoji, type InsertCountryEmoji } from "@shared/schema";
 import { getLogoUrlMap, cloudinaryConfigured } from "./cloudinary";
 
 const POLL_INTERVAL_MS = 5 * 60 * 1000;
@@ -75,6 +75,33 @@ function parseEmojiRows(csvText: string): InsertCategoryEmoji[] {
     out.push({ category, emoji });
   }
   return out;
+}
+
+// Sync the country→emoji map from its dedicated CSV tab. Tolerant of header
+// naming: "country"/"name"/"label" + "emoji"/"flag"/"icon".
+async function syncCountryEmojis(countryEmojiCsvUrl: string): Promise<number> {
+  if (!countryEmojiCsvUrl) return 0;
+  const res = await fetch(countryEmojiCsvUrl);
+  if (!res.ok) throw new Error(`Failed to fetch country emoji sheet: HTTP ${res.status}`);
+  const csvText = await res.text();
+  const rows = parseCSV(csvText);
+  const out: InsertCountryEmoji[] = [];
+  const seen = new Set<string>();
+  for (const rawRow of rows) {
+    const row = normalizeKeys(rawRow);
+    const country = String(
+      row.country ?? row.name ?? row.label ?? row.countryname ?? "",
+    ).trim();
+    const emoji = String(row.emoji ?? row.flag ?? row.icon ?? row.symbol ?? "").trim();
+    if (!country || !emoji) continue;
+    const key = country.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({ country, emoji });
+  }
+  if (out.length === 0) throw new Error("Country emoji sheet has no usable rows");
+  await storage.setCountryEmojis(out);
+  return out.length;
 }
 
 // Sync the category→emoji map from its dedicated CSV tab. The tab is the source
@@ -189,7 +216,15 @@ export async function runSheetSync(): Promise<{ count: number; errors: number; r
     console.error("[sheet-sync] Emoji sync failed (keeping last known-good map):", e.message);
   }
 
-  return { count, errors, removed, emojis };
+  // Sync country emojis from their dedicated tab. Same fault-isolation rule.
+  let countryEmojis = 0;
+  try {
+    countryEmojis = await syncCountryEmojis(config.countryEmojiCsvUrl || "");
+  } catch (e: any) {
+    console.error("[sheet-sync] Country emoji sync failed (keeping last known-good map):", e.message);
+  }
+
+  return { count, errors, removed, emojis, countryEmojis };
 }
 
 // Seed the category→emoji table from the static map when it's empty, so a

@@ -140,6 +140,7 @@ export const sheetSyncConfig = pgTable("sheet_sync_config", {
   id: serial("id").primaryKey(),
   csvUrl: text("csv_url").notNull().default(""),
   emojiCsvUrl: text("emoji_csv_url").notNull().default(""),
+  countryEmojiCsvUrl: text("country_emoji_csv_url").notNull().default(""),
   enabled: boolean("enabled").notNull().default(false),
   lastSyncAt: text("last_sync_at"),
   lastSyncStatus: text("last_sync_status"),
@@ -159,6 +160,16 @@ export const categoryEmojis = pgTable("category_emojis", {
 export const insertCategoryEmojiSchema = createInsertSchema(categoryEmojis).omit({ id: true });
 export type InsertCategoryEmoji = z.infer<typeof insertCategoryEmojiSchema>;
 export type CategoryEmoji = typeof categoryEmojis.$inferSelect;
+
+export const countryEmojis = pgTable("country_emojis", {
+  id: serial("id").primaryKey(),
+  country: text("country").notNull(),
+  emoji: text("emoji").notNull(),
+});
+
+export const insertCountryEmojiSchema = createInsertSchema(countryEmojis).omit({ id: true });
+export type InsertCountryEmoji = z.infer<typeof insertCountryEmojiSchema>;
+export type CountryEmoji = typeof countryEmojis.$inferSelect;
 
 export const COUNTRIES = [
   "🌍 Worldwide",
