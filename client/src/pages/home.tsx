@@ -174,6 +174,14 @@ export default function Home() {
 
   useEffect(() => { setCurrentPage(1); }, [searchQuery, selectedCategories, selectedCountries, selectedMadeIn, selectedProviders, selectedPaymentMethods, sortBy]);
 
+  // When a slug deep-link is active, jump to the page that contains that merchant.
+  useEffect(() => {
+    if (!expandedSlug) return;
+    const idx = filteredMerchants.findIndex(m => slugify(m.name) === expandedSlug);
+    if (idx === -1) return;
+    setCurrentPage(Math.floor(idx / PAGE_SIZE) + 1);
+  }, [expandedSlug, filteredMerchants]);
+
   const totalPages = Math.max(1, Math.ceil(filteredMerchants.length / PAGE_SIZE));
   const pagedMerchants = filteredMerchants.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
