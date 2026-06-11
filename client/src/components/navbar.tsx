@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Sun, Moon, Plus, ChevronDown, Check, Zap } from "lucide-react";
+import { Sun, Moon, Plus, ChevronDown, Check } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useNostr } from "@/context/NostrContext";
 import { createPortal } from "react-dom";
@@ -109,7 +109,6 @@ function NostrUserButton() {
         className="h-8 px-3 text-xs font-medium rounded-md border border-border hover:bg-muted transition-colors flex items-center gap-1.5"
         data-testid="button-nostr-signin"
       >
-        <Zap className="h-3.5 w-3.5 text-yellow-500" />
         Sign in
       </button>
     );
