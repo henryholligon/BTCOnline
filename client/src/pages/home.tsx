@@ -307,26 +307,39 @@ export default function Home() {
                 ))}
               </div>
               {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-2 mt-8 mb-2">
-                  <button
-                    onClick={() => { setCurrentPage(p => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                    disabled={currentPage === 1}
-                    className="px-4 py-2 rounded-md border border-border text-sm font-medium disabled:opacity-40 hover:bg-muted transition-colors"
-                    data-testid="pagination-prev"
-                  >
-                    ← Prev
-                  </button>
-                  <span className="text-sm text-muted-foreground px-2">
-                    {currentPage} / {totalPages}
-                  </span>
-                  <button
-                    onClick={() => { setCurrentPage(p => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                    disabled={currentPage === totalPages}
-                    className="px-4 py-2 rounded-md border border-border text-sm font-medium disabled:opacity-40 hover:bg-muted transition-colors"
-                    data-testid="pagination-next"
-                  >
-                    Next →
-                  </button>
+                <div className="flex items-center justify-center gap-1 mt-8 mb-2 flex-wrap">
+                  {(() => {
+                    const goTo = (p: number) => { setCurrentPage(p); window.scrollTo({ top: 0, behavior: "smooth" }); };
+                    const btnBase = "min-w-[36px] h-9 px-2 rounded-md border text-sm font-medium transition-colors";
+                    const activeCls = `${btnBase} border-primary bg-primary text-primary-foreground`;
+                    const normalCls = `${btnBase} border-border hover:bg-muted`;
+                    const disabledCls = `${btnBase} border-border opacity-40 cursor-not-allowed`;
+
+                    const pages: (number | "…")[] = [];
+                    const delta = 2;
+                    const left = currentPage - delta;
+                    const right = currentPage + delta;
+                    let last = 0;
+                    for (let i = 1; i <= totalPages; i++) {
+                      if (i === 1 || i === totalPages || (i >= left && i <= right)) {
+                        if (last && i - last > 1) pages.push("…");
+                        pages.push(i);
+                        last = i;
+                      }
+                    }
+
+                    return (
+                      <>
+                        <button onClick={() => goTo(currentPage - 1)} disabled={currentPage === 1} className={currentPage === 1 ? disabledCls : normalCls} data-testid="pagination-prev">←</button>
+                        {pages.map((p, i) =>
+                          p === "…"
+                            ? <span key={`ellipsis-${i}`} className="min-w-[36px] h-9 flex items-center justify-center text-sm text-muted-foreground">…</span>
+                            : <button key={p} onClick={() => goTo(p as number)} className={p === currentPage ? activeCls : normalCls} data-testid={`pagination-page-${p}`}>{p}</button>
+                        )}
+                        <button onClick={() => goTo(currentPage + 1)} disabled={currentPage === totalPages} className={currentPage === totalPages ? disabledCls : normalCls} data-testid="pagination-next">→</button>
+                      </>
+                    );
+                  })()}
                 </div>
               )}
             </>
