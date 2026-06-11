@@ -324,7 +324,7 @@ export default function Home() {
                     const disabledCls = `${btnBase} border-border opacity-40 cursor-not-allowed`;
 
                     const pages: (number | "…")[] = [];
-                    const delta = 2;
+                    const delta = 1;
                     const left = currentPage - delta;
                     const right = currentPage + delta;
                     let last = 0;
