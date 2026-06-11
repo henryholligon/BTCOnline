@@ -338,13 +338,13 @@ export default function Home() {
 
                     return (
                       <>
-                        <button onClick={() => goTo(currentPage - 1)} disabled={currentPage === 1} className={currentPage === 1 ? disabledCls : normalCls} data-testid="pagination-prev">←</button>
+                        <button onClick={() => goTo(currentPage - 1)} disabled={currentPage === 1} className={currentPage === 1 ? disabledCls : normalCls} data-testid="pagination-prev">← Previous</button>
                         {pages.map((p, i) =>
                           p === "…"
                             ? <span key={`ellipsis-${i}`} className="min-w-[36px] h-9 flex items-center justify-center text-sm text-muted-foreground">…</span>
                             : <button key={p} onClick={() => goTo(p as number)} className={p === currentPage ? activeCls : normalCls} data-testid={`pagination-page-${p}`}>{p}</button>
                         )}
-                        <button onClick={() => goTo(currentPage + 1)} disabled={currentPage === totalPages} className={currentPage === totalPages ? disabledCls : normalCls} data-testid="pagination-next">→</button>
+                        <button onClick={() => goTo(currentPage + 1)} disabled={currentPage === totalPages} className={currentPage === totalPages ? disabledCls : normalCls} data-testid="pagination-next">Next →</button>
                       </>
                     );
                   })()}
