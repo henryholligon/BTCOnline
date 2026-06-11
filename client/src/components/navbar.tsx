@@ -233,6 +233,12 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
     <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
       <div className="max-w-3xl mx-auto px-4">
         <div className="flex items-center justify-end py-1.5 gap-2 border-b border-border/20">
+          <Button asChild className="font-medium bg-green-600 hover:bg-green-700 text-white gap-2 h-8 text-xs px-3">
+            <a href="https://btcmap.org/map" target="_blank" rel="noopener noreferrer">
+              In-person
+            </a>
+          </Button>
+
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
             <DialogTrigger asChild>
               <Button className="font-medium bg-primary hover:bg-primary/90 text-primary-foreground gap-2 h-8 text-xs px-3">
@@ -351,11 +357,6 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
             </DialogContent>
           </Dialog>
 
-          <Button asChild variant="outline" className="text-xs font-medium hover:text-primary transition-colors h-8 px-3 border-gray-300 dark:border-gray-600 border-2">
-            <a href="https://btcmap.org/map" target="_blank" rel="noopener noreferrer">
-              In-person
-            </a>
-          </Button>
           <NostrUserButton />
         </div>
 
