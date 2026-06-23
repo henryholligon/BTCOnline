@@ -147,6 +147,8 @@ export async function runSheetSync(): Promise<{ count: number; errors: number; r
     const row = normalizeKeys(rawRow);
     const name = String(row.name || "").trim();
     if (!name) continue;
+    // Skip rows where the name looks like raw CSV data (contains multiple commas)
+    if ((name.match(/,/g) || []).length >= 2) continue;
 
     const prepared = {
       name,
