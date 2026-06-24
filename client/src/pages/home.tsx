@@ -264,7 +264,12 @@ export default function Home() {
       <div className="sticky top-0 z-50">
         <Navbar onSearch={setSearchQuery} filtersSlot={filterComponent} onClearFilters={clearFilters} />
         {!bannerDismissed && (
-          <div className="bg-orange-50 dark:bg-orange-950/40 border-b border-orange-200 dark:border-orange-800/50 px-4 py-2.5">
+          <motion.div
+            initial={{ y: -40, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="bg-orange-50 dark:bg-orange-950/40 border-b border-orange-200 dark:border-orange-800/50 px-4 py-2.5"
+          >
             <div className="max-w-3xl mx-auto flex items-center justify-between gap-4">
               <p className="text-xs md:text-sm text-orange-800 dark:text-orange-300 leading-snug">
                 <span className="font-semibold">Policy:</span> We will never list merchants that use gated Bitcoin payment solutions such as BitPay or Coinbase Pay.
@@ -275,7 +280,7 @@ export default function Home() {
                 aria-label="Dismiss"
               >×</button>
             </div>
-          </div>
+          </motion.div>
         )}
       </div>
 
