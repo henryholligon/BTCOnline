@@ -267,7 +267,7 @@ export default function Home() {
         <div className="bg-orange-50 dark:bg-orange-950/40 border-b border-orange-200 dark:border-orange-800/50 px-4 py-2.5">
           <div className="max-w-3xl mx-auto flex items-center justify-between gap-4">
             <p className="text-xs md:text-sm text-orange-800 dark:text-orange-300 leading-snug">
-              <span className="font-semibold">Policy:</span> We do not list merchants that use gated Bitcoin payment solutions such as BitPay or Coinbase Pay.
+              <span className="font-semibold">Policy:</span> We will never list merchants that use gated Bitcoin payment solutions such as BitPay or Coinbase Pay.
             </p>
             <button
               onClick={() => { setBannerDismissed(true); localStorage.setItem("policy-banner-dismissed", "1"); }}
