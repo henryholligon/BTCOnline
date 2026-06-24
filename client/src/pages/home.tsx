@@ -25,6 +25,7 @@ export default function Home() {
   const [selectedPaymentMethods, setSelectedPaymentMethods] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState("default");
   const [currentPage, setCurrentPage] = useState(1);
+  const [bannerDismissed, setBannerDismissed] = useState(() => localStorage.getItem("policy-banner-dismissed") === "1");
   const PAGE_SIZE = 50;
 
   useEffect(() => {
@@ -261,7 +262,22 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-primary/20">
       <Navbar onSearch={setSearchQuery} filtersSlot={filterComponent} onClearFilters={clearFilters} />
-      
+
+      {!bannerDismissed && (
+        <div className="bg-orange-50 dark:bg-orange-950/40 border-b border-orange-200 dark:border-orange-800/50 px-4 py-2.5">
+          <div className="max-w-3xl mx-auto flex items-center justify-between gap-4">
+            <p className="text-xs md:text-sm text-orange-800 dark:text-orange-300 leading-snug">
+              <span className="font-semibold">Policy:</span> We do not list merchants that use gated Bitcoin payment solutions such as BitPay or Coinbase Pay.
+            </p>
+            <button
+              onClick={() => { setBannerDismissed(true); localStorage.setItem("policy-banner-dismissed", "1"); }}
+              className="shrink-0 text-orange-500 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-200 transition-colors text-lg leading-none"
+              aria-label="Dismiss"
+            >×</button>
+          </div>
+        </div>
+      )}
+
       <div className="relative border-b border-border/50 overflow-hidden bg-background">
         <div className="max-w-3xl mx-auto relative z-10 px-4 py-10 md:py-20 text-center">
           <motion.div
