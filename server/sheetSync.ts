@@ -180,7 +180,8 @@ export async function runSheetSync(): Promise<{ count: number; errors: number; r
       const merged = { ...validated.data };
       // Logo priority when sheet row has none: Cloudinary folder > existing logo
       if (!merged.logo) merged.logo = cloudLogo || existing.logo || "";
-      if (!merged.bitcoinDiscount && existing.bitcoinDiscount) merged.bitcoinDiscount = existing.bitcoinDiscount;
+      const nullLike = (v: string | null) => !v || ["no","none","n/a","false","0","-"].includes(v.toLowerCase());
+      if (!merged.bitcoinDiscount && existing.bitcoinDiscount && !nullLike(existing.bitcoinDiscount)) merged.bitcoinDiscount = existing.bitcoinDiscount;
       // Update by id so normalized name matches (e.g. "NIC NAC" vs "NICNAC") don't create duplicates
       await storage.updateMerchant(existing.id, merged);
     } else {
