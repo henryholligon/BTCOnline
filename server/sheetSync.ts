@@ -164,7 +164,11 @@ export async function runSheetSync(): Promise<{ count: number; errors: number; r
       countryMadeIn: row.countrymadein || row.country_made_in || row.madein || row.made_in || null,
       countryShippedFrom: row.countryshippedfrom || row.country_shipped_from || null,
       lastSurveyed: row.lastsurveyed || row.last_surveyed || new Date().toISOString().split("T")[0],
-      bitcoinDiscount: row.bitcoindiscount || row.bitcoin_discount || row.btcdiscount || row.btc_discount || row.badge || row.btcbadge || row.btc_badge || row.discount || row.promo || row.promotion || null,
+      bitcoinDiscount: (() => {
+        const raw = row.bitcoindiscount || row.bitcoin_discount || row.btcdiscount || row.btc_discount || row.badge || row.btcbadge || row.btc_badge || row.discount || row.promo || row.promotion || "";
+        const v = String(raw).trim();
+        return ["", "no", "none", "n/a", "false", "0", "-"].includes(v.toLowerCase()) ? null : v || null;
+      })(),
     };
 
     const validated = insertMerchantSchema.safeParse(prepared);
