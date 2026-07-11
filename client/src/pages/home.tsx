@@ -340,7 +340,19 @@ export default function Home() {
                 ))}
               </div>
               {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-1 mt-8 mb-2 flex-wrap">
+                <div className="flex justify-end mt-6 mb-2">
+                  <select
+                    value={pageSize}
+                    onChange={e => { const v = Number(e.target.value); setPageSize(v); localStorage.setItem("page-size", String(v)); }}
+                    className="text-xs border border-border rounded-md px-2 py-1 bg-background text-foreground cursor-pointer"
+                    data-testid="select-page-size-bottom"
+                  >
+                    {[25, 50, 100].map(n => <option key={n} value={n}>{n} per page</option>)}
+                  </select>
+                </div>
+              )}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-1 mt-2 mb-2 flex-wrap">
                   {(() => {
                     const goTo = (p: number) => { setCurrentPage(p); window.scrollTo({ top: 0, behavior: "smooth" }); };
                     const btnBase = "min-w-[36px] h-9 px-2 rounded-md border text-sm font-medium transition-colors";
