@@ -25,8 +25,8 @@ export default function Home() {
   const [selectedPaymentMethods, setSelectedPaymentMethods] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState("default");
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number>(() => Number(localStorage.getItem("page-size")) || 50);
   const [bannerDismissed, setBannerDismissed] = useState(() => localStorage.getItem("policy-banner-dismissed") === "1");
-  const PAGE_SIZE = 50;
 
   useEffect(() => {
     if (params?.slug) {
@@ -173,18 +173,18 @@ export default function Home() {
     });
   }, [merchants, searchQuery, selectedCategories, selectedCountries, selectedMadeIn, selectedProviders, selectedPaymentMethods, sortBy]);
 
-  useEffect(() => { setCurrentPage(1); }, [searchQuery, selectedCategories, selectedCountries, selectedMadeIn, selectedProviders, selectedPaymentMethods, sortBy]);
+  useEffect(() => { setCurrentPage(1); }, [searchQuery, selectedCategories, selectedCountries, selectedMadeIn, selectedProviders, selectedPaymentMethods, sortBy, pageSize]);
 
   // When a slug deep-link is active, jump to the page that contains that merchant.
   useEffect(() => {
     if (!expandedSlug) return;
     const idx = filteredMerchants.findIndex(m => slugify(m.name) === expandedSlug);
     if (idx === -1) return;
-    setCurrentPage(Math.floor(idx / PAGE_SIZE) + 1);
-  }, [expandedSlug, filteredMerchants]);
+    setCurrentPage(Math.floor(idx / pageSize) + 1);
+  }, [expandedSlug, filteredMerchants, pageSize]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredMerchants.length / PAGE_SIZE));
-  const pagedMerchants = filteredMerchants.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const totalPages = Math.max(1, Math.ceil(filteredMerchants.length / pageSize));
+  const pagedMerchants = filteredMerchants.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const handleCategoryChange = (category: string) => {
     if (category === "All" || !category) {
@@ -299,11 +299,19 @@ export default function Home() {
       <main className="flex-1 relative" style={{ backgroundImage: `url(${btcBgImage})`, backgroundSize: '600px', backgroundRepeat: 'repeat', backgroundPosition: 'center' }}>
         <div className="absolute inset-0 bg-background/85 dark:bg-background/80" />
         <div className="relative z-10 max-w-3xl mx-auto px-4 py-6">
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-4 flex items-center justify-between gap-2">
             <p className="text-sm text-muted-foreground">
               Showing <span className="font-mono text-foreground font-medium">{pagedMerchants.length}</span> of <span className="font-mono text-foreground font-medium">{filteredMerchants.length}</span> merchants
               {totalPages > 1 && <span className="ml-2 text-xs">(page {currentPage} of {totalPages})</span>}
             </p>
+            <select
+              value={pageSize}
+              onChange={e => { const v = Number(e.target.value); setPageSize(v); localStorage.setItem("page-size", String(v)); }}
+              className="text-xs border border-border rounded-md px-2 py-1 bg-background text-foreground cursor-pointer"
+              data-testid="select-page-size"
+            >
+              {[25, 50, 100].map(n => <option key={n} value={n}>{n} per page</option>)}
+            </select>
           </div>
 
           {loading ? (
