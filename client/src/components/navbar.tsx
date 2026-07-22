@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Sun, Moon, Plus, ChevronDown, Check } from "lucide-react";
+import { Sun, Moon, Plus, ChevronDown, Check, Copy, Eye, EyeOff } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useNostr } from "@/context/NostrContext";
 import { createPortal } from "react-dom";
@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { npubEncode, nsecEncode } from "nostr-tools/nip19";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTheme } from "next-themes";
 import { useToast } from "@/hooks/use-toast";
@@ -88,9 +89,79 @@ function MultiSelect({ options, selected, onChange, placeholder, testId }: {
   );
 }
 
+function KeyCopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      className="shrink-0 h-6 w-6 inline-flex items-center justify-center rounded hover:bg-muted transition-colors"
+      onClick={() => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+    >
+      {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5 text-muted-foreground" />}
+    </button>
+  );
+}
+
+function MyKeysModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { user, getSecretKey } = useNostr();
+  const [showNsec, setShowNsec] = useState(false);
+  const sk = open ? getSecretKey() : null;
+  const npub = user ? npubEncode(user.pubkey) : "";
+  const nsec = sk ? nsecEncode(sk) : "";
+
+  return (
+    <Dialog open={open} onOpenChange={v => { if (!v) { setShowNsec(false); onClose(); } }}>
+      <DialogContent className="max-w-md" data-testid="modal-my-keys">
+        <DialogHeader>
+          <DialogTitle>🔑 My Nostr Keys</DialogTitle>
+          <DialogDescription>
+            Your Nostr identity. The npub is public — share it freely. Keep the nsec secret.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="space-y-1">
+            <Label className="text-xs">Public key (npub) — safe to share</Label>
+            <div className="flex items-center gap-1 bg-muted rounded px-2.5 py-1.5">
+              <code className="text-xs break-all flex-1 select-all">{npub}</code>
+              <KeyCopyButton text={npub} />
+            </div>
+          </div>
+          {nsec ? (
+            <div className="space-y-1">
+              <Label className="text-xs">Private key (nsec) — keep secret</Label>
+              <div className="flex items-center gap-1 bg-muted rounded px-2.5 py-1.5">
+                <code className="text-xs break-all flex-1 select-all">
+                  {showNsec ? nsec : "•".repeat(Math.min(nsec.length, 48))}
+                </code>
+                <button
+                  type="button"
+                  onClick={() => setShowNsec(v => !v)}
+                  className="shrink-0 h-6 w-6 flex items-center justify-center rounded hover:bg-background transition-colors"
+                  data-testid="button-reveal-nsec-keys"
+                >
+                  {showNsec ? <EyeOff className="h-3.5 w-3.5 text-muted-foreground" /> : <Eye className="h-3.5 w-3.5 text-muted-foreground" />}
+                </button>
+                <KeyCopyButton text={nsec} />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Import this into <a href="https://getalby.com" target="_blank" rel="noopener noreferrer" className="underline">Alby</a>, Primal, or any Nostr client.
+              </p>
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              Private key is not available in this session (extension or bunker login).
+            </p>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function NostrUserButton() {
-  const { user, logout, openLoginModal } = useNostr();
+  const { user, logout, openLoginModal, loginMethod } = useNostr();
   const [open, setOpen] = useState(false);
+  const [keysOpen, setKeysOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -115,50 +186,62 @@ function NostrUserButton() {
   }
 
   return (
-    <div ref={ref} className="relative">
-      <button
-        onClick={() => setOpen(v => !v)}
-        className="flex items-center gap-1.5 h-8 px-2 rounded-md border border-border hover:bg-muted transition-colors"
-        data-testid="button-nostr-user-menu"
-      >
-        {user.picture ? (
-          <img src={user.picture} alt={user.displayName} className="h-6 w-6 rounded-full object-cover shrink-0" />
-        ) : (
-          <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary shrink-0">
-            {user.displayName[0]?.toUpperCase() || "⚡"}
+    <>
+      <MyKeysModal open={keysOpen} onClose={() => setKeysOpen(false)} />
+      <div ref={ref} className="relative">
+        <button
+          onClick={() => setOpen(v => !v)}
+          className="flex items-center gap-1.5 h-8 px-2 rounded-md border border-border hover:bg-muted transition-colors"
+          data-testid="button-nostr-user-menu"
+        >
+          {user.picture ? (
+            <img src={user.picture} alt={user.displayName} className="h-6 w-6 rounded-full object-cover shrink-0" />
+          ) : (
+            <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary shrink-0">
+              {user.displayName[0]?.toUpperCase() || "⚡"}
+            </div>
+          )}
+          <span className="text-xs font-medium max-w-[80px] truncate hidden sm:block">{user.displayName}</span>
+          <ChevronDown className={`h-3 w-3 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
+        </button>
+        {open && (
+          <div className="absolute right-0 top-full mt-1 bg-popover border border-border rounded-lg shadow-lg min-w-[140px] p-1 z-50">
+            <Link
+              href="/favourites"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-muted transition-colors"
+              data-testid="link-my-favourites"
+            >
+              ♡ My Favourites
+            </Link>
+            <Link
+              href="/lists"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-muted transition-colors"
+              data-testid="link-my-lists"
+            >
+              📋 My Lists
+            </Link>
+            {loginMethod === "generated" && (
+              <button
+                onClick={() => { setKeysOpen(true); setOpen(false); }}
+                className="w-full text-left flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-muted transition-colors"
+                data-testid="button-my-keys"
+              >
+                🔑 My Keys
+              </button>
+            )}
+            <button
+              onClick={() => { logout(); setOpen(false); }}
+              className="w-full text-left flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-muted transition-colors text-muted-foreground"
+              data-testid="button-nostr-signout"
+            >
+              Sign out
+            </button>
           </div>
         )}
-        <span className="text-xs font-medium max-w-[80px] truncate hidden sm:block">{user.displayName}</span>
-        <ChevronDown className={`h-3 w-3 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
-      </button>
-      {open && (
-        <div className="absolute right-0 top-full mt-1 bg-popover border border-border rounded-lg shadow-lg min-w-[140px] p-1 z-50">
-          <Link
-            href="/favourites"
-            onClick={() => setOpen(false)}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-muted transition-colors"
-            data-testid="link-my-favourites"
-          >
-            ♡ My Favourites
-          </Link>
-          <Link
-            href="/lists"
-            onClick={() => setOpen(false)}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-muted transition-colors"
-            data-testid="link-my-lists"
-          >
-            📋 My Lists
-          </Link>
-          <button
-            onClick={() => { logout(); setOpen(false); }}
-            className="w-full text-left flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-muted transition-colors text-muted-foreground"
-            data-testid="button-nostr-signout"
-          >
-            Sign out
-          </button>
-        </div>
-      )}
-    </div>
+      </div>
+    </>
   );
 }
 
