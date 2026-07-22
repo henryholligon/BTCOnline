@@ -564,15 +564,22 @@ export default function NostrLoginModal() {
   const { isLoginModalOpen, closeLoginModal, restoringNcryptsec } = useNostr();
   const [nostrOpen, setNostrOpen] = useState(false);
   const [nostrTab, setNostrTab] = useState<NostrSubTab>("extension");
+  const [createOpen, setCreateOpen] = useState(false);
 
   const nostrTabs: { id: NostrSubTab; label: string; icon: ReactNode }[] = [
     { id: "extension", label: "Extension", icon: <ShieldCheck className="h-3.5 w-3.5" /> },
     { id: "bunker", label: "Bunker / Key", icon: <Wifi className="h-3.5 w-3.5" /> },
-    { id: "new", label: "New Account", icon: <Key className="h-3.5 w-3.5" /> },
   ];
 
+  const handleClose = () => {
+    closeLoginModal();
+    setNostrOpen(false);
+    setNostrTab("extension");
+    setCreateOpen(false);
+  };
+
   return (
-    <Dialog open={isLoginModalOpen} onOpenChange={v => { if (!v) { closeLoginModal(); setNostrOpen(false); setNostrTab("extension"); } }}>
+    <Dialog open={isLoginModalOpen} onOpenChange={v => { if (!v) handleClose(); }}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto" data-testid="modal-nostr-login">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -584,9 +591,10 @@ export default function NostrLoginModal() {
         {restoringNcryptsec ? (
           <RestoreSessionView />
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             <EmailTab />
 
+            {/* Sign in with existing Nostr identity */}
             <div className="border border-border rounded-lg overflow-hidden">
               <button
                 type="button"
@@ -624,8 +632,29 @@ export default function NostrLoginModal() {
                   <div>
                     {nostrTab === "extension" && <ExtensionTab />}
                     {nostrTab === "bunker" && <BunkerTab />}
-                    {nostrTab === "new" && <NewAccountTab />}
                   </div>
+                </div>
+              )}
+            </div>
+
+            {/* Create a brand-new Nostr identity */}
+            <div className="border border-border rounded-lg overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setCreateOpen(v => !v)}
+                className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium hover:bg-muted transition-colors"
+                data-testid="button-create-nostr-disclosure"
+              >
+                <span className="flex items-center gap-2">
+                  <Key className="h-4 w-4 text-violet-500" />
+                  Create a Nostr account
+                </span>
+                <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${createOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              {createOpen && (
+                <div className="border-t border-border p-3">
+                  <NewAccountTab />
                 </div>
               )}
             </div>
