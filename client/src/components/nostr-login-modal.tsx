@@ -7,9 +7,10 @@ import { useNostr } from "@/context/NostrContext";
 import { generateSecretKey, getPublicKey } from "nostr-tools";
 import { npubEncode, nsecEncode } from "nostr-tools/nip19";
 import { encrypt as ncryptsecEncrypt } from "nostr-tools/nip49";
-import { Copy, Check, Eye, EyeOff, Zap, Wifi, Key, AlertTriangle, ExternalLink, ShieldCheck } from "lucide-react";
+import { Copy, Check, Eye, EyeOff, Zap, Wifi, Key, AlertTriangle, ExternalLink, ShieldCheck, Mail } from "lucide-react";
+import { generateEmailKeypair, decryptEmailNsec } from "@/lib/emailAuth";
 
-type Tab = "extension" | "bunker" | "new";
+type Tab = "email" | "extension" | "bunker" | "new";
 
 function CopyButton({ text, "data-testid": testId }: { text: string; "data-testid"?: string }) {
   const [copied, setCopied] = useState(false);
@@ -22,6 +23,98 @@ function CopyButton({ text, "data-testid": testId }: { text: string; "data-testi
     >
       {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5 text-muted-foreground" />}
     </button>
+  );
+}
+
+function EmailTab() {
+  const { loginWithGeneratedKey } = useNostr();
+  const [mode, setMode] = useState<"login" | "register">("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const hashPassword = async (pw: string) => {
+    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(pw));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+  };
+
+  const handleSubmit = async () => {
+    setError("");
+    if (!email.trim() || !password) { setError("Email and password are required"); return; }
+    if (mode === "register" && password !== confirm) { setError("Passwords do not match"); return; }
+    if (password.length < 8) { setError("Password must be at least 8 characters"); return; }
+    setLoading(true);
+    try {
+      const pwHash = await hashPassword(password);
+      if (mode === "register") {
+        const { sk, pubkey, salt, iv, encryptedNsec } = await generateEmailKeypair(password);
+        const res = await fetch("/api/auth/register", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, passwordHash: pwHash, pubkey, encryptedNsec, salt, iv }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Registration failed");
+        await loginWithGeneratedKey(sk);
+      } else {
+        const res = await fetch("/api/auth/login", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, passwordHash: pwHash }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Login failed");
+        const sk = await decryptEmailNsec(data.encryptedNsec, data.salt, data.iv, password);
+        await loginWithGeneratedKey(sk);
+      }
+    } catch (e: any) {
+      setError(e.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex rounded-lg border border-border overflow-hidden">
+        <button type="button" onClick={() => { setMode("login"); setError(""); }}
+          className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${mode === "login" ? "bg-primary text-primary-foreground" : "hover:bg-muted text-muted-foreground"}`}
+          data-testid="tab-email-login">Sign in</button>
+        <button type="button" onClick={() => { setMode("register"); setError(""); }}
+          className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${mode === "register" ? "bg-primary text-primary-foreground" : "hover:bg-muted text-muted-foreground"}`}
+          data-testid="tab-email-register">Create account</button>
+      </div>
+      <div className="space-y-3">
+        <div className="space-y-1">
+          <Label htmlFor="email-input">Email</Label>
+          <Input id="email-input" type="email" placeholder="you@example.com" value={email}
+            onChange={e => setEmail(e.target.value)} data-testid="input-email" autoComplete="email" />
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="email-password">Password</Label>
+          <Input id="email-password" type="password" placeholder="At least 8 characters" value={password}
+            onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === "Enter" && handleSubmit()}
+            data-testid="input-email-password" autoComplete={mode === "register" ? "new-password" : "current-password"} />
+        </div>
+        {mode === "register" && (
+          <div className="space-y-1">
+            <Label htmlFor="email-confirm">Confirm password</Label>
+            <Input id="email-confirm" type="password" placeholder="Repeat password" value={confirm}
+              onChange={e => setConfirm(e.target.value)} onKeyDown={e => e.key === "Enter" && handleSubmit()}
+              data-testid="input-email-confirm" autoComplete="new-password" />
+          </div>
+        )}
+      </div>
+      {mode === "register" && (
+        <p className="text-xs text-muted-foreground">
+          A Nostr identity is generated in your browser and encrypted with your password — we never store your private key.
+        </p>
+      )}
+      {error && <p className="text-sm text-destructive">{error}</p>}
+      <Button className="w-full" onClick={handleSubmit} disabled={loading} data-testid="button-email-submit">
+        {loading ? (mode === "register" ? "Creating account…" : "Signing in…") : (mode === "register" ? "Create account" : "Sign in")}
+      </Button>
+    </div>
   );
 }
 
@@ -469,9 +562,10 @@ function RestoreSessionView() {
 
 export default function NostrLoginModal() {
   const { isLoginModalOpen, closeLoginModal, restoringNcryptsec } = useNostr();
-  const [tab, setTab] = useState<Tab>("extension");
+  const [tab, setTab] = useState<Tab>("email");
 
   const tabs: { id: Tab; label: string; icon: ReactNode }[] = [
+    { id: "email", label: "Email", icon: <Mail className="h-3.5 w-3.5" /> },
     { id: "extension", label: "Extension", icon: <ShieldCheck className="h-3.5 w-3.5" /> },
     { id: "bunker", label: "Bunker / Key", icon: <Wifi className="h-3.5 w-3.5" /> },
     { id: "new", label: "New Account", icon: <Key className="h-3.5 w-3.5" /> },
@@ -510,6 +604,7 @@ export default function NostrLoginModal() {
             </div>
 
             <div className="py-1">
+              {tab === "email" && <EmailTab />}
               {tab === "extension" && <ExtensionTab />}
               {tab === "bunker" && <BunkerTab />}
               {tab === "new" && <NewAccountTab />}

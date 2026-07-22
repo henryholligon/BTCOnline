@@ -1,13 +1,16 @@
 import type { Express } from "express";
 import { type Server } from "http";
 import { storage } from "./storage";
-import { insertMerchantSchema, insertBadgePresetSchema, insertDirectoryOptionSchema } from "@shared/schema";
+import { insertMerchantSchema, insertBadgePresetSchema, insertDirectoryOptionSchema, users } from "@shared/schema";
 import multer from "multer";
 import path from "path";
 import { createChallenge, verifySolution } from "altcha-lib";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { runSheetSync } from "./sheetSync";
 import { uploadLogoBuffer, listLogos, cloudinaryConfigured } from "./cloudinary";
+import bcrypt from "bcrypt";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -28,6 +31,33 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
   const ALTCHA_HMAC_KEY = process.env.ALTCHA_HMAC_KEY || "btconline-altcha-secret-key-2025";
+
+  app.post("/api/auth/register", async (req, res) => {
+    const { email, passwordHash, pubkey, encryptedNsec, salt, iv } = req.body;
+    if (!email || !passwordHash || !pubkey || !encryptedNsec || !salt || !iv) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+    const existing = await db.select().from(users).where(eq(users.email, email.toLowerCase())).limit(1);
+    if (existing.length > 0) return res.status(409).json({ message: "Email already registered" });
+    const serverHash = await bcrypt.hash(passwordHash, 10);
+    await db.insert(users).values({
+      email: email.toLowerCase(), passwordHash: serverHash,
+      pubkey, encryptedNsec, salt, iv,
+      createdAt: new Date().toISOString(),
+    });
+    res.json({ ok: true });
+  });
+
+  app.post("/api/auth/login", async (req, res) => {
+    const { email, passwordHash } = req.body;
+    if (!email || !passwordHash) return res.status(400).json({ message: "Missing fields" });
+    const rows = await db.select().from(users).where(eq(users.email, email.toLowerCase())).limit(1);
+    if (rows.length === 0) return res.status(401).json({ message: "Invalid email or password" });
+    const user = rows[0];
+    const valid = await bcrypt.compare(passwordHash, user.passwordHash);
+    if (!valid) return res.status(401).json({ message: "Invalid email or password" });
+    res.json({ encryptedNsec: user.encryptedNsec, salt: user.salt, iv: user.iv, pubkey: user.pubkey });
+  });
 
   app.get("/api/altcha-challenge", async (_req, res) => {
     try {

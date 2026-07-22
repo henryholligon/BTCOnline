@@ -3,6 +3,19 @@ import { pgTable, text, varchar, boolean, serial, integer } from "drizzle-orm/pg
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  pubkey: text("pubkey").notNull(),
+  encryptedNsec: text("encrypted_nsec").notNull(),
+  salt: text("salt").notNull(),
+  iv: text("iv").notNull(),
+  createdAt: text("created_at").notNull().default(""),
+});
+
+export type User = typeof users.$inferSelect;
+
 export const merchants = pgTable("merchants", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),

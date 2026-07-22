@@ -74,6 +74,18 @@ app.use((req, res, next) => {
       last_sync_count INTEGER
     )
   `);
+  await db.execute(sql`
+    CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      email TEXT NOT NULL UNIQUE,
+      password_hash TEXT NOT NULL,
+      pubkey TEXT NOT NULL,
+      encrypted_nsec TEXT NOT NULL,
+      salt TEXT NOT NULL,
+      iv TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT ''
+    )
+  `);
   await seed();
   await registerRoutes(httpServer, app);
   startSheetSyncPoller();
