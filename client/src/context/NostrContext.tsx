@@ -67,6 +67,7 @@ interface NostrContextValue {
   closeLoginModal: () => void;
   getSecretKey: () => Uint8Array | null;
   loginMethod: LoginMethod | null;
+  sessionNcryptsec: string | null;
 }
 
 const NostrContext = createContext<NostrContextValue | null>(null);
@@ -344,7 +345,9 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
   }, [user, lists, publishEvent]);
 
   const getSecretKey = useCallback((): Uint8Array | null => secretKeyRef.current, []);
-  const loginMethod: LoginMethod | null = user ? (loadSession()?.method ?? null) : null;
+  const _session = user ? loadSession() : null;
+  const loginMethod: LoginMethod | null = _session?.method ?? null;
+  const sessionNcryptsec: string | null = _session?.ncryptsec ?? null;
 
   return (
     <NostrContext.Provider value={{
@@ -354,7 +357,7 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
       logout, signEvent,
       toggleFavourite, createList, deleteList, renameList, toggleListMember,
       restoringNcryptsec, openLoginModal, closeLoginModal,
-      getSecretKey, loginMethod,
+      getSecretKey, loginMethod, sessionNcryptsec,
     }}>
       {children}
       <NostrLoginModal />

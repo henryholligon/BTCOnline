@@ -103,7 +103,7 @@ function KeyCopyButton({ text }: { text: string }) {
 }
 
 function MyKeysModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { user, getSecretKey } = useNostr();
+  const { user, getSecretKey, sessionNcryptsec } = useNostr();
   const [showNsec, setShowNsec] = useState(false);
   const sk = open ? getSecretKey() : null;
   const npub = user ? npubEncode(user.pubkey) : "";
@@ -151,6 +151,18 @@ function MyKeysModal({ open, onClose }: { open: boolean; onClose: () => void }) 
             <p className="text-xs text-muted-foreground">
               Private key is not available in this session (extension or bunker login).
             </p>
+          )}
+          {sessionNcryptsec && (
+            <div className="space-y-1">
+              <Label className="text-xs">Encrypted backup (ncryptsec) — password-protected</Label>
+              <div className="flex items-center gap-1 bg-muted rounded px-2.5 py-1.5">
+                <code className="text-xs break-all flex-1 select-all">{sessionNcryptsec}</code>
+                <KeyCopyButton text={sessionNcryptsec} />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Paste into <a href="https://getalby.com" target="_blank" rel="noopener noreferrer" className="underline">Alby</a>, Primal, or the login screen's ncryptsec tab to restore your session.
+              </p>
+            </div>
           )}
         </div>
       </DialogContent>
