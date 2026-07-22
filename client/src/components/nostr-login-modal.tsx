@@ -7,10 +7,10 @@ import { useNostr } from "@/context/NostrContext";
 import { generateSecretKey, getPublicKey } from "nostr-tools";
 import { npubEncode, nsecEncode } from "nostr-tools/nip19";
 import { encrypt as ncryptsecEncrypt } from "nostr-tools/nip49";
-import { Copy, Check, Eye, EyeOff, Zap, Wifi, Key, AlertTriangle, ExternalLink, ShieldCheck, Mail } from "lucide-react";
+import { Copy, Check, Eye, EyeOff, Zap, Wifi, Key, AlertTriangle, ExternalLink, ShieldCheck, Mail, ChevronDown } from "lucide-react";
 import { generateEmailKeypair, decryptEmailNsec } from "@/lib/emailAuth";
 
-type Tab = "email" | "extension" | "bunker" | "new";
+type NostrSubTab = "extension" | "bunker" | "new";
 
 function CopyButton({ text, "data-testid": testId }: { text: string; "data-testid"?: string }) {
   const [copied, setCopied] = useState(false);
@@ -562,54 +562,74 @@ function RestoreSessionView() {
 
 export default function NostrLoginModal() {
   const { isLoginModalOpen, closeLoginModal, restoringNcryptsec } = useNostr();
-  const [tab, setTab] = useState<Tab>("email");
+  const [nostrOpen, setNostrOpen] = useState(false);
+  const [nostrTab, setNostrTab] = useState<NostrSubTab>("extension");
 
-  const tabs: { id: Tab; label: string; icon: ReactNode }[] = [
-    { id: "email", label: "Email", icon: <Mail className="h-3.5 w-3.5" /> },
+  const nostrTabs: { id: NostrSubTab; label: string; icon: ReactNode }[] = [
     { id: "extension", label: "Extension", icon: <ShieldCheck className="h-3.5 w-3.5" /> },
     { id: "bunker", label: "Bunker / Key", icon: <Wifi className="h-3.5 w-3.5" /> },
     { id: "new", label: "New Account", icon: <Key className="h-3.5 w-3.5" /> },
   ];
 
   return (
-    <Dialog open={isLoginModalOpen} onOpenChange={v => !v && closeLoginModal()}>
+    <Dialog open={isLoginModalOpen} onOpenChange={v => { if (!v) { closeLoginModal(); setNostrOpen(false); setNostrTab("extension"); } }}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto" data-testid="modal-nostr-login">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {restoringNcryptsec ? "Restore Your Session" : "Sign in with Nostr"}
+            <Mail className="h-4 w-4" />
+            {restoringNcryptsec ? "Restore Your Session" : "Sign in"}
           </DialogTitle>
         </DialogHeader>
 
         {restoringNcryptsec ? (
           <RestoreSessionView />
         ) : (
-          <>
-            <div className="flex rounded-lg border border-border overflow-hidden mb-2">
-              {tabs.map(t => (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => setTab(t.id)}
-                  className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 text-xs font-medium transition-colors ${
-                    tab === t.id
-                      ? "bg-primary text-primary-foreground"
-                      : "hover:bg-muted text-muted-foreground"
-                  }`}
-                  data-testid={`tab-${t.id}`}
-                >
-                  {t.icon}
-                  {t.label}
-                </button>
-              ))}
-            </div>
+          <div className="space-y-4">
+            <EmailTab />
 
-            <div className="py-1">
-              {tab === "email" && <EmailTab />}
-              {tab === "extension" && <ExtensionTab />}
-              {tab === "bunker" && <BunkerTab />}
-              {tab === "new" && <NewAccountTab />}
+            <div className="border border-border rounded-lg overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setNostrOpen(v => !v)}
+                className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium hover:bg-muted transition-colors"
+                data-testid="button-nostr-disclosure"
+              >
+                <span className="flex items-center gap-2">
+                  <Zap className="h-4 w-4 text-amber-500" />
+                  Sign in with Nostr
+                </span>
+                <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${nostrOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              {nostrOpen && (
+                <div className="border-t border-border p-3 space-y-3">
+                  <div className="flex rounded-md border border-border overflow-hidden">
+                    {nostrTabs.map(t => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => setNostrTab(t.id)}
+                        className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 text-xs font-medium transition-colors ${
+                          nostrTab === t.id
+                            ? "bg-primary text-primary-foreground"
+                            : "hover:bg-muted text-muted-foreground"
+                        }`}
+                        data-testid={`tab-${t.id}`}
+                      >
+                        {t.icon}
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+                  <div>
+                    {nostrTab === "extension" && <ExtensionTab />}
+                    {nostrTab === "bunker" && <BunkerTab />}
+                    {nostrTab === "new" && <NewAccountTab />}
+                  </div>
+                </div>
+              )}
             </div>
-          </>
+          </div>
         )}
       </DialogContent>
     </Dialog>
