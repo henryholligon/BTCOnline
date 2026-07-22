@@ -10,7 +10,7 @@ import { encrypt as ncryptsecEncrypt } from "nostr-tools/nip49";
 import { Copy, Check, Eye, EyeOff, Zap, Wifi, Key, AlertTriangle, ExternalLink, ShieldCheck, Mail, ChevronDown } from "lucide-react";
 import { generateEmailKeypair, decryptEmailNsec } from "@/lib/emailAuth";
 
-type NostrSubTab = "extension" | "bunker" | "new";
+type NostrSubTab = "extension" | "bunker";
 
 function CopyButton({ text, "data-testid": testId }: { text: string; "data-testid"?: string }) {
   const [copied, setCopied] = useState(false);
@@ -644,7 +644,7 @@ export default function NostrLoginModal() {
               </div>
             )}
 
-            {mode === "register" && (
+            {mode === "login" && (
               <div className="border border-border rounded-lg overflow-hidden">
                 <button
                   type="button"
