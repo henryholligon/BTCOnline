@@ -35,12 +35,19 @@ export interface NostrList {
   event: Event | null;
 }
 
+export interface EmailKeyMaterial {
+  encryptedNsec: string;
+  salt: string;
+  iv: string;
+}
+
 interface StoredSession {
   pubkey: string;
   method: LoginMethod;
   ncryptsec?: string;
   bunkerUri?: string;
   bunkerLocalSkHex?: string;
+  emailKeyMaterial?: EmailKeyMaterial;
 }
 
 interface NostrContextValue {
@@ -53,7 +60,7 @@ interface NostrContextValue {
   isLoginModalOpen: boolean;
   loginNip07: () => Promise<void>;
   loginWithBunker: (bunkerUri: string) => Promise<void>;
-  loginWithGeneratedKey: (sk: Uint8Array, ncryptsec?: string) => Promise<void>;
+  loginWithGeneratedKey: (sk: Uint8Array, ncryptsec?: string, emailKeyMaterial?: EmailKeyMaterial) => Promise<void>;
   restoreGeneratedSession: (ncryptsec: string, password: string) => Promise<void>;
   logout: () => void;
   signEvent: (template: EventTemplate) => Promise<VerifiedEvent>;
@@ -68,6 +75,7 @@ interface NostrContextValue {
   getSecretKey: () => Uint8Array | null;
   loginMethod: LoginMethod | null;
   sessionNcryptsec: string | null;
+  sessionEmailKeyMaterial: EmailKeyMaterial | null;
 }
 
 const NostrContext = createContext<NostrContextValue | null>(null);
@@ -223,10 +231,10 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
     closeLoginModal();
   }, [initUser, closeLoginModal]);
 
-  const loginWithGeneratedKey = useCallback(async (sk: Uint8Array, ncryptsec?: string) => {
+  const loginWithGeneratedKey = useCallback(async (sk: Uint8Array, ncryptsec?: string, emailKeyMaterial?: EmailKeyMaterial) => {
     secretKeyRef.current = sk;
     const pubkey = getPublicKey(sk);
-    saveSession({ pubkey, method: 'generated', ncryptsec });
+    saveSession({ pubkey, method: 'generated', ncryptsec, emailKeyMaterial });
     await initUser(pubkey, 'generated');
     setRestoringNcryptsec(null);
     closeLoginModal();
@@ -348,6 +356,7 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
   const _session = user ? loadSession() : null;
   const loginMethod: LoginMethod | null = _session?.method ?? null;
   const sessionNcryptsec: string | null = _session?.ncryptsec ?? null;
+  const sessionEmailKeyMaterial: EmailKeyMaterial | null = _session?.emailKeyMaterial ?? null;
 
   return (
     <NostrContext.Provider value={{
@@ -357,7 +366,7 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
       logout, signEvent,
       toggleFavourite, createList, deleteList, renameList, toggleListMember,
       restoringNcryptsec, openLoginModal, closeLoginModal,
-      getSecretKey, loginMethod, sessionNcryptsec,
+      getSecretKey, loginMethod, sessionNcryptsec, sessionEmailKeyMaterial,
     }}>
       {children}
       <NostrLoginModal />

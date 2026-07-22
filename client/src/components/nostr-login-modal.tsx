@@ -55,7 +55,7 @@ function EmailTab({ mode, setMode }: { mode: "login" | "register"; setMode: (m: 
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Registration failed");
-        await loginWithGeneratedKey(sk);
+        await loginWithGeneratedKey(sk, undefined, { encryptedNsec, salt, iv });
       } else {
         const res = await fetch("/api/auth/login", {
           method: "POST", headers: { "Content-Type": "application/json" },
@@ -64,7 +64,7 @@ function EmailTab({ mode, setMode }: { mode: "login" | "register"; setMode: (m: 
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Login failed");
         const sk = await decryptEmailNsec(data.encryptedNsec, data.salt, data.iv, password);
-        await loginWithGeneratedKey(sk);
+        await loginWithGeneratedKey(sk, undefined, { encryptedNsec: data.encryptedNsec, salt: data.salt, iv: data.iv });
       }
     } catch (e: any) {
       setError(e.message || "Something went wrong");

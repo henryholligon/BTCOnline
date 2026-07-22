@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { npubEncode, nsecEncode } from "nostr-tools/nip19";
+import { decrypt as ncryptsecDecrypt } from "nostr-tools/nip49";
+import { decryptEmailNsec } from "@/lib/emailAuth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTheme } from "next-themes";
 import { useToast } from "@/hooks/use-toast";
@@ -103,14 +105,69 @@ function KeyCopyButton({ text }: { text: string }) {
 }
 
 function MyKeysModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { user, getSecretKey, sessionNcryptsec } = useNostr();
+  const { user, getSecretKey, sessionNcryptsec, sessionEmailKeyMaterial } = useNostr();
   const [showNsec, setShowNsec] = useState(false);
+  const [isNsecVerified, setIsNsecVerified] = useState(false);
+  const [promptPassword, setPromptPassword] = useState(false);
+  const [passwordInput, setPasswordInput] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [verifying, setVerifying] = useState(false);
   const sk = open ? getSecretKey() : null;
   const npub = user ? npubEncode(user.pubkey) : "";
   const nsec = sk ? nsecEncode(sk) : "";
+  const needsPasswordGate = !!(sessionEmailKeyMaterial || sessionNcryptsec);
+
+  function handleClose() {
+    setShowNsec(false);
+    setIsNsecVerified(false);
+    setPromptPassword(false);
+    setPasswordInput("");
+    setPasswordError("");
+    onClose();
+  }
+
+  function handleRevealClick() {
+    if (showNsec) {
+      setShowNsec(false);
+      return;
+    }
+    if (needsPasswordGate && !isNsecVerified) {
+      setPromptPassword(true);
+      setPasswordInput("");
+      setPasswordError("");
+    } else {
+      setShowNsec(true);
+    }
+  }
+
+  async function handlePasswordSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setVerifying(true);
+    setPasswordError("");
+    try {
+      if (sessionEmailKeyMaterial) {
+        await decryptEmailNsec(
+          sessionEmailKeyMaterial.encryptedNsec,
+          sessionEmailKeyMaterial.salt,
+          sessionEmailKeyMaterial.iv,
+          passwordInput,
+        );
+      } else if (sessionNcryptsec) {
+        ncryptsecDecrypt(sessionNcryptsec, passwordInput);
+      }
+      setIsNsecVerified(true);
+      setShowNsec(true);
+      setPromptPassword(false);
+      setPasswordInput("");
+    } catch {
+      setPasswordError("Incorrect password. Please try again.");
+    } finally {
+      setVerifying(false);
+    }
+  }
 
   return (
-    <Dialog open={open} onOpenChange={v => { if (!v) { setShowNsec(false); onClose(); } }}>
+    <Dialog open={open} onOpenChange={v => { if (!v) handleClose(); }}>
       <DialogContent className="max-w-md" data-testid="modal-my-keys">
         <DialogHeader>
           <DialogTitle>🔑 My Nostr Keys</DialogTitle>
@@ -135,14 +192,36 @@ function MyKeysModal({ open, onClose }: { open: boolean; onClose: () => void }) 
                 </code>
                 <button
                   type="button"
-                  onClick={() => setShowNsec(v => !v)}
+                  onClick={handleRevealClick}
                   className="shrink-0 h-6 w-6 flex items-center justify-center rounded hover:bg-background transition-colors"
                   data-testid="button-reveal-nsec-keys"
                 >
                   {showNsec ? <EyeOff className="h-3.5 w-3.5 text-muted-foreground" /> : <Eye className="h-3.5 w-3.5 text-muted-foreground" />}
                 </button>
-                <KeyCopyButton text={nsec} />
+                {showNsec && <KeyCopyButton text={nsec} />}
               </div>
+              {promptPassword && !showNsec && (
+                <form onSubmit={handlePasswordSubmit} className="mt-2 space-y-2" data-testid="form-nsec-password">
+                  <p className="text-xs text-muted-foreground">Enter your password to reveal the private key.</p>
+                  <div className="flex gap-2">
+                    <Input
+                      type="password"
+                      placeholder="Your password"
+                      value={passwordInput}
+                      onChange={e => { setPasswordInput(e.target.value); setPasswordError(""); }}
+                      className="h-8 text-xs"
+                      autoFocus
+                      data-testid="input-nsec-password"
+                    />
+                    <Button type="submit" size="sm" className="h-8 text-xs px-3 shrink-0" disabled={verifying || !passwordInput} data-testid="button-confirm-nsec-password">
+                      {verifying ? "…" : "Confirm"}
+                    </Button>
+                  </div>
+                  {passwordError && (
+                    <p className="text-xs text-destructive" data-testid="text-nsec-password-error">{passwordError}</p>
+                  )}
+                </form>
+              )}
               <p className="text-xs text-muted-foreground">
                 Import this into <a href="https://getalby.com" target="_blank" rel="noopener noreferrer" className="underline">Alby</a>, Primal, or any Nostr client.
               </p>
