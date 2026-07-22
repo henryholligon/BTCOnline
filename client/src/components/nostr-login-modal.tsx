@@ -26,9 +26,8 @@ function CopyButton({ text, "data-testid": testId }: { text: string; "data-testi
   );
 }
 
-function EmailTab() {
+function EmailTab({ mode, setMode }: { mode: "login" | "register"; setMode: (m: "login" | "register") => void }) {
   const { loginWithGeneratedKey } = useNostr();
-  const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -562,6 +561,7 @@ function RestoreSessionView() {
 
 export default function NostrLoginModal() {
   const { isLoginModalOpen, closeLoginModal, restoringNcryptsec } = useNostr();
+  const [mode, setMode] = useState<"login" | "register">("login");
   const [nostrOpen, setNostrOpen] = useState(false);
   const [nostrTab, setNostrTab] = useState<NostrSubTab>("extension");
   const [createOpen, setCreateOpen] = useState(false);
@@ -573,8 +573,15 @@ export default function NostrLoginModal() {
 
   const handleClose = () => {
     closeLoginModal();
+    setMode("login");
     setNostrOpen(false);
     setNostrTab("extension");
+    setCreateOpen(false);
+  };
+
+  const handleModeChange = (m: "login" | "register") => {
+    setMode(m);
+    setNostrOpen(false);
     setCreateOpen(false);
   };
 
@@ -592,72 +599,72 @@ export default function NostrLoginModal() {
           <RestoreSessionView />
         ) : (
           <div className="space-y-3">
-            <EmailTab />
+            <EmailTab mode={mode} setMode={handleModeChange} />
 
-            {/* Sign in with existing Nostr identity */}
-            <div className="border border-border rounded-lg overflow-hidden">
-              <button
-                type="button"
-                onClick={() => setNostrOpen(v => !v)}
-                className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium hover:bg-muted transition-colors"
-                data-testid="button-nostr-disclosure"
-              >
-                <span className="flex items-center gap-2">
-                  <Zap className="h-4 w-4 text-amber-500" />
-                  Sign in with Nostr
-                </span>
-                <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${nostrOpen ? "rotate-180" : ""}`} />
-              </button>
-
-              {nostrOpen && (
-                <div className="border-t border-border p-3 space-y-3">
-                  <div className="flex rounded-md border border-border overflow-hidden">
-                    {nostrTabs.map(t => (
-                      <button
-                        key={t.id}
-                        type="button"
-                        onClick={() => setNostrTab(t.id)}
-                        className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 text-xs font-medium transition-colors ${
-                          nostrTab === t.id
-                            ? "bg-primary text-primary-foreground"
-                            : "hover:bg-muted text-muted-foreground"
-                        }`}
-                        data-testid={`tab-${t.id}`}
-                      >
-                        {t.icon}
-                        {t.label}
-                      </button>
-                    ))}
+            {mode === "login" && (
+              <div className="border border-border rounded-lg overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setNostrOpen(v => !v)}
+                  className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium hover:bg-muted transition-colors"
+                  data-testid="button-nostr-disclosure"
+                >
+                  <span className="flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-amber-500" />
+                    Sign in with Nostr
+                  </span>
+                  <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${nostrOpen ? "rotate-180" : ""}`} />
+                </button>
+                {nostrOpen && (
+                  <div className="border-t border-border p-3 space-y-3">
+                    <div className="flex rounded-md border border-border overflow-hidden">
+                      {nostrTabs.map(t => (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => setNostrTab(t.id)}
+                          className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 text-xs font-medium transition-colors ${
+                            nostrTab === t.id
+                              ? "bg-primary text-primary-foreground"
+                              : "hover:bg-muted text-muted-foreground"
+                          }`}
+                          data-testid={`tab-${t.id}`}
+                        >
+                          {t.icon}
+                          {t.label}
+                        </button>
+                      ))}
+                    </div>
+                    <div>
+                      {nostrTab === "extension" && <ExtensionTab />}
+                      {nostrTab === "bunker" && <BunkerTab />}
+                    </div>
                   </div>
-                  <div>
-                    {nostrTab === "extension" && <ExtensionTab />}
-                    {nostrTab === "bunker" && <BunkerTab />}
+                )}
+              </div>
+            )}
+
+            {mode === "register" && (
+              <div className="border border-border rounded-lg overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setCreateOpen(v => !v)}
+                  className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium hover:bg-muted transition-colors"
+                  data-testid="button-create-nostr-disclosure"
+                >
+                  <span className="flex items-center gap-2">
+                    <Key className="h-4 w-4 text-violet-500" />
+                    Create a Nostr account
+                  </span>
+                  <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${createOpen ? "rotate-180" : ""}`} />
+                </button>
+                {createOpen && (
+                  <div className="border-t border-border p-3">
+                    <NewAccountTab />
                   </div>
-                </div>
-              )}
-            </div>
-
-            {/* Create a brand-new Nostr identity */}
-            <div className="border border-border rounded-lg overflow-hidden">
-              <button
-                type="button"
-                onClick={() => setCreateOpen(v => !v)}
-                className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium hover:bg-muted transition-colors"
-                data-testid="button-create-nostr-disclosure"
-              >
-                <span className="flex items-center gap-2">
-                  <Key className="h-4 w-4 text-violet-500" />
-                  Create a Nostr account
-                </span>
-                <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${createOpen ? "rotate-180" : ""}`} />
-              </button>
-
-              {createOpen && (
-                <div className="border-t border-border p-3">
-                  <NewAccountTab />
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </div>
         )}
       </DialogContent>
