@@ -644,7 +644,7 @@ export default function NostrLoginModal() {
               </div>
             )}
 
-            {mode === "login" && (
+            {mode === "register" && (
               <div className="border border-border rounded-lg overflow-hidden">
                 <button
                   type="button"
