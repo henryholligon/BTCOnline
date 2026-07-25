@@ -136,10 +136,10 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               <Bitcoin className="h-3.5 w-3.5 shrink-0 fill-orange-500 text-orange-500" />
             )}
             {merchant.cashuSupported && (
-              <span className="shrink-0 text-base leading-none" title="Cashu">🥜</span>
+              <span className="shrink-0 text-base leading-none animate-nut-wobble inline-block" title="Cashu">🥜</span>
             )}
             {merchant.liquidSupported && (
-              <span className="shrink-0 text-base leading-none" title="Liquid">💧</span>
+              <span className="shrink-0 text-base leading-none animate-liquid-drip inline-block" title="Liquid">💧</span>
             )}
             {merchant.bitcoinDiscount ? (() => {
               const preset = badgePresets?.find(p => p.label.toLowerCase() === merchant.bitcoinDiscount!.toLowerCase());
@@ -272,12 +272,12 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 )}
                 {merchant.cashuSupported && (
                   <span className="flex items-center gap-1">
-                    🥜 Cashu
+                    <span className="animate-nut-wobble inline-block">🥜</span> Cashu
                   </span>
                 )}
                 {merchant.liquidSupported && (
                   <span className="flex items-center gap-1">
-                    💧 Liquid
+                    <span className="animate-liquid-drip inline-block">💧</span> Liquid
                   </span>
                 )}
               </div>

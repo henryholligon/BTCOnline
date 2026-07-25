@@ -114,6 +114,8 @@ html.theme-transition-none *::after {
   --animate-pulse-slow: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-bounce-subtle: bounce-subtle 2s ease-in-out infinite;
   --animate-lightning-zap: lightning-zap 1.5s ease-in-out infinite;
+  --animate-liquid-drip: liquid-drip 2.2s ease-in-out infinite;
+  --animate-nut-wobble: nut-wobble 2s ease-in-out infinite;
   --animate-rainbow: rainbow-shift 2s linear infinite;
   --animate-float-btc: float-btc 8s ease-in-out infinite;
   @keyframes pulse-slow {
@@ -151,6 +153,45 @@ html.theme-transition-none *::after {
       opacity: 1;
       transform: scale(1.25) translate(0, 0);
       filter: drop-shadow(0 0 15px rgba(250, 204, 21, 1));
+    }
+  }
+
+  @keyframes liquid-drip {
+    0%, 55%, 100% {
+      transform: translateY(0) scale(1);
+    }
+    20% {
+      transform: translateY(3px) scale(0.92);
+    }
+    35% {
+      transform: translateY(1px) scale(1.06);
+    }
+    45% {
+      transform: translateY(2.5px) scale(0.96);
+    }
+  }
+
+  @keyframes nut-wobble {
+    0%, 100% {
+      transform: rotate(0deg);
+    }
+    12% {
+      transform: rotate(-12deg);
+    }
+    24% {
+      transform: rotate(10deg);
+    }
+    36% {
+      transform: rotate(-7deg);
+    }
+    48% {
+      transform: rotate(5deg);
+    }
+    60% {
+      transform: rotate(-2deg);
+    }
+    72% {
+      transform: rotate(1deg);
     }
   }
 
