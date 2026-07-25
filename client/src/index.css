@@ -114,7 +114,7 @@ html.theme-transition-none *::after {
   --animate-pulse-slow: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-bounce-subtle: bounce-subtle 2s ease-in-out infinite;
   --animate-lightning-zap: lightning-zap 1.5s ease-in-out infinite;
-  --animate-btc-spin: btc-logo-spin 3.5s linear infinite;
+  --animate-btc-spin: btc-logo-spin 3s linear infinite;
   --animate-liquid-drip: liquid-drip 2.2s ease-in-out infinite;
   --animate-nut-wobble: nut-wobble 2s ease-in-out infinite;
   --animate-rainbow: rainbow-shift 2s linear infinite;
@@ -158,14 +158,8 @@ html.theme-transition-none *::after {
   }
 
   @keyframes btc-logo-spin {
-    /* Front face lingers, then fast through the edge */
-    0%, 32%  { transform: scaleX(1); }
-    46%      { transform: scaleX(0); }
-    /* Snap to back face, linger, fast back through edge */
-    54%      { transform: scaleX(-1); }
-    68%, 96% { transform: scaleX(-1); }
-    99%      { transform: scaleX(0); }
-    100%     { transform: scaleX(1); }
+    0%   { transform: perspective(60px) rotateY(0deg); }
+    100% { transform: perspective(60px) rotateY(360deg); }
   }
 
   @keyframes liquid-drip {

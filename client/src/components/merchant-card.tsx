@@ -134,7 +134,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               </span>
             )}
             {merchant.onchainSupported && (
-              <BitcoinLogo size={14} spin />
+              <BitcoinLogo className="h-3.5 w-3.5" spin />
             )}
             {merchant.cashuSupported && (
               <span className="shrink-0 text-sm leading-none animate-nut-wobble inline-block" title="Cashu">🥜</span>
@@ -268,7 +268,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 )}
                 {merchant.onchainSupported && (
                   <span className="flex items-center gap-1 text-orange-500">
-                    <BitcoinLogo size={12} spin /> On-Chain
+                    <BitcoinLogo className="h-3 w-3" spin /> On-Chain
                   </span>
                 )}
                 {merchant.cashuSupported && (
