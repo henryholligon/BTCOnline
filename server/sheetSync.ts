@@ -160,6 +160,7 @@ export async function runSheetSync(): Promise<{ count: number; errors: number; r
       lightningSupported: parseBool(row.lightningsupported || row.lightning_supported || row.lightning),
       onchainSupported: parseBool(row.onchainsupported || row.onchain_supported || row.onchain),
       cashuSupported: parseBool(row.cashusupported || row.cashu_supported || row.cashu),
+      liquidSupported: parseBool(row.liquidsupported || row.liquid_supported || row.liquid),
       paymentProvider: row.paymentprovider || row.payment_provider || null,
       featured: false,
       countryMadeIn: row.countrymadein || row.country_made_in || row.madein || row.made_in || null,

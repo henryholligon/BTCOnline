@@ -116,7 +116,8 @@ export default function Home() {
         selectedPaymentMethods.length === 0 || 
         (selectedPaymentMethods.includes("lightning") && merchant.lightningSupported) ||
         (selectedPaymentMethods.includes("onchain") && merchant.onchainSupported) ||
-        (selectedPaymentMethods.includes("cashu") && merchant.cashuSupported);
+        (selectedPaymentMethods.includes("cashu") && merchant.cashuSupported) ||
+        (selectedPaymentMethods.includes("liquid") && merchant.liquidSupported);
 
       return matchesSearch && matchesCategory && matchesCountry && matchesMadeIn && matchesProvider && matchesPaymentMethod;
     });

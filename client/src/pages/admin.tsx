@@ -22,14 +22,14 @@ interface ImportResult { success: number; errors: Array<{ row: number; message: 
 interface UploadedLogo { originalName: string; savedAs: string; path: string; }
 interface MerchantForm {
   name: string; website: string; description: string; logo: string;
-  lightningSupported: boolean; onchainSupported: boolean; cashuSupported: boolean; paymentProvider: string;
+  lightningSupported: boolean; onchainSupported: boolean; cashuSupported: boolean; liquidSupported: boolean; paymentProvider: string;
   categories: string[]; shippingCountries: string[];
   countryMadeIn: string; countryShippedFrom: string; lastSurveyed: string; bitcoinDiscount: string;
 }
 
 const emptyForm: MerchantForm = {
   name: "", website: "", description: "", logo: "",
-  lightningSupported: false, onchainSupported: false, cashuSupported: false, paymentProvider: "",
+  lightningSupported: false, onchainSupported: false, cashuSupported: false, liquidSupported: false, paymentProvider: "",
   categories: [], shippingCountries: [],
   countryMadeIn: "", countryShippedFrom: "", lastSurveyed: "", bitcoinDiscount: "",
 };
@@ -70,7 +70,7 @@ function normalizeCountry(value: string): string {
 function merchantToForm(m: Merchant): MerchantForm {
   return {
     name: m.name, website: m.website, description: m.description, logo: m.logo,
-    lightningSupported: m.lightningSupported, onchainSupported: m.onchainSupported, cashuSupported: m.cashuSupported,
+    lightningSupported: m.lightningSupported, onchainSupported: m.onchainSupported, cashuSupported: m.cashuSupported, liquidSupported: m.liquidSupported,
     paymentProvider: m.paymentProvider || "", categories: m.categories,
     shippingCountries: m.shippingCountries.map(normalizeCountry),
     countryMadeIn: normalizeCountry(m.countryMadeIn || ""),
@@ -977,6 +977,10 @@ function MerchantFormFields({ form, setField, toggleItem, logoPreview, setLogoPr
             <div className="flex items-center gap-2"><span className="text-base leading-none">🥜</span><span className="text-sm font-medium">Cashu</span></div>
             <Switch checked={form.cashuSupported} onCheckedChange={v => setField("cashuSupported", v)} />
           </label>
+          <label className="flex items-center justify-between gap-3 flex-1 rounded-lg border border-border p-3 cursor-pointer hover:bg-muted/30 transition-colors" data-testid="toggle-liquid">
+            <div className="flex items-center gap-2"><span className="text-base leading-none">💧</span><span className="text-sm font-medium">Liquid</span></div>
+            <Switch checked={form.liquidSupported} onCheckedChange={v => setField("liquidSupported", v)} />
+          </label>
         </div>
         <Field label="Payment Provider">
           <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" value={form.paymentProvider} onChange={e => setField("paymentProvider", e.target.value)} data-testid="select-payment-provider">
@@ -1071,7 +1075,7 @@ function LivePreview({ form, logoPreview, shippingText }: { form: MerchantForm; 
         )}
       </div>
       <div className="rounded-xl border border-border p-4 space-y-2 text-xs bg-muted/20">
-        <Row label="Payment" value={[form.lightningSupported && "⚡ Lightning", form.onchainSupported && "₿ On-Chain"].filter(Boolean).join("  ") || "—"} />
+        <Row label="Payment" value={[form.lightningSupported && "⚡ Lightning", form.onchainSupported && "₿ On-Chain", form.cashuSupported && "🥜 Cashu", form.liquidSupported && "💧 Liquid"].filter(Boolean).join("  ") || "—"} />
         <Row label="Provider" value={form.paymentProvider || "—"} />
         <Row label="Categories" value={form.categories.length > 0 ? `${form.categories.length} selected` : "—"} />
         <Row label="Availability" value={form.shippingCountries.length > 0 ? `${form.shippingCountries.length} region(s)` : "—"} />

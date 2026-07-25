@@ -27,6 +27,7 @@ export const merchants = pgTable("merchants", {
   lightningSupported: boolean("lightning_supported").notNull().default(false),
   onchainSupported: boolean("onchain_supported").notNull().default(false),
   cashuSupported: boolean("cashu_supported").notNull().default(false),
+  liquidSupported: boolean("liquid_supported").notNull().default(false),
   paymentProvider: text("payment_provider"),
   featured: boolean("featured").default(false),
   countryMadeIn: text("country_made_in"),
