@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { type Merchant, type BadgePreset } from "@shared/schema";
 import { useCategoryEmojis } from "@/hooks/use-category-emojis";
 import { useCountryEmojis } from "@/hooks/use-country-emojis";
-import { ExternalLink, Zap, Bitcoin, Clock, Copy, Check, QrCode, Heart, ListPlus } from "lucide-react";
+import { ExternalLink, Zap, Clock, Copy, Check, QrCode, Heart, ListPlus } from "lucide-react";
+import BitcoinLogo from "@/components/bitcoin-logo";
 import { useRef, useEffect, useState, memo } from "react";
 import { slugify } from "@/lib/utils";
 import { QRCodeSVG } from "qrcode.react";
@@ -133,7 +134,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               </span>
             )}
             {merchant.onchainSupported && (
-              <Bitcoin className="h-3.5 w-3.5 shrink-0 fill-orange-500 text-orange-500" />
+              <BitcoinLogo className="h-3.5 w-3.5" spin />
             )}
             {merchant.cashuSupported && (
               <span className="shrink-0 text-sm leading-none animate-nut-wobble inline-block" title="Cashu">🥜</span>
@@ -267,7 +268,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 )}
                 {merchant.onchainSupported && (
                   <span className="flex items-center gap-1 text-orange-500">
-                    <Bitcoin className="h-3 w-3 fill-current" /> On-Chain
+                    <BitcoinLogo className="h-3 w-3" spin /> On-Chain
                   </span>
                 )}
                 {merchant.cashuSupported && (

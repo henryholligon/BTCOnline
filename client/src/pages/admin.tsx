@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, FileSpreadsheet, Image, Check, AlertCircle, ArrowLeft, Trash2, Plus, Zap, Bitcoin, Store, Pencil, Search, X, Tag, RefreshCw, Link2 } from "lucide-react";
+import { Upload, FileSpreadsheet, Image, Check, AlertCircle, ArrowLeft, Trash2, Plus, Zap, Store, Pencil, Search, X, Tag, RefreshCw, Link2 } from "lucide-react";
+import BitcoinLogo from "@/components/bitcoin-logo";
 import Papa from "papaparse";
 import { Link } from "wouter";
 import { CATEGORIES, COUNTRIES, PAYMENT_PROVIDERS, BADGE_STYLES, type Merchant, type BadgePreset, type DirectoryOption } from "@shared/schema";
@@ -970,7 +971,7 @@ function MerchantFormFields({ form, setField, toggleItem, logoPreview, setLogoPr
             <Switch checked={form.lightningSupported} onCheckedChange={v => setField("lightningSupported", v)} />
           </label>
           <label className="flex items-center justify-between gap-3 flex-1 rounded-lg border border-border p-3 cursor-pointer hover:bg-muted/30 transition-colors" data-testid="toggle-onchain">
-            <div className="flex items-center gap-2"><Bitcoin className="h-4 w-4 text-orange-500 fill-orange-500" /><span className="text-sm font-medium">On-Chain Bitcoin</span></div>
+            <div className="flex items-center gap-2"><BitcoinLogo className="h-4 w-4" /><span className="text-sm font-medium">On-Chain Bitcoin</span></div>
             <Switch checked={form.onchainSupported} onCheckedChange={v => setField("onchainSupported", v)} />
           </label>
           <label className="flex items-center justify-between gap-3 flex-1 rounded-lg border border-border p-3 cursor-pointer hover:bg-muted/30 transition-colors" data-testid="toggle-cashu">
@@ -1059,7 +1060,7 @@ function LivePreview({ form, logoPreview, shippingText }: { form: MerchantForm; 
             <div className="flex items-center gap-1.5 flex-wrap">
               <span className="font-semibold text-sm">{form.name || <span className="text-muted-foreground italic">Merchant Name</span>}</span>
               {form.lightningSupported && <Zap className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400 shrink-0" />}
-              {form.onchainSupported && <Bitcoin className="h-3.5 w-3.5 fill-orange-500 text-orange-500 shrink-0" />}
+              {form.onchainSupported && <BitcoinLogo className="h-3.5 w-3.5" spin />}
               {form.bitcoinDiscount?.toUpperCase() === "NEW"
                 ? <span className="text-[11px] font-black px-1.5 py-0.5 rounded-sm uppercase tracking-wide animate-rainbow" style={{ background:"linear-gradient(90deg,#ff0000,#ff8800,#00ff00,#0088ff,#8800ff,#ff0088,#ff0000)", backgroundSize:"200% 100%", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>NEW</span>
                 : form.bitcoinDiscount ? <span className="text-[10px] font-bold bg-green-500 text-white px-1.5 py-0.5 rounded-sm">{form.bitcoinDiscount}</span> : null}
