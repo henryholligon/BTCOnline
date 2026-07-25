@@ -135,6 +135,9 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
             {merchant.onchainSupported && (
               <Bitcoin className="h-3.5 w-3.5 shrink-0 fill-orange-500 text-orange-500" />
             )}
+            {merchant.cashuSupported && (
+              <span className="shrink-0 text-base leading-none" title="Cashu">🥜</span>
+            )}
             {merchant.bitcoinDiscount ? (() => {
               const preset = badgePresets?.find(p => p.label.toLowerCase() === merchant.bitcoinDiscount!.toLowerCase());
               const style = preset ? preset.style : (merchant.bitcoinDiscount.toUpperCase() === "NEW" ? "rainbow" : "green");
@@ -262,6 +265,11 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 {merchant.onchainSupported && (
                   <span className="flex items-center gap-1 text-orange-500">
                     <Bitcoin className="h-3 w-3 fill-current" /> On-Chain
+                  </span>
+                )}
+                {merchant.cashuSupported && (
+                  <span className="flex items-center gap-1">
+                    🥜 Cashu
                   </span>
                 )}
               </div>

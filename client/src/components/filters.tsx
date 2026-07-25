@@ -343,7 +343,8 @@ export default function Filters({
         <FilterDropdown label="💵 Payment" active={selectedPaymentMethods.length > 0} closeOnSelect={false}>
           {[
             { id: "lightning", label: "Lightning", icon: <Zap className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" /> },
-            { id: "onchain", label: "On-Chain", icon: <Bitcoin className="h-3.5 w-3.5 fill-orange-500 text-orange-500" /> }
+            { id: "onchain", label: "On-Chain", icon: <Bitcoin className="h-3.5 w-3.5 fill-orange-500 text-orange-500" /> },
+            { id: "cashu", label: "Cashu", icon: <span className="text-base leading-none">🥜</span> },
           ].map((method) => (
             <button
               key={method.id}
@@ -482,7 +483,7 @@ export default function Filters({
           ))}
           {selectedPaymentMethods.map((m) => (
             <Badge key={m} variant="secondary" className="text-xs py-0.5 px-2 gap-1 cursor-pointer hover:bg-destructive/10" onClick={() => onPaymentMethodChange(m)}>
-              {m === "lightning" ? "⚡ Lightning" : "₿ On-Chain"} <X className="h-2.5 w-2.5" />
+              {m === "lightning" ? "⚡ Lightning" : m === "onchain" ? "₿ On-Chain" : "🥜 Cashu"} <X className="h-2.5 w-2.5" />
             </Badge>
           ))}
           {selectedCountries.map((c) => (
