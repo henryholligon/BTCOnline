@@ -34,22 +34,45 @@ function normalizeKeys(obj: Record<string, any>): Record<string, any> {
 }
 
 function parseCSV(csvText: string): Record<string, string>[] {
-  const lines = csvText.split(/\r?\n/).filter(l => l.trim());
-  if (lines.length < 2) return [];
-  const headers = lines[0].split(",").map(h => h.trim().replace(/^"|"$/g, ""));
-  return lines.slice(1).map(line => {
-    const values: string[] = [];
-    let cur = "";
-    let inQuote = false;
-    for (const ch of line) {
-      if (ch === '"') { inQuote = !inQuote; }
-      else if (ch === "," && !inQuote) { values.push(cur); cur = ""; }
-      else { cur += ch; }
+  // Iterate character-by-character over the full text so that newlines inside
+  // a quoted field (e.g. a multi-line description) are treated as part of the
+  // field value rather than as row terminators.
+  const rows: string[][] = [];
+  let cur = "";
+  let inQuote = false;
+  let row: string[] = [];
+
+  for (let i = 0; i < csvText.length; i++) {
+    const ch = csvText[i];
+    if (ch === '"') {
+      // "" inside a quoted field = escaped literal quote
+      if (inQuote && csvText[i + 1] === '"') { cur += '"'; i++; }
+      else { inQuote = !inQuote; }
+    } else if (ch === "," && !inQuote) {
+      row.push(cur); cur = "";
+    } else if (ch === "\r" && !inQuote) {
+      if (csvText[i + 1] === "\n") i++; // consume \r\n as one newline
+      row.push(cur); cur = "";
+      if (row.some(v => v.trim())) rows.push(row);
+      row = [];
+    } else if (ch === "\n" && !inQuote) {
+      row.push(cur); cur = "";
+      if (row.some(v => v.trim())) rows.push(row);
+      row = [];
+    } else {
+      cur += ch;
     }
-    values.push(cur);
-    const row: Record<string, string> = {};
-    headers.forEach((h, i) => { row[h] = (values[i] ?? "").trim().replace(/^"|"$/g, ""); });
-    return row;
+  }
+  // Flush the final row
+  row.push(cur);
+  if (row.some(v => v.trim())) rows.push(row);
+
+  if (rows.length < 2) return [];
+  const headers = rows[0].map(h => h.trim().replace(/^"|"$/g, ""));
+  return rows.slice(1).map(values => {
+    const record: Record<string, string> = {};
+    headers.forEach((h, i) => { record[h] = (values[i] ?? "").trim().replace(/^"|"$/g, ""); });
+    return record;
   });
 }
 
