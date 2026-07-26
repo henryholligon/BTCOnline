@@ -25,6 +25,8 @@ interface NavbarProps {
 const PAYMENT_OPTIONS = [
   { value: "onchain", label: "₿ On-chain" },
   { value: "lightning", label: "⚡ Lightning" },
+  { value: "cashu", label: "🥜 Cashu" },
+  { value: "liquid", label: "💧 Liquid" },
 ];
 
 function MultiSelect({ options, selected, onChange, placeholder, testId }: {
