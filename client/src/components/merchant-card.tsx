@@ -125,6 +125,9 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex items-center gap-2">
             <h3 className="font-semibold text-sm md:text-base truncate">{merchant.name}</h3>
+            {merchant.onchainSupported && (
+              <BitcoinLogo className="h-3.5 w-3.5" spin />
+            )}
             {merchant.lightningSupported && (
               <span className="shrink-0 flex items-center gap-0">
                 <Zap className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400 animate-lightning-zap drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]" />
@@ -132,9 +135,6 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                   <img src="/assets/firedone.apng" alt="" className="h-5 object-contain" style={{ marginLeft: "-2px", marginTop: "-3px" }} />
                 )}
               </span>
-            )}
-            {merchant.onchainSupported && (
-              <BitcoinLogo className="h-3.5 w-3.5" spin />
             )}
             {merchant.cashuSupported && (
               <span className="shrink-0 text-xs leading-none animate-nut-wobble inline-block" title="Cashu">🥜</span>
@@ -261,14 +261,14 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
             <div className="space-y-1">
               <span className="text-muted-foreground/70 uppercase tracking-wider text-[10px] font-semibold">Payment</span>
               <div className="flex flex-col gap-1 text-foreground">
-                {merchant.lightningSupported && (
-                  <span className="flex items-center gap-1 text-yellow-500">
-                    <Zap className="h-3 w-3 fill-current animate-lightning-zap" /> Lightning
-                  </span>
-                )}
                 {merchant.onchainSupported && (
                   <span className="flex items-center gap-1 text-orange-500">
                     <BitcoinLogo className="h-3 w-3" spin /> On-Chain
+                  </span>
+                )}
+                {merchant.lightningSupported && (
+                  <span className="flex items-center gap-1 text-yellow-500">
+                    <Zap className="h-3 w-3 fill-current animate-lightning-zap" /> Lightning
                   </span>
                 )}
                 {merchant.cashuSupported && (
