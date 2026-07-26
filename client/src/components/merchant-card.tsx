@@ -137,10 +137,10 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               <BitcoinLogo className="h-3.5 w-3.5" spin />
             )}
             {merchant.cashuSupported && (
-              <span className="shrink-0 text-sm leading-none animate-nut-wobble inline-block" title="Cashu">🥜</span>
+              <span className="shrink-0 text-xs leading-none animate-nut-wobble inline-block" title="Cashu">🥜</span>
             )}
             {merchant.liquidSupported && (
-              <span className="shrink-0 text-sm leading-none animate-liquid-drip inline-block" title="Liquid">💧</span>
+              <span className="shrink-0 text-xs leading-none animate-liquid-drip inline-block" title="Liquid">💧</span>
             )}
             {merchant.bitcoinDiscount ? (() => {
               const preset = badgePresets?.find(p => p.label.toLowerCase() === merchant.bitcoinDiscount!.toLowerCase());
