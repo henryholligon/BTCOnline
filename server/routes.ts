@@ -64,7 +64,7 @@ export async function registerRoutes(
       // Server generates the keypair and holds it encrypted.
       const sk = generateSecretKey();
       const skPubkey = getPublicKey(sk);
-      const { encryptedNsec: encNsec, iv: encIv } = encryptNsecServerSide(sk);
+      const { encryptedNsec: encNsec, iv: encIv, keySalt } = encryptNsecServerSide(sk);
 
       await db.insert(users).values({
         email: email.toLowerCase(),
@@ -73,6 +73,7 @@ export async function registerRoutes(
         encryptedNsec: encNsec,
         salt: null,
         iv: encIv,
+        keySalt,
         keyCustody: "custodial",
         createdAt: new Date().toISOString(),
       });
@@ -107,8 +108,18 @@ export async function registerRoutes(
     if (!valid) return res.status(401).json({ message: "Invalid email or password" });
 
     if (user.keyCustody === "custodial") {
-      // Decrypt server-side and hand the raw nsec to the client for in-memory use.
-      const sk = decryptNsecServerSide(user.encryptedNsec, user.iv);
+      // Decrypt — pass keySalt for per-user HKDF key, or null for legacy rows (old SHA-256 path).
+      const sk = decryptNsecServerSide(user.encryptedNsec, user.iv, user.keySalt);
+
+      // Legacy row with no keySalt: re-encrypt immediately with a fresh per-user salt.
+      if (!user.keySalt) {
+        const { encryptedNsec: newEnc, iv: newIv, keySalt: newSalt } = encryptNsecServerSide(sk);
+        await db.update(users)
+          .set({ encryptedNsec: newEnc, iv: newIv, keySalt: newSalt })
+          .where(eq(users.email, email.toLowerCase()));
+        console.log(`[auth] Migrated legacy custodial key to salted HKDF for ${email}`);
+      }
+
       return res.json({ custody: "custodial", pubkey: user.pubkey, nsecHex: Buffer.from(sk).toString("hex") });
     } else {
       // Self-custody: client decrypts locally with the user's password.

@@ -14,6 +14,9 @@ export const users = pgTable("users", {
   iv: text("iv").notNull(),
   // 'custodial' = server holds the key; 'self-custody' = client-side password encryption.
   keyCustody: text("key_custody").notNull().default("custodial"),
+  // Per-user HKDF salt for custodial key encryption. Null for legacy rows (pre-salt scheme)
+  // and for self-custody users (whose key is encrypted client-side, not server-side).
+  keySalt: text("key_salt"),
   // One-time password reset token (hashed SHA-256) and its expiry ISO timestamp.
   resetToken: text("reset_token"),
   resetTokenExpires: text("reset_token_expires"),
