@@ -539,7 +539,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 {/* Copy link */}
                 <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-muted/50">
                   <span className="flex-1 min-w-0 truncate text-xs text-muted-foreground">
-                    {(() => { const s = merchantUrl.replace(/^https?:\/\//, ""); return s.length > 40 ? s.slice(0, 37) + "…" : s; })()}
+                    {(() => { const s = merchantUrl; return s.length > 40 ? s.slice(0, 37) + "…" : s; })()}
                   </span>
                   <button
                     className="shrink-0 flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-md bg-background border border-border hover:bg-muted transition-colors"
