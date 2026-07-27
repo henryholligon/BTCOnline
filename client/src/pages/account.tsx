@@ -142,7 +142,7 @@ export default function AccountPage() {
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Your content</p>
                 <div className="flex flex-col gap-1">
                   <Link href="/favourites" className="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm hover:bg-muted transition-colors">
-                    <Heart className="h-4 w-4 text-red-400" /> My Favourites
+                    <Heart className="h-4 w-4 text-red-400" /> My Likes
                   </Link>
                   <Link href="/lists" className="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm hover:bg-muted transition-colors">
                     📋 My Lists

@@ -186,7 +186,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
             type="button"
             className={`flex items-center gap-1 h-8 px-1.5 rounded-lg transition-colors ${user && favourites.has(merchant.website) ? "text-red-500 hover:text-red-600" : "text-muted-foreground/40 hover:text-red-400"}`}
             onClick={(e) => { e.stopPropagation(); toggleFavourite(merchant.website); }}
-            title={user ? (favourites.has(merchant.website) ? "Remove from favourites" : "Add to favourites") : "Sign in to save favourites"}
+            title={user ? (favourites.has(merchant.website) ? "Unlike" : "Like") : "Sign in to like merchants"}
             data-testid={`button-favourite-${merchant.id}`}
           >
             <Heart className={`h-4 w-4 ${user && favourites.has(merchant.website) ? "fill-current" : ""}`} />
@@ -199,7 +199,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               <button
                 type="button"
                 className="h-8 w-8 flex items-center justify-center rounded-lg transition-colors text-muted-foreground/40 hover:text-muted-foreground"
-                title="Sign in to add to list"
+                title="Sign in to save to a list"
                 onClick={openLoginModal}
                 data-testid={`button-add-to-list-${merchant.id}`}
               >
@@ -211,7 +211,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                   <button
                     type="button"
                     className="h-8 w-8 flex items-center justify-center rounded-lg transition-colors text-muted-foreground/40 hover:text-muted-foreground"
-                    title="Add to list"
+                    title="Save to list"
                     data-testid={`button-add-to-list-${merchant.id}`}
                   >
                     <ListPlus className="h-4 w-4" />
@@ -225,7 +225,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                     </div>
                   ) : (
                     <div className="space-y-0.5">
-                      <p className="text-xs font-medium text-muted-foreground mb-1.5 px-1">Add to list</p>
+                      <p className="text-xs font-medium text-muted-foreground mb-1.5 px-1">Save to list</p>
                       {lists.map(list => {
                         const inList = list.urls.includes(merchant.website);
                         return (
@@ -365,7 +365,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 data-testid={`button-favourite-mobile-${merchant.id}`}
               >
                 <Heart className={`h-3.5 w-3.5 ${user && favourites.has(merchant.website) ? "fill-current" : ""}`} />
-                {user && favourites.has(merchant.website) ? "Saved" : "Favourite"}
+                {user && favourites.has(merchant.website) ? "Liked" : "Like"}
               </Button>
               {!user ? (
                 <Button
@@ -376,7 +376,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                   data-testid={`button-add-to-list-mobile-${merchant.id}`}
                 >
                   <ListPlus className="h-3.5 w-3.5" />
-                  Add to List
+                  Save
                 </Button>
               ) : (
                 <Popover>
@@ -388,7 +388,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                       data-testid={`button-add-to-list-mobile-${merchant.id}`}
                     >
                       <ListPlus className="h-3.5 w-3.5" />
-                      Add to List
+                      Save
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-52 p-2" align="start">
@@ -399,7 +399,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                       </div>
                     ) : (
                       <div className="space-y-0.5">
-                        <p className="text-xs font-medium text-muted-foreground mb-1.5 px-1">Add to list</p>
+                        <p className="text-xs font-medium text-muted-foreground mb-1.5 px-1">Save to list</p>
                         {lists.map(list => {
                           const inList = list.urls.includes(merchant.website);
                           return (

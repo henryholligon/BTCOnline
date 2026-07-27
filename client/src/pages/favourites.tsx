@@ -51,7 +51,7 @@ export default function Favourites() {
             <div className="flex items-center justify-center gap-2 mb-3">
               <Heart className="h-6 w-6 text-red-500 fill-current" />
               <h1 className="text-2xl md:text-4xl font-display font-bold tracking-tight">
-                My Favourites
+                My Likes
               </h1>
             </div>
             <p className="text-muted-foreground">
@@ -80,9 +80,9 @@ export default function Favourites() {
               className="text-center py-24 border border-dashed border-border rounded-lg bg-card/20"
             >
               <Heart className="h-10 w-10 text-muted-foreground/40 mx-auto mb-4" />
-              <p className="text-muted-foreground text-lg mb-2">Sign in to see your favourites</p>
+              <p className="text-muted-foreground text-lg mb-2">Sign in to see your likes</p>
               <p className="text-sm text-muted-foreground/60 mb-6">
-                Favourites are stored on Nostr — they follow you across devices.
+                Likes are stored on Nostr — they follow you across devices.
               </p>
               <button
                 onClick={openLoginModal}
@@ -103,7 +103,7 @@ export default function Favourites() {
               className="text-center py-24 border border-dashed border-border rounded-lg bg-card/20"
             >
               <Heart className="h-10 w-10 text-muted-foreground/40 mx-auto mb-4" />
-              <p className="text-muted-foreground text-lg mb-2">No favourites yet</p>
+              <p className="text-muted-foreground text-lg mb-2">No likes yet</p>
               <p className="text-sm text-muted-foreground/60 mb-6">
                 Hit the ♡ on any merchant card to save it here.
               </p>

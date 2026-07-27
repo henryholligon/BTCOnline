@@ -387,7 +387,7 @@ export default function ListsPage() {
                             <div className="border-t border-border px-4 py-3 space-y-2">
                               {list.urls.length === 0 ? (
                                 <p className="text-xs text-muted-foreground py-2">
-                                  No merchants yet. Open a merchant card and click <strong>Add to list</strong>.
+                                  No merchants yet. Open a merchant card and click <strong>Save</strong>.
                                 </p>
                               ) : (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
