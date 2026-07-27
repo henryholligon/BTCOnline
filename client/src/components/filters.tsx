@@ -274,8 +274,8 @@ export default function Filters({
 
         <FilterDropdown label="💵 Payment" active={selectedPaymentMethods.length > 0} closeOnSelect={false}>
           {[
-            { id: "lightning", label: "Lightning", icon: <Zap className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" /> },
             { id: "onchain", label: "On-Chain", icon: <BitcoinLogo className="h-3.5 w-3.5" spin /> },
+            { id: "lightning", label: "Lightning", icon: <Zap className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" /> },
             { id: "cashu", label: "Cashu", icon: <span className="text-xs leading-none animate-nut-wobble inline-block">🥜</span> },
             { id: "liquid", label: "Liquid", icon: <span className="text-xs leading-none animate-liquid-drip inline-block">💧</span> },
           ].map((method) => (
