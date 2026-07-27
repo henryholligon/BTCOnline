@@ -128,6 +128,15 @@ app.use((req, res, next) => {
       created_at TEXT NOT NULL DEFAULT ''
     )
   `);
+  // Make salt nullable — custodial users have no client-side salt.
+  await db.execute(sql`ALTER TABLE users ALTER COLUMN salt DROP NOT NULL`);
+  // Tag custody mode. SQL default 'self-custody' so existing rows are correctly marked.
+  await db.execute(sql`
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS key_custody TEXT NOT NULL DEFAULT 'self-custody'
+  `);
+  // Password reset token (SHA-256 hash) and its expiry.
+  await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token TEXT`);
+  await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires TEXT`);
   await seed();
   await registerRoutes(httpServer, app);
   startSheetSyncPoller();

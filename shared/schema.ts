@@ -9,8 +9,14 @@ export const users = pgTable("users", {
   passwordHash: text("password_hash").notNull(),
   pubkey: text("pubkey").notNull(),
   encryptedNsec: text("encrypted_nsec").notNull(),
-  salt: text("salt").notNull(),
+  // salt is null for custodial users (key encrypted with server master key, not password).
+  salt: text("salt"),
   iv: text("iv").notNull(),
+  // 'custodial' = server holds the key; 'self-custody' = client-side password encryption.
+  keyCustody: text("key_custody").notNull().default("custodial"),
+  // One-time password reset token (hashed SHA-256) and its expiry ISO timestamp.
+  resetToken: text("reset_token"),
+  resetTokenExpires: text("reset_token_expires"),
   createdAt: text("created_at").notNull().default(""),
 });
 

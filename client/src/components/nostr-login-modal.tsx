@@ -7,8 +7,9 @@ import { useNostr } from "@/context/NostrContext";
 import { generateSecretKey, getPublicKey } from "nostr-tools";
 import { npubEncode, nsecEncode } from "nostr-tools/nip19";
 import { encrypt as ncryptsecEncrypt } from "nostr-tools/nip49";
-import { Copy, Check, Eye, EyeOff, Zap, Wifi, Key, AlertTriangle, ExternalLink, ShieldCheck, Mail, ChevronDown } from "lucide-react";
+import { Copy, Check, Eye, EyeOff, Zap, Wifi, Key, AlertTriangle, ExternalLink, ShieldCheck, Mail, ChevronDown, Lock } from "lucide-react";
 import { generateEmailKeypair, decryptEmailNsec } from "@/lib/emailAuth";
+import { hexToBytes } from "@/lib/nostr";
 
 type NostrSubTab = "extension" | "bunker";
 
@@ -26,6 +27,73 @@ function CopyButton({ text, "data-testid": testId }: { text: string; "data-testi
   );
 }
 
+function ForgotPasswordView({ onBack }: { onBack: () => void }) {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [devLink, setDevLink] = useState<string | null>(null);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async () => {
+    if (!email.trim()) { setError("Email is required"); return; }
+    setLoading(true); setError("");
+    try {
+      const res = await fetch("/api/auth/request-reset", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Request failed");
+      setSent(true);
+      if (data.devResetUrl) setDevLink(data.devResetUrl);
+    } catch (e: any) {
+      setError(e.message || "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (sent) {
+    return (
+      <div className="space-y-4">
+        <div className="rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 px-4 py-3 space-y-1">
+          <p className="text-sm font-medium text-green-700 dark:text-green-400">Check your inbox</p>
+          <p className="text-xs text-muted-foreground">If that email is registered, a reset link has been sent. Your Nostr key will not be affected.</p>
+        </div>
+        {devLink && (
+          <div className="space-y-1 rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-900/20 px-3 py-2">
+            <p className="text-xs font-medium text-amber-700 dark:text-amber-400">Dev mode — click to reset:</p>
+            <a href={devLink} className="text-xs text-blue-600 dark:text-blue-400 underline break-all">{devLink}</a>
+          </div>
+        )}
+        <Button variant="outline" className="w-full" onClick={onBack}>Back to sign in</Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <p className="text-sm font-medium">Reset your password</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Enter your email and we'll send a reset link. Your Nostr key will not be affected.
+        </p>
+      </div>
+      <div className="space-y-1">
+        <Label htmlFor="reset-email">Email</Label>
+        <Input id="reset-email" type="email" placeholder="you@example.com" value={email}
+          onChange={e => setEmail(e.target.value)} onKeyDown={e => e.key === "Enter" && handleSubmit()}
+          autoComplete="email" />
+      </div>
+      {error && <p className="text-sm text-destructive">{error}</p>}
+      <Button className="w-full" onClick={handleSubmit} disabled={loading || !email.trim()}>
+        {loading ? "Sending…" : "Send reset link"}
+      </Button>
+      <Button variant="ghost" className="w-full text-xs" onClick={onBack}>← Back to sign in</Button>
+    </div>
+  );
+}
+
 function EmailTab({ mode, setMode }: { mode: "login" | "register"; setMode: (m: "login" | "register") => void }) {
   const { loginWithGeneratedKey } = useNostr();
   const [email, setEmail] = useState("");
@@ -33,11 +101,18 @@ function EmailTab({ mode, setMode }: { mode: "login" | "register"; setMode: (m: 
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [selfCustody, setSelfCustody] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [forgotPassword, setForgotPassword] = useState(false);
 
   const hashPassword = async (pw: string) => {
     const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(pw));
     return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
   };
+
+  if (forgotPassword) {
+    return <ForgotPasswordView onBack={() => setForgotPassword(false)} />;
+  }
 
   const handleSubmit = async () => {
     setError("");
@@ -48,14 +123,26 @@ function EmailTab({ mode, setMode }: { mode: "login" | "register"; setMode: (m: 
     try {
       const pwHash = await hashPassword(password);
       if (mode === "register") {
-        const { sk, pubkey, salt, iv, encryptedNsec } = await generateEmailKeypair(password);
-        const res = await fetch("/api/auth/register", {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, passwordHash: pwHash, pubkey, encryptedNsec, salt, iv }),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || "Registration failed");
-        await loginWithGeneratedKey(sk, undefined, { encryptedNsec, salt, iv });
+        if (selfCustody) {
+          // Self-custody: generate keypair client-side, encrypt with password.
+          const { sk, pubkey, salt, iv, encryptedNsec } = await generateEmailKeypair(password);
+          const res = await fetch("/api/auth/register", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, passwordHash: pwHash, pubkey, encryptedNsec, salt, iv, custody: "self-custody" }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.message || "Registration failed");
+          await loginWithGeneratedKey(sk, undefined, { encryptedNsec, salt, iv });
+        } else {
+          // Custodial (default): server generates and holds the key.
+          const res = await fetch("/api/auth/register", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, passwordHash: pwHash, custody: "custodial" }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.message || "Registration failed");
+          await loginWithGeneratedKey(hexToBytes(data.nsecHex));
+        }
       } else {
         const res = await fetch("/api/auth/login", {
           method: "POST", headers: { "Content-Type": "application/json" },
@@ -63,8 +150,12 @@ function EmailTab({ mode, setMode }: { mode: "login" | "register"; setMode: (m: 
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Login failed");
-        const sk = await decryptEmailNsec(data.encryptedNsec, data.salt, data.iv, password);
-        await loginWithGeneratedKey(sk, undefined, { encryptedNsec: data.encryptedNsec, salt: data.salt, iv: data.iv });
+        if (data.custody === "custodial") {
+          await loginWithGeneratedKey(hexToBytes(data.nsecHex));
+        } else {
+          const sk = await decryptEmailNsec(data.encryptedNsec, data.salt, data.iv, password);
+          await loginWithGeneratedKey(sk, undefined, { encryptedNsec: data.encryptedNsec, salt: data.salt, iv: data.iv });
+        }
       }
     } catch (e: any) {
       setError(e.message || "Something went wrong");
@@ -76,13 +167,14 @@ function EmailTab({ mode, setMode }: { mode: "login" | "register"; setMode: (m: 
   return (
     <div className="space-y-4">
       <div className="flex rounded-lg border border-border overflow-hidden">
-        <button type="button" onClick={() => { setMode("login"); setError(""); }}
+        <button type="button" onClick={() => { setMode("login"); setError(""); setSelfCustody(false); setShowAdvanced(false); }}
           className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${mode === "login" ? "bg-primary text-primary-foreground" : "hover:bg-muted text-muted-foreground"}`}
           data-testid="tab-email-login">Sign in</button>
         <button type="button" onClick={() => { setMode("register"); setError(""); }}
           className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${mode === "register" ? "bg-primary text-primary-foreground" : "hover:bg-muted text-muted-foreground"}`}
           data-testid="tab-email-register">Create account</button>
       </div>
+
       <div className="space-y-3">
         <div className="space-y-1">
           <Label htmlFor="email-input">Email</Label>
@@ -92,7 +184,7 @@ function EmailTab({ mode, setMode }: { mode: "login" | "register"; setMode: (m: 
         <div className="space-y-1">
           <Label htmlFor="email-password">Password</Label>
           <Input id="email-password" type="password" placeholder="At least 8 characters" value={password}
-            onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === "Enter" && handleSubmit()}
+            onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === "Enter" && !confirm && handleSubmit()}
             data-testid="input-email-password" autoComplete={mode === "register" ? "new-password" : "current-password"} />
         </div>
         {mode === "register" && (
@@ -104,14 +196,68 @@ function EmailTab({ mode, setMode }: { mode: "login" | "register"; setMode: (m: 
           </div>
         )}
       </div>
-      {mode === "register" && (
-        <p className="text-xs text-muted-foreground">
-          A Nostr identity is generated in your browser and encrypted with your password — we never store your private key.
-        </p>
+
+      {/* Custodial reassurance for the default register flow */}
+      {mode === "register" && !selfCustody && (
+        <div className="flex items-start gap-2 text-xs text-muted-foreground">
+          <Lock className="h-3.5 w-3.5 shrink-0 mt-0.5 text-green-600 dark:text-green-400" />
+          <span>A Nostr identity is created for you automatically. You can always reset your password without losing it.</span>
+        </div>
       )}
+
+      {/* Advanced: self-custody toggle (register only) */}
+      {mode === "register" && (
+        <div className="space-y-2">
+          <button
+            type="button"
+            onClick={() => setShowAdvanced(v => !v)}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            data-testid="button-toggle-advanced"
+          >
+            <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showAdvanced ? "rotate-180" : ""}`} />
+            Advanced: manage your own key
+          </button>
+          {showAdvanced && (
+            <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2.5">
+              <label className="flex items-start gap-2.5 cursor-pointer" data-testid="label-self-custody">
+                <input
+                  type="checkbox"
+                  checked={selfCustody}
+                  onChange={e => setSelfCustody(e.target.checked)}
+                  className="mt-0.5 shrink-0"
+                  data-testid="checkbox-self-custody"
+                />
+                <div className="space-y-1">
+                  <p className="text-xs font-medium">Self-custody mode</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Your key is generated in your browser and encrypted with your password before it is stored.
+                    We can never read it.{" "}
+                    <strong className="text-foreground">If you forget your password, your Nostr identity cannot be recovered.</strong>
+                  </p>
+                </div>
+              </label>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Forgot password (login only) */}
+      {mode === "login" && (
+        <button
+          type="button"
+          onClick={() => setForgotPassword(true)}
+          className="text-xs text-muted-foreground hover:text-foreground transition-colors underline-offset-2 hover:underline"
+          data-testid="button-forgot-password"
+        >
+          Forgot password?
+        </button>
+      )}
+
       {error && <p className="text-sm text-destructive">{error}</p>}
       <Button className="w-full" onClick={handleSubmit} disabled={loading} data-testid="button-email-submit">
-        {loading ? (mode === "register" ? "Creating account…" : "Signing in…") : (mode === "register" ? "Create account" : "Sign in")}
+        {loading
+          ? (mode === "register" ? "Creating account…" : "Signing in…")
+          : (mode === "register" ? "Create account" : "Sign in")}
       </Button>
     </div>
   );

@@ -20,6 +20,9 @@ import bcrypt from "bcrypt";
 import { db } from "./db";
 import { eq, sql } from "drizzle-orm";
 import { merchants as merchantsTable } from "@shared/schema";
+import { generateSecretKey, getPublicKey } from "nostr-tools";
+import { encryptNsecServerSide, decryptNsecServerSide } from "./userKeyEncryption";
+import { randomBytes, createHash } from "crypto";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -42,30 +45,132 @@ export async function registerRoutes(
   const ALTCHA_HMAC_KEY = process.env.ALTCHA_HMAC_KEY || "btconline-altcha-secret-key-2025";
 
   app.post("/api/auth/register", async (req, res) => {
-    const { email, passwordHash, pubkey, encryptedNsec, salt, iv } = req.body;
-    if (!email || !passwordHash || !pubkey || !encryptedNsec || !salt || !iv) {
-      return res.status(400).json({ message: "Missing required fields" });
+    const { email, passwordHash, custody, pubkey, encryptedNsec, salt, iv } = req.body;
+    if (!email || !passwordHash) return res.status(400).json({ message: "Missing required fields" });
+
+    const custodyMode: "custodial" | "self-custody" = custody === "self-custody" ? "self-custody" : "custodial";
+
+    // Self-custody requires client-provided key material.
+    if (custodyMode === "self-custody" && (!pubkey || !encryptedNsec || !iv)) {
+      return res.status(400).json({ message: "Missing key material for self-custody mode" });
     }
+
     const existing = await db.select().from(users).where(eq(users.email, email.toLowerCase())).limit(1);
     if (existing.length > 0) return res.status(409).json({ message: "Email already registered" });
+
     const serverHash = await bcrypt.hash(passwordHash, 10);
-    await db.insert(users).values({
-      email: email.toLowerCase(), passwordHash: serverHash,
-      pubkey, encryptedNsec, salt, iv,
-      createdAt: new Date().toISOString(),
-    });
-    res.json({ ok: true });
+
+    if (custodyMode === "custodial") {
+      // Server generates the keypair and holds it encrypted.
+      const sk = generateSecretKey();
+      const skPubkey = getPublicKey(sk);
+      const { encryptedNsec: encNsec, iv: encIv } = encryptNsecServerSide(sk);
+
+      await db.insert(users).values({
+        email: email.toLowerCase(),
+        passwordHash: serverHash,
+        pubkey: skPubkey,
+        encryptedNsec: encNsec,
+        salt: null,
+        iv: encIv,
+        keyCustody: "custodial",
+        createdAt: new Date().toISOString(),
+      });
+
+      // Return the raw nsec hex so the client can hold it in memory for this session.
+      return res.json({ ok: true, custody: "custodial", pubkey: skPubkey, nsecHex: Buffer.from(sk).toString("hex") });
+    } else {
+      // Self-custody: store the client-encrypted nsec as-is.
+      await db.insert(users).values({
+        email: email.toLowerCase(),
+        passwordHash: serverHash,
+        pubkey,
+        encryptedNsec,
+        salt: salt ?? null,
+        iv,
+        keyCustody: "self-custody",
+        createdAt: new Date().toISOString(),
+      });
+      return res.json({ ok: true, custody: "self-custody" });
+    }
   });
 
   app.post("/api/auth/login", async (req, res) => {
     const { email, passwordHash } = req.body;
     if (!email || !passwordHash) return res.status(400).json({ message: "Missing fields" });
+
     const rows = await db.select().from(users).where(eq(users.email, email.toLowerCase())).limit(1);
     if (rows.length === 0) return res.status(401).json({ message: "Invalid email or password" });
+
     const user = rows[0];
     const valid = await bcrypt.compare(passwordHash, user.passwordHash);
     if (!valid) return res.status(401).json({ message: "Invalid email or password" });
-    res.json({ encryptedNsec: user.encryptedNsec, salt: user.salt, iv: user.iv, pubkey: user.pubkey });
+
+    if (user.keyCustody === "custodial") {
+      // Decrypt server-side and hand the raw nsec to the client for in-memory use.
+      const sk = decryptNsecServerSide(user.encryptedNsec, user.iv);
+      return res.json({ custody: "custodial", pubkey: user.pubkey, nsecHex: Buffer.from(sk).toString("hex") });
+    } else {
+      // Self-custody: client decrypts locally with the user's password.
+      return res.json({ custody: "self-custody", pubkey: user.pubkey, encryptedNsec: user.encryptedNsec, salt: user.salt, iv: user.iv });
+    }
+  });
+
+  // ── Password reset ──────────────────────────────────────────────────────────
+
+  app.post("/api/auth/request-reset", async (req, res) => {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: "Email required" });
+
+    // Always return 200 to avoid email enumeration.
+    const rows = await db.select().from(users).where(eq(users.email, email.toLowerCase())).limit(1);
+    if (rows.length === 0) return res.json({ ok: true });
+
+    const token = randomBytes(32).toString("hex");
+    const tokenHash = createHash("sha256").update(token).digest("hex");
+    const expires = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 1 hour
+
+    await db.update(users)
+      .set({ resetToken: tokenHash, resetTokenExpires: expires })
+      .where(eq(users.email, email.toLowerCase()));
+
+    const resetUrl = `/reset-password?token=${token}&email=${encodeURIComponent(email.toLowerCase())}`;
+
+    if (process.env.NODE_ENV !== "production") {
+      // Dev: return the link directly so it can be shown in the UI.
+      console.log(`[auth] Password reset link: ${resetUrl}`);
+      return res.json({ ok: true, devResetUrl: resetUrl });
+    }
+
+    // Production: email delivery requires configuring an email service (Resend, SendGrid, etc.)
+    // The link is logged server-side until that is set up.
+    console.log(`[auth] Password reset requested for ${email} — link: ${resetUrl}`);
+    return res.json({ ok: true });
+  });
+
+  app.post("/api/auth/reset-password", async (req, res) => {
+    const { email, token, newPasswordHash } = req.body;
+    if (!email || !token || !newPasswordHash) return res.status(400).json({ message: "Missing fields" });
+
+    const tokenHash = createHash("sha256").update(token).digest("hex");
+    const rows = await db.select().from(users).where(eq(users.email, email.toLowerCase())).limit(1);
+    if (rows.length === 0) return res.status(400).json({ message: "Invalid reset link" });
+
+    const user = rows[0];
+    if (!user.resetToken || user.resetToken !== tokenHash) {
+      return res.status(400).json({ message: "Invalid or expired reset link" });
+    }
+    if (user.resetTokenExpires && new Date(user.resetTokenExpires) < new Date()) {
+      return res.status(400).json({ message: "Reset link has expired. Please request a new one." });
+    }
+
+    const serverHash = await bcrypt.hash(newPasswordHash, 10);
+    await db.update(users)
+      .set({ passwordHash: serverHash, resetToken: null, resetTokenExpires: null })
+      .where(eq(users.email, email.toLowerCase()));
+
+    // For custodial users the Nostr key is unchanged — this is the entire point.
+    return res.json({ ok: true, custody: user.keyCustody });
   });
 
   app.get("/api/altcha-challenge", async (_req, res) => {
