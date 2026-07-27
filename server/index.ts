@@ -12,6 +12,7 @@ import { sql } from "drizzle-orm";
 declare module "express-session" {
   interface SessionData {
     isAdmin?: boolean;
+    userEmail?: string; // set on custodial email login; used by GET /api/auth/session
   }
 }
 

@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request } from "express";
 import { type Server } from "http";
 import { storage } from "./storage";
 import { insertMerchantSchema, insertBadgePresetSchema, insertDirectoryOptionSchema, users } from "@shared/schema";
@@ -78,6 +78,9 @@ export async function registerRoutes(
         createdAt: new Date().toISOString(),
       });
 
+      // Stamp the server session so /api/auth/session can restore without re-auth.
+      req.session.userEmail = email.toLowerCase();
+
       // Return the raw nsec hex so the client can hold it in memory for this session.
       return res.json({ ok: true, custody: "custodial", pubkey: skPubkey, nsecHex: Buffer.from(sk).toString("hex") });
     } else {
@@ -120,11 +123,47 @@ export async function registerRoutes(
         console.log(`[auth] Migrated legacy custodial key to salted HKDF for ${email}`);
       }
 
+      // Stamp the server session so /api/auth/session can restore without re-auth.
+      req.session.userEmail = email.toLowerCase();
+
       return res.json({ custody: "custodial", pubkey: user.pubkey, nsecHex: Buffer.from(sk).toString("hex") });
     } else {
       // Self-custody: client decrypts locally with the user's password.
       return res.json({ custody: "self-custody", pubkey: user.pubkey, encryptedNsec: user.encryptedNsec, salt: user.salt, iv: user.iv });
     }
+  });
+
+  // ── Session restore & logout ────────────────────────────────────────────────
+
+  /**
+   * Returns the custodial nsec for the currently authenticated session.
+   * The client calls this on page load to restore a custodial session without
+   * the user re-entering their password. Requires a valid HTTP-only session
+   * cookie set by /api/auth/login or /api/auth/register.
+   */
+  app.get("/api/auth/session", async (req, res) => {
+    const email = req.session?.userEmail;
+    if (!email) return res.status(401).json({ message: "No active session" });
+
+    const rows = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    if (rows.length === 0) {
+      req.session.destroy(() => {});
+      return res.status(401).json({ message: "Session invalid" });
+    }
+
+    const user = rows[0];
+    if (user.keyCustody !== "custodial") {
+      return res.status(403).json({ message: "Session restore is only available for custodial accounts" });
+    }
+
+    const sk = decryptNsecServerSide(user.encryptedNsec, user.iv, user.keySalt);
+    return res.json({ custody: "custodial", pubkey: user.pubkey, nsecHex: Buffer.from(sk).toString("hex") });
+  });
+
+  /** Clears the server session (used on logout for custodial users). */
+  app.post("/api/auth/logout", (req, res) => {
+    req.session.destroy(() => {});
+    res.json({ ok: true });
   });
 
   // ── Password reset ──────────────────────────────────────────────────────────

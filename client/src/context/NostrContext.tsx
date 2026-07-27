@@ -48,6 +48,9 @@ interface StoredSession {
   bunkerUri?: string;
   bunkerLocalSkHex?: string;
   emailKeyMaterial?: EmailKeyMaterial;
+  /** Set for custodial email accounts so the startup effect can call /api/auth/session. */
+  custody?: 'custodial' | 'self-custody';
+  email?: string;
 }
 
 interface NostrContextValue {
@@ -60,7 +63,7 @@ interface NostrContextValue {
   isLoginModalOpen: boolean;
   loginNip07: () => Promise<void>;
   loginWithBunker: (bunkerUri: string) => Promise<void>;
-  loginWithGeneratedKey: (sk: Uint8Array, ncryptsec?: string, emailKeyMaterial?: EmailKeyMaterial) => Promise<void>;
+  loginWithGeneratedKey: (sk: Uint8Array, ncryptsec?: string, emailKeyMaterial?: EmailKeyMaterial, custodialEmail?: string) => Promise<void>;
   restoreGeneratedSession: (ncryptsec: string, password: string) => Promise<void>;
   logout: () => void;
   signEvent: (template: EventTemplate) => Promise<VerifiedEvent>;
@@ -188,7 +191,16 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
         clearSession();
       }
     } else if (session.method === 'generated') {
-      if (session.ncryptsec) {
+      if (session.custody === 'custodial' && session.email) {
+        // Restore custodial session via server-side HTTP-only cookie — no password needed.
+        fetch('/api/auth/session', { credentials: 'include' })
+          .then(r => r.ok ? r.json() : Promise.reject(new Error('session expired')))
+          .then(data => {
+            secretKeyRef.current = hexToBytes(data.nsecHex);
+            initUser(session.pubkey, 'generated');
+          })
+          .catch(() => clearSession());
+      } else if (session.ncryptsec) {
         setRestoringNcryptsec(session.ncryptsec);
         setIsLoginModalOpen(true);
       } else {
@@ -231,10 +243,16 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
     closeLoginModal();
   }, [initUser, closeLoginModal]);
 
-  const loginWithGeneratedKey = useCallback(async (sk: Uint8Array, ncryptsec?: string, emailKeyMaterial?: EmailKeyMaterial) => {
+  const loginWithGeneratedKey = useCallback(async (sk: Uint8Array, ncryptsec?: string, emailKeyMaterial?: EmailKeyMaterial, custodialEmail?: string) => {
     secretKeyRef.current = sk;
     const pubkey = getPublicKey(sk);
-    saveSession({ pubkey, method: 'generated', ncryptsec, emailKeyMaterial });
+    saveSession({
+      pubkey,
+      method: 'generated',
+      ncryptsec,
+      emailKeyMaterial,
+      ...(custodialEmail ? { custody: 'custodial', email: custodialEmail } : {}),
+    });
     await initUser(pubkey, 'generated');
     setRestoringNcryptsec(null);
     closeLoginModal();
@@ -251,6 +269,11 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
   }, [initUser]);
 
   const logout = useCallback(() => {
+    // Fire-and-forget: clear the server session for custodial users.
+    const session = loadSession();
+    if (session?.custody === 'custodial') {
+      fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }).catch(() => {});
+    }
     clearSession();
     secretKeyRef.current = null;
     bunkerSignerRef.current = null;

@@ -141,7 +141,7 @@ function EmailTab({ mode, setMode }: { mode: "login" | "register"; setMode: (m: 
           });
           const data = await res.json();
           if (!res.ok) throw new Error(data.message || "Registration failed");
-          await loginWithGeneratedKey(hexToBytes(data.nsecHex));
+          await loginWithGeneratedKey(hexToBytes(data.nsecHex), undefined, undefined, email.trim().toLowerCase());
         }
       } else {
         const res = await fetch("/api/auth/login", {
@@ -151,7 +151,7 @@ function EmailTab({ mode, setMode }: { mode: "login" | "register"; setMode: (m: 
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Login failed");
         if (data.custody === "custodial") {
-          await loginWithGeneratedKey(hexToBytes(data.nsecHex));
+          await loginWithGeneratedKey(hexToBytes(data.nsecHex), undefined, undefined, email.trim().toLowerCase());
         } else {
           const sk = await decryptEmailNsec(data.encryptedNsec, data.salt, data.iv, password);
           await loginWithGeneratedKey(sk, undefined, { encryptedNsec: data.encryptedNsec, salt: data.salt, iv: data.iv });
