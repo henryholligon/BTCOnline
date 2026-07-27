@@ -429,14 +429,6 @@ function NostrUserButton() {
             >
               🔖 My Lists
             </Link>
-            <Link
-              href="/discover"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-muted transition-colors"
-              data-testid="link-discover-lists"
-            >
-              🔍 Discover Lists
-            </Link>
             {loginMethod === "generated" && (
               <button
                 onClick={() => { setKeysOpen(true); setOpen(false); }}
