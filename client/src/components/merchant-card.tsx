@@ -537,20 +537,24 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 </div>
 
                 {/* Copy link */}
-                <button
-                  className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg border border-border bg-muted/50 hover:bg-muted transition-colors"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigator.clipboard.writeText(merchantUrl);
-                    setCopied(true);
-                    setTimeout(() => setCopied(false), 2000);
-                  }}
-                >
-                  <span className="truncate text-xs text-muted-foreground">{merchantUrl}</span>
-                  {copied
-                    ? <Check className="h-3.5 w-3.5 text-green-500 shrink-0" />
-                    : <Copy className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
-                </button>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-muted/50">
+                  <span className="flex-1 truncate text-xs text-muted-foreground">
+                    {merchantUrl.replace(/^https?:\/\//, "")}
+                  </span>
+                  <button
+                    className="shrink-0 flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-md bg-background border border-border hover:bg-muted transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigator.clipboard.writeText(merchantUrl);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    }}
+                  >
+                    {copied
+                      ? <><Check className="h-3 w-3 text-green-500" /> Copied</>
+                      : <><Copy className="h-3 w-3" /> Copy</>}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
