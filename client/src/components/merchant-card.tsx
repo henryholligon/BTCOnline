@@ -190,7 +190,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
             data-testid={`button-favourite-${merchant.id}`}
           >
             <Heart className={`h-4 w-4 ${user && favourites.has(merchant.website) ? "fill-current" : ""}`} />
-            {(likeCounts.get(merchant.website) ?? 0) > 0 && (
+            {expanded && (likeCounts.get(merchant.website) ?? 0) > 0 && (
               <span className="text-[10px] font-medium leading-none">{likeCounts.get(merchant.website)}</span>
             )}
           </button>
