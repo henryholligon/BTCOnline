@@ -227,8 +227,8 @@ html.theme-transition-none *::after {
 }
 
 /* Dark mode: remove glow from lightning bolt animation */
-.dark .animate-lightning-zap {
-  animation: lightning-zap-no-glow 1.5s ease-in-out infinite;
+.dark {
+  --animate-lightning-zap: lightning-zap-no-glow 1.5s ease-in-out infinite;
 }
 
 @keyframes lightning-zap-no-glow {
