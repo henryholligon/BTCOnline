@@ -385,8 +385,8 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 onClick={() => setShowShare(true)}
                 data-testid={`button-share-mobile-${merchant.id}`}
               >
+                <Forward className="mr-1 h-3.5 w-3.5" />
                 Share
-                <Forward className="ml-1 h-3.5 w-3.5" />
               </Button>
             </div>
             <div className="pt-1 md:hidden flex items-center gap-2 col-span-2">
@@ -471,8 +471,8 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 onClick={() => setShowShare(true)}
                 data-testid={`button-share-${merchant.id}`}
               >
+                <Forward className="mr-1 h-3.5 w-3.5" />
                 Share
-                <Forward className="ml-1 h-3.5 w-3.5" />
               </Button>
             </div>
           </div>
