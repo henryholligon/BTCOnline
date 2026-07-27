@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { type Merchant, type BadgePreset } from "@shared/schema";
 import { useCategoryEmojis } from "@/hooks/use-category-emojis";
 import { useCountryEmojis } from "@/hooks/use-country-emojis";
-import { Zap, Clock, Copy, Check, Heart, Bookmark, Forward, X as XIcon, Mail } from "lucide-react";
+import { Zap, Clock, Copy, Check, Heart, Bookmark, Forward, X as XIcon, Mail, ExternalLink } from "lucide-react";
 import BitcoinLogo from "@/components/bitcoin-logo";
 import { useRef, useEffect, useState, memo } from "react";
 import { slugify } from "@/lib/utils";
@@ -373,8 +373,8 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
             <div className="col-span-2 md:col-span-4 border-t border-border/40 pt-3 mt-1 flex items-center gap-2 flex-wrap">
               {/* Visit */}
               <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90" data-testid={`link-visit-${merchant.id}`}>
-                <a href={merchant.website} target="_blank" rel="noopener noreferrer">
-                  Visit
+                <a href={merchant.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
+                  <ExternalLink className="h-3.5 w-3.5" /> Visit
                 </a>
               </Button>
 
