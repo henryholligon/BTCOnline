@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { type Merchant, type BadgePreset } from "@shared/schema";
 import { useCategoryEmojis } from "@/hooks/use-category-emojis";
 import { useCountryEmojis } from "@/hooks/use-country-emojis";
-import { ExternalLink, Zap, Clock, Copy, Check, Heart, Bookmark, Share, X as XIcon, Mail } from "lucide-react";
+import { ExternalLink, Zap, Clock, Copy, Check, Heart, Bookmark, Forward, X as XIcon, Mail } from "lucide-react";
 import BitcoinLogo from "@/components/bitcoin-logo";
 import { useRef, useEffect, useState, memo } from "react";
 import { slugify } from "@/lib/utils";
@@ -386,7 +386,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 data-testid={`button-share-mobile-${merchant.id}`}
               >
                 Share
-                <Share className="ml-1 h-3.5 w-3.5" />
+                <Forward className="ml-1 h-3.5 w-3.5" />
               </Button>
             </div>
             <div className="pt-1 md:hidden flex items-center gap-2 col-span-2">
@@ -472,7 +472,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 data-testid={`button-share-${merchant.id}`}
               >
                 Share
-                <Share className="ml-1 h-3.5 w-3.5" />
+                <Forward className="ml-1 h-3.5 w-3.5" />
               </Button>
             </div>
           </div>
