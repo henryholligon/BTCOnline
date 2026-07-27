@@ -157,33 +157,6 @@ html.theme-transition-none *::after {
     }
   }
 
-  .dark .animate-lightning-zap {
-    animation: lightning-zap-no-glow 1.5s ease-in-out infinite;
-  }
-
-  @keyframes lightning-zap-no-glow {
-    0%, 100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    10%, 90% {
-      opacity: 0.9;
-      transform: scale(1.1);
-    }
-    15% {
-      opacity: 1;
-      transform: scale(1.2) translate(1px, -1px);
-    }
-    20% {
-      opacity: 0.8;
-      transform: scale(1.1) translate(-1px, 1px);
-    }
-    25% {
-      opacity: 1;
-      transform: scale(1.25) translate(0, 0);
-    }
-  }
-
   @keyframes btc-logo-spin {
     0%   { transform: perspective(60px) rotateY(0deg); }
     100% { transform: perspective(60px) rotateY(360deg); }
@@ -250,6 +223,34 @@ html.theme-transition-none *::after {
       transform: translateY(-20px) rotate(8deg) scale(1.15);
       opacity: 0.3;
     }
+  }
+}
+
+/* Dark mode: remove glow from lightning bolt animation */
+.dark .animate-lightning-zap {
+  animation: lightning-zap-no-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes lightning-zap-no-glow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  10%, 90% {
+    opacity: 0.9;
+    transform: scale(1.1);
+  }
+  15% {
+    opacity: 1;
+    transform: scale(1.2) translate(1px, -1px);
+  }
+  20% {
+    opacity: 0.8;
+    transform: scale(1.1) translate(-1px, 1px);
+  }
+  25% {
+    opacity: 1;
+    transform: scale(1.25) translate(0, 0);
   }
 }
 
