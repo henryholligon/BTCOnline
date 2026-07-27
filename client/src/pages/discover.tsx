@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowLeft, Compass, Loader2, Bookmark, BookmarkCheck } from "lucide-react";
+import { ArrowLeft, Compass, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/navbar";
 import { useNostr } from "@/context/NostrContext";
@@ -36,17 +36,23 @@ async function getProfile(pubkey: string): Promise<{ name: string; picture?: str
   return result;
 }
 
+/** Strip trailing slash and lowercase for URL comparison */
+function normaliseUrl(url: string) {
+  return url.toLowerCase().replace(/\/+$/, "");
+}
+
 function LogoGrid({ urls, merchants }: { urls: string[]; merchants: Merchant[] }) {
   const slots = Array.from({ length: 4 }, (_, i) => {
     const url = urls[i];
     if (!url) return null;
-    return merchants.find(m => m.website === url) ?? null;
+    const norm = normaliseUrl(url);
+    return merchants.find(m => normaliseUrl(m.website) === norm) ?? null;
   });
 
   return (
     <div className="shrink-0 grid grid-cols-2 gap-1 w-[72px] h-[72px]">
       {slots.map((merchant, i) => (
-        <div key={i} className="rounded-lg bg-muted flex items-center justify-center overflow-hidden">
+        <div key={i} className="rounded-xl bg-muted flex items-center justify-center overflow-hidden">
           {merchant?.logo ? (
             <img src={merchant.logo} alt={merchant.name} className="w-full h-full object-contain p-0.5" />
           ) : merchant ? (
@@ -223,17 +229,6 @@ export default function DiscoverPage() {
                               </p>
                             )}
                           </div>
-                          <button
-                            onClick={(e) => handleToggleSave(e, card)}
-                            title={saved ? "Remove from saved" : "Save this list"}
-                            className={`shrink-0 h-8 w-8 flex items-center justify-center rounded-lg border transition-colors ${
-                              saved
-                                ? "border-primary/40 bg-primary/10 text-primary"
-                                : "border-border text-muted-foreground hover:border-primary/40 hover:text-primary"
-                            }`}
-                          >
-                            {saved ? <BookmarkCheck className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
-                          </button>
                         </div>
 
                         <div className="flex items-center gap-1.5 mt-2">
