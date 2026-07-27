@@ -466,11 +466,11 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
       {/* Share overlay */}
       {showShare && (
         <div
-          className="absolute inset-0 z-20 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg p-4"
+          className="absolute inset-0 z-20 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg"
           onClick={(e) => { e.stopPropagation(); setShowShare(false); }}
         >
           <div
-            className="bg-card border border-border rounded-xl shadow-xl p-5 w-full"
+            className="bg-card rounded-lg p-5 w-full h-full flex flex-col justify-center"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
