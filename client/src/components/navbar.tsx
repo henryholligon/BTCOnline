@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useTheme } from "next-themes";
 import { useToast } from "@/hooks/use-toast";
 import { CATEGORIES } from "@/lib/mock-data";
+import { useCategoryEmojis } from "@/hooks/use-category-emojis";
 import "altcha";
 
 interface NavbarProps {
@@ -23,11 +24,52 @@ interface NavbarProps {
 }
 
 const PAYMENT_OPTIONS = [
-  { value: "onchain", label: "₿ On-chain" },
-  { value: "lightning", label: "⚡ Lightning" },
-  { value: "cashu", label: "🥜 Cashu" },
-  { value: "liquid", label: "💧 Liquid" },
+  { value: "On-chain", label: "₿ On-chain" },
+  { value: "Lightning", label: "⚡ Lightning" },
+  { value: "Cashu", label: "🥜 Cashu" },
+  { value: "Liquid", label: "💧 Liquid" },
 ];
+
+const COUNTRY_FLAGS: Record<string, string> = {
+  "Worldwide": "🌍", "United States": "🇺🇸", "United Kingdom": "🇬🇧", "Canada": "🇨🇦",
+  "Australia": "🇦🇺", "Europe": "🇪🇺", "Sweden": "🇸🇪", "Switzerland": "🇨🇭",
+  "Singapore": "🇸🇬", "New Zealand": "🇳🇿", "Netherlands": "🇳🇱", "Lithuania": "🇱🇹",
+  "Mexico": "🇲🇽", "Colombia": "🇨🇴", "Monaco": "🇲🇨", "United Arab Emirates": "🇦🇪",
+  "El Salvador": "🇸🇻", "Norway": "🇳🇴", "Italy": "🇮🇹", "Croatia": "🇭🇷",
+  "Austria": "🇦🇹", "Germany": "🇩🇪", "Ireland": "🇮🇪", "South Africa": "🇿🇦",
+  "France": "🇫🇷", "Japan": "🇯🇵", "Brazil": "🇧🇷", "India": "🇮🇳",
+  "South Korea": "🇰🇷", "Spain": "🇪🇸", "Portugal": "🇵🇹", "Poland": "🇵🇱",
+  "Czech Republic": "🇨🇿", "Denmark": "🇩🇰", "Finland": "🇫🇮", "Israel": "🇮🇱",
+  "China": "🇨🇳", "Taiwan": "🇹🇼", "Thailand": "🇹🇭", "Hong Kong": "🇭🇰",
+  "Philippines": "🇵🇭", "Malaysia": "🇲🇾", "Indonesia": "🇮🇩", "Vietnam": "🇻🇳",
+  "Argentina": "🇦🇷", "Chile": "🇨🇱", "Turkey": "🇹🇷", "Romania": "🇷🇴",
+  "Hungary": "🇭🇺", "Greece": "🇬🇷", "Belgium": "🇧🇪", "Iceland": "🇮🇸",
+  "Estonia": "🇪🇪", "Latvia": "🇱🇻", "Costa Rica": "🇨🇷", "Panama": "🇵🇦",
+  "Uruguay": "🇺🇾", "Peru": "🇵🇪", "Nigeria": "🇳🇬", "Kenya": "🇰🇪",
+  "Ghana": "🇬🇭", "Egypt": "🇪🇬",
+};
+
+const COUNTRY_OPTIONS = Object.entries(COUNTRY_FLAGS).map(([name, flag]) => ({
+  value: name,
+  label: `${flag} ${name}`,
+}));
+
+const PROVIDER_OPTIONS = [
+  "BTCPay Server", "Bitcashier", "CoinCorner", "Coingate", "CoinsPaid",
+  "NOWPayments", "Open Node", "Self-hosted", "Speed", "Strike",
+  "The Giving Block", "Triple A", "Zaprite",
+].map(p => ({ value: p, label: p }));
+
+function useOutsideClick(ref: React.RefObject<HTMLElement>, open: boolean, onClose: () => void) {
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (!ref.current?.contains(e.target as Node)) onClose();
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open, onClose]);
+}
 
 function MultiSelect({ options, selected, onChange, placeholder, testId }: {
   options: { value: string; label: string }[];
@@ -37,16 +79,20 @@ function MultiSelect({ options, selected, onChange, placeholder, testId }: {
   testId: string;
 }) {
   const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
   const ref = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  useOutsideClick(ref, open, () => setOpen(false));
 
   useEffect(() => {
-    if (!open) return;
-    const handler = (e: MouseEvent) => {
-      if (!ref.current?.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    if (open) setTimeout(() => searchRef.current?.focus(), 0);
+    else setSearch("");
   }, [open]);
+
+  const filtered = search
+    ? options.filter(o => o.label.toLowerCase().includes(search.toLowerCase()))
+    : options;
 
   const toggle = (val: string) => {
     onChange(selected.includes(val) ? selected.filter(v => v !== val) : [...selected, val]);
@@ -71,8 +117,20 @@ function MultiSelect({ options, selected, onChange, placeholder, testId }: {
       </button>
       {open && (
         <div className="absolute z-50 mt-1 w-full rounded-md border border-border bg-popover shadow-md">
-          <div className="max-h-60 overflow-auto p-1">
-            {options.map(opt => (
+          <div className="border-b border-border px-2 py-1.5">
+            <input
+              ref={searchRef}
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search…"
+              className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            />
+          </div>
+          <div className="max-h-52 overflow-auto p-1">
+            {filtered.length === 0 && (
+              <p className="px-2 py-1.5 text-sm text-muted-foreground">No results</p>
+            )}
+            {filtered.map(opt => (
               <button
                 key={opt.value}
                 type="button"
@@ -82,6 +140,85 @@ function MultiSelect({ options, selected, onChange, placeholder, testId }: {
               >
                 <div className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${selected.includes(opt.value) ? "border-primary bg-primary text-primary-foreground" : "border-input"}`}>
                   {selected.includes(opt.value) && <Check className="h-3 w-3" />}
+                </div>
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SearchableSelect({ options, value, onChange, placeholder, testId }: {
+  options: { value: string; label: string }[];
+  value: string;
+  onChange: (val: string) => void;
+  placeholder: string;
+  testId?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const ref = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  useOutsideClick(ref, open, () => setOpen(false));
+
+  useEffect(() => {
+    if (open) setTimeout(() => searchRef.current?.focus(), 0);
+    else setSearch("");
+  }, [open]);
+
+  const filtered = search
+    ? options.filter(o => o.label.toLowerCase().includes(search.toLowerCase()))
+    : options;
+
+  const selectedLabel = options.find(o => o.value === value)?.label ?? "";
+
+  return (
+    <div ref={ref} className="relative" data-testid={testId}>
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+      >
+        <span className={!value ? "text-muted-foreground" : ""}>{selectedLabel || placeholder}</span>
+        <ChevronDown className={`h-4 w-4 opacity-50 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="absolute z-50 mt-1 w-full rounded-md border border-border bg-popover shadow-md">
+          <div className="border-b border-border px-2 py-1.5">
+            <input
+              ref={searchRef}
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search…"
+              className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            />
+          </div>
+          <div className="max-h-52 overflow-auto p-1">
+            {value && (
+              <button
+                type="button"
+                onClick={() => { onChange(""); setOpen(false); }}
+                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+              >
+                Clear selection
+              </button>
+            )}
+            {filtered.length === 0 && (
+              <p className="px-2 py-1.5 text-sm text-muted-foreground">No results</p>
+            )}
+            {filtered.map(opt => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => { onChange(opt.value); setOpen(false); setSearch(""); }}
+                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground"
+              >
+                <div className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${value === opt.value ? "border-primary bg-primary text-primary-foreground" : "border-transparent"}`}>
+                  {value === opt.value && <Check className="h-3 w-3" />}
                 </div>
                 {opt.label}
               </button>
@@ -350,8 +487,12 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
   const [notes, setNotes] = useState("");
   const [dataSource, setDataSource] = useState("");
   const [publicContact, setPublicContact] = useState("");
+  const [shippingCountries, setShippingCountries] = useState<string[]>([]);
+  const [countryMadeIn, setCountryMadeIn] = useState("");
+  const [paymentProvider, setPaymentProvider] = useState("");
   const [altchaVerified, setAltchaVerified] = useState(false);
   const altchaRef = useRef<HTMLElement>(null);
+  const { getCategoryWithEmoji } = useCategoryEmojis();
   const logoRef = useRef<HTMLButtonElement>(null);
   const logoPanelRef = useRef<HTMLDivElement>(null);
   const [logoPos, setLogoPos] = useState({ top: 0, left: 0 });
@@ -406,6 +547,9 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
           businessUrl,
           businessCategories,
           paymentMethods,
+          shippingCountries,
+          countryMadeIn,
+          paymentProvider,
           notes,
           dataSource,
           publicContact,
@@ -436,6 +580,9 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
       setBusinessUrl("");
       setBusinessCategories([]);
       setPaymentMethods([]);
+      setShippingCountries([]);
+      setCountryMadeIn("");
+      setPaymentProvider("");
       setNotes("");
       setDataSource("");
       setPublicContact("");
@@ -447,7 +594,7 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
     }
   };
 
-  const categoryOptions = CATEGORIES.map(c => ({ value: c, label: c }));
+  const categoryOptions = CATEGORIES.map(c => ({ value: c, label: getCategoryWithEmoji(c) }));
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
@@ -470,46 +617,16 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
               <DialogHeader>
                 <DialogTitle>Accept Bitcoin? Get listed.</DialogTitle>
                 <DialogDescription>
-                  Fill out the form below and we will review your submission.
+                  Only the website URL is required — fill in as much or as little as you know.
                 </DialogDescription>
               </DialogHeader>
-              <form onSubmit={handleSubmitMerchant} className="space-y-5 py-2">
-                <div className="space-y-2">
-                  <Label htmlFor="businessName">Merchant Name</Label>
-                  <Input
-                    id="businessName"
-                    placeholder="Enter merchant name"
-                    value={businessName}
-                    onChange={(e) => setBusinessName(e.target.value)}
-                    required
-                    data-testid="input-business-name"
-                  />
-                </div>
+              <form onSubmit={handleSubmitMerchant} className="space-y-4 py-2">
 
+                {/* Website — only required field */}
                 <div className="space-y-2">
-                  <Label>Category</Label>
-                  <MultiSelect
-                    options={categoryOptions}
-                    selected={businessCategories}
-                    onChange={setBusinessCategories}
-                    placeholder="Select categories"
-                    testId="select-business-category"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Payment Method</Label>
-                  <MultiSelect
-                    options={PAYMENT_OPTIONS}
-                    selected={paymentMethods}
-                    onChange={setPaymentMethods}
-                    placeholder="Select payment methods"
-                    testId="select-payment-method"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="businessUrl">Website</Label>
+                  <Label htmlFor="businessUrl">
+                    Website <span className="text-destructive">*</span>
+                  </Label>
                   <Input
                     id="businessUrl"
                     type="url"
@@ -521,34 +638,109 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                   />
                 </div>
 
+                {/* Merchant Name */}
                 <div className="space-y-2">
-                  <Label htmlFor="notes">Notes (optional)</Label>
+                  <Label htmlFor="businessName">Merchant Name <span className="text-xs text-muted-foreground">(optional)</span></Label>
+                  <Input
+                    id="businessName"
+                    placeholder="Enter merchant name"
+                    value={businessName}
+                    onChange={(e) => setBusinessName(e.target.value)}
+                    data-testid="input-business-name"
+                  />
+                </div>
+
+                {/* Category */}
+                <div className="space-y-2">
+                  <Label>Category <span className="text-xs text-muted-foreground">(optional)</span></Label>
+                  <MultiSelect
+                    options={categoryOptions}
+                    selected={businessCategories}
+                    onChange={setBusinessCategories}
+                    placeholder="Search and select categories…"
+                    testId="select-business-category"
+                  />
+                </div>
+
+                {/* Payment Method */}
+                <div className="space-y-2">
+                  <Label>Payment Method <span className="text-xs text-muted-foreground">(optional)</span></Label>
+                  <MultiSelect
+                    options={PAYMENT_OPTIONS}
+                    selected={paymentMethods}
+                    onChange={setPaymentMethods}
+                    placeholder="Select payment methods…"
+                    testId="select-payment-method"
+                  />
+                </div>
+
+                {/* Ships to (Availability) */}
+                <div className="space-y-2">
+                  <Label>Ships to <span className="text-xs text-muted-foreground">(optional)</span></Label>
+                  <MultiSelect
+                    options={COUNTRY_OPTIONS}
+                    selected={shippingCountries}
+                    onChange={setShippingCountries}
+                    placeholder="Search countries…"
+                    testId="select-shipping-countries"
+                  />
+                </div>
+
+                {/* Made in + Provider on one row */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label>Made in <span className="text-xs text-muted-foreground">(optional)</span></Label>
+                    <SearchableSelect
+                      options={COUNTRY_OPTIONS}
+                      value={countryMadeIn}
+                      onChange={setCountryMadeIn}
+                      placeholder="Country…"
+                      testId="select-country-made-in"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Provider <span className="text-xs text-muted-foreground">(optional)</span></Label>
+                    <SearchableSelect
+                      options={PROVIDER_OPTIONS}
+                      value={paymentProvider}
+                      onChange={setPaymentProvider}
+                      placeholder="Provider…"
+                      testId="select-payment-provider"
+                    />
+                  </div>
+                </div>
+
+                {/* Notes */}
+                <div className="space-y-2">
+                  <Label htmlFor="notes">Notes <span className="text-xs text-muted-foreground">(optional)</span></Label>
                   <textarea
                     id="notes"
-                    placeholder="Any additional information about this merchant..."
+                    placeholder="Any additional information about this merchant…"
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    className="w-full min-h-[80px] rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="w-full min-h-[70px] rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     data-testid="input-notes"
                   />
                 </div>
 
+                {/* Data Source */}
                 <div className="space-y-2">
-                  <Label>Data Source</Label>
+                  <Label>How do you know this merchant? <span className="text-xs text-muted-foreground">(optional)</span></Label>
                   <Select value={dataSource} onValueChange={setDataSource}>
                     <SelectTrigger data-testid="select-data-source">
-                      <SelectValue placeholder="Please select an option" />
+                      <SelectValue placeholder="Select an option" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="owner">I am the business owner</SelectItem>
                       <SelectItem value="customer">I visited as a customer</SelectItem>
-                      <SelectItem value="other">Other method</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
+                {/* Public Contact */}
                 <div className="space-y-2">
-                  <Label htmlFor="publicContact">Public Contact (optional)</Label>
+                  <Label htmlFor="publicContact">Contact <span className="text-xs text-muted-foreground">(optional)</span></Label>
                   <Input
                     id="publicContact"
                     placeholder="Email or Nostr npub"
@@ -557,7 +749,7 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                     data-testid="input-public-contact"
                   />
                   <p className="text-xs text-muted-foreground">
-                    If we have any follow-up questions we will contact you to add this merchant successfully.
+                    For follow-up questions only. Not published.
                   </p>
                 </div>
 

@@ -72,7 +72,10 @@ export async function registerRoutes(
   });
 
   app.post("/api/submit-merchant", async (req, res) => {
-    const { altcha, businessName, businessUrl, businessCategories, paymentMethods, notes, dataSource, publicContact } = req.body;
+    const {
+      altcha, businessName, businessUrl, businessCategories, paymentMethods,
+      shippingCountries, countryMadeIn, paymentProvider, notes, dataSource, publicContact,
+    } = req.body;
 
     // Verify captcha
     if (!altcha) {
@@ -85,10 +88,8 @@ export async function registerRoutes(
       return res.status(400).json({ message: "Captcha verification failed" });
     }
 
-    // Validate required fields
-    if (!businessName?.trim()) return res.status(400).json({ message: "Merchant name is required" });
+    // Only website is required
     if (!businessUrl?.trim()) return res.status(400).json({ message: "Website URL is required" });
-    if (!paymentMethods?.length) return res.status(400).json({ message: "At least one payment method is required" });
 
     const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
     if (!GITHUB_TOKEN) {
@@ -97,17 +98,26 @@ export async function registerRoutes(
     }
 
     // Build issue body
-    const categoriesStr = businessCategories?.length ? businessCategories.join(", ") : "Not specified";
-    const paymentStr = paymentMethods.join(", ");
-    const dataSourceLabel = dataSource === "owner" ? "I am the business owner" : dataSource === "customer" ? "I visited as a customer" : dataSource || "Not specified";
+    const categoriesStr = businessCategories?.length ? businessCategories.join(", ") : "—";
+    const paymentStr = paymentMethods?.length ? paymentMethods.join(", ") : "—";
+    const availabilityStr = shippingCountries?.length ? shippingCountries.join(", ") : "—";
+    const dataSourceLabel = dataSource === "owner" ? "I am the business owner" : dataSource === "customer" ? "I visited as a customer" : dataSource || "—";
+
+    const issueTitle = businessName?.trim()
+      ? `Merchant submission: ${businessName.trim()}`
+      : `Merchant submission: ${businessUrl.trim()}`;
 
     const issueBody = `## Merchant Submission
 
 | Field | Value |
 |---|---|
 | **Website** | ${businessUrl.trim()} |
+| **Name** | ${businessName?.trim() || "—"} |
 | **Categories** | ${categoriesStr} |
 | **Payment Methods** | ${paymentStr} |
+| **Ships to** | ${availabilityStr} |
+| **Made in** | ${countryMadeIn?.trim() || "—"} |
+| **Provider** | ${paymentProvider?.trim() || "—"} |
 | **Submitted by** | ${dataSourceLabel} |
 | **Contact** | ${publicContact?.trim() || "—"} |
 
@@ -126,7 +136,7 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
           "User-Agent": "BTCOnline-App",
         },
         body: JSON.stringify({
-          title: `Merchant submission: ${businessName.trim()}`,
+          title: issueTitle,
           body: issueBody,
         }),
       });
