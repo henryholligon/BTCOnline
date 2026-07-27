@@ -370,43 +370,46 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               </div>
             )}
 
-            <div className="pt-1 md:hidden">
-              <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
-                <a href={merchant.website} target="_blank" rel="noopener noreferrer" data-testid={`link-visit-mobile-${merchant.id}`}>
+            <div className="pt-1 col-span-2 flex items-center gap-2 flex-wrap">
+              {/* Visit */}
+              <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90" data-testid={`link-visit-${merchant.id}`}>
+                <a href={merchant.website} target="_blank" rel="noopener noreferrer">
                   Visit
                 </a>
               </Button>
-            </div>
-            <div className="pt-1 md:hidden">
+
+              {/* Share */}
               <Button
                 size="sm"
                 variant="outline"
                 className="gap-1.5"
                 onClick={() => setShowShare(true)}
-                data-testid={`button-share-mobile-${merchant.id}`}
+                data-testid={`button-share-${merchant.id}`}
               >
                 <Forward className="mr-1 h-3.5 w-3.5" />
                 Share
               </Button>
-            </div>
-            <div className="pt-1 md:hidden flex items-center gap-2 col-span-2">
+
+              {/* Like */}
               <Button
                 size="sm"
                 variant="outline"
                 className={`gap-1.5 ${user && favourites.has(merchant.website) ? "text-red-500 border-red-500/40" : ""}`}
                 onClick={() => toggleFavourite(merchant.website)}
-                data-testid={`button-favourite-mobile-${merchant.id}`}
+                data-testid={`button-favourite-${merchant.id}`}
               >
                 <Heart className={`h-3.5 w-3.5 ${user && favourites.has(merchant.website) ? "fill-current" : ""}`} />
                 {user && favourites.has(merchant.website) ? "Liked" : "Like"}
               </Button>
+
+              {/* Save */}
               {!user ? (
                 <Button
                   size="sm"
                   variant="outline"
                   className="gap-1.5"
                   onClick={openLoginModal}
-                  data-testid={`button-add-to-list-mobile-${merchant.id}`}
+                  data-testid={`button-add-to-list-${merchant.id}`}
                 >
                   <Bookmark className="h-3.5 w-3.5" />
                   Save
@@ -418,7 +421,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                       size="sm"
                       variant="outline"
                       className="gap-1.5"
-                      data-testid={`button-add-to-list-mobile-${merchant.id}`}
+                      data-testid={`button-add-to-list-${merchant.id}`}
                     >
                       <Bookmark className="h-3.5 w-3.5" />
                       Save
@@ -441,7 +444,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                               type="button"
                               onClick={() => toggleListMember(list.dTag, merchant.website, inList)}
                               className="flex items-center gap-2 w-full rounded px-2 py-1.5 text-sm hover:bg-muted transition-colors"
-                              data-testid={`button-toggle-list-mobile-${list.dTag}-${merchant.id}`}
+                              data-testid={`button-toggle-list-${list.dTag}-${merchant.id}`}
                             >
                               <div className={`h-3.5 w-3.5 rounded border flex items-center justify-center shrink-0 ${inList ? "bg-primary border-primary" : "border-input"}`}>
                                 {inList && <Check className="h-2.5 w-2.5 text-primary-foreground" />}
@@ -455,25 +458,6 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                   </PopoverContent>
                 </Popover>
               )}
-            </div>
-            <div className="pt-1 md:col-start-1 hidden md:block">
-              <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
-                <a href={merchant.website} target="_blank" rel="noopener noreferrer" data-testid={`link-visit-${merchant.id}`}>
-                  Visit
-                </a>
-              </Button>
-            </div>
-            <div className="pt-1 md:col-start-2 hidden md:flex items-center gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                className="gap-1.5"
-                onClick={() => setShowShare(true)}
-                data-testid={`button-share-${merchant.id}`}
-              >
-                <Forward className="mr-1 h-3.5 w-3.5" />
-                Share
-              </Button>
             </div>
           </div>
         </div>
