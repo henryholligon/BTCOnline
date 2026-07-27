@@ -8,6 +8,7 @@ import { createChallenge, verifySolution } from "altcha-lib";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { runSheetSync } from "./sheetSync";
 import { publishMerchant, publishMerchants, nostrConfigured, getMasterPubkey, getRelayUrl } from "./nostrPublish";
+import { sendPasswordResetEmail, emailConfigured } from "./email";
 import type { RequestHandler } from "express";
 
 /** Middleware that rejects requests unless the caller has an admin session. */
@@ -184,17 +185,33 @@ export async function registerRoutes(
       .set({ resetToken: tokenHash, resetTokenExpires: expires })
       .where(eq(users.email, email.toLowerCase()));
 
-    const resetUrl = `/reset-password?token=${token}&email=${encodeURIComponent(email.toLowerCase())}`;
+    const resetPath = `/reset-password?token=${token}&email=${encodeURIComponent(email.toLowerCase())}`;
 
     if (process.env.NODE_ENV !== "production") {
-      // Dev: return the link directly so it can be shown in the UI.
-      console.log(`[auth] Password reset link: ${resetUrl}`);
-      return res.json({ ok: true, devResetUrl: resetUrl });
+      // Dev: return the relative path so the UI can build a clickable link.
+      console.log(`[auth] Password reset link: ${resetPath}`);
+      return res.json({ ok: true, devResetUrl: resetPath });
     }
 
-    // Production: email delivery requires configuring an email service (Resend, SendGrid, etc.)
-    // The link is logged server-side until that is set up.
-    console.log(`[auth] Password reset requested for ${email} — link: ${resetUrl}`);
+    // Build an absolute URL from the incoming request so it works in any
+    // deployment environment (Replit dev domain, custom domain, etc.).
+    const origin =
+      process.env.APP_URL ||
+      `${req.protocol}://${req.get("host")}`;
+    const resetUrl = `${origin}${resetPath}`;
+
+    // Production: send via Resend.
+    if (!emailConfigured()) {
+      // No email provider configured — fail silently to avoid leaking tokens into logs.
+      console.warn(`[auth] RESEND_API_KEY not set — password reset email could not be sent for ${email}`);
+      return res.json({ ok: true });
+    }
+    try {
+      await sendPasswordResetEmail(email.toLowerCase(), resetUrl);
+    } catch (err) {
+      // Log the error (no token in message) but don't expose it to the caller.
+      console.error(`[auth] Failed to send reset email to ${email}:`, err instanceof Error ? err.message : err);
+    }
     return res.json({ ok: true });
   });
 
