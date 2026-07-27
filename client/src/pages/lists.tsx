@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { type Merchant } from "@shared/schema";
 import {
-  Plus, Trash2, ExternalLink, List, ArrowLeft, Loader2, Pencil,
+  Plus, Trash2, ExternalLink, ArrowLeft, Loader2, Pencil,
   Check, X, Lock, Globe, Bookmark, BookmarkCheck, Compass,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -153,7 +153,7 @@ export default function ListsPage() {
               </button>
             </Link>
             <h1 className="text-xl font-bold flex items-center gap-2">
-              <List className="h-5 w-5 text-primary" /> Merchant Lists
+              <Bookmark className="h-5 w-5 text-primary" /> Merchant Lists
             </h1>
             <Link href="/discover" className="ml-auto flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors">
               <Compass className="h-3.5 w-3.5" /> Discover
@@ -162,7 +162,7 @@ export default function ListsPage() {
 
           {!user ? (
             <div className="text-center py-20 border border-dashed border-border rounded-lg bg-card/40">
-              <List className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+              <Bookmark className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
               <p className="text-muted-foreground mb-4">Sign in with Nostr to create and manage merchant lists.</p>
               <Button onClick={openLoginModal} data-testid="button-login-for-lists">Sign in with Nostr</Button>
             </div>

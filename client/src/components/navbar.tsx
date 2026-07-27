@@ -427,7 +427,7 @@ function NostrUserButton() {
               className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-muted transition-colors"
               data-testid="link-my-lists"
             >
-              📋 My Lists
+              🔖 My Lists
             </Link>
             <Link
               href="/discover"
