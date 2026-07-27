@@ -54,7 +54,7 @@ function LogoGrid({ urls, merchants }: { urls: string[]; merchants: Merchant[] }
       {slots.map((merchant, i) => (
         <div key={i} className="bg-muted flex items-center justify-center overflow-hidden">
           {merchant?.logo ? (
-            <img src={merchant.logo} alt={merchant.name} className="w-full h-full object-contain p-0.5" />
+            <img src={merchant.logo} alt={merchant.name} className="w-full h-full object-contain p-0.5 rounded-lg" />
           ) : merchant ? (
             <span className="text-[10px] font-bold text-muted-foreground leading-none text-center px-0.5 truncate">
               {merchant.name.slice(0, 3)}
