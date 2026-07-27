@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
-import { motion } from "framer-motion";
-import { ArrowLeft, Compass, Loader2, Bookmark, BookmarkCheck } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, Compass, Loader2, Bookmark, BookmarkCheck, ChevronDown } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/navbar";
 import { useNostr } from "@/context/NostrContext";
@@ -9,7 +9,8 @@ import type { SavedPublicList } from "@/context/NostrContext";
 import { fetchPublicLists, fetchProfile, DEFAULT_RELAYS } from "@/lib/nostr";
 import { npubEncode } from "nostr-tools/nip19";
 import type { Event } from "nostr-tools";
-import type { Merchant } from "@shared/schema";
+import { type Merchant, type BadgePreset } from "@shared/schema";
+import MerchantCard from "@/components/merchant-card";
 import btcBgImage from "@assets/image_1771226498805.png";
 
 interface ListCard {
@@ -21,7 +22,8 @@ interface ListCard {
   description: string;
   merchantCount: number;
   dTag: string;
-  listUrls: string[]; // first 4, for logo grid
+  allUrls: string[];      // all merchant URLs in the list
+  previewUrls: string[];  // first 4 for the logo grid
 }
 
 const PROFILE_CACHE = new Map<string, { name: string; picture?: string }>();
@@ -37,28 +39,20 @@ async function getProfile(pubkey: string): Promise<{ name: string; picture?: str
   return result;
 }
 
-/** 2×2 grid of merchant logos, matching the Zapstore card style. */
+/** 2×2 grid of merchant logos */
 function LogoGrid({ urls, merchants }: { urls: string[]; merchants: Merchant[] }) {
   const slots = Array.from({ length: 4 }, (_, i) => {
     const url = urls[i];
     if (!url) return null;
-    const merchant = merchants.find(m => m.website === url);
-    return merchant ?? null;
+    return merchants.find(m => m.website === url) ?? null;
   });
 
   return (
     <div className="shrink-0 grid grid-cols-2 gap-1 w-[72px] h-[72px]">
       {slots.map((merchant, i) => (
-        <div
-          key={i}
-          className="rounded-lg bg-muted flex items-center justify-center overflow-hidden"
-        >
+        <div key={i} className="rounded-lg bg-muted flex items-center justify-center overflow-hidden">
           {merchant?.logo ? (
-            <img
-              src={merchant.logo}
-              alt={merchant.name}
-              className="w-full h-full object-contain p-0.5"
-            />
+            <img src={merchant.logo} alt={merchant.name} className="w-full h-full object-contain p-0.5" />
           ) : merchant ? (
             <span className="text-[10px] font-bold text-muted-foreground leading-none text-center px-0.5 truncate">
               {merchant.name.slice(0, 3)}
@@ -77,8 +71,11 @@ export default function DiscoverPage() {
   const [cards, setCards] = useState<ListCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [expandedKey, setExpandedKey] = useState<string | null>(null);
+  const [expandedMerchant, setExpandedMerchant] = useState<string | null>(null);
 
   const { data: merchants = [] } = useQuery<Merchant[]>({ queryKey: ["/api/merchants"] });
+  const { data: badgePresets = [] } = useQuery<BadgePreset[]>({ queryKey: ["/api/badge-presets"] });
 
   useEffect(() => {
     let cancelled = false;
@@ -94,9 +91,7 @@ export default function DiscoverPage() {
           const description = ev.tags.find(t => t[0] === 'description')?.[1] || '';
           const dTag = ev.tags.find(t => t[0] === 'd')?.[1] ?? ev.id;
           const allUrls = ev.tags.filter(t => t[0] === 'r').map(t => t[1]);
-          const merchantCount = allUrls.length;
-          if (merchantCount === 0) return;
-          const listUrls = allUrls.slice(0, 4);
+          if (allUrls.length === 0) return;
           try {
             const profile = await getProfile(ev.pubkey);
             results.push({
@@ -104,22 +99,20 @@ export default function DiscoverPage() {
               authorNpub: npubEncode(ev.pubkey),
               authorName: profile.name,
               authorPicture: profile.picture,
-              title,
-              description,
-              merchantCount,
-              dTag,
-              listUrls,
+              title, description,
+              merchantCount: allUrls.length,
+              dTag, allUrls,
+              previewUrls: allUrls.slice(0, 4),
             });
           } catch {
             results.push({
               event: ev,
               authorNpub: npubEncode(ev.pubkey),
               authorName: npubEncode(ev.pubkey).slice(0, 12) + '…',
-              title,
-              description,
-              merchantCount,
-              dTag,
-              listUrls,
+              title, description,
+              merchantCount: allUrls.length,
+              dTag, allUrls,
+              previewUrls: allUrls.slice(0, 4),
             });
           }
         }));
@@ -128,9 +121,7 @@ export default function DiscoverPage() {
           setCards(results);
         }
       })
-      .catch(() => {
-        if (!cancelled) setError('Failed to load public lists. Please try again.');
-      })
+      .catch(() => { if (!cancelled) setError('Failed to load public lists. Please try again.'); })
       .finally(() => { if (!cancelled) setLoading(false); });
 
     return () => { cancelled = true; };
@@ -139,7 +130,8 @@ export default function DiscoverPage() {
   const isSaved = (authorPubkey: string, dTag: string) =>
     savedLists.some(l => l.authorPubkey === authorPubkey && l.dTag === dTag);
 
-  const handleToggleSave = (card: ListCard) => {
+  const handleToggleSave = (e: React.MouseEvent, card: ListCard) => {
+    e.stopPropagation();
     if (isSaved(card.event.pubkey, card.dTag)) {
       unsavePublicList(card.event.pubkey, card.dTag);
     } else {
@@ -215,19 +207,30 @@ export default function DiscoverPage() {
               </p>
               {cards.map((card, idx) => {
                 const saved = isSaved(card.event.pubkey, card.dTag);
+                const cardKey = `${card.event.pubkey}:${card.dTag}`;
+                const isExpanded = expandedKey === cardKey;
+                const listMerchants = card.allUrls
+                  .map(url => merchants.find(m => m.website === url))
+                  .filter((m): m is Merchant => !!m);
+
                 return (
                   <motion.div
-                    key={`${card.event.pubkey}:${card.dTag}`}
+                    key={cardKey}
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: Math.min(idx * 0.04, 0.4) }}
-                    className="bg-card border border-border rounded-xl p-4 hover:border-primary/30 transition-colors"
+                    className="bg-card border border-border rounded-xl overflow-hidden hover:border-primary/30 transition-colors"
                   >
-                    <div className="flex items-center gap-4">
-                      {/* 2×2 logo grid */}
-                      <LogoGrid urls={card.listUrls} merchants={merchants} />
+                    {/* Card header — clickable to expand */}
+                    <div
+                      className="flex items-center gap-4 p-4 cursor-pointer select-none"
+                      onClick={() => {
+                        setExpandedKey(isExpanded ? null : cardKey);
+                        setExpandedMerchant(null);
+                      }}
+                    >
+                      <LogoGrid urls={card.previewUrls} merchants={merchants} />
 
-                      {/* Text content */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
@@ -238,27 +241,28 @@ export default function DiscoverPage() {
                               </p>
                             )}
                           </div>
-                          <button
-                            onClick={() => handleToggleSave(card)}
-                            title={saved ? "Remove from saved" : "Save this list"}
-                            className={`shrink-0 h-8 w-8 flex items-center justify-center rounded-lg border transition-colors ${
-                              saved
-                                ? "border-primary/40 bg-primary/10 text-primary"
-                                : "border-border text-muted-foreground hover:border-primary/40 hover:text-primary"
-                            }`}
-                          >
-                            {saved ? <BookmarkCheck className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
-                          </button>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <button
+                              onClick={(e) => handleToggleSave(e, card)}
+                              title={saved ? "Remove from saved" : "Save this list"}
+                              className={`h-8 w-8 flex items-center justify-center rounded-lg border transition-colors ${
+                                saved
+                                  ? "border-primary/40 bg-primary/10 text-primary"
+                                  : "border-border text-muted-foreground hover:border-primary/40 hover:text-primary"
+                              }`}
+                            >
+                              {saved ? <BookmarkCheck className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
+                            </button>
+                            <ChevronDown
+                              className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
+                            />
+                          </div>
                         </div>
 
                         {/* Curator badge */}
                         <div className="flex items-center gap-1.5 mt-2">
                           {card.authorPicture ? (
-                            <img
-                              src={card.authorPicture}
-                              alt={card.authorName}
-                              className="h-4 w-4 rounded-full object-cover border border-border"
-                            />
+                            <img src={card.authorPicture} alt={card.authorName} className="h-4 w-4 rounded-full object-cover border border-border" />
                           ) : (
                             <div className="h-4 w-4 rounded-full bg-primary flex items-center justify-center text-[8px] font-bold text-primary-foreground shrink-0">
                               {card.authorName[0]?.toUpperCase() || '⚡'}
@@ -271,6 +275,43 @@ export default function DiscoverPage() {
                         </div>
                       </div>
                     </div>
+
+                    {/* Expanded merchant cards */}
+                    <AnimatePresence>
+                      {isExpanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.25 }}
+                          className="overflow-hidden border-t border-border"
+                        >
+                          <div className="p-4 flex flex-col gap-4 bg-background/50">
+                            {listMerchants.length === 0 ? (
+                              <p className="text-sm text-muted-foreground text-center py-4">
+                                {merchants.length === 0
+                                  ? "Loading merchants…"
+                                  : "None of the merchants in this list are in the directory yet."}
+                              </p>
+                            ) : (
+                              listMerchants.map(merchant => (
+                                <MerchantCard
+                                  key={merchant.id}
+                                  merchant={merchant}
+                                  expanded={expandedMerchant === String(merchant.id)}
+                                  onToggleExpand={() =>
+                                    setExpandedMerchant(
+                                      expandedMerchant === String(merchant.id) ? null : String(merchant.id)
+                                    )
+                                  }
+                                  badgePresets={badgePresets}
+                                />
+                              ))
+                            )}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </motion.div>
                 );
               })}
