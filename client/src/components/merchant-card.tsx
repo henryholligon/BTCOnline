@@ -373,7 +373,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
             <div className="pt-1 md:hidden">
               <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
                 <a href={merchant.website} target="_blank" rel="noopener noreferrer" data-testid={`link-visit-mobile-${merchant.id}`}>
-                  Visit Website <ExternalLink className="ml-2 h-3 w-3" />
+                  Visit <ExternalLink className="ml-2 h-3 w-3" />
                 </a>
               </Button>
             </div>
@@ -385,7 +385,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 onClick={() => setShowShare(true)}
                 data-testid={`button-share-mobile-${merchant.id}`}
               >
-                Share Merchant
+                Share
                 <Share2 className="ml-1 h-3.5 w-3.5" />
               </Button>
             </div>
@@ -459,7 +459,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
             <div className="pt-1 md:col-start-1 hidden md:block">
               <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
                 <a href={merchant.website} target="_blank" rel="noopener noreferrer" data-testid={`link-visit-${merchant.id}`}>
-                  Visit Website <ExternalLink className="ml-2 h-3 w-3" />
+                  Visit <ExternalLink className="ml-2 h-3 w-3" />
                 </a>
               </Button>
             </div>
@@ -471,7 +471,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 onClick={() => setShowShare(true)}
                 data-testid={`button-share-${merchant.id}`}
               >
-                Share Merchant
+                Share
                 <Share2 className="ml-1 h-3.5 w-3.5" />
               </Button>
             </div>
