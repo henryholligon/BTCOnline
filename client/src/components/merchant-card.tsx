@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { type Merchant, type BadgePreset } from "@shared/schema";
 import { useCategoryEmojis } from "@/hooks/use-category-emojis";
 import { useCountryEmojis } from "@/hooks/use-country-emojis";
-import { ExternalLink, Zap, Clock, Copy, Check, QrCode, Heart, ListPlus } from "lucide-react";
+import { ExternalLink, Zap, Clock, Copy, Check, QrCode, Heart, Bookmark } from "lucide-react";
 import BitcoinLogo from "@/components/bitcoin-logo";
 import { useRef, useEffect, useState, memo } from "react";
 import { slugify } from "@/lib/utils";
@@ -203,7 +203,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 onClick={openLoginModal}
                 data-testid={`button-add-to-list-${merchant.id}`}
               >
-                <ListPlus className="h-4 w-4" />
+                <Bookmark className="h-4 w-4" />
               </button>
             ) : (
               <Popover>
@@ -214,7 +214,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                     title="Save to list"
                     data-testid={`button-add-to-list-${merchant.id}`}
                   >
-                    <ListPlus className="h-4 w-4" />
+                    <Bookmark className="h-4 w-4" />
                   </button>
                 </PopoverTrigger>
                 <PopoverContent className="w-52 p-2" align="end">
@@ -375,7 +375,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                   onClick={openLoginModal}
                   data-testid={`button-add-to-list-mobile-${merchant.id}`}
                 >
-                  <ListPlus className="h-3.5 w-3.5" />
+                  <Bookmark className="h-3.5 w-3.5" />
                   Save
                 </Button>
               ) : (
@@ -387,7 +387,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                       className="gap-1.5"
                       data-testid={`button-add-to-list-mobile-${merchant.id}`}
                     >
-                      <ListPlus className="h-3.5 w-3.5" />
+                      <Bookmark className="h-3.5 w-3.5" />
                       Save
                     </Button>
                   </PopoverTrigger>
