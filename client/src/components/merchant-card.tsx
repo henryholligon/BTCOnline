@@ -174,7 +174,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
             )}
             {merchant.lightningSupported && (
               <span className="shrink-0 flex items-center gap-0">
-                <Zap className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400 animate-lightning-zap drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]" />
+                <Zap className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400 animate-lightning-zap drop-shadow-[0_0_8px_rgba(250,204,21,0.8)] dark:drop-shadow-none" />
                 {merchant.name === "Obscura VPN" && (
                   <img src="/assets/firedone.apng" alt="" className="h-5 object-contain" style={{ marginLeft: "-2px", marginTop: "-3px" }} />
                 )}

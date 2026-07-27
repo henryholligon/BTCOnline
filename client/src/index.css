@@ -227,30 +227,35 @@ html.theme-transition-none *::after {
 }
 
 /* Dark mode: remove glow from lightning bolt animation */
-.dark {
-  --animate-lightning-zap: lightning-zap-no-glow 1.5s ease-in-out infinite;
+.dark .animate-lightning-zap {
+  animation: lightning-zap-no-glow 1.5s ease-in-out infinite !important;
 }
 
 @keyframes lightning-zap-no-glow {
   0%, 100% {
     opacity: 1;
     transform: scale(1);
+    filter: none;
   }
   10%, 90% {
     opacity: 0.9;
     transform: scale(1.1);
+    filter: none;
   }
   15% {
     opacity: 1;
     transform: scale(1.2) translate(1px, -1px);
+    filter: none;
   }
   20% {
     opacity: 0.8;
     transform: scale(1.1) translate(-1px, 1px);
+    filter: none;
   }
   25% {
     opacity: 1;
     transform: scale(1.25) translate(0, 0);
+    filter: none;
   }
 }
 
