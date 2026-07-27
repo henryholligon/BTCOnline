@@ -2,82 +2,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { type Merchant } from "@shared/schema";
 import { useCategoryEmojis } from "@/hooks/use-category-emojis";
+import { useCountryEmojis } from "@/hooks/use-country-emojis";
 import { ChevronDown, X, Zap } from "lucide-react";
 import BitcoinLogo from "@/components/bitcoin-logo";
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
 
-const COUNTRY_FLAGS: Record<string, string> = {
-  "Worldwide": "🌍",
-  "United States": "🇺🇸",
-  "United Kingdom": "🇬🇧",
-  "Canada": "🇨🇦",
-  "Australia": "🇦🇺",
-  "Europe": "🇪🇺",
-  "Sweden": "🇸🇪",
-  "Switzerland": "🇨🇭",
-  "Singapore": "🇸🇬",
-  "New Zealand": "🇳🇿",
-  "Netherlands": "🇳🇱",
-  "Lithuania": "🇱🇹",
-  "Mexico": "🇲🇽",
-  "Columbia": "🇨🇴",
-  "Monaco": "🇲🇨",
-  "United Arab Emirates": "🇦🇪",
-  "Curacoa": "🇨🇼",
-  "El Salvador": "🇸🇻",
-  "Norway": "🇳🇴",
-  "Italy": "🇮🇹",
-  "Croatia": "🇭🇷",
-  "Austria": "🇦🇹",
-  "Germany": "🇩🇪",
-  "Ireland": "🇮🇪",
-  "South Africa": "🇿🇦",
-  "France": "🇫🇷",
-  "Japan": "🇯🇵",
-  "Brazil": "🇧🇷",
-  "India": "🇮🇳",
-  "South Korea": "🇰🇷",
-  "Spain": "🇪🇸",
-  "Portugal": "🇵🇹",
-  "Poland": "🇵🇱",
-  "Czech Republic": "🇨🇿",
-  "Denmark": "🇩🇰",
-  "Finland": "🇫🇮",
-  "Israel": "🇮🇱",
-  "China": "🇨🇳",
-  "Taiwan": "🇹🇼",
-  "Thailand": "🇹🇭",
-  "Hong Kong": "🇭🇰",
-  "Philippines": "🇵🇭",
-  "Malaysia": "🇲🇾",
-  "Indonesia": "🇮🇩",
-  "Vietnam": "🇻🇳",
-  "Argentina": "🇦🇷",
-  "Chile": "🇨🇱",
-  "Colombia": "🇨🇴",
-  "Turkey": "🇹🇷",
-  "Romania": "🇷🇴",
-  "Hungary": "🇭🇺",
-  "Greece": "🇬🇷",
-  "Belgium": "🇧🇪",
-  "Iceland": "🇮🇸",
-  "Estonia": "🇪🇪",
-  "Latvia": "🇱🇻",
-  "Costa Rica": "🇨🇷",
-  "Panama": "🇵🇦",
-  "Uruguay": "🇺🇾",
-  "Peru": "🇵🇪",
-  "Nigeria": "🇳🇬",
-  "Kenya": "🇰🇪",
-  "Ghana": "🇬🇭",
-  "Egypt": "🇪🇬",
-};
-
-function getCountryWithFlag(country: string): string {
-  const flag = COUNTRY_FLAGS[country];
-  return flag ? `${flag} ${country}` : country;
-}
 
 interface FiltersProps {
   merchants: Merchant[];
@@ -267,6 +197,7 @@ export default function Filters({
   onSortChange,
 }: FiltersProps) {
   const { getCategoryWithEmoji } = useCategoryEmojis();
+  const { getCountryWithFlag } = useCountryEmojis();
   const dynamicCategories = useMemo(() => {
     const catSet = new Set<string>();
     merchants.forEach(m => m.categories.forEach(c => catSet.add(c)));

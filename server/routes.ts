@@ -10,7 +10,8 @@ import { runSheetSync } from "./sheetSync";
 import { uploadLogoBuffer, listLogos, cloudinaryConfigured } from "./cloudinary";
 import bcrypt from "bcrypt";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
+import { merchants as merchantsTable } from "@shared/schema";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -153,6 +154,24 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
       console.error("GitHub issue creation failed:", err);
       return res.status(502).json({ message: "Failed to reach submission service — please try again" });
     }
+  });
+
+  app.get("/api/categories", async (_req, res) => {
+    const result = await db.execute(sql`
+      SELECT DISTINCT unnest(categories) AS category FROM merchants ORDER BY category
+    `);
+    res.json((result.rows as any[]).map(r => r.category).filter(Boolean));
+  });
+
+  app.get("/api/countries", async (_req, res) => {
+    const result = await db.execute(sql`
+      SELECT DISTINCT country FROM (
+        SELECT unnest(shipping_countries) AS country FROM merchants
+        UNION
+        SELECT country_made_in AS country FROM merchants WHERE country_made_in IS NOT NULL AND country_made_in != ''
+      ) t WHERE country != '' ORDER BY country
+    `);
+    res.json((result.rows as any[]).map(r => r.country).filter(Boolean));
   });
 
   app.get("/api/merchants", async (_req, res) => {

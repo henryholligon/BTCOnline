@@ -11,15 +11,20 @@ export function useCountryEmojis() {
 
   const getCountryEmoji = useCallback(
     (countryName: string): string => {
-      const pure = countryName.replace(/[^\w\s]/gi, "").trim();
-      return (
-        dbMap[pure.toLowerCase()] ??
-        dbMap[countryName.toLowerCase()] ??
-        "🏳️"
-      );
+      const key = countryName.toLowerCase().trim();
+      return dbMap[key] ?? dbMap[countryName] ?? "";
     },
     [data],
   );
 
-  return { getCountryEmoji };
+  // Returns "🇧🇿 Belize" — or just "Belize" if no emoji is known yet
+  const getCountryWithFlag = useCallback(
+    (countryName: string): string => {
+      const emoji = getCountryEmoji(countryName);
+      return emoji ? `${emoji} ${countryName}` : countryName;
+    },
+    [getCountryEmoji],
+  );
+
+  return { dbMap, getCountryEmoji, getCountryWithFlag };
 }

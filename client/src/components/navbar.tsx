@@ -13,8 +13,9 @@ import { decryptEmailNsec } from "@/lib/emailAuth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTheme } from "next-themes";
 import { useToast } from "@/hooks/use-toast";
-import { CATEGORIES } from "@/lib/mock-data";
 import { useCategoryEmojis } from "@/hooks/use-category-emojis";
+import { useCountryEmojis } from "@/hooks/use-country-emojis";
+import { useQuery } from "@tanstack/react-query";
 import "altcha";
 
 interface NavbarProps {
@@ -29,30 +30,6 @@ const PAYMENT_OPTIONS = [
   { value: "Cashu", label: "🥜 Cashu" },
   { value: "Liquid", label: "💧 Liquid" },
 ];
-
-const COUNTRY_FLAGS: Record<string, string> = {
-  "Worldwide": "🌍", "United States": "🇺🇸", "United Kingdom": "🇬🇧", "Canada": "🇨🇦",
-  "Australia": "🇦🇺", "Europe": "🇪🇺", "Sweden": "🇸🇪", "Switzerland": "🇨🇭",
-  "Singapore": "🇸🇬", "New Zealand": "🇳🇿", "Netherlands": "🇳🇱", "Lithuania": "🇱🇹",
-  "Mexico": "🇲🇽", "Colombia": "🇨🇴", "Monaco": "🇲🇨", "United Arab Emirates": "🇦🇪",
-  "El Salvador": "🇸🇻", "Norway": "🇳🇴", "Italy": "🇮🇹", "Croatia": "🇭🇷",
-  "Austria": "🇦🇹", "Germany": "🇩🇪", "Ireland": "🇮🇪", "South Africa": "🇿🇦",
-  "France": "🇫🇷", "Japan": "🇯🇵", "Brazil": "🇧🇷", "India": "🇮🇳",
-  "South Korea": "🇰🇷", "Spain": "🇪🇸", "Portugal": "🇵🇹", "Poland": "🇵🇱",
-  "Czech Republic": "🇨🇿", "Denmark": "🇩🇰", "Finland": "🇫🇮", "Israel": "🇮🇱",
-  "China": "🇨🇳", "Taiwan": "🇹🇼", "Thailand": "🇹🇭", "Hong Kong": "🇭🇰",
-  "Philippines": "🇵🇭", "Malaysia": "🇲🇾", "Indonesia": "🇮🇩", "Vietnam": "🇻🇳",
-  "Argentina": "🇦🇷", "Chile": "🇨🇱", "Turkey": "🇹🇷", "Romania": "🇷🇴",
-  "Hungary": "🇭🇺", "Greece": "🇬🇷", "Belgium": "🇧🇪", "Iceland": "🇮🇸",
-  "Estonia": "🇪🇪", "Latvia": "🇱🇻", "Costa Rica": "🇨🇷", "Panama": "🇵🇦",
-  "Uruguay": "🇺🇾", "Peru": "🇵🇪", "Nigeria": "🇳🇬", "Kenya": "🇰🇪",
-  "Ghana": "🇬🇭", "Egypt": "🇪🇬",
-};
-
-const COUNTRY_OPTIONS = Object.entries(COUNTRY_FLAGS).map(([name, flag]) => ({
-  value: name,
-  label: `${flag} ${name}`,
-}));
 
 const PROVIDER_OPTIONS = [
   "BTCPay Server", "Bitcashier", "CoinCorner", "Coingate", "CoinsPaid",
@@ -493,6 +470,9 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
   const [altchaVerified, setAltchaVerified] = useState(false);
   const altchaRef = useRef<HTMLElement>(null);
   const { getCategoryWithEmoji } = useCategoryEmojis();
+  const { getCountryWithFlag } = useCountryEmojis();
+  const { data: dynamicCategories = [] } = useQuery<string[]>({ queryKey: ["/api/categories"] });
+  const { data: dynamicCountries = [] } = useQuery<string[]>({ queryKey: ["/api/countries"] });
   const logoRef = useRef<HTMLButtonElement>(null);
   const logoPanelRef = useRef<HTMLDivElement>(null);
   const [logoPos, setLogoPos] = useState({ top: 0, left: 0 });
@@ -594,7 +574,8 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
     }
   };
 
-  const categoryOptions = CATEGORIES.map(c => ({ value: c, label: getCategoryWithEmoji(c) }));
+  const categoryOptions = dynamicCategories.map(c => ({ value: c, label: getCategoryWithEmoji(c) }));
+  const countryOptions = dynamicCountries.map(c => ({ value: c, label: getCountryWithFlag(c) }));
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
@@ -678,7 +659,7 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                 <div className="space-y-2">
                   <Label>Ships to <span className="text-xs text-muted-foreground">(optional)</span></Label>
                   <MultiSelect
-                    options={COUNTRY_OPTIONS}
+                    options={countryOptions}
                     selected={shippingCountries}
                     onChange={setShippingCountries}
                     placeholder="Search countries…"
@@ -691,7 +672,7 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                   <div className="space-y-2">
                     <Label>Made in <span className="text-xs text-muted-foreground">(optional)</span></Label>
                     <SearchableSelect
-                      options={COUNTRY_OPTIONS}
+                      options={countryOptions}
                       value={countryMadeIn}
                       onChange={setCountryMadeIn}
                       placeholder="Country…"
