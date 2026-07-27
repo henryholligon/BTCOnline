@@ -79,7 +79,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
   const cardRef = useRef<HTMLDivElement>(null);
   const { getCategoryWithEmoji } = useCategoryEmojis();
   const { getCountryEmoji } = useCountryEmojis();
-  const { user, favourites, toggleFavourite, lists, toggleListMember, openLoginModal } = useNostr();
+  const { user, favourites, toggleFavourite, lists, toggleListMember, openLoginModal, likeCounts, fetchLikeCount } = useNostr();
 
   useEffect(() => {
     if (expanded && scrollIntoView && cardRef.current) {
@@ -89,6 +89,13 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
       }, 300);
     }
   }, [expanded, scrollIntoView, onScrolledIntoView]);
+
+  // Fetch public like count lazily when the card is expanded
+  useEffect(() => {
+    if (expanded && !likeCounts.has(merchant.website)) {
+      fetchLikeCount(merchant.website);
+    }
+  }, [expanded, merchant.website, likeCounts, fetchLikeCount]);
 
   const merchantUrl = `${window.location.origin}/merchant/${slugify(merchant.name)}`;
 
@@ -177,12 +184,15 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
         <div className="shrink-0 self-start mt-1 hidden md:flex items-center gap-1">
           <button
             type="button"
-            className={`h-8 w-8 flex items-center justify-center rounded-lg transition-colors ${user && favourites.has(merchant.website) ? "text-red-500 hover:text-red-600" : "text-muted-foreground/40 hover:text-red-400"}`}
+            className={`flex items-center gap-1 h-8 px-1.5 rounded-lg transition-colors ${user && favourites.has(merchant.website) ? "text-red-500 hover:text-red-600" : "text-muted-foreground/40 hover:text-red-400"}`}
             onClick={(e) => { e.stopPropagation(); toggleFavourite(merchant.website); }}
             title={user ? (favourites.has(merchant.website) ? "Remove from favourites" : "Add to favourites") : "Sign in to save favourites"}
             data-testid={`button-favourite-${merchant.id}`}
           >
             <Heart className={`h-4 w-4 ${user && favourites.has(merchant.website) ? "fill-current" : ""}`} />
+            {(likeCounts.get(merchant.website) ?? 0) > 0 && (
+              <span className="text-[10px] font-medium leading-none">{likeCounts.get(merchant.website)}</span>
+            )}
           </button>
           <div onClick={e => e.stopPropagation()}>
             {!user ? (

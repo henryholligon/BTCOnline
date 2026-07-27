@@ -24,8 +24,6 @@ export function hexToBytes(hex: string): Uint8Array {
 
 export async function poolGet(relays: string[], filter: Filter, timeout = 5000): Promise<Event | null> {
   try {
-    // Collect all responses within the window and return the one with the
-    // highest created_at so we never serve stale replaceable-event data.
     const events = await pool.querySync(relays, filter, { maxWait: timeout });
     if (events.length === 0) return null;
     return events.reduce((best, e) => (e.created_at > best.created_at ? e : best));
@@ -72,14 +70,31 @@ export async function fetchRelayList(pubkey: string): Promise<{ read: string[]; 
   };
 }
 
-export async function fetchFavourites(pubkey: string, relays: string[]): Promise<Set<string>> {
+export interface FavouritesResult {
+  urls: Set<string>;
+  event: Event | null;
+  isPrivate: boolean;
+}
+
+/**
+ * Fetch the user's favourites (Kind 10003).
+ * If the event is private (encrypted), `isPrivate` is true and `urls` is empty —
+ * the caller must decrypt `event.content` with NIP-44.
+ */
+export async function fetchFavourites(pubkey: string, relays: string[]): Promise<FavouritesResult> {
   const event = await poolGet(relays, { kinds: [10003], authors: [pubkey] });
+  if (!event) return { urls: new Set(), event: null, isPrivate: false };
+
+  const isPrivate = event.tags.some(t => t[0] === 'private' && t[1] === 'true');
+  if (isPrivate) {
+    return { urls: new Set(), event, isPrivate: true };
+  }
+
   const urls = new Set<string>();
-  if (!event) return urls;
   for (const tag of event.tags) {
     if (tag[0] === 'r') urls.add(tag[1]);
   }
-  return urls;
+  return { urls, event, isPrivate: false };
 }
 
 export async function fetchUserLists(pubkey: string, relays: string[]): Promise<Event[]> {
@@ -101,11 +116,66 @@ export async function fetchUserLists(pubkey: string, relays: string[]): Promise<
   );
 }
 
+/**
+ * Fetch all public (non-private, non-deleted) Kind 30004 lists from relays,
+ * deduplicated by author+dTag keeping the latest.
+ */
+export async function fetchPublicLists(relays: string[]): Promise<Event[]> {
+  const events = await poolQuerySync(relays, { kinds: [30004], limit: 300 } as Filter, 8000);
+
+  // Step 1: deduplicate by author+dTag keeping only the LATEST revision.
+  // This must happen before any filtering so that a list toggled to private/deleted
+  // is correctly represented by its newest (private/deleted) event and not a stale
+  // older public revision.
+  const latestByKey = new Map<string, Event>();
+  for (const event of events) {
+    const dTag = event.tags.find(t => t[0] === 'd')?.[1] ?? event.id;
+    const key = `${event.pubkey}:${dTag}`;
+    const existing = latestByKey.get(key);
+    if (!existing || event.created_at > existing.created_at) {
+      latestByKey.set(key, event);
+    }
+  }
+
+  // Step 2: now filter — only keep lists whose LATEST revision is public, not
+  // deleted, and has a non-empty title.
+  return Array.from(latestByKey.values())
+    .filter(e =>
+      !e.tags.some(t => t[0] === 'private' && t[1] === 'true') &&
+      !e.tags.some(t => t[0] === 'deleted' && t[1] === 'true') &&
+      e.tags.some(t => t[0] === 'title' && t[1])
+    )
+    .sort((a, b) => b.created_at - a.created_at);
+}
+
+/**
+ * Fetch the number of public likes for a merchant URL.
+ * Only counts Kind 10003 events that are NOT private-encrypted.
+ */
+export async function fetchLikeCount(url: string, relays: string[]): Promise<number> {
+  try {
+    // '#r' is a NIP-12 tag filter — supported by all major relays
+    const events = await pool.querySync(
+      relays,
+      { kinds: [10003], '#r': [url] } as Filter,
+      { maxWait: 5000 },
+    );
+    // Only count public (non-encrypted) events
+    return events.filter(e => !e.tags.some(t => t[0] === 'private' && t[1] === 'true')).length;
+  } catch {
+    return 0;
+  }
+}
+
 export function getListTitle(event: Event): string {
   const titleTag = event.tags.find(t => t[0] === 'title');
   if (titleTag?.[1]) return titleTag[1];
   const dTag = event.tags.find(t => t[0] === 'd');
   return dTag?.[1] || 'Untitled List';
+}
+
+export function getListDescription(event: Event): string {
+  return event.tags.find(t => t[0] === 'description')?.[1] || '';
 }
 
 export function getListUrls(event: Event): string[] {

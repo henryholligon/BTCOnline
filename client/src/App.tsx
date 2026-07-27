@@ -10,6 +10,8 @@ import Home from "@/pages/home";
 import Admin from "@/pages/admin";
 import Lists from "@/pages/lists";
 import Favourites from "@/pages/favourites";
+import Discover from "@/pages/discover";
+import Account from "@/pages/account";
 import { NostrProvider } from "@/context/NostrContext";
 
 function Router() {
@@ -19,6 +21,8 @@ function Router() {
       <Route path="/merchant/:slug" component={Home} />
       <Route path="/favourites" component={Favourites} />
       <Route path="/lists" component={Lists} />
+      <Route path="/discover" component={Discover} />
+      <Route path="/account" component={Account} />
       <Route path="/x7k2m9p4r1qn" component={Admin} />
       <Route path="/reset-password" component={ResetPassword} />
       <Route component={NotFound} />

@@ -429,6 +429,14 @@ function NostrUserButton() {
             >
               📋 My Lists
             </Link>
+            <Link
+              href="/discover"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-muted transition-colors"
+              data-testid="link-discover-lists"
+            >
+              🔍 Discover Lists
+            </Link>
             {loginMethod === "generated" && (
               <button
                 onClick={() => { setKeysOpen(true); setOpen(false); }}
@@ -438,6 +446,15 @@ function NostrUserButton() {
                 🔑 My Keys
               </button>
             )}
+            <div className="border-t border-border/50 my-1" />
+            <Link
+              href="/account"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-muted transition-colors"
+              data-testid="link-account-settings"
+            >
+              ⚙️ Account Settings
+            </Link>
             <button
               onClick={() => { logout(); setOpen(false); }}
               className="w-full text-left flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-muted transition-colors text-muted-foreground"
