@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowLeft, Compass, Loader2, Bookmark, BookmarkCheck, Users } from "lucide-react";
+import { ArrowLeft, Compass, Loader2, Bookmark, BookmarkCheck } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/navbar";
 import { useNostr } from "@/context/NostrContext";
 import type { SavedPublicList } from "@/context/NostrContext";
 import { fetchPublicLists, fetchProfile, DEFAULT_RELAYS } from "@/lib/nostr";
 import { npubEncode } from "nostr-tools/nip19";
 import type { Event } from "nostr-tools";
+import type { Merchant } from "@shared/schema";
 import btcBgImage from "@assets/image_1771226498805.png";
 
 interface ListCard {
@@ -19,6 +21,7 @@ interface ListCard {
   description: string;
   merchantCount: number;
   dTag: string;
+  listUrls: string[]; // first 4, for logo grid
 }
 
 const PROFILE_CACHE = new Map<string, { name: string; picture?: string }>();
@@ -34,11 +37,48 @@ async function getProfile(pubkey: string): Promise<{ name: string; picture?: str
   return result;
 }
 
+/** 2×2 grid of merchant logos, matching the Zapstore card style. */
+function LogoGrid({ urls, merchants }: { urls: string[]; merchants: Merchant[] }) {
+  const slots = Array.from({ length: 4 }, (_, i) => {
+    const url = urls[i];
+    if (!url) return null;
+    const merchant = merchants.find(m => m.website === url);
+    return merchant ?? null;
+  });
+
+  return (
+    <div className="shrink-0 grid grid-cols-2 gap-1 w-[72px] h-[72px]">
+      {slots.map((merchant, i) => (
+        <div
+          key={i}
+          className="rounded-lg bg-muted flex items-center justify-center overflow-hidden"
+        >
+          {merchant?.logo ? (
+            <img
+              src={merchant.logo}
+              alt={merchant.name}
+              className="w-full h-full object-contain p-0.5"
+            />
+          ) : merchant ? (
+            <span className="text-[10px] font-bold text-muted-foreground leading-none text-center px-0.5 truncate">
+              {merchant.name.slice(0, 3)}
+            </span>
+          ) : (
+            <span className="text-[10px] text-muted-foreground/40">₿</span>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function DiscoverPage() {
   const { user, savedLists, savePublicList, unsavePublicList } = useNostr();
   const [cards, setCards] = useState<ListCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const { data: merchants = [] } = useQuery<Merchant[]>({ queryKey: ["/api/merchants"] });
 
   useEffect(() => {
     let cancelled = false;
@@ -53,9 +93,10 @@ export default function DiscoverPage() {
           const title = ev.tags.find(t => t[0] === 'title')?.[1] || '';
           const description = ev.tags.find(t => t[0] === 'description')?.[1] || '';
           const dTag = ev.tags.find(t => t[0] === 'd')?.[1] ?? ev.id;
-          const merchantCount = ev.tags.filter(t => t[0] === 'r').length;
-          // Defense-in-depth: skip any event that slipped through with no URLs
+          const allUrls = ev.tags.filter(t => t[0] === 'r').map(t => t[1]);
+          const merchantCount = allUrls.length;
           if (merchantCount === 0) return;
+          const listUrls = allUrls.slice(0, 4);
           try {
             const profile = await getProfile(ev.pubkey);
             results.push({
@@ -67,6 +108,7 @@ export default function DiscoverPage() {
               description,
               merchantCount,
               dTag,
+              listUrls,
             });
           } catch {
             results.push({
@@ -77,16 +119,16 @@ export default function DiscoverPage() {
               description,
               merchantCount,
               dTag,
+              listUrls,
             });
           }
         }));
         if (!cancelled) {
-          // Sort by merchant count descending, then by date
           results.sort((a, b) => b.merchantCount - a.merchantCount || b.event.created_at - a.event.created_at);
           setCards(results);
         }
       })
-      .catch(err => {
+      .catch(() => {
         if (!cancelled) setError('Failed to load public lists. Please try again.');
       })
       .finally(() => { if (!cancelled) setLoading(false); });
@@ -179,30 +221,22 @@ export default function DiscoverPage() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: Math.min(idx * 0.04, 0.4) }}
-                    className="bg-card border border-border rounded-lg p-4 hover:border-primary/30 transition-colors"
+                    className="bg-card border border-border rounded-xl p-4 hover:border-primary/30 transition-colors"
                   >
-                    <div className="flex items-start gap-3">
-                      {/* Curator avatar */}
-                      <div className="shrink-0">
-                        {card.authorPicture ? (
-                          <img
-                            src={card.authorPicture}
-                            alt={card.authorName}
-                            className="h-9 w-9 rounded-full object-cover border border-border"
-                          />
-                        ) : (
-                          <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary border border-border">
-                            {card.authorName[0]?.toUpperCase() || '⚡'}
-                          </div>
-                        )}
-                      </div>
+                    <div className="flex items-center gap-4">
+                      {/* 2×2 logo grid */}
+                      <LogoGrid urls={card.listUrls} merchants={merchants} />
 
-                      {/* Content */}
+                      {/* Text content */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
-                            <p className="font-semibold text-sm truncate">{card.title}</p>
-                            <p className="text-xs text-muted-foreground truncate">{card.authorName}</p>
+                            <p className="font-bold text-base leading-tight truncate">{card.title}</p>
+                            {card.description && (
+                              <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2 leading-snug">
+                                {card.description}
+                              </p>
+                            )}
                           </div>
                           <button
                             onClick={() => handleToggleSave(card)}
@@ -217,19 +251,22 @@ export default function DiscoverPage() {
                           </button>
                         </div>
 
-                        {card.description && (
-                          <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2">{card.description}</p>
-                        )}
-
-                        <div className="flex items-center gap-3 mt-2">
-                          <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <Users className="h-3 w-3" />
+                        {/* Curator badge */}
+                        <div className="flex items-center gap-1.5 mt-2">
+                          {card.authorPicture ? (
+                            <img
+                              src={card.authorPicture}
+                              alt={card.authorName}
+                              className="h-4 w-4 rounded-full object-cover border border-border"
+                            />
+                          ) : (
+                            <div className="h-4 w-4 rounded-full bg-primary flex items-center justify-center text-[8px] font-bold text-primary-foreground shrink-0">
+                              {card.authorName[0]?.toUpperCase() || '⚡'}
+                            </div>
+                          )}
+                          <span className="text-xs text-muted-foreground truncate">{card.authorName}</span>
+                          <span className="text-xs text-muted-foreground/40 ml-auto shrink-0">
                             {card.merchantCount} {card.merchantCount === 1 ? "merchant" : "merchants"}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {new Date(card.event.created_at * 1000).toLocaleDateString("en-GB", {
-                              day: "numeric", month: "short", year: "numeric",
-                            })}
                           </span>
                         </div>
                       </div>
