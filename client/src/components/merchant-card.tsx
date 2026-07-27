@@ -511,25 +511,27 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
 
               {/* Social buttons + copy */}
               <div className="flex-1 flex flex-col gap-3">
-                <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                <div className="flex flex-wrap gap-4 justify-start">
                   {[
-                    { label: "X", icon: <IconX />, bg: "bg-black text-white", href: `https://twitter.com/intent/tweet?text=Check+out+${encodeURIComponent(merchant.name)}&url=${encodeURIComponent(merchantUrl)}` },
-                    { label: "WhatsApp", icon: <IconWhatsApp />, bg: "bg-[#25D366] text-white", href: `https://wa.me/?text=${encodeURIComponent(merchant.name + ' ' + merchantUrl)}` },
-                    { label: "Facebook", icon: <IconFacebook />, bg: "bg-[#1877F2] text-white", href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(merchantUrl)}` },
-                    { label: "LinkedIn", icon: <IconLinkedIn />, bg: "bg-[#0A66C2] text-white", href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(merchantUrl)}` },
-                    { label: "Reddit", icon: <IconReddit />, bg: "bg-[#FF4500] text-white", href: `https://reddit.com/submit?url=${encodeURIComponent(merchantUrl)}&title=${encodeURIComponent(merchant.name)}` },
-                    { label: "Email", icon: <Mail className="h-4 w-4" />, bg: "bg-muted text-foreground border border-border", href: `mailto:?subject=${encodeURIComponent(merchant.name)}&body=${encodeURIComponent(merchantUrl)}` },
+                    { label: "X", icon: <IconX />, bg: "bg-black", href: `https://twitter.com/intent/tweet?text=Check+out+${encodeURIComponent(merchant.name)}&url=${encodeURIComponent(merchantUrl)}` },
+                    { label: "WhatsApp", icon: <IconWhatsApp />, bg: "bg-[#25D366]", href: `https://wa.me/?text=${encodeURIComponent(merchant.name + ' ' + merchantUrl)}` },
+                    { label: "Facebook", icon: <IconFacebook />, bg: "bg-[#1877F2]", href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(merchantUrl)}` },
+                    { label: "LinkedIn", icon: <IconLinkedIn />, bg: "bg-[#0A66C2]", href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(merchantUrl)}` },
+                    { label: "Reddit", icon: <IconReddit />, bg: "bg-[#FF4500]", href: `https://reddit.com/submit?url=${encodeURIComponent(merchantUrl)}&title=${encodeURIComponent(merchant.name)}` },
+                    { label: "Email", icon: <Mail className="h-5 w-5" />, bg: "bg-muted border border-border", href: `mailto:?subject=${encodeURIComponent(merchant.name)}&body=${encodeURIComponent(merchantUrl)}` },
                   ].map(({ label, icon, bg, href }) => (
                     <a
                       key={label}
                       href={href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`flex flex-col items-center gap-1.5 py-2.5 px-1 rounded-lg text-[10px] font-medium transition-opacity hover:opacity-80 ${bg}`}
+                      className="flex flex-col items-center gap-1.5 transition-opacity hover:opacity-80"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      {icon}
-                      {label}
+                      <div className={`h-12 w-12 rounded-full flex items-center justify-center text-white ${bg}`}>
+                        {icon}
+                      </div>
+                      <span className="text-[11px] text-muted-foreground font-medium">{label}</span>
                     </a>
                   ))}
                 </div>
