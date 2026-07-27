@@ -1,14 +1,16 @@
 import { type Merchant, type InsertMerchant, merchants, type BadgePreset, type InsertBadgePreset, badgePresets, type DirectoryOption, type InsertDirectoryOption, directoryOptions, sheetSyncConfig, type SheetSyncConfig, categoryEmojis, type CategoryEmoji, type InsertCategoryEmoji, countryEmojis, type CountryEmoji, type InsertCountryEmoji } from "@shared/schema";
 import { db } from "./db";
-import { eq, asc, count } from "drizzle-orm";
+import { eq, asc, count, isNull } from "drizzle-orm";
 
 export interface IStorage {
   getMerchants(): Promise<Merchant[]>;
   getMerchant(id: number): Promise<Merchant | undefined>;
   getMerchantByName(name: string): Promise<Merchant | undefined>;
+  getMerchantsWithoutNostrId(): Promise<Merchant[]>;
   createMerchant(merchant: InsertMerchant): Promise<Merchant>;
   updateMerchant(id: number, merchant: Partial<InsertMerchant>): Promise<Merchant | undefined>;
   updateMerchantByName(name: string, merchant: Partial<InsertMerchant>): Promise<Merchant | undefined>;
+  updateNostrEventId(id: number, eventId: string): Promise<void>;
   deleteMerchant(id: number): Promise<void>;
   getMerchantCount(): Promise<number>;
   deleteAllMerchants(): Promise<void>;
@@ -53,6 +55,14 @@ export class DatabaseStorage implements IStorage {
   async getMerchantCount(): Promise<number> {
     const [result] = await db.select({ value: count() }).from(merchants);
     return result.value;
+  }
+
+  async getMerchantsWithoutNostrId(): Promise<Merchant[]> {
+    return await db.select().from(merchants).where(isNull(merchants.nostrEventId)).orderBy(asc(merchants.id));
+  }
+
+  async updateNostrEventId(id: number, eventId: string): Promise<void> {
+    await db.update(merchants).set({ nostrEventId: eventId }).where(eq(merchants.id, id));
   }
 
   async getMerchantByName(name: string): Promise<Merchant | undefined> {

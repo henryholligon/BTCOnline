@@ -7,6 +7,14 @@ import path from "path";
 import { createChallenge, verifySolution } from "altcha-lib";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { runSheetSync } from "./sheetSync";
+import { publishMerchant, publishMerchants, nostrConfigured, getMasterPubkey, getRelayUrl } from "./nostrPublish";
+import type { RequestHandler } from "express";
+
+/** Middleware that rejects requests unless the caller has an admin session. */
+const requireAdmin: RequestHandler = (req, res, next) => {
+  if (req.session?.isAdmin) return next();
+  res.status(401).json({ message: "Admin session required. Navigate to the admin page first." });
+};
 import { uploadLogoBuffer, listLogos, cloudinaryConfigured } from "./cloudinary";
 import bcrypt from "bcrypt";
 import { db } from "./db";
@@ -400,6 +408,82 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
     } catch (err: any) {
       res.status(500).json({ message: err.message });
     }
+  });
+
+  // ── Nostr publish endpoints ───────────────────────────────────────────────
+
+  app.get("/api/nostr/status", requireAdmin, async (_req, res) => {
+    res.json({
+      configured: nostrConfigured(),
+      pubkey: getMasterPubkey(),
+      relayUrl: getRelayUrl(),
+    });
+  });
+
+  app.post("/api/nostr/publish/:id", requireAdmin, async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ message: "Invalid merchant ID" });
+
+    const merchant = await storage.getMerchant(id);
+    if (!merchant) return res.status(404).json({ message: "Merchant not found" });
+
+    if (!nostrConfigured()) {
+      return res.status(503).json({ message: "NOSTR_MASTER_NSEC is not configured" });
+    }
+
+    const eventId = await publishMerchant(merchant);
+    if (!eventId) return res.status(502).json({ message: "Failed to publish to relay" });
+
+    await storage.updateNostrEventId(id, eventId);
+    res.json({ ok: true, eventId });
+  });
+
+  app.post("/api/nostr/publish-all", requireAdmin, async (_req, res) => {
+    if (!nostrConfigured()) {
+      return res.status(503).json({ message: "NOSTR_MASTER_NSEC is not configured" });
+    }
+
+    const all = await storage.getMerchants();
+    const results = await publishMerchants(all);
+
+    let published = 0;
+    let errors = 0;
+    for (const { id, eventId } of results) {
+      if (eventId) {
+        await storage.updateNostrEventId(id, eventId);
+        published++;
+      } else {
+        errors++;
+      }
+    }
+
+    res.json({ ok: true, published, errors, total: all.length });
+  });
+
+  app.post("/api/nostr/publish-unpublished", requireAdmin, async (_req, res) => {
+    if (!nostrConfigured()) {
+      return res.status(503).json({ message: "NOSTR_MASTER_NSEC is not configured" });
+    }
+
+    const unpublished = await storage.getMerchantsWithoutNostrId();
+    if (unpublished.length === 0) {
+      return res.json({ ok: true, published: 0, errors: 0, total: 0 });
+    }
+
+    const results = await publishMerchants(unpublished);
+
+    let published = 0;
+    let errors = 0;
+    for (const { id, eventId } of results) {
+      if (eventId) {
+        await storage.updateNostrEventId(id, eventId);
+        published++;
+      } else {
+        errors++;
+      }
+    }
+
+    res.json({ ok: true, published, errors, total: unpublished.length });
   });
 
   app.post("/api/sheet-sync/trigger", async (_req, res) => {

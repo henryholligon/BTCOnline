@@ -1,4 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
+import session from "express-session";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
@@ -6,6 +7,13 @@ import { seed } from "./seed";
 import { startSheetSyncPoller } from "./sheetSync";
 import { db } from "./db";
 import { sql } from "drizzle-orm";
+
+// Augment the express-session type so TypeScript knows about our custom field.
+declare module "express-session" {
+  interface SessionData {
+    isAdmin?: boolean;
+  }
+}
 
 const app = express();
 const httpServer = createServer(app);
@@ -25,6 +33,31 @@ app.use(
 );
 
 app.use(express.urlencoded({ extended: false }));
+
+// Session middleware — used to track admin authentication.
+// The session is established when the admin navigates to the secret admin URL.
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "btconline-dev-session-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 8 * 60 * 60 * 1000, // 8 hours
+    },
+  }),
+);
+
+// Grant an admin session to anyone who navigates directly to the secret admin URL.
+// This keeps the auth model consistent with the existing "URL = identity" approach
+// while adding a server-enforceable gate on privileged endpoints.
+app.use((req, _res, next) => {
+  if (req.path === "/x7k2m9p4r1qn" || req.path.startsWith("/x7k2m9p4r1qn/")) {
+    req.session.isAdmin = true;
+  }
+  next();
+});
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
@@ -73,6 +106,15 @@ app.use((req, res, next) => {
       last_sync_status TEXT,
       last_sync_count INTEGER
     )
+  `);
+  await db.execute(sql`
+    ALTER TABLE merchants ADD COLUMN IF NOT EXISTS nostr_event_id TEXT
+  `);
+  await db.execute(sql`
+    ALTER TABLE sheet_sync_config ADD COLUMN IF NOT EXISTS emoji_csv_url TEXT NOT NULL DEFAULT ''
+  `);
+  await db.execute(sql`
+    ALTER TABLE sheet_sync_config ADD COLUMN IF NOT EXISTS country_emoji_csv_url TEXT NOT NULL DEFAULT ''
   `);
   await db.execute(sql`
     CREATE TABLE IF NOT EXISTS users (

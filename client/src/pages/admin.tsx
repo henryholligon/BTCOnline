@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, FileSpreadsheet, Image, Check, AlertCircle, ArrowLeft, Trash2, Plus, Zap, Store, Pencil, Search, X, Tag, RefreshCw, Link2 } from "lucide-react";
+import { Upload, FileSpreadsheet, Image, Check, AlertCircle, ArrowLeft, Trash2, Plus, Zap, Store, Pencil, Search, X, Tag, RefreshCw, Link2, Radio } from "lucide-react";
 import BitcoinLogo from "@/components/bitcoin-logo";
 import Papa from "papaparse";
 import { Link } from "wouter";
@@ -128,6 +128,49 @@ export default function Admin() {
   const [syncSaving, setSyncSaving] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [syncResult, setSyncResult] = useState<{ success: boolean; message: string } | null>(null);
+
+  // ── Nostr publish ──
+  const [nostrStatus, setNostrStatus] = useState<{ configured: boolean; pubkey: string | null; relayUrl: string } | null>(null);
+  const [nostrPublishing, setNostrPublishing] = useState(false);
+  const [nostrResult, setNostrResult] = useState<{ success: boolean; message: string } | null>(null);
+
+  const fetchNostrStatus = useCallback(async () => {
+    try {
+      const res = await fetch("/api/nostr/status");
+      const data = await res.json();
+      setNostrStatus(data);
+    } catch {}
+  }, []);
+
+  useEffect(() => { if (activeTab === "sync") fetchNostrStatus(); }, [activeTab, fetchNostrStatus]);
+
+  const handlePublishAll = async () => {
+    setNostrPublishing(true); setNostrResult(null);
+    try {
+      const res = await fetch("/api/nostr/publish-all", { method: "POST" });
+      const data = await res.json();
+      if (data.ok) {
+        setNostrResult({ success: true, message: `Published ${data.published} of ${data.total} merchants${data.errors > 0 ? ` (${data.errors} failed)` : ""}.` });
+      } else {
+        setNostrResult({ success: false, message: data.message || "Publish failed." });
+      }
+    } catch { setNostrResult({ success: false, message: "Request failed." }); }
+    finally { setNostrPublishing(false); }
+  };
+
+  const handlePublishUnpublished = async () => {
+    setNostrPublishing(true); setNostrResult(null);
+    try {
+      const res = await fetch("/api/nostr/publish-unpublished", { method: "POST" });
+      const data = await res.json();
+      if (data.ok) {
+        setNostrResult({ success: true, message: data.total === 0 ? "All merchants are already published." : `Published ${data.published} of ${data.total} new merchant(s)${data.errors > 0 ? ` (${data.errors} failed)` : ""}.` });
+      } else {
+        setNostrResult({ success: false, message: data.message || "Publish failed." });
+      }
+    } catch { setNostrResult({ success: false, message: "Request failed." }); }
+    finally { setNostrPublishing(false); }
+  };
 
   const fetchSyncConfig = useCallback(async () => {
     try {
@@ -871,6 +914,62 @@ export default function Admin() {
                   {syncing ? "Syncing…" : "Sync Now"}
                 </Button>
               </div>
+            </Card>
+
+            {/* ── Nostr publish card ── */}
+            <Card className="p-6 space-y-5">
+              <div className="flex items-center gap-2">
+                <Radio className="h-5 w-5 text-primary" />
+                <CardTitle className="text-lg">Nostr Publishing</CardTitle>
+              </div>
+              <CardDescription>
+                Publish every merchant as a kind 30402 classified listing event, signed by the directory's master key. Each merchant uses its name as the <code className="text-xs bg-muted px-1 rounded">d</code> tag so re-publishing updates in place rather than duplicating.
+              </CardDescription>
+
+              {nostrStatus ? (
+                nostrStatus.configured ? (
+                  <div className="rounded-lg border border-green-300 bg-green-50 dark:bg-green-950/20 p-4 space-y-2 text-sm">
+                    <p className="font-medium text-green-700 dark:text-green-400">✅ Master key configured</p>
+                    <p className="text-muted-foreground text-xs font-mono break-all">Pubkey: {nostrStatus.pubkey}</p>
+                    <p className="text-muted-foreground text-xs">Relay: {nostrStatus.relayUrl}</p>
+                  </div>
+                ) : (
+                  <div className="rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-950/20 p-4 space-y-2 text-sm">
+                    <p className="font-medium text-amber-700 dark:text-amber-400">⚠️ Not configured</p>
+                    <p className="text-muted-foreground text-xs">
+                      Set <code className="bg-muted px-1 rounded">NOSTR_MASTER_NSEC</code> in your Replit secrets to enable publishing.
+                      Optionally set <code className="bg-muted px-1 rounded">NOSTR_RELAY_URL</code> to target a specific relay (defaults to <code className="bg-muted px-1 rounded">wss://relay.primal.net</code>).
+                    </p>
+                  </div>
+                )
+              ) : (
+                <div className="h-16 flex items-center justify-center text-sm text-muted-foreground">Checking status…</div>
+              )}
+
+              {nostrResult && <ResultBanner result={nostrResult} />}
+
+              <div className="flex gap-3 flex-wrap">
+                <Button
+                  onClick={handlePublishUnpublished}
+                  disabled={nostrPublishing || !nostrStatus?.configured}
+                  data-testid="button-nostr-publish-new"
+                >
+                  <Radio className={`h-4 w-4 mr-2 ${nostrPublishing ? "animate-pulse" : ""}`} />
+                  {nostrPublishing ? "Publishing…" : "Publish New Merchants"}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handlePublishAll}
+                  disabled={nostrPublishing || !nostrStatus?.configured}
+                  data-testid="button-nostr-publish-all"
+                >
+                  {nostrPublishing ? "Publishing…" : "Re-publish All"}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                "Publish New" sends only merchants not yet on Nostr. "Re-publish All" refreshes every merchant (use after bulk edits).
+                New merchants are also published automatically after each sheet sync when the key is configured.
+              </p>
             </Card>
           </TabsContent>
         </Tabs>

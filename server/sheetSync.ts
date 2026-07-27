@@ -1,6 +1,7 @@
 import { storage } from "./storage";
 import { insertMerchantSchema, type InsertCategoryEmoji, type InsertCountryEmoji } from "@shared/schema";
 import { getLogoUrlMap, cloudinaryConfigured } from "./cloudinary";
+import { publishMerchants, nostrConfigured } from "./nostrPublish";
 
 const POLL_INTERVAL_MS = 5 * 60 * 1000;
 
@@ -143,7 +144,7 @@ async function syncCategoryEmojis(emojiCsvUrl: string): Promise<number> {
   return entries.length;
 }
 
-export async function runSheetSync(): Promise<{ count: number; errors: number; removed: number; emojis: number; countryEmojis: number }> {
+export async function runSheetSync(): Promise<{ count: number; errors: number; removed: number; emojis: number; countryEmojis: number; nostrPublished: number }> {
   const config = await storage.getSheetSyncConfig();
   if (!config.csvUrl) throw new Error("No Google Sheet URL configured");
 
@@ -254,7 +255,31 @@ export async function runSheetSync(): Promise<{ count: number; errors: number; r
     console.error("[sheet-sync] Country emoji sync failed (keeping last known-good map):", e.message);
   }
 
-  return { count, errors, removed, emojis, countryEmojis };
+  // After the main sync, publish any merchants that haven't been sent to Nostr yet.
+  // Runs in the background — failures here must not break the sync result.
+  let nostrPublished = 0;
+  if (nostrConfigured()) {
+    try {
+      const unpublished = await storage.getMerchantsWithoutNostrId();
+      if (unpublished.length > 0) {
+        console.log(`[nostr] Publishing ${unpublished.length} unpublished merchant(s)…`);
+        const results = await publishMerchants(unpublished);
+        for (const { id, eventId } of results) {
+          if (eventId) {
+            await storage.updateNostrEventId(id, eventId);
+            nostrPublished++;
+          }
+        }
+        if (nostrPublished > 0) {
+          console.log(`[nostr] Published ${nostrPublished}/${unpublished.length} merchant(s)`);
+        }
+      }
+    } catch (e: any) {
+      console.error("[nostr] Post-sync publish failed:", e.message);
+    }
+  }
+
+  return { count, errors, removed, emojis, countryEmojis, nostrPublished };
 }
 
 
