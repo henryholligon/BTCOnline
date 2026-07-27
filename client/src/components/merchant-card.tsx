@@ -482,11 +482,11 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
       {/* Share overlay */}
       {showShare && (
         <div
-          className="absolute inset-0 z-20 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg"
+          className="absolute inset-0 z-20 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg p-4"
           onClick={(e) => { e.stopPropagation(); setShowShare(false); }}
         >
           <div
-            className="bg-card border border-border rounded-xl shadow-xl p-5 mx-4 w-full max-w-xs"
+            className="bg-card border border-border rounded-xl shadow-xl p-5 w-full"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
@@ -500,52 +500,57 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               </button>
             </div>
 
-            {/* QR code */}
-            <div className="flex justify-center mb-4">
-              <div className="p-2 bg-white rounded-lg border border-border">
-                <QRCodeSVG value={merchantUrl} size={120} bgColor="#ffffff" fgColor="#000000" />
+            {/* Body: stacked on mobile, side-by-side on desktop */}
+            <div className="flex flex-col md:flex-row md:items-start gap-5">
+              {/* QR code */}
+              <div className="flex justify-center md:justify-start shrink-0">
+                <div className="p-2 bg-white rounded-lg border border-border">
+                  <QRCodeSVG value={merchantUrl} size={120} bgColor="#ffffff" fgColor="#000000" />
+                </div>
+              </div>
+
+              {/* Social buttons + copy */}
+              <div className="flex-1 flex flex-col gap-3">
+                <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                  {[
+                    { label: "X", icon: <IconX />, bg: "bg-black text-white", href: `https://twitter.com/intent/tweet?text=Check+out+${encodeURIComponent(merchant.name)}&url=${encodeURIComponent(merchantUrl)}` },
+                    { label: "WhatsApp", icon: <IconWhatsApp />, bg: "bg-[#25D366] text-white", href: `https://wa.me/?text=${encodeURIComponent(merchant.name + ' ' + merchantUrl)}` },
+                    { label: "Facebook", icon: <IconFacebook />, bg: "bg-[#1877F2] text-white", href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(merchantUrl)}` },
+                    { label: "LinkedIn", icon: <IconLinkedIn />, bg: "bg-[#0A66C2] text-white", href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(merchantUrl)}` },
+                    { label: "Reddit", icon: <IconReddit />, bg: "bg-[#FF4500] text-white", href: `https://reddit.com/submit?url=${encodeURIComponent(merchantUrl)}&title=${encodeURIComponent(merchant.name)}` },
+                    { label: "Email", icon: <Mail className="h-4 w-4" />, bg: "bg-muted text-foreground border border-border", href: `mailto:?subject=${encodeURIComponent(merchant.name)}&body=${encodeURIComponent(merchantUrl)}` },
+                  ].map(({ label, icon, bg, href }) => (
+                    <a
+                      key={label}
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`flex flex-col items-center gap-1.5 py-2.5 px-1 rounded-lg text-[10px] font-medium transition-opacity hover:opacity-80 ${bg}`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {icon}
+                      {label}
+                    </a>
+                  ))}
+                </div>
+
+                {/* Copy link */}
+                <button
+                  className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg border border-border bg-muted/50 hover:bg-muted transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigator.clipboard.writeText(merchantUrl);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                >
+                  <span className="truncate text-xs text-muted-foreground">{merchantUrl}</span>
+                  {copied
+                    ? <Check className="h-3.5 w-3.5 text-green-500 shrink-0" />
+                    : <Copy className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
+                </button>
               </div>
             </div>
-
-            {/* Social buttons */}
-            <div className="grid grid-cols-3 gap-2 mb-3">
-              {[
-                { label: "X", icon: <IconX />, bg: "bg-black text-white", href: `https://twitter.com/intent/tweet?text=Check+out+${encodeURIComponent(merchant.name)}&url=${encodeURIComponent(merchantUrl)}` },
-                { label: "WhatsApp", icon: <IconWhatsApp />, bg: "bg-[#25D366] text-white", href: `https://wa.me/?text=${encodeURIComponent(merchant.name + ' ' + merchantUrl)}` },
-                { label: "Facebook", icon: <IconFacebook />, bg: "bg-[#1877F2] text-white", href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(merchantUrl)}` },
-                { label: "LinkedIn", icon: <IconLinkedIn />, bg: "bg-[#0A66C2] text-white", href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(merchantUrl)}` },
-                { label: "Reddit", icon: <IconReddit />, bg: "bg-[#FF4500] text-white", href: `https://reddit.com/submit?url=${encodeURIComponent(merchantUrl)}&title=${encodeURIComponent(merchant.name)}` },
-                { label: "Email", icon: <Mail className="h-4 w-4" />, bg: "bg-muted text-foreground border border-border", href: `mailto:?subject=${encodeURIComponent(merchant.name)}&body=${encodeURIComponent(merchantUrl)}` },
-              ].map(({ label, icon, bg, href }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`flex flex-col items-center gap-1.5 py-2.5 px-1 rounded-lg text-[10px] font-medium transition-opacity hover:opacity-80 ${bg}`}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {icon}
-                  {label}
-                </a>
-              ))}
-            </div>
-
-            {/* Copy link */}
-            <button
-              className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg border border-border bg-muted/50 hover:bg-muted transition-colors text-sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigator.clipboard.writeText(merchantUrl);
-                setCopied(true);
-                setTimeout(() => setCopied(false), 2000);
-              }}
-            >
-              <span className="truncate text-xs text-muted-foreground">{merchantUrl}</span>
-              {copied
-                ? <Check className="h-3.5 w-3.5 text-green-500 shrink-0" />
-                : <Copy className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
-            </button>
           </div>
         </div>
       )}
