@@ -138,12 +138,16 @@ export async function fetchPublicLists(relays: string[]): Promise<Event[]> {
   }
 
   // Step 2: now filter — only keep lists whose LATEST revision is public, not
-  // deleted, and has a non-empty title.
+  // deleted, has a non-empty title, AND contains at least one `r` (URL) tag.
+  // The `r`-tag requirement distinguishes BTCOnline merchant lists from the
+  // many other kinds of kind-30004 curation sets on public relays (article
+  // packs, note threads, profile lists) which use `a` or `e` tags instead.
   return Array.from(latestByKey.values())
     .filter(e =>
       !e.tags.some(t => t[0] === 'private' && t[1] === 'true') &&
       !e.tags.some(t => t[0] === 'deleted' && t[1] === 'true') &&
-      e.tags.some(t => t[0] === 'title' && t[1])
+      e.tags.some(t => t[0] === 'title' && t[1]) &&
+      e.tags.some(t => t[0] === 'r' && t[1])
     )
     .sort((a, b) => b.created_at - a.created_at);
 }

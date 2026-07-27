@@ -54,6 +54,8 @@ export default function DiscoverPage() {
           const description = ev.tags.find(t => t[0] === 'description')?.[1] || '';
           const dTag = ev.tags.find(t => t[0] === 'd')?.[1] ?? ev.id;
           const merchantCount = ev.tags.filter(t => t[0] === 'r').length;
+          // Defense-in-depth: skip any event that slipped through with no URLs
+          if (merchantCount === 0) return;
           try {
             const profile = await getProfile(ev.pubkey);
             results.push({
