@@ -370,7 +370,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               </div>
             )}
 
-            <div className="col-span-2 border-t border-border/40 pt-3 mt-1 flex items-center gap-2 flex-wrap">
+            <div className="col-span-2 md:col-span-4 border-t border-border/40 pt-3 mt-1 flex items-center gap-2 flex-wrap">
               {/* Visit */}
               <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90" data-testid={`link-visit-${merchant.id}`}>
                 <a href={merchant.website} target="_blank" rel="noopener noreferrer">
