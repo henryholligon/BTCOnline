@@ -11,6 +11,7 @@ import Admin from "@/pages/admin";
 import Lists from "@/pages/lists";
 import Favourites from "@/pages/favourites";
 import Discover from "@/pages/discover";
+import DiscoverList from "@/pages/discover-list";
 import Account from "@/pages/account";
 import { NostrProvider } from "@/context/NostrContext";
 
@@ -22,6 +23,7 @@ function Router() {
       <Route path="/favourites" component={Favourites} />
       <Route path="/lists" component={Lists} />
       <Route path="/discover" component={Discover} />
+      <Route path="/discover/:npub/:dTag" component={DiscoverList} />
       <Route path="/account" component={Account} />
       <Route path="/x7k2m9p4r1qn" component={Admin} />
       <Route path="/reset-password" component={ResetPassword} />
