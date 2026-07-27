@@ -71,6 +71,80 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/submit-merchant", async (req, res) => {
+    const { altcha, businessName, businessUrl, businessCategories, paymentMethods, notes, dataSource, publicContact } = req.body;
+
+    // Verify captcha
+    if (!altcha) {
+      return res.status(400).json({ message: "Captcha verification required" });
+    }
+    try {
+      const ok = await verifySolution(altcha, ALTCHA_HMAC_KEY);
+      if (!ok) return res.status(400).json({ message: "Invalid captcha" });
+    } catch {
+      return res.status(400).json({ message: "Captcha verification failed" });
+    }
+
+    // Validate required fields
+    if (!businessName?.trim()) return res.status(400).json({ message: "Merchant name is required" });
+    if (!businessUrl?.trim()) return res.status(400).json({ message: "Website URL is required" });
+    if (!paymentMethods?.length) return res.status(400).json({ message: "At least one payment method is required" });
+
+    const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+    if (!GITHUB_TOKEN) {
+      console.error("GITHUB_TOKEN not set");
+      return res.status(500).json({ message: "Submission service not configured" });
+    }
+
+    // Build issue body
+    const categoriesStr = businessCategories?.length ? businessCategories.join(", ") : "Not specified";
+    const paymentStr = paymentMethods.join(", ");
+    const dataSourceLabel = dataSource === "owner" ? "I am the business owner" : dataSource === "customer" ? "I visited as a customer" : dataSource || "Not specified";
+
+    const issueBody = `## Merchant Submission
+
+| Field | Value |
+|---|---|
+| **Website** | ${businessUrl.trim()} |
+| **Categories** | ${categoriesStr} |
+| **Payment Methods** | ${paymentStr} |
+| **Submitted by** | ${dataSourceLabel} |
+| **Contact** | ${publicContact?.trim() || "—"} |
+
+${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
+---
+*Submitted via the BTCOnline web form*`;
+
+    try {
+      const response = await fetch("https://api.github.com/repos/henryholligon/BTCOnline/issues", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${GITHUB_TOKEN}`,
+          "Accept": "application/vnd.github+json",
+          "X-GitHub-Api-Version": "2022-11-28",
+          "Content-Type": "application/json",
+          "User-Agent": "BTCOnline-App",
+        },
+        body: JSON.stringify({
+          title: `Merchant submission: ${businessName.trim()}`,
+          body: issueBody,
+        }),
+      });
+
+      if (!response.ok) {
+        const err = await response.text();
+        console.error("GitHub API error:", response.status, err);
+        return res.status(502).json({ message: "Failed to create submission — please try again" });
+      }
+
+      const issue = await response.json() as { html_url: string; number: number };
+      return res.json({ ok: true, issueUrl: issue.html_url, issueNumber: issue.number });
+    } catch (err) {
+      console.error("GitHub issue creation failed:", err);
+      return res.status(502).json({ message: "Failed to reach submission service — please try again" });
+    }
+  });
+
   app.get("/api/merchants", async (_req, res) => {
     res.set("Cache-Control", "no-store");
     const merchants = await storage.getMerchants();

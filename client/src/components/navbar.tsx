@@ -382,25 +382,69 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
     return () => widget.removeEventListener("statechange", handleStateChange);
   }, [isAddOpen]);
 
-  const handleSubmitMerchant = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmitMerchant = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!altchaVerified) {
       toast({ title: "Captcha Required", description: "Please complete the captcha verification." });
       return;
     }
-    setIsAddOpen(false);
-    toast({
-      title: "Merchant Submitted",
-      description: "Thank you! Your submission will be reviewed.",
-    });
-    setBusinessName("");
-    setBusinessUrl("");
-    setBusinessCategories([]);
-    setPaymentMethods([]);
-    setNotes("");
-    setDataSource("");
-    setPublicContact("");
-    setAltchaVerified(false);
+
+    // Grab the altcha payload from the widget
+    const widget = altchaRef.current as any;
+    const altchaPayload = widget?.value ?? widget?.getAttribute?.("value") ?? null;
+
+    setIsSubmitting(true);
+    try {
+      const res = await fetch("/api/submit-merchant", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          altcha: altchaPayload,
+          businessName,
+          businessUrl,
+          businessCategories,
+          paymentMethods,
+          notes,
+          dataSource,
+          publicContact,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast({ title: "Submission Failed", description: data.message ?? "Please try again.", variant: "destructive" });
+        return;
+      }
+
+      setIsAddOpen(false);
+      toast({
+        title: "Submission received! 🎉",
+        description: (
+          <span>
+            Your submission is now a{" "}
+            <a href={data.issueUrl} target="_blank" rel="noopener noreferrer" className="underline font-medium">
+              public GitHub issue
+            </a>
+            . We'll review it shortly.
+          </span>
+        ),
+      });
+      setBusinessName("");
+      setBusinessUrl("");
+      setBusinessCategories([]);
+      setPaymentMethods([]);
+      setNotes("");
+      setDataSource("");
+      setPublicContact("");
+      setAltchaVerified(false);
+    } catch {
+      toast({ title: "Network Error", description: "Could not reach the server. Please try again.", variant: "destructive" });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const categoryOptions = CATEGORIES.map(c => ({ value: c, label: c }));
@@ -526,8 +570,8 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                   />
                 </div>
 
-                <Button type="submit" className="w-full" data-testid="button-submit-merchant">
-                  Submit Merchant
+                <Button type="submit" className="w-full" disabled={isSubmitting} data-testid="button-submit-merchant">
+                  {isSubmitting ? "Submitting…" : "Submit Merchant"}
                 </Button>
               </form>
             </DialogContent>
