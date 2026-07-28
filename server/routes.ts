@@ -19,7 +19,7 @@ const requireAdmin: RequestHandler = (req, res, next) => {
 import { uploadLogoBuffer, listLogos, cloudinaryConfigured } from "./cloudinary";
 import bcrypt from "bcrypt";
 import { db } from "./db";
-import { eq, sql, asc } from "drizzle-orm";
+import { eq, sql, asc, and } from "drizzle-orm";
 import { merchants as merchantsTable } from "@shared/schema";
 import { generateSecretKey, getPublicKey } from "nostr-tools";
 import { encryptNsecServerSide, decryptNsecServerSide } from "./userKeyEncryption";
@@ -452,6 +452,28 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
     res.json({ average: Math.round(row.average * 10) / 10, count: row.count });
   });
 
+  /** Returns the current user's existing comment on a merchant, or 404 if none. */
+  app.get("/api/merchants/:id/my-comment", async (req, res) => {
+    const merchantId = parseInt(req.params.id);
+    if (isNaN(merchantId)) return res.status(400).json({ message: "Invalid merchant ID" });
+
+    const email = req.session?.userEmail;
+    if (!email) return res.status(401).json({ message: "Sign in to comment" });
+
+    const [userRow] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    if (!userRow) return res.status(401).json({ message: "User not found" });
+
+    const [existing] = await db
+      .select()
+      .from(comments)
+      .where(and(eq(comments.merchantId, merchantId), eq(comments.userId, userRow.id)))
+      .limit(1);
+
+    if (!existing) return res.status(404).json({ message: "No comment yet" });
+
+    res.json({ ...existing, authorName: userRow.email.split("@")[0] });
+  });
+
   app.post("/api/merchants/:id/comments", async (req, res) => {
     const merchantId = parseInt(req.params.id);
     if (isNaN(merchantId)) return res.status(400).json({ message: "Invalid merchant ID" });
@@ -474,11 +496,34 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
     const [userRow] = await db.select().from(users).where(eq(users.email, email)).limit(1);
     if (!userRow) return res.status(401).json({ message: "User not found" });
 
+    // Upsert: update existing comment if the user already has one for this merchant.
+    const [existing] = await db
+      .select()
+      .from(comments)
+      .where(and(eq(comments.merchantId, merchantId), eq(comments.userId, userRow.id)))
+      .limit(1);
+
+    const normalizedRating = (rating !== undefined && rating !== null) ? Number(rating) : null;
+
+    if (existing) {
+      const [updated] = await db
+        .update(comments)
+        .set({
+          body: body.trim(),
+          rating: normalizedRating,
+          createdAt: new Date().toISOString(),
+        })
+        .where(eq(comments.id, existing.id))
+        .returning();
+
+      return res.json({ ...updated, authorName: userRow.email.split("@")[0] });
+    }
+
     const [comment] = await db.insert(comments).values({
       merchantId,
       userId: userRow.id,
       body: body.trim(),
-      rating: (rating !== undefined && rating !== null) ? Number(rating) : null,
+      rating: normalizedRating,
       createdAt: new Date().toISOString(),
     }).returning();
 

@@ -23,6 +23,21 @@ export function useComments(merchantId: number, enabled = true) {
   });
 }
 
+export function useMyComment(merchantId: number, enabled = true) {
+  return useQuery<MerchantComment | null>({
+    queryKey: [`/api/merchants/${merchantId}/my-comment`],
+    enabled: enabled && merchantId > 0,
+    // 404 means "no comment yet" — treat as null rather than an error
+    queryFn: async () => {
+      const res = await fetch(`/api/merchants/${merchantId}/my-comment`, { credentials: "include" });
+      if (res.status === 404 || res.status === 401) return null;
+      if (!res.ok) throw new Error("Failed to fetch existing comment");
+      return res.json();
+    },
+    staleTime: 30_000,
+  });
+}
+
 export function useSubmitComment(merchantId: number) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -30,9 +45,11 @@ export function useSubmitComment(merchantId: number) {
       const res = await apiRequest("POST", `/api/merchants/${merchantId}/comments`, { body, rating });
       return res.json() as Promise<MerchantComment>;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [`/api/merchants/${merchantId}/comments`] });
       queryClient.invalidateQueries({ queryKey: [`/api/merchants/${merchantId}/rating`] });
+      // Update the cached "my comment" so the form reflects the latest submission
+      queryClient.setQueryData([`/api/merchants/${merchantId}/my-comment`], data);
     },
   });
 }

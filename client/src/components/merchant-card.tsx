@@ -6,7 +6,7 @@ import { useCountryEmojis } from "@/hooks/use-country-emojis";
 import { Zap, Clock, Copy, Check, Heart, Bookmark, Forward, X as XIcon, Mail, ExternalLink } from "lucide-react";
 import BitcoinLogo from "@/components/bitcoin-logo";
 import { useRef, useEffect, useState, memo, useCallback } from "react";
-import { useComments, useSubmitComment, useDeleteComment, useIsAdmin, useMerchantRating } from "@/hooks/use-comments";
+import { useComments, useSubmitComment, useDeleteComment, useIsAdmin, useMerchantRating, useMyComment } from "@/hooks/use-comments";
 import { Textarea } from "@/components/ui/textarea";
 import { slugify } from "@/lib/utils";
 import { QRCodeSVG } from "qrcode.react";
@@ -125,15 +125,27 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
   const isAdmin = useIsAdmin();
   const { data: commentsList = [], isLoading: commentsLoading } = useComments(merchant.id, expanded);
   const { data: ratingData } = useMerchantRating(merchant.id);
+  const { data: myComment } = useMyComment(merchant.id, !!user);
   const submitComment = useSubmitComment(merchant.id);
   const deleteComment = useDeleteComment(merchant.id);
+
+  // Pre-fill the form with the user's existing comment when it loads or the card expands
+  useEffect(() => {
+    if (!expanded) return;
+    if (myComment) {
+      setCommentBody(myComment.body);
+      setCommentRating(myComment.rating ?? null);
+    } else {
+      setCommentBody("");
+      setCommentRating(null);
+    }
+  }, [expanded, myComment]);
 
   const handleCommentSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!commentBody.trim()) return;
     await submitComment.mutateAsync({ body: commentBody, rating: commentRating });
-    setCommentBody("");
-    setCommentRating(null);
+    // Don't clear — keep the fields showing the saved state
   }, [commentBody, commentRating, submitComment]);
 
   useEffect(() => {
@@ -587,7 +599,9 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                     disabled={!commentBody.trim() || submitComment.isPending}
                     className="h-7 text-xs"
                   >
-                    {submitComment.isPending ? "Posting…" : "Post comment"}
+                    {submitComment.isPending
+                      ? (myComment ? "Updating…" : "Posting…")
+                      : (myComment ? "Update comment" : "Post comment")}
                   </Button>
                 </div>
               </form>
