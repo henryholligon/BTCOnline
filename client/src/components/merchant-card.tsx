@@ -297,22 +297,13 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
         </div>
       </div>
 
-      {/* Footer row — social buttons always on desktop; full row (Visit+social) when expanded */}
+      {/* Footer row — social buttons on collapsed desktop only */}
+      {!expanded && (
       <div
-        className={`border-t border-border/40 px-3 md:px-4 pt-2 pb-2${!expanded ? ' hidden md:block' : ''}`}
+        className="border-t border-border/40 px-3 md:px-4 pt-2 pb-2 hidden md:block"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className={`flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-0`}>
-          {expanded && (
-            <div className="sm:flex-1 sm:flex sm:justify-center">
-              <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto self-start" data-testid={`link-visit-${merchant.id}`}>
-                <a href={merchant.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
-                  <ExternalLink className="h-3.5 w-3.5" /> Visit website
-                </a>
-              </Button>
-            </div>
-          )}
-          <div className={`flex items-center w-full sm:gap-0${expanded ? ' sm:flex-[5]' : ''}`}>
+        <div className="flex items-center w-full sm:gap-0">
             <div className="flex-1 flex justify-center">
               <button
                 onClick={() => { setShowComments(v => !v); setShowReviews(false); }}
@@ -411,9 +402,15 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
           </div>
         </div>
       </div>
+      )}
 
       {expanded && (
         <div className="border-t border-border/30 px-3 md:px-4 py-4 space-y-4" onClick={(e) => e.stopPropagation()}>
+          <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto" data-testid={`link-visit-${merchant.id}`}>
+            <a href={merchant.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
+              <ExternalLink className="h-3.5 w-3.5" /> Visit website
+            </a>
+          </Button>
           <p className="text-sm text-muted-foreground">{merchant.description}</p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
