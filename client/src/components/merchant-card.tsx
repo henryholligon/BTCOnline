@@ -441,19 +441,21 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               </div>
             )}
 
-            <div className="col-span-2 md:col-span-4 border-t border-border/40 pt-2 mt-1 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
+            <div className="col-span-2 md:col-span-4 border-t border-border/40 pt-2 mt-1 flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-0">
 
-              {/* Row 1 on mobile / left side on desktop — Visit CTA */}
-              <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto self-start shrink-0" data-testid={`link-visit-${merchant.id}`}>
-                <a href={merchant.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
-                  <ExternalLink className="h-3.5 w-3.5" /> Visit website
-                </a>
-              </Button>
+              {/* Row 1 on mobile / equal slot on desktop — Visit CTA */}
+              <div className="sm:flex-1 sm:flex sm:justify-center">
+                <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto self-start" data-testid={`link-visit-${merchant.id}`}>
+                  <a href={merchant.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
+                    <ExternalLink className="h-3.5 w-3.5" /> Visit website
+                  </a>
+                </Button>
+              </div>
 
-              {/* Row 2 on mobile / right side on desktop — Social stats */}
-              <div className="flex items-center w-full sm:w-auto sm:gap-1">
+              {/* Row 2 on mobile / five equal slots on desktop — Social stats */}
+              <div className="flex items-center w-full sm:flex-[5] sm:w-auto sm:gap-0">
 
-                <div className="flex-1 flex justify-center sm:flex-none">
+                <div className="flex-1 flex justify-center">
                   <button
                     onClick={() => { setShowComments(v => !v); setShowReviews(false); }}
                     data-testid={`button-comments-${merchant.id}`}
@@ -464,7 +466,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                   </button>
                 </div>
 
-                <div className="flex-1 flex justify-center sm:flex-none">
+                <div className="flex-1 flex justify-center">
                   <button
                     onClick={() => { setShowReviews(v => !v); setShowComments(false); }}
                     data-testid={`button-reviews-${merchant.id}`}
@@ -478,7 +480,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                   </button>
                 </div>
 
-                <div className="flex-1 flex justify-center sm:flex-none">
+                <div className="flex-1 flex justify-center">
                   <button
                     onClick={() => toggleFavourite(merchant.website)}
                     data-testid={`button-favourite-${merchant.id}`}
@@ -491,7 +493,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                   </button>
                 </div>
 
-                <div className="flex-1 flex justify-center sm:flex-none">
+                <div className="flex-1 flex justify-center">
                   {!user ? (
                     <button
                       onClick={openLoginModal}
@@ -549,7 +551,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                   )}
                 </div>
 
-                <div className="flex-1 flex justify-center sm:flex-none">
+                <div className="flex-1 flex justify-center">
                   <button
                     onClick={() => setShowShare(true)}
                     data-testid={`button-share-${merchant.id}`}
