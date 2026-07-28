@@ -169,10 +169,10 @@ function EmailTab({ mode, setMode }: { mode: "login" | "register"; setMode: (m: 
       <div className="flex rounded-lg border border-border overflow-hidden">
         <button type="button" onClick={() => { setMode("login"); setError(""); setSelfCustody(false); setShowAdvanced(false); }}
           className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${mode === "login" ? "bg-primary text-primary-foreground" : "hover:bg-muted text-muted-foreground"}`}
-          data-testid="tab-email-login">Sign in</button>
+          data-testid="tab-email-login">Email sign in</button>
         <button type="button" onClick={() => { setMode("register"); setError(""); }}
           className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${mode === "register" ? "bg-primary text-primary-foreground" : "hover:bg-muted text-muted-foreground"}`}
-          data-testid="tab-email-register">Create account</button>
+          data-testid="tab-email-register">Email sign up</button>
       </div>
 
       <div className="space-y-3">
@@ -197,11 +197,28 @@ function EmailTab({ mode, setMode }: { mode: "login" | "register"; setMode: (m: 
         )}
       </div>
 
-      {/* Custodial reassurance for the default register flow */}
+      {/* Make the custody model explicit for email registration */}
       {mode === "register" && !selfCustody && (
-        <div className="flex items-start gap-2 text-xs text-muted-foreground">
-          <Lock className="h-3.5 w-3.5 shrink-0 mt-0.5 text-green-600 dark:text-green-400" />
-          <span>A Nostr identity is created for you automatically. You can always reset your password without losing it.</span>
+        <div className="flex items-start gap-2 rounded-lg border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20 px-3 py-2.5">
+          <Lock className="h-4 w-4 shrink-0 mt-0.5 text-blue-600 dark:text-blue-400" />
+          <div className="space-y-0.5">
+            <p className="text-xs font-semibold text-blue-800 dark:text-blue-300">Custodial email account</p>
+            <p className="text-xs text-blue-700 dark:text-blue-400">
+              We create and securely hold your Nostr identity for you. You can reset your password if you forget it.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {mode === "register" && selfCustody && (
+        <div className="flex items-start gap-2 rounded-lg border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20 px-3 py-2.5">
+          <ShieldCheck className="h-4 w-4 shrink-0 mt-0.5 text-green-600 dark:text-green-400" />
+          <div className="space-y-0.5">
+            <p className="text-xs font-semibold text-green-800 dark:text-green-300">Self-custody email account</p>
+            <p className="text-xs text-green-700 dark:text-green-400">
+              Your private key stays with you. We cannot recover your account if you lose your password.
+            </p>
+          </div>
         </div>
       )}
 
@@ -228,7 +245,7 @@ function EmailTab({ mode, setMode }: { mode: "login" | "register"; setMode: (m: 
                   data-testid="checkbox-self-custody"
                 />
                 <div className="space-y-1">
-                  <p className="text-xs font-medium">Self-custody mode</p>
+                  <p className="text-xs font-medium">Use self-custody instead</p>
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     Your key is generated in your browser and encrypted with your password before it is stored.
                     We can never read it.{" "}
@@ -800,7 +817,10 @@ export default function NostrLoginModal() {
                 >
                   <span className="flex items-center gap-2">
                     <Key className="h-4 w-4 text-violet-500" />
-                    Create a Nostr account
+                    <span className="flex flex-col items-start">
+                      <span>Create a Nostr account</span>
+                      <span className="text-[10px] font-normal text-violet-600 dark:text-violet-400">Non-custodial — you control the private key</span>
+                    </span>
                   </span>
                   <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${createOpen ? "rotate-180" : ""}`} />
                 </button>
