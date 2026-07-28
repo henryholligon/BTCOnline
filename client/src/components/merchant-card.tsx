@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { type Merchant, type BadgePreset } from "@shared/schema";
 import { useCategoryEmojis } from "@/hooks/use-category-emojis";
 import { useCountryEmojis } from "@/hooks/use-country-emojis";
-import { Zap, Clock, Copy, Check, Heart, Bookmark, Forward, X as XIcon, Mail, ExternalLink, MessageSquare } from "lucide-react";
+import { Zap, Clock, Copy, Check, Heart, Bookmark, Upload, X as XIcon, Mail, ExternalLink, MessageSquare } from "lucide-react";
 import BitcoinLogo from "@/components/bitcoin-logo";
 import { useRef, useEffect, useState, memo, useCallback } from "react";
 import { useComments, useSubmitComment, useDeleteComment, useIsAdmin, useMerchantRating, useMyComment, useMasterPubkey } from "@/hooks/use-comments";
@@ -545,7 +545,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                   data-testid={`button-share-${merchant.id}`}
                   className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm text-muted-foreground transition-colors hover:bg-muted ml-auto"
                 >
-                  <Forward className="h-4 w-4" />
+                  <Upload className="h-4 w-4" />
                 </button>
               </div>
 
