@@ -453,7 +453,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               {/* Row 2 — Social stats */}
               <div className="flex items-center gap-1">
                 <button
-                  onClick={() => setShowComments(v => !v)}
+                  onClick={() => { setShowComments(v => !v); setShowReviews(false); }}
                   data-testid={`button-comments-${merchant.id}`}
                   className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${showComments ? "text-blue-500" : "text-muted-foreground"}`}
                 >
@@ -462,7 +462,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 </button>
 
                 <button
-                  onClick={() => setShowReviews(v => !v)}
+                  onClick={() => { setShowReviews(v => !v); setShowComments(false); }}
                   data-testid={`button-reviews-${merchant.id}`}
                   className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${showReviews ? "text-amber-500" : "text-muted-foreground"}`}
                 >
