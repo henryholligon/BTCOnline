@@ -6,7 +6,7 @@ import { useCountryEmojis } from "@/hooks/use-country-emojis";
 import { Zap, Clock, Copy, Check, Heart, Bookmark, Forward, X as XIcon, Mail, ExternalLink } from "lucide-react";
 import BitcoinLogo from "@/components/bitcoin-logo";
 import { useRef, useEffect, useState, memo, useCallback } from "react";
-import { useComments, useSubmitComment, useDeleteComment, useIsAdmin } from "@/hooks/use-comments";
+import { useComments, useSubmitComment, useDeleteComment, useIsAdmin, useMerchantRating } from "@/hooks/use-comments";
 import { Textarea } from "@/components/ui/textarea";
 import { slugify } from "@/lib/utils";
 import { QRCodeSVG } from "qrcode.react";
@@ -116,21 +116,25 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
   const [showShare, setShowShare] = useState(false);
   const [copied, setCopied] = useState(false);
   const [commentBody, setCommentBody] = useState("");
+  const [commentRating, setCommentRating] = useState<number | null>(null);
+  const [hoverRating, setHoverRating] = useState<number | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const { getCategoryWithEmoji } = useCategoryEmojis();
   const { getCountryEmoji } = useCountryEmojis();
   const { user, favourites, toggleFavourite, lists, toggleListMember, openLoginModal, likeCounts, fetchLikeCount } = useNostr();
   const isAdmin = useIsAdmin();
   const { data: commentsList = [], isLoading: commentsLoading } = useComments(merchant.id, expanded);
+  const { data: ratingData } = useMerchantRating(merchant.id);
   const submitComment = useSubmitComment(merchant.id);
   const deleteComment = useDeleteComment(merchant.id);
 
   const handleCommentSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!commentBody.trim()) return;
-    await submitComment.mutateAsync(commentBody);
+    await submitComment.mutateAsync({ body: commentBody, rating: commentRating });
     setCommentBody("");
-  }, [commentBody, submitComment]);
+    setCommentRating(null);
+  }, [commentBody, commentRating, submitComment]);
 
   useEffect(() => {
     if (expanded && scrollIntoView && cardRef.current) {
@@ -183,6 +187,13 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex items-center gap-2">
             <h3 className="font-semibold text-sm md:text-base truncate">{merchant.name}</h3>
+            {!expanded && ratingData && ratingData.count > 0 && (
+              <span className="shrink-0 flex items-center gap-0.5 text-[11px] font-semibold text-amber-500 leading-none">
+                <span>★</span>
+                <span>{ratingData.average.toFixed(1)}</span>
+                <span className="text-muted-foreground font-normal ml-0.5">({ratingData.count})</span>
+              </span>
+            )}
             {merchant.onchainSupported && (
               <BitcoinLogo className="h-3.5 w-3.5" spin />
             )}
@@ -495,6 +506,13 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="text-[11px] font-semibold">{c.authorName}</span>
+                        {c.rating != null && (
+                          <span className="flex items-center gap-0.5 text-amber-400 text-[11px] leading-none">
+                            {[1,2,3,4,5].map(s => (
+                              <span key={s} className={s <= c.rating! ? "text-amber-400" : "text-muted-foreground/30"}>★</span>
+                            ))}
+                          </span>
+                        )}
                         <span className="text-[10px] text-muted-foreground">
                           {new Date(c.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                         </span>
@@ -521,6 +539,30 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
 
             {user ? (
               <form onSubmit={handleCommentSubmit} className="space-y-2">
+                {/* Star picker */}
+                <div className="flex items-center gap-1">
+                  <span className="text-[11px] text-muted-foreground mr-1">Rating:</span>
+                  {[1,2,3,4,5].map(star => (
+                    <button
+                      key={star}
+                      type="button"
+                      className={`text-lg leading-none transition-colors ${
+                        (hoverRating ?? commentRating ?? 0) >= star
+                          ? "text-amber-400"
+                          : "text-muted-foreground/30 hover:text-amber-300"
+                      }`}
+                      onMouseEnter={() => setHoverRating(star)}
+                      onMouseLeave={() => setHoverRating(null)}
+                      onClick={() => setCommentRating(commentRating === star ? null : star)}
+                      title={`${star} star${star > 1 ? "s" : ""}`}
+                    >
+                      ★
+                    </button>
+                  ))}
+                  {commentRating && (
+                    <span className="text-[10px] text-muted-foreground ml-1">{commentRating}/5</span>
+                  )}
+                </div>
                 <Textarea
                   value={commentBody}
                   onChange={e => setCommentBody(e.target.value)}

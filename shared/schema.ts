@@ -156,9 +156,13 @@ export const comments = pgTable("comments", {
   userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   body: text("body").notNull(),
   createdAt: text("created_at").notNull(),
+  // 1–5 star rating, optional (null = no rating given).
+  rating: integer("rating"),
 });
 
-export const insertCommentSchema = createInsertSchema(comments).omit({ id: true, createdAt: true });
+export const insertCommentSchema = createInsertSchema(comments).omit({ id: true, createdAt: true }).extend({
+  rating: z.number().int().min(1).max(5).nullable().optional(),
+});
 export type InsertComment = z.infer<typeof insertCommentSchema>;
 export type Comment = typeof comments.$inferSelect;
 

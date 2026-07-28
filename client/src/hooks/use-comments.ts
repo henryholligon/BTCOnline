@@ -8,6 +8,12 @@ export interface MerchantComment {
   body: string;
   createdAt: string;
   authorName: string;
+  rating?: number | null;
+}
+
+export interface MerchantRating {
+  average: number;
+  count: number;
 }
 
 export function useComments(merchantId: number, enabled = true) {
@@ -20,13 +26,21 @@ export function useComments(merchantId: number, enabled = true) {
 export function useSubmitComment(merchantId: number) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (body: string) => {
-      const res = await apiRequest("POST", `/api/merchants/${merchantId}/comments`, { body });
+    mutationFn: async ({ body, rating }: { body: string; rating: number | null }) => {
+      const res = await apiRequest("POST", `/api/merchants/${merchantId}/comments`, { body, rating });
       return res.json() as Promise<MerchantComment>;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/merchants/${merchantId}/comments`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/merchants/${merchantId}/rating`] });
     },
+  });
+}
+
+export function useMerchantRating(merchantId: number, enabled = true) {
+  return useQuery<MerchantRating | null>({
+    queryKey: [`/api/merchants/${merchantId}/rating`],
+    enabled: enabled && merchantId > 0,
   });
 }
 

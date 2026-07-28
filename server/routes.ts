@@ -416,6 +416,7 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
         userId: comments.userId,
         body: comments.body,
         createdAt: comments.createdAt,
+        rating: comments.rating,
         userEmail: users.email,
       })
       .from(comments)
@@ -429,9 +430,26 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
       userId: r.userId,
       body: r.body,
       createdAt: r.createdAt,
+      rating: r.rating,
       // Derive a display name from the email local-part; never expose the full address publicly.
       authorName: r.userEmail ? r.userEmail.split("@")[0] : "anon",
     })));
+  });
+
+  app.get("/api/merchants/:id/rating", async (req, res) => {
+    const merchantId = parseInt(req.params.id);
+    if (isNaN(merchantId)) return res.status(400).json({ message: "Invalid merchant ID" });
+
+    const result = await db.execute(sql`
+      SELECT AVG(rating)::float AS average, COUNT(*)::int AS count
+      FROM comments
+      WHERE merchant_id = ${merchantId} AND rating IS NOT NULL
+    `);
+    const row = result.rows[0] as { average: number | null; count: number };
+    if (!row || !row.average || row.count === 0) {
+      return res.json(null);
+    }
+    res.json({ average: Math.round(row.average * 10) / 10, count: row.count });
   });
 
   app.post("/api/merchants/:id/comments", async (req, res) => {
@@ -441,9 +459,17 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
     const email = req.session?.userEmail;
     if (!email) return res.status(401).json({ message: "Sign in to comment" });
 
-    const { body } = req.body;
+    const { body, rating } = req.body;
     if (!body?.trim()) return res.status(400).json({ message: "Comment cannot be empty" });
     if (body.trim().length > 1000) return res.status(400).json({ message: "Comment must be under 1000 characters" });
+
+    // Validate rating if provided
+    if (rating !== undefined && rating !== null) {
+      const r = Number(rating);
+      if (!Number.isInteger(r) || r < 1 || r > 5) {
+        return res.status(400).json({ message: "Rating must be an integer between 1 and 5" });
+      }
+    }
 
     const [userRow] = await db.select().from(users).where(eq(users.email, email)).limit(1);
     if (!userRow) return res.status(401).json({ message: "User not found" });
@@ -452,6 +478,7 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
       merchantId,
       userId: userRow.id,
       body: body.trim(),
+      rating: (rating !== undefined && rating !== null) ? Number(rating) : null,
       createdAt: new Date().toISOString(),
     }).returning();
 
