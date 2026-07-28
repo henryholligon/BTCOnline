@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { type Merchant, type BadgePreset } from "@shared/schema";
 import { useCategoryEmojis } from "@/hooks/use-category-emojis";
 import { useCountryEmojis } from "@/hooks/use-country-emojis";
-import { Zap, Clock, Copy, Check, Heart, Bookmark, Forward, X as XIcon, Mail, ExternalLink } from "lucide-react";
+import { Zap, Clock, Copy, Check, Heart, Bookmark, Forward, X as XIcon, Mail, ExternalLink, MessageSquare } from "lucide-react";
 import BitcoinLogo from "@/components/bitcoin-logo";
 import { useRef, useEffect, useState, memo, useCallback } from "react";
 import { useComments, useSubmitComment, useDeleteComment, useIsAdmin, useMerchantRating, useMyComment, useMasterPubkey } from "@/hooks/use-comments";
@@ -114,6 +114,7 @@ interface MerchantCardProps {
 
 export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, scrollIntoView, onScrolledIntoView, badgePresets }: MerchantCardProps) {
   const [showShare, setShowShare] = useState(false);
+  const [showReviews, setShowReviews] = useState(false);
   const [copied, setCopied] = useState(false);
   const [commentBody, setCommentBody] = useState("");
   const [commentRating, setCommentRating] = useState<number | null>(null);
@@ -180,6 +181,11 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
       }
     }
   }, [commentBody, commentRating, submitComment, user, merchant.nostrEventId, merchant.name, masterPubkey, publishEvent]);
+
+  // Reset reviews panel when card collapses
+  useEffect(() => {
+    if (!expanded) setShowReviews(false);
+  }, [expanded]);
 
   useEffect(() => {
     if (expanded && scrollIntoView && cardRef.current) {
@@ -448,6 +454,25 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 </a>
               </Button>
 
+              {/* Reviews */}
+              <Button
+                size="sm"
+                variant={showReviews ? "default" : "outline"}
+                className="gap-1.5"
+                onClick={() => setShowReviews(v => !v)}
+                data-testid={`button-reviews-${merchant.id}`}
+              >
+                <MessageSquare className="h-3.5 w-3.5" />
+                Reviews
+                {(commentsList.length > 0 || (ratingData && ratingData.count > 0)) && (
+                  <span className={`text-[10px] font-semibold rounded-full px-1.5 py-0 leading-5 ${showReviews ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
+                    {ratingData && ratingData.count > 0
+                      ? `★ ${ratingData.average.toFixed(1)}`
+                      : commentsList.length}
+                  </span>
+                )}
+              </Button>
+
               {/* Share */}
               <Button
                 size="sm"
@@ -531,8 +556,8 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
             </div>
           </div>
 
-          {/* ── Comments ─────────────────────────────────────────────────── */}
-          <div className="border-t border-border/30 pt-4 space-y-3">
+          {/* ── Reviews panel ────────────────────────────────────────────── */}
+          {showReviews && <div className="border-t border-border/30 pt-4 space-y-3">
             <div className="flex items-center justify-between">
               <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
                 Comments{commentsList.length > 0 && ` · ${commentsList.length}`}
@@ -646,7 +671,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 Sign in to leave a comment
               </button>
             )}
-          </div>
+          </div>}
         </div>
       )}
 
