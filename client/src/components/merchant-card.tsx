@@ -297,72 +297,38 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
         </div>
       </div>
 
-      {/* Footer row — collapsed: desktop-only social buttons; expanded: Visit + social on all screens */}
-      <div
-        className={`border-t border-border/40 px-3 md:px-4 pt-2 pb-2${!expanded ? ' hidden md:block' : ''}`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className={`flex${expanded ? ' flex-col gap-1 sm:flex-row sm:items-center sm:gap-0' : ' items-center w-full sm:gap-0'}`}>
-          {expanded && (
-            <div className="sm:flex-1 sm:flex sm:justify-center">
-              <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto" data-testid={`link-visit-${merchant.id}`}>
-                <a href={merchant.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
-                  <ExternalLink className="h-3.5 w-3.5" /> Visit website
-                </a>
-              </Button>
-            </div>
-          )}
-          <div className={`flex items-center w-full sm:gap-0${expanded ? ' sm:flex-[5]' : ''}`}>
+      {/* Collapsed desktop footer — 5 social buttons */}
+      {!expanded && (
+        <div className="border-t border-border/40 px-3 md:px-4 pt-2 pb-2 hidden md:block" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center">
             <div className="flex-1 flex justify-center">
-              <button
-                onClick={() => { setShowComments(v => !v); setShowReviews(false); }}
-                data-testid={`button-comments-${merchant.id}`}
-                className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${showComments ? "text-blue-500" : "text-muted-foreground"}`}
-              >
+              <button onClick={() => { setShowComments(v => !v); setShowReviews(false); }} data-testid={`button-comments-${merchant.id}`} className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${showComments ? "text-blue-500" : "text-muted-foreground"}`}>
                 <MessageSquare className="h-4 w-4" />
                 <span className="text-xs tabular-nums">{commentsList.length}</span>
               </button>
             </div>
             <div className="flex-1 flex justify-center">
-              <button
-                onClick={() => { setShowReviews(v => !v); setShowComments(false); }}
-                data-testid={`button-reviews-${merchant.id}`}
-                className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${showReviews ? "text-amber-500" : "text-muted-foreground"}`}
-              >
+              <button onClick={() => { setShowReviews(v => !v); setShowComments(false); }} data-testid={`button-reviews-${merchant.id}`} className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${showReviews ? "text-amber-500" : "text-muted-foreground"}`}>
                 <span className={`text-base leading-none ${showReviews ? "text-amber-400" : "text-muted-foreground"}`}>★</span>
-                {ratingData && ratingData.count > 0
-                  ? <span className="text-xs tabular-nums">{ratingData.average.toFixed(1)}</span>
-                  : <span className="text-xs font-semibold tracking-wide">NEW</span>
-                }
+                {ratingData && ratingData.count > 0 ? <span className="text-xs tabular-nums">{ratingData.average.toFixed(1)}</span> : <span className="text-xs font-semibold tracking-wide">NEW</span>}
               </button>
             </div>
             <div className="flex-1 flex justify-center">
-              <button
-                onClick={() => toggleFavourite(merchant.website)}
-                data-testid={`button-favourite-${merchant.id}`}
-                className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${user && favourites.has(merchant.website) ? "text-red-500" : "text-muted-foreground"}`}
-              >
+              <button onClick={() => toggleFavourite(merchant.website)} data-testid={`button-favourite-${merchant.id}`} className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${user && favourites.has(merchant.website) ? "text-red-500" : "text-muted-foreground"}`}>
                 <Heart className={`h-4 w-4 ${user && favourites.has(merchant.website) ? "fill-current" : ""}`} />
                 <span className="text-xs tabular-nums">{likeCounts.get(merchant.website) ?? 0}</span>
               </button>
             </div>
             <div className="flex-1 flex justify-center">
               {!user ? (
-                <button
-                  onClick={openLoginModal}
-                  data-testid={`button-add-to-list-${merchant.id}`}
-                  className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm text-muted-foreground transition-colors hover:bg-muted"
-                >
+                <button onClick={openLoginModal} data-testid={`button-add-to-list-${merchant.id}`} className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm text-muted-foreground transition-colors hover:bg-muted">
                   <Bookmark className="h-4 w-4" />
                   <span className="text-xs tabular-nums">{saveCounts.get(merchant.website) ?? 0}</span>
                 </button>
               ) : (
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button
-                      data-testid={`button-add-to-list-${merchant.id}`}
-                      className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${lists.some(l => l.urls.includes(merchant.website)) ? "text-blue-500" : "text-muted-foreground"}`}
-                    >
+                    <button data-testid={`button-add-to-list-${merchant.id}`} className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${lists.some(l => l.urls.includes(merchant.website)) ? "text-blue-500" : "text-muted-foreground"}`}>
                       <Bookmark className={`h-4 w-4 ${lists.some(l => l.urls.includes(merchant.website)) ? "fill-current" : ""}`} />
                       <span className="text-xs tabular-nums">{saveCounts.get(merchant.website) ?? 0}</span>
                     </button>
@@ -379,13 +345,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                         {lists.map(list => {
                           const inList = list.urls.includes(merchant.website);
                           return (
-                            <button
-                              key={list.dTag}
-                              type="button"
-                              onClick={() => toggleListMember(list.dTag, merchant.website, inList)}
-                              className="flex items-center gap-2 w-full rounded px-2 py-1.5 text-sm hover:bg-muted transition-colors"
-                              data-testid={`button-toggle-list-${list.dTag}-${merchant.id}`}
-                            >
+                            <button key={list.dTag} type="button" onClick={() => toggleListMember(list.dTag, merchant.website, inList)} className="flex items-center gap-2 w-full rounded px-2 py-1.5 text-sm hover:bg-muted transition-colors" data-testid={`button-toggle-list-${list.dTag}-${merchant.id}`}>
                               <div className={`h-3.5 w-3.5 rounded border flex items-center justify-center shrink-0 ${inList ? "bg-primary border-primary" : "border-input"}`}>
                                 {inList && <Check className="h-2.5 w-2.5 text-primary-foreground" />}
                               </div>
@@ -400,17 +360,13 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               )}
             </div>
             <div className="flex-1 flex justify-center">
-              <button
-                onClick={() => setShowShare(true)}
-                data-testid={`button-share-${merchant.id}`}
-                className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm text-muted-foreground transition-colors hover:bg-muted"
-              >
+              <button onClick={() => setShowShare(true)} data-testid={`button-share-${merchant.id}`} className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm text-muted-foreground transition-colors hover:bg-muted">
                 <Upload className="h-4 w-4" />
               </button>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {expanded && (
         <div className="border-t border-border/30 px-3 md:px-4 py-4 space-y-4" onClick={(e) => e.stopPropagation()}>
@@ -650,6 +606,82 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               </button>
             )}
           </div>}
+
+          {/* Expanded footer — Visit website + 5 social buttons */}
+          <div className="border-t border-border/40 pt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-0" onClick={(e) => e.stopPropagation()}>
+            <div className="sm:flex-1 sm:flex sm:justify-center">
+              <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto" data-testid={`link-visit-${merchant.id}`}>
+                <a href={merchant.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
+                  <ExternalLink className="h-3.5 w-3.5" /> Visit website
+                </a>
+              </Button>
+            </div>
+            <div className="flex items-center w-full sm:flex-[5] sm:gap-0">
+              <div className="flex-1 flex justify-center">
+                <button onClick={() => { setShowComments(v => !v); setShowReviews(false); }} data-testid={`button-comments-${merchant.id}`} className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${showComments ? "text-blue-500" : "text-muted-foreground"}`}>
+                  <MessageSquare className="h-4 w-4" />
+                  <span className="text-xs tabular-nums">{commentsList.length}</span>
+                </button>
+              </div>
+              <div className="flex-1 flex justify-center">
+                <button onClick={() => { setShowReviews(v => !v); setShowComments(false); }} data-testid={`button-reviews-${merchant.id}`} className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${showReviews ? "text-amber-500" : "text-muted-foreground"}`}>
+                  <span className={`text-base leading-none ${showReviews ? "text-amber-400" : "text-muted-foreground"}`}>★</span>
+                  {ratingData && ratingData.count > 0 ? <span className="text-xs tabular-nums">{ratingData.average.toFixed(1)}</span> : <span className="text-xs font-semibold tracking-wide">NEW</span>}
+                </button>
+              </div>
+              <div className="flex-1 flex justify-center">
+                <button onClick={() => toggleFavourite(merchant.website)} data-testid={`button-favourite-${merchant.id}`} className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${user && favourites.has(merchant.website) ? "text-red-500" : "text-muted-foreground"}`}>
+                  <Heart className={`h-4 w-4 ${user && favourites.has(merchant.website) ? "fill-current" : ""}`} />
+                  <span className="text-xs tabular-nums">{likeCounts.get(merchant.website) ?? 0}</span>
+                </button>
+              </div>
+              <div className="flex-1 flex justify-center">
+                {!user ? (
+                  <button onClick={openLoginModal} data-testid={`button-add-to-list-${merchant.id}`} className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm text-muted-foreground transition-colors hover:bg-muted">
+                    <Bookmark className="h-4 w-4" />
+                    <span className="text-xs tabular-nums">{saveCounts.get(merchant.website) ?? 0}</span>
+                  </button>
+                ) : (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button data-testid={`button-add-to-list-${merchant.id}`} className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${lists.some(l => l.urls.includes(merchant.website)) ? "text-blue-500" : "text-muted-foreground"}`}>
+                        <Bookmark className={`h-4 w-4 ${lists.some(l => l.urls.includes(merchant.website)) ? "fill-current" : ""}`} />
+                        <span className="text-xs tabular-nums">{saveCounts.get(merchant.website) ?? 0}</span>
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-52 p-2" align="start">
+                      {lists.length === 0 ? (
+                        <div className="py-2 text-center space-y-1">
+                          <p className="text-xs text-muted-foreground">No lists yet.</p>
+                          <Link href="/lists" className="text-xs text-primary hover:underline">Create a list</Link>
+                        </div>
+                      ) : (
+                        <div className="space-y-0.5">
+                          <p className="text-xs font-medium text-muted-foreground mb-1.5 px-1">Save to list</p>
+                          {lists.map(list => {
+                            const inList = list.urls.includes(merchant.website);
+                            return (
+                              <button key={list.dTag} type="button" onClick={() => toggleListMember(list.dTag, merchant.website, inList)} className="flex items-center gap-2 w-full rounded px-2 py-1.5 text-sm hover:bg-muted transition-colors" data-testid={`button-toggle-list-${list.dTag}-${merchant.id}`}>
+                                <div className={`h-3.5 w-3.5 rounded border flex items-center justify-center shrink-0 ${inList ? "bg-primary border-primary" : "border-input"}`}>
+                                  {inList && <Check className="h-2.5 w-2.5 text-primary-foreground" />}
+                                </div>
+                                <span className="truncate text-left">{list.title}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </PopoverContent>
+                  </Popover>
+                )}
+              </div>
+              <div className="flex-1 flex justify-center">
+                <button onClick={() => setShowShare(true)} data-testid={`button-share-${merchant.id}`} className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm text-muted-foreground transition-colors hover:bg-muted">
+                  <Upload className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
