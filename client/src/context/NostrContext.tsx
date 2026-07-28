@@ -96,6 +96,8 @@ interface NostrContextValue {
   toggleListPrivacy: (dTag: string) => Promise<void>;
   /** Fetch and cache the public like count for a merchant URL. No-op if already cached. */
   fetchLikeCount: (url: string) => Promise<void>;
+  /** Publish a signed Nostr event to the user's write relays. */
+  publishEvent: (template: EventTemplate) => Promise<VerifiedEvent>;
   savePublicList: (list: SavedPublicList) => void;
   unsavePublicList: (authorPubkey: string, dTag: string) => void;
   restoringNcryptsec: string | null;
@@ -620,7 +622,7 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
       user, readRelays, writeRelays, favourites, lists, isLoading, isLoginModalOpen,
       likesPublic, canUsePrivate, likeCounts, savedLists,
       loginNip07, loginWithBunker, loginWithGeneratedKey, restoreGeneratedSession,
-      logout, signEvent,
+      logout, signEvent, publishEvent,
       toggleFavourite, toggleLikesPublic,
       createList, deleteList, renameList, toggleListMember, toggleListPrivacy,
       fetchLikeCount,

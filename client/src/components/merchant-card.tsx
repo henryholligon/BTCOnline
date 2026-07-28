@@ -6,7 +6,7 @@ import { useCountryEmojis } from "@/hooks/use-country-emojis";
 import { Zap, Clock, Copy, Check, Heart, Bookmark, Forward, X as XIcon, Mail, ExternalLink } from "lucide-react";
 import BitcoinLogo from "@/components/bitcoin-logo";
 import { useRef, useEffect, useState, memo, useCallback } from "react";
-import { useComments, useSubmitComment, useDeleteComment, useIsAdmin, useMerchantRating, useMyComment } from "@/hooks/use-comments";
+import { useComments, useSubmitComment, useDeleteComment, useIsAdmin, useMerchantRating, useMyComment, useMasterPubkey } from "@/hooks/use-comments";
 import { Textarea } from "@/components/ui/textarea";
 import { slugify } from "@/lib/utils";
 import { QRCodeSVG } from "qrcode.react";
@@ -121,8 +121,9 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
   const cardRef = useRef<HTMLDivElement>(null);
   const { getCategoryWithEmoji } = useCategoryEmojis();
   const { getCountryEmoji } = useCountryEmojis();
-  const { user, favourites, toggleFavourite, lists, toggleListMember, openLoginModal, likeCounts, fetchLikeCount } = useNostr();
+  const { user, favourites, toggleFavourite, lists, toggleListMember, openLoginModal, likeCounts, fetchLikeCount, publishEvent } = useNostr();
   const isAdmin = useIsAdmin();
+  const masterPubkey = useMasterPubkey();
   const { data: commentsList = [], isLoading: commentsLoading } = useComments(merchant.id, expanded);
   const { data: ratingData } = useMerchantRating(merchant.id);
   const { data: myComment } = useMyComment(merchant.id, !!user);
@@ -146,7 +147,39 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
     if (!commentBody.trim()) return;
     await submitComment.mutateAsync({ body: commentBody, rating: commentRating });
     // Don't clear — keep the fields showing the saved state
-  }, [commentBody, commentRating, submitComment]);
+
+    // Publish a NIP-22 kind 1111 comment event to the user's Nostr relays (best-effort).
+    // Only attempted when the user has a Nostr identity capable of signing.
+    if (user && merchant.nostrEventId) {
+      try {
+        const dTag = slugify(merchant.name);
+        const tags: string[][] = [
+          ['K', '30402'],           // root kind
+          ['k', '30402'],           // immediate parent kind
+          ['E', merchant.nostrEventId], // root event id (uppercase = root scope)
+          ['e', merchant.nostrEventId], // immediate parent event id
+        ];
+        // A/a tags reference the merchant listing by its stable parametrized address.
+        // Requires the master pubkey which is public information already in every event.
+        if (masterPubkey) {
+          tags.push(['A', `30402:${masterPubkey}:${dTag}`]);
+          tags.push(['a', `30402:${masterPubkey}:${dTag}`]);
+        }
+        if (commentRating) {
+          tags.push(['rating', String(commentRating)]);
+        }
+        await publishEvent({
+          kind: 1111,
+          created_at: Math.floor(Date.now() / 1000),
+          tags,
+          content: commentBody,
+        });
+      } catch (err) {
+        // Relay failure is non-fatal — comment is already saved to DB.
+        console.warn('[nostr] Failed to publish comment event:', err);
+      }
+    }
+  }, [commentBody, commentRating, submitComment, user, merchant.nostrEventId, merchant.name, masterPubkey, publishEvent]);
 
   useEffect(() => {
     if (expanded && scrollIntoView && cardRef.current) {

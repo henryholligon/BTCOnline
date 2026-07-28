@@ -80,3 +80,12 @@ export function useIsAdmin() {
   });
   return data?.isAdmin ?? false;
 }
+
+/** Returns the master Nostr pubkey (hex) used to publish merchant listings, or null. */
+export function useMasterPubkey(): string | null {
+  const { data } = useQuery<{ pubkey: string | null }>({
+    queryKey: ["/api/nostr/master-pubkey"],
+    staleTime: Infinity, // never changes during a session
+  });
+  return data?.pubkey ?? null;
+}

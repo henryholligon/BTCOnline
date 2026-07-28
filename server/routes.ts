@@ -726,6 +726,11 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
 
   // ── Nostr publish endpoints ───────────────────────────────────────────────
 
+  // Public — the master pubkey is already embedded in every published event.
+  app.get("/api/nostr/master-pubkey", (_req, res) => {
+    res.json({ pubkey: getMasterPubkey() });
+  });
+
   app.get("/api/nostr/status", requireAdmin, async (_req, res) => {
     res.json({
       configured: nostrConfigured(),
