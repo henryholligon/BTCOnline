@@ -488,9 +488,18 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
 
           {/* ── Comments ─────────────────────────────────────────────────── */}
           <div className="border-t border-border/30 pt-4 space-y-3">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-              Comments{commentsList.length > 0 && ` · ${commentsList.length}`}
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+                Comments{commentsList.length > 0 && ` · ${commentsList.length}`}
+              </p>
+              {ratingData && ratingData.count > 0 && (
+                <span className="flex items-center gap-1 text-sm font-semibold text-amber-500">
+                  <span>★</span>
+                  <span>{ratingData.average.toFixed(1)}</span>
+                  <span className="text-muted-foreground font-normal text-xs">· {ratingData.count} {ratingData.count === 1 ? "rating" : "ratings"}</span>
+                </span>
+              )}
+            </div>
 
             {commentsLoading && (
               <p className="text-xs text-muted-foreground">Loading…</p>
