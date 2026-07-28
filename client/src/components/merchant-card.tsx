@@ -129,7 +129,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
   const masterPubkey = useMasterPubkey();
   const { data: commentsList = [], isLoading: commentsLoading } = useComments(merchant.id, expanded);
   const { data: ratingData } = useMerchantRating(merchant.id);
-  const { data: myComment } = useMyComment(merchant.id, !!user);
+  const { data: myComment } = useMyComment(merchant.id, !!user && expanded);
   const submitComment = useSubmitComment(merchant.id);
   const deleteComment = useDeleteComment(merchant.id);
 

@@ -48,9 +48,9 @@ export function useSubmitComment(merchantId: number) {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [`/api/merchants/${merchantId}/comments`] });
       queryClient.invalidateQueries({ queryKey: [`/api/merchants/${merchantId}/rating`] });
-      // Update the cached "my comment" so the form reflects the latest submission
       queryClient.setQueryData([`/api/merchants/${merchantId}/my-comment`], data);
     },
+    throwOnError: false,
   });
 }
 
