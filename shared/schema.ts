@@ -150,6 +150,18 @@ export const insertCountryEmojiSchema = createInsertSchema(countryEmojis).omit({
 export type InsertCountryEmoji = z.infer<typeof insertCountryEmojiSchema>;
 export type CountryEmoji = typeof countryEmojis.$inferSelect;
 
+export const comments = pgTable("comments", {
+  id: serial("id").primaryKey(),
+  merchantId: integer("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  body: text("body").notNull(),
+  createdAt: text("created_at").notNull(),
+});
+
+export const insertCommentSchema = createInsertSchema(comments).omit({ id: true, createdAt: true });
+export type InsertComment = z.infer<typeof insertCommentSchema>;
+export type Comment = typeof comments.$inferSelect;
+
 export const COUNTRIES = [
   "🌍 Worldwide",
   "🇺🇸 USA",

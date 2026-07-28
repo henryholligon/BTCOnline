@@ -1,7 +1,7 @@
 import type { Express, Request } from "express";
 import { type Server } from "http";
 import { storage } from "./storage";
-import { insertMerchantSchema, insertBadgePresetSchema, insertDirectoryOptionSchema, users } from "@shared/schema";
+import { insertMerchantSchema, insertBadgePresetSchema, insertDirectoryOptionSchema, users, comments } from "@shared/schema";
 import multer from "multer";
 import path from "path";
 import { createChallenge, verifySolution } from "altcha-lib";
@@ -19,7 +19,7 @@ const requireAdmin: RequestHandler = (req, res, next) => {
 import { uploadLogoBuffer, listLogos, cloudinaryConfigured } from "./cloudinary";
 import bcrypt from "bcrypt";
 import { db } from "./db";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, asc } from "drizzle-orm";
 import { merchants as merchantsTable } from "@shared/schema";
 import { generateSecretKey, getPublicKey } from "nostr-tools";
 import { encryptNsecServerSide, decryptNsecServerSide } from "./userKeyEncryption";
@@ -395,6 +395,76 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
     const id = parseInt(req.params.id);
     if (isNaN(id)) return res.status(400).json({ message: "Invalid merchant ID" });
     await storage.deleteMerchant(id);
+    res.status(204).end();
+  });
+
+  // ── Comments ────────────────────────────────────────────────────────────────
+
+  /** Returns whether the current session has admin privileges. */
+  app.get("/api/auth/admin-status", (req, res) => {
+    res.json({ isAdmin: !!req.session?.isAdmin });
+  });
+
+  app.get("/api/merchants/:id/comments", async (req, res) => {
+    const merchantId = parseInt(req.params.id);
+    if (isNaN(merchantId)) return res.status(400).json({ message: "Invalid merchant ID" });
+
+    const rows = await db
+      .select({
+        id: comments.id,
+        merchantId: comments.merchantId,
+        userId: comments.userId,
+        body: comments.body,
+        createdAt: comments.createdAt,
+        userEmail: users.email,
+      })
+      .from(comments)
+      .leftJoin(users, eq(comments.userId, users.id))
+      .where(eq(comments.merchantId, merchantId))
+      .orderBy(asc(comments.createdAt));
+
+    res.json(rows.map(r => ({
+      id: r.id,
+      merchantId: r.merchantId,
+      userId: r.userId,
+      body: r.body,
+      createdAt: r.createdAt,
+      // Derive a display name from the email local-part; never expose the full address publicly.
+      authorName: r.userEmail ? r.userEmail.split("@")[0] : "anon",
+    })));
+  });
+
+  app.post("/api/merchants/:id/comments", async (req, res) => {
+    const merchantId = parseInt(req.params.id);
+    if (isNaN(merchantId)) return res.status(400).json({ message: "Invalid merchant ID" });
+
+    const email = req.session?.userEmail;
+    if (!email) return res.status(401).json({ message: "Sign in to comment" });
+
+    const { body } = req.body;
+    if (!body?.trim()) return res.status(400).json({ message: "Comment cannot be empty" });
+    if (body.trim().length > 1000) return res.status(400).json({ message: "Comment must be under 1000 characters" });
+
+    const [userRow] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    if (!userRow) return res.status(401).json({ message: "User not found" });
+
+    const [comment] = await db.insert(comments).values({
+      merchantId,
+      userId: userRow.id,
+      body: body.trim(),
+      createdAt: new Date().toISOString(),
+    }).returning();
+
+    res.status(201).json({
+      ...comment,
+      authorName: userRow.email.split("@")[0],
+    });
+  });
+
+  app.delete("/api/comments/:id", requireAdmin, async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ message: "Invalid ID" });
+    await db.delete(comments).where(eq(comments.id, id));
     res.status(204).end();
   });
 

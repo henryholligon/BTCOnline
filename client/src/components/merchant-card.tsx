@@ -5,7 +5,9 @@ import { useCategoryEmojis } from "@/hooks/use-category-emojis";
 import { useCountryEmojis } from "@/hooks/use-country-emojis";
 import { Zap, Clock, Copy, Check, Heart, Bookmark, Forward, X as XIcon, Mail, ExternalLink } from "lucide-react";
 import BitcoinLogo from "@/components/bitcoin-logo";
-import { useRef, useEffect, useState, memo } from "react";
+import { useRef, useEffect, useState, memo, useCallback } from "react";
+import { useComments, useSubmitComment, useDeleteComment, useIsAdmin } from "@/hooks/use-comments";
+import { Textarea } from "@/components/ui/textarea";
 import { slugify } from "@/lib/utils";
 import { QRCodeSVG } from "qrcode.react";
 
@@ -113,10 +115,22 @@ interface MerchantCardProps {
 export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, scrollIntoView, onScrolledIntoView, badgePresets }: MerchantCardProps) {
   const [showShare, setShowShare] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [commentBody, setCommentBody] = useState("");
   const cardRef = useRef<HTMLDivElement>(null);
   const { getCategoryWithEmoji } = useCategoryEmojis();
   const { getCountryEmoji } = useCountryEmojis();
   const { user, favourites, toggleFavourite, lists, toggleListMember, openLoginModal, likeCounts, fetchLikeCount } = useNostr();
+  const isAdmin = useIsAdmin();
+  const { data: commentsList = [], isLoading: commentsLoading } = useComments(merchant.id, expanded);
+  const submitComment = useSubmitComment(merchant.id);
+  const deleteComment = useDeleteComment(merchant.id);
+
+  const handleCommentSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!commentBody.trim()) return;
+    await submitComment.mutateAsync(commentBody);
+    setCommentBody("");
+  }, [commentBody, submitComment]);
 
   useEffect(() => {
     if (expanded && scrollIntoView && cardRef.current) {
@@ -459,6 +473,81 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 </Popover>
               )}
             </div>
+          </div>
+
+          {/* ── Comments ─────────────────────────────────────────────────── */}
+          <div className="border-t border-border/30 pt-4 space-y-3">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+              Comments{commentsList.length > 0 && ` · ${commentsList.length}`}
+            </p>
+
+            {commentsLoading && (
+              <p className="text-xs text-muted-foreground">Loading…</p>
+            )}
+
+            {!commentsLoading && commentsList.length > 0 && (
+              <div className="space-y-3">
+                {commentsList.map(c => (
+                  <div key={c.id} className="flex gap-2 group/comment">
+                    <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center shrink-0 text-[10px] font-bold text-muted-foreground uppercase">
+                      {c.authorName.slice(0, 1)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-semibold">{c.authorName}</span>
+                        <span className="text-[10px] text-muted-foreground">
+                          {new Date(c.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                        </span>
+                        {isAdmin && (
+                          <button
+                            className="ml-auto opacity-0 group-hover/comment:opacity-100 transition-opacity text-muted-foreground hover:text-destructive text-[10px]"
+                            onClick={() => deleteComment.mutate(c.id)}
+                            title="Delete comment"
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-xs text-foreground/90 mt-0.5 break-words">{c.body}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {!commentsLoading && commentsList.length === 0 && (
+              <p className="text-xs text-muted-foreground">No comments yet. Be the first!</p>
+            )}
+
+            {user ? (
+              <form onSubmit={handleCommentSubmit} className="space-y-2">
+                <Textarea
+                  value={commentBody}
+                  onChange={e => setCommentBody(e.target.value)}
+                  placeholder="Share your experience with this merchant…"
+                  className="text-xs min-h-[60px] resize-none"
+                  maxLength={1000}
+                />
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-muted-foreground">{commentBody.length}/1000</span>
+                  <Button
+                    type="submit"
+                    size="sm"
+                    disabled={!commentBody.trim() || submitComment.isPending}
+                    className="h-7 text-xs"
+                  >
+                    {submitComment.isPending ? "Posting…" : "Post comment"}
+                  </Button>
+                </div>
+              </form>
+            ) : (
+              <button
+                className="text-xs text-primary hover:underline"
+                onClick={openLoginModal}
+              >
+                Sign in to leave a comment
+              </button>
+            )}
           </div>
         </div>
       )}
