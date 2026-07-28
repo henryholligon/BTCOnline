@@ -114,10 +114,12 @@ interface MerchantCardProps {
 
 export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, scrollIntoView, onScrolledIntoView, badgePresets }: MerchantCardProps) {
   const [showShare, setShowShare] = useState(false);
+  const [showComments, setShowComments] = useState(false);
   const [showReviews, setShowReviews] = useState(false);
   const [copied, setCopied] = useState(false);
   const [commentBody, setCommentBody] = useState("");
-  const [commentRating, setCommentRating] = useState<number | null>(null);
+  const [reviewRating, setReviewRating] = useState<number | null>(null);
+  const [reviewNote, setReviewNote] = useState("");
   const [hoverRating, setHoverRating] = useState<number | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const { getCategoryWithEmoji } = useCategoryEmojis();
@@ -131,60 +133,54 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
   const submitComment = useSubmitComment(merchant.id);
   const deleteComment = useDeleteComment(merchant.id);
 
-  // Pre-fill the form with the user's existing comment when it loads or the card expands
+  // Pre-fill forms from the user's existing record when the card expands
   useEffect(() => {
     if (!expanded) return;
-    if (myComment) {
-      setCommentBody(myComment.body);
-      setCommentRating(myComment.rating ?? null);
-    } else {
-      setCommentBody("");
-      setCommentRating(null);
-    }
+    setCommentBody(myComment?.body ?? "");
+    setReviewRating(myComment?.rating ?? null);
+    setReviewNote("");
   }, [expanded, myComment]);
+
+  const publishToNostr = useCallback(async (body: string, rating: number | null) => {
+    if (!user || !merchant.nostrEventId) return;
+    try {
+      const dTag = slugify(merchant.name);
+      const tags: string[][] = [
+        ['K', '30402'], ['k', '30402'],
+        ['E', merchant.nostrEventId], ['e', merchant.nostrEventId],
+      ];
+      if (masterPubkey) {
+        tags.push(['A', `30402:${masterPubkey}:${dTag}`]);
+        tags.push(['a', `30402:${masterPubkey}:${dTag}`]);
+      }
+      if (rating) tags.push(['rating', String(rating)]);
+      await publishEvent({ kind: 1111, created_at: Math.floor(Date.now() / 1000), tags, content: body });
+    } catch (err) {
+      console.warn('[nostr] Failed to publish comment event:', err);
+    }
+  }, [user, merchant.nostrEventId, merchant.name, masterPubkey, publishEvent]);
 
   const handleCommentSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!commentBody.trim()) return;
-    await submitComment.mutateAsync({ body: commentBody, rating: commentRating });
-    // Don't clear — keep the fields showing the saved state
+    // Preserve existing rating when updating the comment text
+    const existingRating = myComment?.rating ?? null;
+    await submitComment.mutateAsync({ body: commentBody, rating: existingRating });
+    await publishToNostr(commentBody, existingRating);
+  }, [commentBody, myComment, submitComment, publishToNostr]);
 
-    // Publish a NIP-22 kind 1111 comment event to the user's Nostr relays (best-effort).
-    // Only attempted when the user has a Nostr identity capable of signing.
-    if (user && merchant.nostrEventId) {
-      try {
-        const dTag = slugify(merchant.name);
-        const tags: string[][] = [
-          ['K', '30402'],           // root kind
-          ['k', '30402'],           // immediate parent kind
-          ['E', merchant.nostrEventId], // root event id (uppercase = root scope)
-          ['e', merchant.nostrEventId], // immediate parent event id
-        ];
-        // A/a tags reference the merchant listing by its stable parametrized address.
-        // Requires the master pubkey which is public information already in every event.
-        if (masterPubkey) {
-          tags.push(['A', `30402:${masterPubkey}:${dTag}`]);
-          tags.push(['a', `30402:${masterPubkey}:${dTag}`]);
-        }
-        if (commentRating) {
-          tags.push(['rating', String(commentRating)]);
-        }
-        await publishEvent({
-          kind: 1111,
-          created_at: Math.floor(Date.now() / 1000),
-          tags,
-          content: commentBody,
-        });
-      } catch (err) {
-        // Relay failure is non-fatal — comment is already saved to DB.
-        console.warn('[nostr] Failed to publish comment event:', err);
-      }
-    }
-  }, [commentBody, commentRating, submitComment, user, merchant.nostrEventId, merchant.name, masterPubkey, publishEvent]);
+  const handleReviewSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewRating) return;
+    // Preserve existing body text when updating the star rating
+    const existingBody = myComment?.body?.trim() || '';
+    await submitComment.mutateAsync({ body: existingBody, rating: reviewRating });
+    await publishToNostr(reviewNote || existingBody, reviewRating);
+  }, [reviewRating, reviewNote, myComment, submitComment, publishToNostr]);
 
-  // Reset reviews panel when card collapses
+  // Reset panels when card collapses
   useEffect(() => {
-    if (!expanded) setShowReviews(false);
+    if (!expanded) { setShowComments(false); setShowReviews(false); }
   }, [expanded]);
 
   useEffect(() => {
@@ -454,6 +450,23 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 </a>
               </Button>
 
+              {/* Comments */}
+              <Button
+                size="sm"
+                variant={showComments ? "default" : "outline"}
+                className="gap-1.5"
+                onClick={() => setShowComments(v => !v)}
+                data-testid={`button-comments-${merchant.id}`}
+              >
+                <MessageSquare className="h-3.5 w-3.5" />
+                Comments
+                {commentsList.length > 0 && (
+                  <span className={`text-[10px] font-semibold rounded-full px-1.5 py-0 leading-5 ${showComments ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
+                    {commentsList.length}
+                  </span>
+                )}
+              </Button>
+
               {/* Reviews */}
               <Button
                 size="sm"
@@ -462,13 +475,11 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 onClick={() => setShowReviews(v => !v)}
                 data-testid={`button-reviews-${merchant.id}`}
               >
-                <MessageSquare className="h-3.5 w-3.5" />
+                <span className="text-sm leading-none">★</span>
                 Reviews
-                {(commentsList.length > 0 || (ratingData && ratingData.count > 0)) && (
+                {ratingData && ratingData.count > 0 && (
                   <span className={`text-[10px] font-semibold rounded-full px-1.5 py-0 leading-5 ${showReviews ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
-                    {ratingData && ratingData.count > 0
-                      ? `★ ${ratingData.average.toFixed(1)}`
-                      : commentsList.length}
+                    {ratingData.average.toFixed(1)}
                   </span>
                 )}
               </Button>
@@ -556,28 +567,17 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
             </div>
           </div>
 
-          {/* ── Reviews panel ────────────────────────────────────────────── */}
-          {showReviews && <div className="border-t border-border/30 pt-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-                Comments{commentsList.length > 0 && ` · ${commentsList.length}`}
-              </p>
-              {ratingData && ratingData.count > 0 && (
-                <span className="flex items-center gap-1 text-sm font-semibold text-amber-500">
-                  <span>★</span>
-                  <span>{ratingData.average.toFixed(1)}</span>
-                  <span className="text-muted-foreground font-normal text-xs">· {ratingData.count} {ratingData.count === 1 ? "rating" : "ratings"}</span>
-                </span>
-              )}
-            </div>
+          {/* ── Comments panel ───────────────────────────────────────────── */}
+          {showComments && <div className="border-t border-border/30 pt-4 space-y-3">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+              Comments{commentsList.length > 0 && ` · ${commentsList.length}`}
+            </p>
 
-            {commentsLoading && (
-              <p className="text-xs text-muted-foreground">Loading…</p>
-            )}
+            {commentsLoading && <p className="text-xs text-muted-foreground">Loading…</p>}
 
             {!commentsLoading && commentsList.length > 0 && (
               <div className="space-y-3">
-                {commentsList.map(c => (
+                {commentsList.filter(c => c.body?.trim()).map(c => (
                   <div key={c.id} className="flex gap-2 group/comment">
                     <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center shrink-0 text-[10px] font-bold text-muted-foreground uppercase">
                       {c.authorName.slice(0, 1)}
@@ -585,13 +585,6 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="text-[11px] font-semibold">{c.authorName}</span>
-                        {c.rating != null && (
-                          <span className="flex items-center gap-0.5 text-amber-400 text-[11px] leading-none">
-                            {[1,2,3,4,5].map(s => (
-                              <span key={s} className={s <= c.rating! ? "text-amber-400" : "text-muted-foreground/30"}>★</span>
-                            ))}
-                          </span>
-                        )}
                         <span className="text-[10px] text-muted-foreground">
                           {new Date(c.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                         </span>
@@ -600,9 +593,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                             className="ml-auto opacity-0 group-hover/comment:opacity-100 transition-opacity text-muted-foreground hover:text-destructive text-[10px]"
                             onClick={() => deleteComment.mutate(c.id)}
                             title="Delete comment"
-                          >
-                            Delete
-                          </button>
+                          >Delete</button>
                         )}
                       </div>
                       <p className="text-xs text-foreground/90 mt-0.5 break-words">{c.body}</p>
@@ -612,63 +603,122 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               </div>
             )}
 
-            {!commentsLoading && commentsList.length === 0 && (
+            {!commentsLoading && commentsList.filter(c => c.body?.trim()).length === 0 && (
               <p className="text-xs text-muted-foreground">No comments yet. Be the first!</p>
             )}
 
             {user ? (
               <form onSubmit={handleCommentSubmit} className="space-y-2">
-                {/* Star picker */}
-                <div className="flex items-center gap-1">
-                  <span className="text-[11px] text-muted-foreground mr-1">Rating:</span>
-                  {[1,2,3,4,5].map(star => (
-                    <button
-                      key={star}
-                      type="button"
-                      className={`text-lg leading-none transition-colors ${
-                        (hoverRating ?? commentRating ?? 0) >= star
-                          ? "text-amber-400"
-                          : "text-muted-foreground/30 hover:text-amber-300"
-                      }`}
-                      onMouseEnter={() => setHoverRating(star)}
-                      onMouseLeave={() => setHoverRating(null)}
-                      onClick={() => setCommentRating(commentRating === star ? null : star)}
-                      title={`${star} star${star > 1 ? "s" : ""}`}
-                    >
-                      ★
-                    </button>
-                  ))}
-                  {commentRating && (
-                    <span className="text-[10px] text-muted-foreground ml-1">{commentRating}/5</span>
-                  )}
-                </div>
                 <Textarea
                   value={commentBody}
                   onChange={e => setCommentBody(e.target.value)}
-                  placeholder="Share your experience with this merchant…"
+                  placeholder="Share your thoughts on this merchant…"
                   className="text-xs min-h-[60px] resize-none"
                   maxLength={1000}
                 />
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-muted-foreground">{commentBody.length}/1000</span>
-                  <Button
-                    type="submit"
-                    size="sm"
-                    disabled={!commentBody.trim() || submitComment.isPending}
-                    className="h-7 text-xs"
-                  >
-                    {submitComment.isPending
-                      ? (myComment ? "Updating…" : "Posting…")
-                      : (myComment ? "Update comment" : "Post comment")}
+                  <Button type="submit" size="sm" disabled={!commentBody.trim() || submitComment.isPending} className="h-7 text-xs">
+                    {submitComment.isPending ? "Posting…" : (myComment?.body ? "Update" : "Post comment")}
                   </Button>
                 </div>
               </form>
             ) : (
-              <button
-                className="text-xs text-primary hover:underline"
-                onClick={openLoginModal}
-              >
+              <button className="text-xs text-primary hover:underline" onClick={openLoginModal}>
                 Sign in to leave a comment
+              </button>
+            )}
+          </div>}
+
+          {/* ── Reviews panel ────────────────────────────────────────────── */}
+          {showReviews && <div className="border-t border-border/30 pt-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+                Reviews{ratingData && ratingData.count > 0 && ` · ${ratingData.count}`}
+              </p>
+              {ratingData && ratingData.count > 0 && (
+                <span className="flex items-center gap-1 text-sm font-semibold text-amber-500">
+                  <span>★</span>
+                  <span>{ratingData.average.toFixed(1)}</span>
+                  <span className="text-muted-foreground font-normal text-xs">/ 5</span>
+                </span>
+              )}
+            </div>
+
+            {commentsLoading && <p className="text-xs text-muted-foreground">Loading…</p>}
+
+            {!commentsLoading && commentsList.filter(c => c.rating != null).length > 0 && (
+              <div className="space-y-3">
+                {commentsList.filter(c => c.rating != null).map(c => (
+                  <div key={c.id} className="flex gap-2 group/comment">
+                    <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center shrink-0 text-[10px] font-bold text-muted-foreground uppercase">
+                      {c.authorName.slice(0, 1)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-semibold">{c.authorName}</span>
+                        <span className="flex items-center gap-0.5 text-amber-400 text-[11px] leading-none">
+                          {[1,2,3,4,5].map(s => (
+                            <span key={s} className={s <= c.rating! ? "text-amber-400" : "text-muted-foreground/30"}>★</span>
+                          ))}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">
+                          {new Date(c.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                        </span>
+                        {isAdmin && (
+                          <button
+                            className="ml-auto opacity-0 group-hover/comment:opacity-100 transition-opacity text-muted-foreground hover:text-destructive text-[10px]"
+                            onClick={() => deleteComment.mutate(c.id)}
+                            title="Delete review"
+                          >Delete</button>
+                        )}
+                      </div>
+                      {c.body?.trim() && <p className="text-xs text-foreground/90 mt-0.5 break-words">{c.body}</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {!commentsLoading && commentsList.filter(c => c.rating != null).length === 0 && (
+              <p className="text-xs text-muted-foreground">No reviews yet. Be the first to rate this merchant!</p>
+            )}
+
+            {user ? (
+              <form onSubmit={handleReviewSubmit} className="space-y-2">
+                <div className="flex items-center gap-1">
+                  <span className="text-[11px] text-muted-foreground mr-1">Your rating:</span>
+                  {[1,2,3,4,5].map(star => (
+                    <button
+                      key={star}
+                      type="button"
+                      className={`text-xl leading-none transition-colors ${
+                        (hoverRating ?? reviewRating ?? 0) >= star ? "text-amber-400" : "text-muted-foreground/30 hover:text-amber-300"
+                      }`}
+                      onMouseEnter={() => setHoverRating(star)}
+                      onMouseLeave={() => setHoverRating(null)}
+                      onClick={() => setReviewRating(reviewRating === star ? null : star)}
+                      title={`${star} star${star > 1 ? "s" : ""}`}
+                    >★</button>
+                  ))}
+                  {reviewRating && <span className="text-[10px] text-muted-foreground ml-1">{reviewRating}/5</span>}
+                </div>
+                <Textarea
+                  value={reviewNote}
+                  onChange={e => setReviewNote(e.target.value)}
+                  placeholder="Optional: add a note about your rating…"
+                  className="text-xs min-h-[48px] resize-none"
+                  maxLength={500}
+                />
+                <div className="flex justify-end">
+                  <Button type="submit" size="sm" disabled={!reviewRating || submitComment.isPending} className="h-7 text-xs">
+                    {submitComment.isPending ? "Saving…" : (myComment?.rating ? "Update rating" : "Submit rating")}
+                  </Button>
+                </div>
+              </form>
+            ) : (
+              <button className="text-xs text-primary hover:underline" onClick={openLoginModal}>
+                Sign in to leave a review
               </button>
             )}
           </div>}

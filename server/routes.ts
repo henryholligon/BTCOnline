@@ -482,8 +482,10 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
     if (!email) return res.status(401).json({ message: "Sign in to comment" });
 
     const { body, rating } = req.body;
-    if (!body?.trim()) return res.status(400).json({ message: "Comment cannot be empty" });
-    if (body.trim().length > 1000) return res.status(400).json({ message: "Comment must be under 1000 characters" });
+    const hasBody = !!body?.trim();
+    const hasRating = rating !== undefined && rating !== null;
+    if (!hasBody && !hasRating) return res.status(400).json({ message: "Please add a comment or a star rating" });
+    if (hasBody && body.trim().length > 1000) return res.status(400).json({ message: "Comment must be under 1000 characters" });
 
     // Validate rating if provided
     if (rating !== undefined && rating !== null) {
