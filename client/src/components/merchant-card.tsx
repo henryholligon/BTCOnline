@@ -343,9 +343,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${user && favourites.has(merchant.website) ? "text-red-500" : "text-muted-foreground"}`}
               >
                 <Heart className={`h-4 w-4 ${user && favourites.has(merchant.website) ? "fill-current" : ""}`} />
-                {(likeCounts.get(merchant.website) ?? 0) > 0 && (
-                  <span className="text-xs tabular-nums">{likeCounts.get(merchant.website)}</span>
-                )}
+                <span className="text-xs tabular-nums">{likeCounts.get(merchant.website) ?? 0}</span>
               </button>
             </div>
             <div className="flex-1 flex justify-center">
@@ -356,9 +354,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                   className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm text-muted-foreground transition-colors hover:bg-muted"
                 >
                   <Bookmark className="h-4 w-4" />
-                  {(saveCounts.get(merchant.website) ?? 0) > 0 && (
-                    <span className="text-xs tabular-nums">{saveCounts.get(merchant.website)}</span>
-                  )}
+                  <span className="text-xs tabular-nums">{saveCounts.get(merchant.website) ?? 0}</span>
                 </button>
               ) : (
                 <Popover>
@@ -368,9 +364,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                       className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${lists.some(l => l.urls.includes(merchant.website)) ? "text-blue-500" : "text-muted-foreground"}`}
                     >
                       <Bookmark className={`h-4 w-4 ${lists.some(l => l.urls.includes(merchant.website)) ? "fill-current" : ""}`} />
-                      {(saveCounts.get(merchant.website) ?? 0) > 0 && (
-                        <span className="text-xs tabular-nums">{saveCounts.get(merchant.website)}</span>
-                      )}
+                      <span className="text-xs tabular-nums">{saveCounts.get(merchant.website) ?? 0}</span>
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-52 p-2" align="start">
