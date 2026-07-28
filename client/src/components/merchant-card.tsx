@@ -124,7 +124,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
   const cardRef = useRef<HTMLDivElement>(null);
   const { getCategoryWithEmoji } = useCategoryEmojis();
   const { getCountryEmoji } = useCountryEmojis();
-  const { user, favourites, toggleFavourite, lists, toggleListMember, openLoginModal, likeCounts, fetchLikeCount, publishEvent } = useNostr();
+  const { user, favourites, toggleFavourite, lists, toggleListMember, openLoginModal, likeCounts, fetchLikeCount, saveCounts, fetchSaveCount, publishEvent } = useNostr();
   const isAdmin = useIsAdmin();
   const masterPubkey = useMasterPubkey();
   const { data: commentsList = [], isLoading: commentsLoading } = useComments(merchant.id, expanded);
@@ -192,12 +192,11 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
     }
   }, [expanded, scrollIntoView, onScrolledIntoView]);
 
-  // Fetch public like count lazily when the card is expanded
+  // Fetch public like + save counts lazily when the card is expanded
   useEffect(() => {
-    if (expanded && !likeCounts.has(merchant.website)) {
-      fetchLikeCount(merchant.website);
-    }
-  }, [expanded, merchant.website, likeCounts, fetchLikeCount]);
+    if (expanded && !likeCounts.has(merchant.website)) fetchLikeCount(merchant.website);
+    if (expanded && !saveCounts.has(merchant.website)) fetchSaveCount(merchant.website);
+  }, [expanded, merchant.website, likeCounts, fetchLikeCount, saveCounts, fetchSaveCount]);
 
   const merchantUrl = `${window.location.origin}/merchant/${slugify(merchant.name)}`;
 
@@ -492,6 +491,9 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                   className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm text-muted-foreground transition-colors hover:bg-muted"
                 >
                   <Bookmark className="h-4 w-4" />
+                  {(saveCounts.get(merchant.website) ?? 0) > 0 && (
+                    <span className="text-xs tabular-nums">{saveCounts.get(merchant.website)}</span>
+                  )}
                 </button>
               ) : (
                 <Popover>
@@ -501,6 +503,9 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                       className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${lists.some(l => l.urls.includes(merchant.website)) ? "text-blue-500" : "text-muted-foreground"}`}
                     >
                       <Bookmark className={`h-4 w-4 ${lists.some(l => l.urls.includes(merchant.website)) ? "fill-current" : ""}`} />
+                      {(saveCounts.get(merchant.website) ?? 0) > 0 && (
+                        <span className="text-xs tabular-nums">{saveCounts.get(merchant.website)}</span>
+                      )}
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-52 p-2" align="start">

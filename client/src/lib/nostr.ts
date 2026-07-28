@@ -153,6 +153,23 @@ export async function fetchPublicLists(relays: string[]): Promise<Event[]> {
 }
 
 /**
+ * Fetch the number of public list saves for a merchant URL.
+ * Counts Kind 30004 list events with an `r` tag matching the URL, excluding private ones.
+ */
+export async function fetchSaveCount(url: string, relays: string[]): Promise<number> {
+  try {
+    const events = await pool.querySync(
+      relays,
+      { kinds: [30004], '#r': [url] } as Filter,
+      { maxWait: 5000 },
+    );
+    return events.filter(e => !e.tags.some(t => t[0] === 'private' && t[1] === 'true')).length;
+  } catch {
+    return 0;
+  }
+}
+
+/**
  * Fetch the number of public likes for a merchant URL.
  * Only counts Kind 10003 events that are NOT private-encrypted.
  */

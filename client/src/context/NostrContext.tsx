@@ -12,6 +12,7 @@ import {
   fetchFavourites,
   fetchUserLists,
   fetchLikeCount as fetchLikeCountFromRelay,
+  fetchSaveCount as fetchSaveCountFromRelay,
   bytesToHex,
   hexToBytes,
   getListTitle,
@@ -79,6 +80,8 @@ interface NostrContextValue {
   canUsePrivate: boolean;
   /** Cached like counts keyed by merchant URL. */
   likeCounts: Map<string, number>;
+  /** Cached list-save counts keyed by merchant URL. */
+  saveCounts: Map<string, number>;
   /** Public lists saved/bookmarked by the user. */
   savedLists: SavedPublicList[];
   loginNip07: () => Promise<void>;
@@ -96,6 +99,8 @@ interface NostrContextValue {
   toggleListPrivacy: (dTag: string) => Promise<void>;
   /** Fetch and cache the public like count for a merchant URL. No-op if already cached. */
   fetchLikeCount: (url: string) => Promise<void>;
+  /** Fetch and cache the public list-save count for a merchant URL. No-op if already cached. */
+  fetchSaveCount: (url: string) => Promise<void>;
   /** Publish a signed Nostr event to the user's write relays. */
   publishEvent: (template: EventTemplate) => Promise<VerifiedEvent>;
   savePublicList: (list: SavedPublicList) => void;
@@ -151,10 +156,12 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
   const [likesPublic, setLikesPublicState] = useState<boolean>(true); // initUser sets authoritative value from relay
   const [savedLists, setSavedLists] = useState<SavedPublicList[]>(loadSavedLists);
   const [likeCounts, setLikeCounts] = useState<Map<string, number>>(new Map());
+  const [saveCounts, setSaveCounts] = useState<Map<string, number>>(new Map());
 
   const secretKeyRef = useRef<Uint8Array | null>(null);
   const bunkerSignerRef = useRef<BunkerSigner | null>(null);
   const likeCountFetchingRef = useRef<Set<string>>(new Set());
+  const saveCountFetchingRef = useRef<Set<string>>(new Set());
   /** True when the current session loaded private likes but could not decrypt them. */
   const privateLikesDecryptFailedRef = useRef(false);
 
@@ -590,6 +597,21 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
     }
   }, [readRelays]);
 
+  const fetchSaveCount = useCallback(async (url: string) => {
+    if (saveCountFetchingRef.current.has(url)) return;
+    saveCountFetchingRef.current.add(url);
+    try {
+      const count = await fetchSaveCountFromRelay(url, readRelays);
+      setSaveCounts(prev => {
+        const next = new Map(prev);
+        next.set(url, count);
+        return next;
+      });
+    } catch {
+      saveCountFetchingRef.current.delete(url);
+    }
+  }, [readRelays]);
+
   // ── Saved public lists ───────────────────────────────────────────────────────
 
   const savePublicList = useCallback((list: SavedPublicList) => {
@@ -620,12 +642,12 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
   return (
     <NostrContext.Provider value={{
       user, readRelays, writeRelays, favourites, lists, isLoading, isLoginModalOpen,
-      likesPublic, canUsePrivate, likeCounts, savedLists,
+      likesPublic, canUsePrivate, likeCounts, saveCounts, savedLists,
       loginNip07, loginWithBunker, loginWithGeneratedKey, restoreGeneratedSession,
       logout, signEvent, publishEvent,
       toggleFavourite, toggleLikesPublic,
       createList, deleteList, renameList, toggleListMember, toggleListPrivacy,
-      fetchLikeCount,
+      fetchLikeCount, fetchSaveCount,
       savePublicList, unsavePublicList,
       restoringNcryptsec, openLoginModal, closeLoginModal,
       getSecretKey, loginMethod, sessionNcryptsec, sessionEmailKeyMaterial,
