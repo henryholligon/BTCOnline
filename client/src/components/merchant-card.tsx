@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { type Merchant, type BadgePreset } from "@shared/schema";
 import { useCategoryEmojis } from "@/hooks/use-category-emojis";
 import { useCountryEmojis } from "@/hooks/use-country-emojis";
-import { Zap, Clock, Copy, Check, Heart, Bookmark, Upload, X as XIcon, Mail, ExternalLink, MessageSquare } from "lucide-react";
+import { Zap, Clock, Copy, Check, Heart, Bookmark, Upload, X as XIcon, Mail, ExternalLink, MessageSquare, ChevronUp, ChevronDown } from "lucide-react";
 import BitcoinLogo from "@/components/bitcoin-logo";
 import { useRef, useEffect, useState, memo, useCallback } from "react";
 import { useComments, useSubmitComment, useDeleteComment, useIsAdmin, useMerchantRating, useMyComment, useMasterPubkey } from "@/hooks/use-comments";
@@ -289,73 +289,131 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
           )}
         </div>
 
-        <div className="shrink-0 self-start mt-1 hidden md:flex items-center gap-1">
-          <button
-            type="button"
-            className={`flex items-center gap-1 h-8 px-1.5 rounded-lg transition-colors ${user && favourites.has(merchant.website) ? "text-red-500 hover:text-red-600" : "text-muted-foreground/40 hover:text-red-400"}`}
-            onClick={(e) => { e.stopPropagation(); toggleFavourite(merchant.website); }}
-            title={user ? (favourites.has(merchant.website) ? "Unlike" : "Like") : "Sign in to like merchants"}
-            data-testid={`button-favourite-${merchant.id}`}
-          >
-            <Heart className={`h-4 w-4 ${user && favourites.has(merchant.website) ? "fill-current" : ""}`} />
-            {expanded && (likeCounts.get(merchant.website) ?? 0) > 0 && (
-              <span className="text-[10px] font-medium leading-none">{likeCounts.get(merchant.website)}</span>
-            )}
-          </button>
-          <div onClick={e => e.stopPropagation()}>
-            {!user ? (
+        <div className="shrink-0 self-start mt-1 hidden md:flex items-center px-1">
+          {expanded
+            ? <ChevronDown className="h-5 w-5 text-muted-foreground/40" />
+            : <ChevronUp className="h-5 w-5 text-muted-foreground/40" />
+          }
+        </div>
+      </div>
+
+      {/* Footer row — social buttons always on desktop; full row (Visit+social) when expanded */}
+      <div
+        className={`border-t border-border/40 px-3 md:px-4 pt-2 pb-2${!expanded ? ' hidden md:block' : ''}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className={`flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-0`}>
+          {expanded && (
+            <div className="sm:flex-1 sm:flex sm:justify-center">
+              <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto self-start" data-testid={`link-visit-${merchant.id}`}>
+                <a href={merchant.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
+                  <ExternalLink className="h-3.5 w-3.5" /> Visit website
+                </a>
+              </Button>
+            </div>
+          )}
+          <div className={`flex items-center w-full sm:gap-0${expanded ? ' sm:flex-[5]' : ''}`}>
+            <div className="flex-1 flex justify-center">
               <button
-                type="button"
-                className="h-8 w-8 flex items-center justify-center rounded-lg transition-colors text-muted-foreground/40 hover:text-muted-foreground"
-                title="Sign in to save to a list"
-                onClick={openLoginModal}
-                data-testid={`button-add-to-list-${merchant.id}`}
+                onClick={() => { setShowComments(v => !v); setShowReviews(false); }}
+                data-testid={`button-comments-${merchant.id}`}
+                className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${showComments ? "text-blue-500" : "text-muted-foreground"}`}
               >
-                <Bookmark className="h-4 w-4" />
+                <MessageSquare className="h-4 w-4" />
+                <span className="text-xs tabular-nums">{commentsList.length}</span>
               </button>
-            ) : (
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button
-                    type="button"
-                    className="h-8 w-8 flex items-center justify-center rounded-lg transition-colors text-muted-foreground/40 hover:text-muted-foreground"
-                    title="Save to list"
-                    data-testid={`button-add-to-list-${merchant.id}`}
-                  >
-                    <Bookmark className="h-4 w-4" />
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-52 p-2" align="end">
-                  {lists.length === 0 ? (
-                    <div className="py-2 text-center space-y-1">
-                      <p className="text-xs text-muted-foreground">No lists yet.</p>
-                      <Link href="/lists" className="text-xs text-primary hover:underline">Create a list</Link>
-                    </div>
-                  ) : (
-                    <div className="space-y-0.5">
-                      <p className="text-xs font-medium text-muted-foreground mb-1.5 px-1">Save to list</p>
-                      {lists.map(list => {
-                        const inList = list.urls.includes(merchant.website);
-                        return (
-                          <button
-                            key={list.dTag}
-                            type="button"
-                            onClick={() => toggleListMember(list.dTag, merchant.website, inList)}
-                            className="flex items-center gap-2 w-full rounded px-2 py-1.5 text-sm hover:bg-muted transition-colors"
-                            data-testid={`button-toggle-list-${list.dTag}-${merchant.id}`}
-                          >
-                            <div className={`h-3.5 w-3.5 rounded border flex items-center justify-center shrink-0 ${inList ? "bg-primary border-primary" : "border-input"}`}>
-                              {inList && <Check className="h-2.5 w-2.5 text-primary-foreground" />}
-                            </div>
-                            <span className="truncate text-left">{list.title}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+            </div>
+            <div className="flex-1 flex justify-center">
+              <button
+                onClick={() => { setShowReviews(v => !v); setShowComments(false); }}
+                data-testid={`button-reviews-${merchant.id}`}
+                className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${showReviews ? "text-amber-500" : "text-muted-foreground"}`}
+              >
+                <span className={`text-base leading-none ${showReviews ? "text-amber-400" : "text-muted-foreground"}`}>★</span>
+                {ratingData && ratingData.count > 0
+                  ? <span className="text-xs tabular-nums">{ratingData.average.toFixed(1)}</span>
+                  : <span className="text-xs font-semibold tracking-wide">NEW</span>
+                }
+              </button>
+            </div>
+            <div className="flex-1 flex justify-center">
+              <button
+                onClick={() => toggleFavourite(merchant.website)}
+                data-testid={`button-favourite-${merchant.id}`}
+                className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${user && favourites.has(merchant.website) ? "text-red-500" : "text-muted-foreground"}`}
+              >
+                <Heart className={`h-4 w-4 ${user && favourites.has(merchant.website) ? "fill-current" : ""}`} />
+                {(likeCounts.get(merchant.website) ?? 0) > 0 && (
+                  <span className="text-xs tabular-nums">{likeCounts.get(merchant.website)}</span>
+                )}
+              </button>
+            </div>
+            <div className="flex-1 flex justify-center">
+              {!user ? (
+                <button
+                  onClick={openLoginModal}
+                  data-testid={`button-add-to-list-${merchant.id}`}
+                  className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm text-muted-foreground transition-colors hover:bg-muted"
+                >
+                  <Bookmark className="h-4 w-4" />
+                  {(saveCounts.get(merchant.website) ?? 0) > 0 && (
+                    <span className="text-xs tabular-nums">{saveCounts.get(merchant.website)}</span>
                   )}
-                </PopoverContent>
-              </Popover>
-            )}
+                </button>
+              ) : (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      data-testid={`button-add-to-list-${merchant.id}`}
+                      className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${lists.some(l => l.urls.includes(merchant.website)) ? "text-blue-500" : "text-muted-foreground"}`}
+                    >
+                      <Bookmark className={`h-4 w-4 ${lists.some(l => l.urls.includes(merchant.website)) ? "fill-current" : ""}`} />
+                      {(saveCounts.get(merchant.website) ?? 0) > 0 && (
+                        <span className="text-xs tabular-nums">{saveCounts.get(merchant.website)}</span>
+                      )}
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-52 p-2" align="start">
+                    {lists.length === 0 ? (
+                      <div className="py-2 text-center space-y-1">
+                        <p className="text-xs text-muted-foreground">No lists yet.</p>
+                        <Link href="/lists" className="text-xs text-primary hover:underline">Create a list</Link>
+                      </div>
+                    ) : (
+                      <div className="space-y-0.5">
+                        <p className="text-xs font-medium text-muted-foreground mb-1.5 px-1">Save to list</p>
+                        {lists.map(list => {
+                          const inList = list.urls.includes(merchant.website);
+                          return (
+                            <button
+                              key={list.dTag}
+                              type="button"
+                              onClick={() => toggleListMember(list.dTag, merchant.website, inList)}
+                              className="flex items-center gap-2 w-full rounded px-2 py-1.5 text-sm hover:bg-muted transition-colors"
+                              data-testid={`button-toggle-list-${list.dTag}-${merchant.id}`}
+                            >
+                              <div className={`h-3.5 w-3.5 rounded border flex items-center justify-center shrink-0 ${inList ? "bg-primary border-primary" : "border-input"}`}>
+                                {inList && <Check className="h-2.5 w-2.5 text-primary-foreground" />}
+                              </div>
+                              <span className="truncate text-left">{list.title}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </PopoverContent>
+                </Popover>
+              )}
+            </div>
+            <div className="flex-1 flex justify-center">
+              <button
+                onClick={() => setShowShare(true)}
+                data-testid={`button-share-${merchant.id}`}
+                className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm text-muted-foreground transition-colors hover:bg-muted"
+              >
+                <Upload className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -441,129 +499,6 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               </div>
             )}
 
-            <div className="col-span-2 md:col-span-4 border-t border-border/40 pt-2 mt-1 flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-0">
-
-              {/* Row 1 on mobile / equal slot on desktop — Visit CTA */}
-              <div className="sm:flex-1 sm:flex sm:justify-center">
-                <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto self-start" data-testid={`link-visit-${merchant.id}`}>
-                  <a href={merchant.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
-                    <ExternalLink className="h-3.5 w-3.5" /> Visit website
-                  </a>
-                </Button>
-              </div>
-
-              {/* Row 2 on mobile / five equal slots on desktop — Social stats */}
-              <div className="flex items-center w-full sm:flex-[5] sm:w-auto sm:gap-0">
-
-                <div className="flex-1 flex justify-center">
-                  <button
-                    onClick={() => { setShowComments(v => !v); setShowReviews(false); }}
-                    data-testid={`button-comments-${merchant.id}`}
-                    className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${showComments ? "text-blue-500" : "text-muted-foreground"}`}
-                  >
-                    <MessageSquare className="h-4 w-4" />
-                    <span className="text-xs tabular-nums">{commentsList.length}</span>
-                  </button>
-                </div>
-
-                <div className="flex-1 flex justify-center">
-                  <button
-                    onClick={() => { setShowReviews(v => !v); setShowComments(false); }}
-                    data-testid={`button-reviews-${merchant.id}`}
-                    className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${showReviews ? "text-amber-500" : "text-muted-foreground"}`}
-                  >
-                    <span className={`text-base leading-none ${showReviews ? "text-amber-400" : "text-muted-foreground"}`}>★</span>
-                    {ratingData && ratingData.count > 0
-                      ? <span className="text-xs tabular-nums">{ratingData.average.toFixed(1)}</span>
-                      : <span className="text-xs font-semibold tracking-wide">NEW</span>
-                    }
-                  </button>
-                </div>
-
-                <div className="flex-1 flex justify-center">
-                  <button
-                    onClick={() => toggleFavourite(merchant.website)}
-                    data-testid={`button-favourite-${merchant.id}`}
-                    className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${user && favourites.has(merchant.website) ? "text-red-500" : "text-muted-foreground"}`}
-                  >
-                    <Heart className={`h-4 w-4 ${user && favourites.has(merchant.website) ? "fill-current" : ""}`} />
-                    {(likeCounts.get(merchant.website) ?? 0) > 0 && (
-                      <span className="text-xs tabular-nums">{likeCounts.get(merchant.website)}</span>
-                    )}
-                  </button>
-                </div>
-
-                <div className="flex-1 flex justify-center">
-                  {!user ? (
-                    <button
-                      onClick={openLoginModal}
-                      data-testid={`button-add-to-list-${merchant.id}`}
-                      className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm text-muted-foreground transition-colors hover:bg-muted"
-                    >
-                      <Bookmark className="h-4 w-4" />
-                      {(saveCounts.get(merchant.website) ?? 0) > 0 && (
-                        <span className="text-xs tabular-nums">{saveCounts.get(merchant.website)}</span>
-                      )}
-                    </button>
-                  ) : (
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <button
-                          data-testid={`button-add-to-list-${merchant.id}`}
-                          className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${lists.some(l => l.urls.includes(merchant.website)) ? "text-blue-500" : "text-muted-foreground"}`}
-                        >
-                          <Bookmark className={`h-4 w-4 ${lists.some(l => l.urls.includes(merchant.website)) ? "fill-current" : ""}`} />
-                          {(saveCounts.get(merchant.website) ?? 0) > 0 && (
-                            <span className="text-xs tabular-nums">{saveCounts.get(merchant.website)}</span>
-                          )}
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-52 p-2" align="start">
-                        {lists.length === 0 ? (
-                          <div className="py-2 text-center space-y-1">
-                            <p className="text-xs text-muted-foreground">No lists yet.</p>
-                            <Link href="/lists" className="text-xs text-primary hover:underline">Create a list</Link>
-                          </div>
-                        ) : (
-                          <div className="space-y-0.5">
-                            <p className="text-xs font-medium text-muted-foreground mb-1.5 px-1">Save to list</p>
-                            {lists.map(list => {
-                              const inList = list.urls.includes(merchant.website);
-                              return (
-                                <button
-                                  key={list.dTag}
-                                  type="button"
-                                  onClick={() => toggleListMember(list.dTag, merchant.website, inList)}
-                                  className="flex items-center gap-2 w-full rounded px-2 py-1.5 text-sm hover:bg-muted transition-colors"
-                                  data-testid={`button-toggle-list-${list.dTag}-${merchant.id}`}
-                                >
-                                  <div className={`h-3.5 w-3.5 rounded border flex items-center justify-center shrink-0 ${inList ? "bg-primary border-primary" : "border-input"}`}>
-                                    {inList && <Check className="h-2.5 w-2.5 text-primary-foreground" />}
-                                  </div>
-                                  <span className="truncate text-left">{list.title}</span>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </PopoverContent>
-                    </Popover>
-                  )}
-                </div>
-
-                <div className="flex-1 flex justify-center">
-                  <button
-                    onClick={() => setShowShare(true)}
-                    data-testid={`button-share-${merchant.id}`}
-                    className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm text-muted-foreground transition-colors hover:bg-muted"
-                  >
-                    <Upload className="h-4 w-4" />
-                  </button>
-                </div>
-
-              </div>
-
-            </div>
           </div>
 
           {/* ── Comments panel ───────────────────────────────────────────── */}
