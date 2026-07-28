@@ -456,7 +456,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted group ${showComments ? "text-blue-500" : "text-muted-foreground"}`}
               >
                 <MessageSquare className="h-4 w-4" />
-                {commentsList.length > 0 && <span className="text-xs tabular-nums">{commentsList.length}</span>}
+                <span className="text-xs tabular-nums">{commentsList.length}</span>
               </button>
 
               {/* Reviews — icon + avg */}
@@ -466,9 +466,10 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${showReviews ? "text-amber-500" : "text-muted-foreground"}`}
               >
                 <span className={`text-base leading-none ${showReviews ? "text-amber-400" : "text-muted-foreground"}`}>★</span>
-                {ratingData && ratingData.count > 0 && (
-                  <span className="text-xs tabular-nums">{ratingData.average.toFixed(1)}</span>
-                )}
+                {ratingData && ratingData.count > 0
+                  ? <span className="text-xs tabular-nums">{ratingData.average.toFixed(1)}</span>
+                  : <span className="text-xs font-semibold tracking-wide">NEW</span>
+                }
               </button>
 
               {/* Like — icon + count */}
