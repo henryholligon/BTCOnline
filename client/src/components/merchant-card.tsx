@@ -400,7 +400,6 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               </button>
             </div>
           </div>
-        </div>
       </div>
       )}
 
