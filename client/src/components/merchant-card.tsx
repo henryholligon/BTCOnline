@@ -442,96 +442,66 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               </div>
             )}
 
-            <div className="col-span-2 md:col-span-4 border-t border-border/40 pt-3 mt-1 flex items-center gap-2 flex-wrap">
-              {/* Visit */}
-              <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90" data-testid={`link-visit-${merchant.id}`}>
+            <div className="col-span-2 md:col-span-4 border-t border-border/40 pt-2 mt-1 flex items-center gap-1">
+              {/* Visit — primary CTA */}
+              <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 mr-3" data-testid={`link-visit-${merchant.id}`}>
                 <a href={merchant.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
                   <ExternalLink className="h-3.5 w-3.5" /> Visit
                 </a>
               </Button>
 
-              {/* Comments */}
-              <Button
-                size="sm"
-                variant={showComments ? "default" : "outline"}
-                className="gap-1.5"
+              {/* Comments — icon + count */}
+              <button
                 onClick={() => setShowComments(v => !v)}
                 data-testid={`button-comments-${merchant.id}`}
+                className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted group ${showComments ? "text-blue-500" : "text-muted-foreground"}`}
               >
-                <MessageSquare className="h-3.5 w-3.5" />
-                Comments
-                {commentsList.length > 0 && (
-                  <span className={`text-[10px] font-semibold rounded-full px-1.5 py-0 leading-5 ${showComments ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
-                    {commentsList.length}
-                  </span>
-                )}
-              </Button>
+                <MessageSquare className="h-4 w-4" />
+                {commentsList.length > 0 && <span className="text-xs tabular-nums">{commentsList.length}</span>}
+              </button>
 
-              {/* Reviews */}
-              <Button
-                size="sm"
-                variant={showReviews ? "default" : "outline"}
-                className="gap-1.5"
+              {/* Reviews — icon + avg */}
+              <button
                 onClick={() => setShowReviews(v => !v)}
                 data-testid={`button-reviews-${merchant.id}`}
+                className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${showReviews ? "text-amber-500" : "text-muted-foreground"}`}
               >
-                <span className="text-sm leading-none">★</span>
-                Reviews
+                <span className={`text-base leading-none ${showReviews ? "text-amber-400" : "text-muted-foreground"}`}>★</span>
                 {ratingData && ratingData.count > 0 && (
-                  <span className={`text-[10px] font-semibold rounded-full px-1.5 py-0 leading-5 ${showReviews ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
-                    {ratingData.average.toFixed(1)}
-                  </span>
+                  <span className="text-xs tabular-nums">{ratingData.average.toFixed(1)}</span>
                 )}
-              </Button>
+              </button>
 
-              {/* Share */}
-              <Button
-                size="sm"
-                variant="outline"
-                className="gap-1.5"
-                onClick={() => setShowShare(true)}
-                data-testid={`button-share-${merchant.id}`}
-              >
-                <Forward className="mr-1 h-3.5 w-3.5" />
-                Share
-              </Button>
-
-              {/* Like */}
-              <Button
-                size="sm"
-                variant="outline"
-                className={`gap-1.5 ${user && favourites.has(merchant.website) ? "text-red-500 border-red-500/40" : ""}`}
+              {/* Like — icon + count */}
+              <button
                 onClick={() => toggleFavourite(merchant.website)}
                 data-testid={`button-favourite-${merchant.id}`}
+                className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${user && favourites.has(merchant.website) ? "text-red-500" : "text-muted-foreground"}`}
               >
-                <Heart className={`h-3.5 w-3.5 ${user && favourites.has(merchant.website) ? "fill-current" : ""}`} />
-                {user && favourites.has(merchant.website) ? "Liked" : "Like"}
-              </Button>
+                <Heart className={`h-4 w-4 ${user && favourites.has(merchant.website) ? "fill-current" : ""}`} />
+                {(likeCounts.get(merchant.website) ?? 0) > 0 && (
+                  <span className="text-xs tabular-nums">{likeCounts.get(merchant.website)}</span>
+                )}
+              </button>
 
-              {/* Save */}
+              {/* Save — icon (with list popover) */}
               {!user ? (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="gap-1.5"
+                <button
                   onClick={openLoginModal}
                   data-testid={`button-add-to-list-${merchant.id}`}
+                  className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm text-muted-foreground transition-colors hover:bg-muted"
                 >
-                  <Bookmark className="h-3.5 w-3.5" />
-                  Save
-                </Button>
+                  <Bookmark className="h-4 w-4" />
+                </button>
               ) : (
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="gap-1.5"
+                    <button
                       data-testid={`button-add-to-list-${merchant.id}`}
+                      className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${lists.some(l => l.urls.includes(merchant.website)) ? "text-blue-500" : "text-muted-foreground"}`}
                     >
-                      <Bookmark className="h-3.5 w-3.5" />
-                      Save
-                    </Button>
+                      <Bookmark className={`h-4 w-4 ${lists.some(l => l.urls.includes(merchant.website)) ? "fill-current" : ""}`} />
+                    </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-52 p-2" align="start">
                     {lists.length === 0 ? (
@@ -564,6 +534,15 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                   </PopoverContent>
                 </Popover>
               )}
+
+              {/* Share — icon only, pushed to the right */}
+              <button
+                onClick={() => setShowShare(true)}
+                data-testid={`button-share-${merchant.id}`}
+                className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm text-muted-foreground transition-colors hover:bg-muted ml-auto"
+              >
+                <Forward className="h-4 w-4" />
+              </button>
             </div>
           </div>
 
