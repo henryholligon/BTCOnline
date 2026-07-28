@@ -298,7 +298,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
       </div>
 
       {expanded && (
-        <div className="border-t border-border/30 px-3 md:px-4 py-4 space-y-4" onClick={(e) => e.stopPropagation()}>
+        <div className="border-t border-border/30 px-3 md:px-4 py-4 space-y-4 flex flex-col" onClick={(e) => e.stopPropagation()}>
           <p className="text-sm text-muted-foreground">{merchant.description}</p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
@@ -380,8 +380,9 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
 
           </div>
 
+
           {/* ── Comments panel ───────────────────────────────────────────── */}
-          {showComments && <div className="border-t border-border/30 pt-4 space-y-3">
+          {showComments && <div className="order-2 border-t border-border/30 pt-4 space-y-3">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
               Comments{commentsList.length > 0 && ` · ${commentsList.length}`}
             </p>
@@ -444,7 +445,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
           </div>}
 
           {/* ── Reviews panel ────────────────────────────────────────────── */}
-          {showReviews && <div className="border-t border-border/30 pt-4 space-y-3">
+          {showReviews && <div className="order-2 border-t border-border/30 pt-4 space-y-3">
             <div className="flex items-center justify-between">
               <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
                 Reviews{ratingData && ratingData.count > 0 && ` · ${ratingData.count}`}
@@ -537,7 +538,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
           </div>}
 
           {/* Expanded footer — Visit website + 5 social buttons */}
-          <div className="border-t border-border/40 pt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-0" onClick={(e) => e.stopPropagation()}>
+          <div className="order-1 border-t border-border/40 pt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-0" onClick={(e) => e.stopPropagation()}>
             <div className="sm:flex-1 sm:flex sm:justify-center">
               <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto" data-testid={`link-visit-${merchant.id}`}>
                 <a href={merchant.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
