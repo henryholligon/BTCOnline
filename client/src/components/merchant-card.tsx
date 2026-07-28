@@ -607,8 +607,8 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
             )}
           </div>}
 
-          {/* Expanded footer — Visit website + 5 social buttons */}
-          <div className="border-t border-border/40 pt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-0" onClick={(e) => e.stopPropagation()}>
+          {/* Expanded footer — Visit website + 5 social buttons (desktop only) */}
+          <div className="border-t border-border/40 pt-3 hidden md:flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-0" onClick={(e) => e.stopPropagation()}>
             <div className="sm:flex-1 sm:flex sm:justify-center">
               <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto" data-testid={`link-visit-${merchant.id}`}>
                 <a href={merchant.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
