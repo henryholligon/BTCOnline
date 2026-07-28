@@ -2,4 +2,4 @@
 set -e
 
 npm install --no-audit
-npm run db:push
+npm run db:push -- --force
