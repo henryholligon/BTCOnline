@@ -451,7 +451,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               </Button>
 
               {/* Row 2 — Social stats */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center justify-between w-full sm:justify-start sm:gap-1 sm:w-auto">
                 <button
                   onClick={() => { setShowComments(v => !v); setShowReviews(false); }}
                   data-testid={`button-comments-${merchant.id}`}
