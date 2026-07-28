@@ -441,16 +441,16 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               </div>
             )}
 
-            <div className="col-span-2 md:col-span-4 border-t border-border/40 pt-2 mt-1 flex flex-col gap-1">
+            <div className="col-span-2 md:col-span-4 border-t border-border/40 pt-2 mt-1 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
 
-              {/* Row 1 — Visit CTA */}
-              <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto self-start" data-testid={`link-visit-${merchant.id}`}>
+              {/* Row 1 on mobile / left side on desktop — Visit CTA */}
+              <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto self-start shrink-0" data-testid={`link-visit-${merchant.id}`}>
                 <a href={merchant.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
                   <ExternalLink className="h-3.5 w-3.5" /> Visit website
                 </a>
               </Button>
 
-              {/* Row 2 — Social stats: each cell is flex-1 on mobile, auto on sm+ */}
+              {/* Row 2 on mobile / right side on desktop — Social stats */}
               <div className="flex items-center w-full sm:w-auto sm:gap-1">
 
                 <div className="flex-1 flex justify-center sm:flex-none">
