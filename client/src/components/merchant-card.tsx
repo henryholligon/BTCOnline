@@ -346,11 +346,21 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
           )}
         </div>
 
-        <div className="shrink-0 self-start mt-1 hidden md:flex items-center px-1">
-          {expanded
-            ? <ChevronDown className="h-5 w-5 text-muted-foreground/40" />
-            : <ChevronUp className="h-5 w-5 text-muted-foreground/40" />
-          }
+        <div className="shrink-0 self-center flex items-center gap-0.5">
+          <button
+            onClick={(e) => { e.stopPropagation(); toggleFavourite(merchant.website); }}
+            className={`p-1.5 rounded-md transition-colors hover:bg-muted/60 ${user && favourites.has(merchant.website) ? "text-red-500" : "text-muted-foreground/25 hover:text-muted-foreground/60"}`}
+            title={user && favourites.has(merchant.website) ? "Remove from likes" : "Like this merchant"}
+            aria-label={user && favourites.has(merchant.website) ? "Remove from likes" : "Like this merchant"}
+          >
+            <Heart className={`h-4 w-4 transition-all ${user && favourites.has(merchant.website) ? "fill-current" : ""}`} />
+          </button>
+          <div className="hidden md:block px-1">
+            {expanded
+              ? <ChevronDown className="h-5 w-5 text-muted-foreground/40" />
+              : <ChevronUp className="h-5 w-5 text-muted-foreground/40" />
+            }
+          </div>
         </div>
       </div>
 

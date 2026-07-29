@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Heart } from "lucide-react";
 import Navbar from "@/components/navbar";
 import MerchantCard from "@/components/merchant-card";
@@ -117,31 +117,40 @@ export default function Favourites() {
             </motion.div>
           ) : (
             <>
-              <p className="text-sm text-muted-foreground mb-4">
-                <span className="font-mono text-foreground font-medium">{favMerchants.length}</span>{" "}
-                {favMerchants.length === 1 ? "merchant" : "merchants"} saved
-              </p>
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-sm text-muted-foreground">
+                  <span className="font-mono text-foreground font-medium">{favMerchants.length}</span>{" "}
+                  {favMerchants.length === 1 ? "merchant" : "merchants"} saved
+                </p>
+                <p className="text-xs text-muted-foreground/60 flex items-center gap-1">
+                  Click <Heart className="h-3 w-3 inline text-red-400 fill-current" /> to remove
+                </p>
+              </div>
               <div className="flex flex-col gap-4">
-                {favMerchants.map((merchant, index) => {
-                  const slug = slugify(merchant.name);
-                  return (
-                    <motion.div
-                      key={merchant.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.4) }}
-                    >
-                      <MerchantCard
-                        merchant={merchant}
-                        expanded={slug === expandedSlug}
-                        onToggleExpand={() => handleToggleExpand(merchant)}
-                        scrollIntoView={false}
-                        onScrolledIntoView={() => {}}
-                        badgePresets={badgePresets}
-                      />
-                    </motion.div>
-                  );
-                })}
+                <AnimatePresence initial={false}>
+                  {favMerchants.map((merchant, index) => {
+                    const slug = slugify(merchant.name);
+                    return (
+                      <motion.div
+                        key={merchant.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.97, transition: { duration: 0.2 } }}
+                        transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.4) }}
+                        layout
+                      >
+                        <MerchantCard
+                          merchant={merchant}
+                          expanded={slug === expandedSlug}
+                          onToggleExpand={() => handleToggleExpand(merchant)}
+                          scrollIntoView={false}
+                          onScrolledIntoView={() => {}}
+                          badgePresets={badgePresets}
+                        />
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
               </div>
             </>
           )}
