@@ -459,6 +459,34 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
     })));
   });
 
+  app.get("/api/profile/:pubkey/activity", async (req, res) => {
+    const { pubkey } = req.params;
+    if (!pubkey || pubkey.length < 32) return res.status(400).json({ message: "Invalid pubkey" });
+    try {
+      const rows = await db
+        .select({
+          id: comments.id,
+          merchantId: comments.merchantId,
+          merchantName: merchantsTable.name,
+          merchantWebsite: merchantsTable.website,
+          merchantLogo: merchantsTable.logo,
+          body: comments.body,
+          rating: comments.rating,
+          createdAt: comments.createdAt,
+        })
+        .from(comments)
+        .innerJoin(users, eq(comments.userId, users.id))
+        .innerJoin(merchantsTable, eq(comments.merchantId, merchantsTable.id))
+        .where(and(eq(users.pubkey, pubkey), sql`${comments.parentId} IS NULL`))
+        .orderBy(sql`${comments.createdAt} DESC`)
+        .limit(50);
+      res.json(rows);
+    } catch (err) {
+      console.error("Profile activity error:", err);
+      res.status(500).json({ message: "Failed to fetch activity" });
+    }
+  });
+
   app.get("/api/merchants/:id/rating", async (req, res) => {
     const merchantId = parseInt(req.params.id);
     if (isNaN(merchantId)) return res.status(400).json({ message: "Invalid merchant ID" });

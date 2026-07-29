@@ -64,6 +64,7 @@ function StyledMerchantQr({ value }: { value: string }) {
   );
 }
 import { Link } from "wouter";
+import { npubEncode } from "nostr-tools/nip19";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useNostr } from "@/context/NostrContext";
 
@@ -489,7 +490,11 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <span className="text-[11px] font-semibold">{displayName}</span>
+                              {c.pubkey ? (
+                                <Link href={`/profile/${npubEncode(c.pubkey)}`} className="text-[11px] font-semibold hover:text-primary transition-colors">{displayName}</Link>
+                              ) : (
+                                <span className="text-[11px] font-semibold">{displayName}</span>
+                              )}
                               <span className="text-[10px] text-muted-foreground">
                                 {new Date(c.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                               </span>
@@ -667,7 +672,11 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-[11px] font-semibold">{displayName}</span>
+                        {c.pubkey ? (
+                          <Link href={`/profile/${npubEncode(c.pubkey)}`} className="text-[11px] font-semibold hover:text-primary transition-colors">{displayName}</Link>
+                        ) : (
+                          <span className="text-[11px] font-semibold">{displayName}</span>
+                        )}
                         <span className="flex items-center gap-0.5 text-amber-400 text-[11px] leading-none">
                           {[1,2,3,4,5].map(s => (
                             <span key={s} className={s <= c.rating! ? "text-amber-400" : "text-muted-foreground/30"}>★</span>
@@ -764,7 +773,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                           ? <img src={profile.picture} alt={displayName} className="h-full w-full object-cover" onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; (e.currentTarget.parentElement as HTMLElement).textContent = displayName.slice(0, 1); }} />
                           : displayName.slice(0, 1)}
                       </div>
-                      <span className="text-xs font-medium" title={author.npub}>{displayName}</span>
+                      <Link href={`/profile/${author.npub}`} className="text-xs font-medium hover:text-primary transition-colors" title={author.npub}>{displayName}</Link>
                     </div>
                   );
                 })}

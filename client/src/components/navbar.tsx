@@ -408,6 +408,14 @@ function NostrUserButton() {
         {open && (
           <div className="absolute right-0 top-full mt-1 bg-popover border border-border rounded-lg shadow-lg min-w-[140px] p-1 z-50">
             <Link
+              href={`/profile/${user?.npub}`}
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-muted transition-colors"
+              data-testid="link-my-profile"
+            >
+              👤 My Profile
+            </Link>
+            <Link
               href="/favourites"
               onClick={() => setOpen(false)}
               className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-muted transition-colors"

@@ -13,6 +13,7 @@ import Favourites from "@/pages/favourites";
 import Discover from "@/pages/discover";
 import DiscoverList from "@/pages/discover-list";
 import Account from "@/pages/account";
+import Profile from "@/pages/profile";
 import { NostrProvider } from "@/context/NostrContext";
 
 function Router() {
@@ -25,6 +26,7 @@ function Router() {
       <Route path="/discover" component={Discover} />
       <Route path="/discover/:npub/:dTag" component={DiscoverList} />
       <Route path="/account" component={Account} />
+      <Route path="/profile/:npub" component={Profile} />
       <Route path="/x7k2m9p4r1qn" component={Admin} />
       <Route path="/reset-password" component={ResetPassword} />
       <Route component={NotFound} />
