@@ -813,17 +813,29 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
 
           {/* ── Likes panel ──────────────────────────────────────────────── */}
           {showLikes && <div className="order-2 border-t border-border/30 pt-4 space-y-3">
+            <button
+              onClick={() => {
+                if (!user) {
+                  openLoginModal();
+                  return;
+                }
+                toggleFavourite(merchant.website);
+              }}
+              className={`w-full flex items-center justify-center gap-2 py-2 rounded-sm text-sm font-medium transition-colors ${
+                user && favourites.has(merchant.website)
+                  ? "bg-red-500 text-white hover:bg-red-600"
+                  : "bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:from-pink-600 hover:to-rose-600"
+              }`}
+              data-testid={`button-like-panel-${merchant.id}`}
+            >
+              <Heart className={`h-4 w-4 ${user && favourites.has(merchant.website) ? "fill-current" : ""}`} />
+              {user && favourites.has(merchant.website) ? "Unlike" : "Like"}
+            </button>
+
             <div className="flex items-center justify-between">
               <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
                 Liked by{likeAuthorsList.length > 0 && ` · ${likeAuthorsList.length}`}
               </p>
-              <button
-                onClick={() => toggleFavourite(merchant.website)}
-                className={`flex items-center gap-1 text-xs px-2 py-1 rounded-md transition-colors hover:bg-muted ${user && favourites.has(merchant.website) ? "text-red-500" : "text-muted-foreground"}`}
-              >
-                <Heart className={`h-3.5 w-3.5 ${user && favourites.has(merchant.website) ? "fill-current" : ""}`} />
-                {user && favourites.has(merchant.website) ? "Unlike" : "Like"}
-              </button>
             </div>
 
             {!relayLikesLoaded && likeAuthorsList.length === 0 ? (
