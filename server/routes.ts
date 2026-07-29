@@ -21,7 +21,7 @@ import bcrypt from "bcrypt";
 import { db } from "./db";
 import { eq, sql, asc, and } from "drizzle-orm";
 import { merchants as merchantsTable } from "@shared/schema";
-import { generateSecretKey, getPublicKey } from "nostr-tools";
+import { generateSecretKey, getPublicKey, verifyEvent } from "nostr-tools";
 import { encryptNsecServerSide, decryptNsecServerSide } from "./userKeyEncryption";
 import { randomBytes, createHash } from "crypto";
 
@@ -382,6 +382,46 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
     res.json({ isAdmin: !!req.session?.isAdmin });
   });
 
+  /**
+   * Pure Nostr comment authentication. The client signs a short-lived event
+   * for the requested endpoint; no email, password, or private key is stored.
+   */
+  async function getCommentUser(req: Request) {
+    const email = req.session?.userEmail;
+    if (email) {
+      const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+      if (user) return user;
+    }
+
+    const rawEvent = req.header("x-nostr-event");
+    if (!rawEvent) return null;
+    try {
+      const event = JSON.parse(rawEvent);
+      const expectedPath = req.path;
+      const isFresh = Math.abs(Math.floor(Date.now() / 1000) - Number(event.created_at)) <= 300;
+      const targetsPath = event.tags?.some((tag: string[]) => tag[0] === "u" && tag[1] === expectedPath);
+      const targetsMethod = event.tags?.some((tag: string[]) => tag[0] === "method" && tag[1] === req.method);
+      if (!isFresh || !targetsPath || !targetsMethod || event.kind !== 22242 || !verifyEvent(event)) return null;
+
+      const [existing] = await db.select().from(users).where(eq(users.pubkey, event.pubkey)).limit(1);
+      if (existing) return existing;
+
+      const [created] = await db.insert(users).values({
+        email: null,
+        passwordHash: null,
+        pubkey: event.pubkey,
+        encryptedNsec: null,
+        salt: null,
+        iv: null,
+        keyCustody: "non-custodial",
+        createdAt: new Date().toISOString(),
+      }).returning();
+      return created;
+    } catch {
+      return null;
+    }
+  }
+
   app.get("/api/merchants/:id/comments", async (req, res) => {
     const merchantId = parseInt(req.params.id);
     if (isNaN(merchantId)) return res.status(400).json({ message: "Invalid merchant ID" });
@@ -394,7 +434,8 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
         body: comments.body,
         createdAt: comments.createdAt,
         rating: comments.rating,
-        userEmail: users.email,
+         userEmail: users.email,
+         userPubkey: users.pubkey,
       })
       .from(comments)
       .leftJoin(users, eq(comments.userId, users.id))
@@ -409,7 +450,7 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
       createdAt: r.createdAt,
       rating: r.rating,
       // Derive a display name from the email local-part; never expose the full address publicly.
-      authorName: r.userEmail ? r.userEmail.split("@")[0] : "anon",
+      authorName: r.userEmail ? r.userEmail.split("@")[0] : `npub:${r.userPubkey.slice(0, 8)}…`,
     })));
   });
 
@@ -434,11 +475,8 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
     const merchantId = parseInt(req.params.id);
     if (isNaN(merchantId)) return res.status(400).json({ message: "Invalid merchant ID" });
 
-    const email = req.session?.userEmail;
-    if (!email) return res.status(401).json({ message: "Sign in to comment" });
-
-    const [userRow] = await db.select().from(users).where(eq(users.email, email)).limit(1);
-    if (!userRow) return res.status(401).json({ message: "User not found" });
+    const userRow = await getCommentUser(req);
+    if (!userRow) return res.status(401).json({ message: "Sign in to comment" });
 
     const [existing] = await db
       .select()
@@ -448,21 +486,22 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
 
     if (!existing) return res.status(404).json({ message: "No comment yet" });
 
-    res.json({ ...existing, authorName: userRow.email.split("@")[0] });
+    res.json({ ...existing, authorName: userRow.email ? userRow.email.split("@")[0] : `npub:${userRow.pubkey.slice(0, 8)}…` });
   });
 
   app.post("/api/merchants/:id/comments", async (req, res) => {
     const merchantId = parseInt(req.params.id);
     if (isNaN(merchantId)) return res.status(400).json({ message: "Invalid merchant ID" });
 
-    const email = req.session?.userEmail;
-    if (!email) return res.status(401).json({ message: "Sign in to comment" });
+    const userRow = await getCommentUser(req);
+    if (!userRow) return res.status(401).json({ message: "Sign in to comment" });
 
     const { body, rating } = req.body;
-    const hasBody = !!body?.trim();
+    const normalizedBody = typeof body === "string" ? body.trim() : "";
+    const hasBody = normalizedBody.length > 0;
     const hasRating = rating !== undefined && rating !== null;
     if (!hasBody && !hasRating) return res.status(400).json({ message: "Please add a comment or a star rating" });
-    if (hasBody && body.trim().length > 1000) return res.status(400).json({ message: "Comment must be under 1000 characters" });
+    if (normalizedBody.length > 1000) return res.status(400).json({ message: "Comment must be under 1000 characters" });
 
     // Validate rating if provided
     if (rating !== undefined && rating !== null) {
@@ -471,9 +510,6 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
         return res.status(400).json({ message: "Rating must be an integer between 1 and 5" });
       }
     }
-
-    const [userRow] = await db.select().from(users).where(eq(users.email, email)).limit(1);
-    if (!userRow) return res.status(401).json({ message: "User not found" });
 
     // Upsert: update existing comment if the user already has one for this merchant.
     const [existing] = await db
@@ -488,27 +524,27 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
       const [updated] = await db
         .update(comments)
         .set({
-          body: body.trim(),
+          body: normalizedBody,
           rating: normalizedRating,
           createdAt: new Date().toISOString(),
         })
         .where(eq(comments.id, existing.id))
         .returning();
 
-      return res.json({ ...updated, authorName: userRow.email.split("@")[0] });
+      return res.json({ ...updated, authorName: userRow.email ? userRow.email.split("@")[0] : `npub:${userRow.pubkey.slice(0, 8)}…` });
     }
 
     const [comment] = await db.insert(comments).values({
       merchantId,
       userId: userRow.id,
-      body: body.trim(),
+      body: normalizedBody,
       rating: normalizedRating,
       createdAt: new Date().toISOString(),
     }).returning();
 
     res.status(201).json({
       ...comment,
-      authorName: userRow.email.split("@")[0],
+      authorName: userRow.email ? userRow.email.split("@")[0] : `npub:${userRow.pubkey.slice(0, 8)}…`,
     });
   });
 

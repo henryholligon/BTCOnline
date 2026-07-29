@@ -5,13 +5,13 @@ import { z } from "zod";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
-  email: text("email").notNull().unique(),
-  passwordHash: text("password_hash").notNull(),
+  email: text("email").unique(),
+  passwordHash: text("password_hash"),
   pubkey: text("pubkey").notNull(),
-  encryptedNsec: text("encrypted_nsec").notNull(),
+  encryptedNsec: text("encrypted_nsec"),
   // salt is null for custodial users (key encrypted with server master key, not password).
   salt: text("salt"),
-  iv: text("iv").notNull(),
+  iv: text("iv"),
   // Email accounts are custodial; pure Nostr accounts are not stored here.
   keyCustody: text("key_custody").notNull().default("custodial"),
   // Per-user HKDF salt for custodial key encryption. Null for legacy rows (pre-salt scheme)

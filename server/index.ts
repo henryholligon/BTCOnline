@@ -120,17 +120,21 @@ app.use((req, res, next) => {
   await db.execute(sql`
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
-      email TEXT NOT NULL UNIQUE,
-      password_hash TEXT NOT NULL,
+       email TEXT UNIQUE,
+       password_hash TEXT,
       pubkey TEXT NOT NULL,
-      encrypted_nsec TEXT NOT NULL,
+       encrypted_nsec TEXT,
       salt TEXT NOT NULL,
-      iv TEXT NOT NULL,
+       iv TEXT,
       created_at TEXT NOT NULL DEFAULT ''
     )
   `);
   // Make salt nullable — custodial users have no client-side salt.
   await db.execute(sql`ALTER TABLE users ALTER COLUMN salt DROP NOT NULL`);
+  await db.execute(sql`ALTER TABLE users ALTER COLUMN email DROP NOT NULL`);
+  await db.execute(sql`ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL`);
+  await db.execute(sql`ALTER TABLE users ALTER COLUMN encrypted_nsec DROP NOT NULL`);
+  await db.execute(sql`ALTER TABLE users ALTER COLUMN iv DROP NOT NULL`);
   // Email accounts are custodial. Pure Nostr accounts are not stored in users.
   await db.execute(sql`
     ALTER TABLE users ADD COLUMN IF NOT EXISTS key_custody TEXT NOT NULL DEFAULT 'custodial'

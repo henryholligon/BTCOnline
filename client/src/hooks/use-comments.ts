@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useNostr } from "@/context/NostrContext";
 
 export interface MerchantComment {
   id: number;
@@ -24,12 +25,24 @@ export function useComments(merchantId: number, enabled = true) {
 }
 
 export function useMyComment(merchantId: number, enabled = true) {
+  const { user, signEvent } = useNostr();
   return useQuery<MerchantComment | null>({
-    queryKey: [`/api/merchants/${merchantId}/my-comment`],
+    queryKey: [`/api/merchants/${merchantId}/my-comment`, user?.pubkey ?? "anonymous"],
     enabled: enabled && merchantId > 0,
     // 404 means "no comment yet" — treat as null rather than an error
     queryFn: async () => {
-      const res = await fetch(`/api/merchants/${merchantId}/my-comment`, { credentials: "include" });
+      const path = `/api/merchants/${merchantId}/my-comment`;
+      const headers: Record<string, string> = {};
+      if (user) {
+        const event = await signEvent({
+          kind: 22242,
+          created_at: Math.floor(Date.now() / 1000),
+          tags: [["u", path], ["method", "GET"]],
+          content: "Authenticate to view my comment",
+        });
+        headers["x-nostr-event"] = JSON.stringify(event);
+      }
+      const res = await fetch(path, { credentials: "include", headers });
       if (res.status === 404 || res.status === 401) return null;
       if (!res.ok) throw new Error("Failed to fetch existing comment");
       return res.json();
@@ -39,16 +52,36 @@ export function useMyComment(merchantId: number, enabled = true) {
 }
 
 export function useSubmitComment(merchantId: number) {
+  const { user, signEvent } = useNostr();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ body, rating }: { body: string; rating: number | null }) => {
-      const res = await apiRequest("POST", `/api/merchants/${merchantId}/comments`, { body, rating });
+      const path = `/api/merchants/${merchantId}/comments`;
+      const event = user ? await signEvent({
+        kind: 22242,
+        created_at: Math.floor(Date.now() / 1000),
+        tags: [["u", path], ["method", "POST"]],
+        content: "Authenticate to post a comment",
+      }) : null;
+      const res = await fetch(path, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(event ? { "x-nostr-event": JSON.stringify(event) } : {}),
+        },
+        credentials: "include",
+        body: JSON.stringify({ body, rating }),
+      });
+      if (!res.ok) {
+        const text = (await res.text()) || res.statusText;
+        throw new Error(`${res.status}: ${text}`);
+      }
       return res.json() as Promise<MerchantComment>;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [`/api/merchants/${merchantId}/comments`] });
       queryClient.invalidateQueries({ queryKey: [`/api/merchants/${merchantId}/rating`] });
-      queryClient.setQueryData([`/api/merchants/${merchantId}/my-comment`], data);
+      queryClient.setQueryData([`/api/merchants/${merchantId}/my-comment`, user?.pubkey ?? "anonymous"], data);
     },
     throwOnError: false,
   });
