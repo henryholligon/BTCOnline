@@ -173,10 +173,18 @@ export async function fetchSaveCount(url: string, relays: string[]): Promise<num
  * Fetch the number of public likes for a merchant URL.
  * Only counts Kind 10003 events that are NOT private-encrypted.
  */
+/** Race a promise against a hard timeout; resolves with fallback if time runs out. */
+function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return Promise.race([promise, new Promise<T>(resolve => setTimeout(() => resolve(fallback), ms))]);
+}
+
 export async function fetchLikeCount(url: string, relays: string[]): Promise<number> {
   try {
-    // Use #r tag filter so the relay returns only events referencing this URL
-    const events = await pool.querySync(relays, { kinds: [10003], "#r": [url], limit: 200 } as Filter, { maxWait: 3000 });
+    const events = await withTimeout(
+      pool.querySync(relays, { kinds: [10003], limit: 500 } as Filter, { maxWait: 4000 }),
+      6000,
+      [] as Event[],
+    );
     const latestByAuthor = new Map<string, Event>();
     for (const event of events) {
       if (event.tags.some(t => t[0] === 'private' && t[1] === 'true')) continue;
@@ -194,8 +202,11 @@ export async function fetchLikeCount(url: string, relays: string[]): Promise<num
 /** Fetch public Nostr identities whose latest public kind-10003 event includes a merchant URL. */
 export async function fetchLikeAuthors(url: string, relays: string[]): Promise<string[]> {
   try {
-    // Use #r tag filter so the relay returns only events referencing this URL
-    const events = await pool.querySync(relays, { kinds: [10003], "#r": [url], limit: 200 } as Filter, { maxWait: 3000 });
+    const events = await withTimeout(
+      pool.querySync(relays, { kinds: [10003], limit: 500 } as Filter, { maxWait: 4000 }),
+      6000,
+      [] as Event[],
+    );
     // Kind 10003 is replaceable: use each author's latest public event so
     // stale events do not make an old like appear current.
     const latestByAuthor = new Map<string, Event>();

@@ -607,9 +607,13 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
     likeAuthorsFetchingRef.current.add(url);
     try {
       const pubkeys = await fetchLikeAuthorsFromRelay(url, readRelays);
-      // Fetch all kind:0 profiles in one batched relay query instead of N sequential ones
+      // Fetch all kind:0 profiles in one batched relay query instead of N sequential ones.
+      // Wrap in Promise.race so a stalled relay can never keep us loading indefinitely.
       const profileEvents = pubkeys.length
-        ? await pool.querySync(readRelays, { kinds: [0], authors: pubkeys }, { maxWait: 3000 })
+        ? await Promise.race([
+            pool.querySync(readRelays, { kinds: [0], authors: pubkeys }, { maxWait: 4000 }),
+            new Promise<typeof []>(resolve => setTimeout(() => resolve([]), 6000)),
+          ])
         : [];
       const profileMap = new Map<string, { display_name?: string; name?: string; picture?: string }>();
       for (const ev of profileEvents) {
@@ -630,6 +634,13 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
         return next;
       });
     } catch {
+      // On any error, still mark as resolved (empty) so the panel shows "No public likes yet"
+      // rather than staying on "Loading…" forever.
+      setLikeAuthors(prev => {
+        const next = new Map(prev);
+        if (!next.has(url)) next.set(url, []);
+        return next;
+      });
       likeAuthorsFetchingRef.current.delete(url);
     }
   }, [readRelays]);
