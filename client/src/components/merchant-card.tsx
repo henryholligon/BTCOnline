@@ -9,8 +9,7 @@ import { useRef, useEffect, useState, memo, useCallback } from "react";
 import { useComments, useSubmitComment, useDeleteComment, useIsAdmin, useMerchantRating, useMyComment, useMasterPubkey } from "@/hooks/use-comments";
 import { Textarea } from "@/components/ui/textarea";
 import { slugify } from "@/lib/utils";
-import QRCodeStyling from "qr-code-styling";
-import qrBrandLogo from "@assets/BTC_Online_Logo_Light_White_1785285679766.png";
+import { QRCodeSVG } from "qrcode.react";
 
 /* ── Minimal brand-icon SVGs ── */
 function IconX() {
@@ -50,53 +49,18 @@ function IconReddit() {
 }
 
 function StyledMerchantQr({ value }: { value: string }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-    containerRef.current.replaceChildren();
-
-    const qrCode = new QRCodeStyling({
-      width: 220,
-      height: 220,
-      type: "svg",
-      data: value,
-      image: qrBrandLogo,
-      margin: 8,
-      qrOptions: {
-        errorCorrectionLevel: "H",
-      },
-      dotsOptions: {
-        type: "dots",
-        color: "#000000",
-        roundSize: false,
-      },
-      cornersSquareOptions: {
-        type: "dot",
-        color: "#000000",
-      },
-      cornersDotOptions: {
-        type: "dot",
-        color: "#000000",
-      },
-      backgroundOptions: {
-        color: "#ffffff",
-      },
-      imageOptions: {
-        hideBackgroundDots: true,
-        imageSize: 0.22,
-        margin: 5,
-        crossOrigin: "anonymous",
-      },
-    });
-
-    qrCode.append(containerRef.current);
-    return () => {
-      containerRef.current?.replaceChildren();
-    };
-  }, [value]);
-
-  return <div ref={containerRef} className="h-[220px] w-[220px]" role="img" aria-label="QR code for this merchant" />;
+  return (
+    <QRCodeSVG
+      value={value}
+      size={220}
+      level="H"
+      includeMargin
+      bgColor="#ffffff"
+      fgColor="#000000"
+      role="img"
+      aria-label="QR code for this merchant"
+    />
+  );
 }
 import { Link } from "wouter";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
