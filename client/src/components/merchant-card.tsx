@@ -882,39 +882,6 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
             </div>
           </div>
 
-          {/* Public activity summary — private likes are intentionally omitted. */}
-          <div className="order-2 grid grid-cols-1 sm:grid-cols-3 gap-2 text-[10px] text-muted-foreground">
-            <div className="rounded-md bg-muted/40 px-2.5 py-2 min-w-0">
-              <span className="font-semibold text-foreground/80">Liked by </span>
-              {likeAuthorsList.length
-                ? <>
-                    {likeAuthorsList.slice(0, 3).map((author, index) => (
-                      <span key={author.pubkey}>
-                        {index > 0 && ", "}
-                        <span title={author.npub}>{author.displayName}</span>
-                      </span>
-                    ))}
-                    {likeAuthorsList.length > 3 && ` +${likeAuthorsList.length - 3}`}
-                  </>
-                : relayLikesLoaded ? "No public likes yet" : "…"}
-            </div>
-            <div className="rounded-md bg-muted/40 px-2.5 py-2 min-w-0">
-              <span className="font-semibold text-foreground/80">Reviewed by </span>
-              {commentsList.filter(c => c.rating != null).length
-                ? commentsList.filter(c => c.rating != null).slice(0, 3).map((comment, index) => (
-                    <span key={comment.id}>{index > 0 && ", "}{comment.authorName}</span>
-                  ))
-                : "No reviews yet"}
-            </div>
-            <div className="rounded-md bg-muted/40 px-2.5 py-2 min-w-0">
-              <span className="font-semibold text-foreground/80">Commented by </span>
-              {commentsList.filter(c => c.body?.trim()).length
-                ? commentsList.filter(c => c.body?.trim()).slice(0, 3).map((comment, index) => (
-                    <span key={comment.id}>{index > 0 && ", "}{comment.authorName}</span>
-                  ))
-                : "No comments yet"}
-            </div>
-          </div>
         </div>
       )}
 
