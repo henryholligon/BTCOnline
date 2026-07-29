@@ -607,7 +607,9 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               </button>
             </div>
 
-            {likeAuthorsList.length > 0 ? (
+            {!likeAuthors.has(merchant.website) ? (
+              <p className="text-xs text-muted-foreground">Loading…</p>
+            ) : likeAuthorsList.length > 0 ? (
               <div className="space-y-2">
                 {likeAuthorsList.map(author => {
                   const profile = nostrProfiles.get(author.pubkey);
