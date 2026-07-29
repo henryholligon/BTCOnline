@@ -5,11 +5,11 @@ import { useCategoryEmojis } from "@/hooks/use-category-emojis";
 import { useCountryEmojis } from "@/hooks/use-country-emojis";
 import { Zap, Clock, Copy, Check, Heart, Bookmark, Upload, X as XIcon, Mail, ExternalLink, MessageSquare, ChevronUp, ChevronDown } from "lucide-react";
 import BitcoinLogo from "@/components/bitcoin-logo";
-import { useRef, useEffect, useState, memo, useCallback } from "react";
+import { useRef, useEffect, useState, useMemo, memo, useCallback } from "react";
 import { useComments, useSubmitComment, useDeleteComment, useIsAdmin, useMerchantRating, useMyComment, useMasterPubkey } from "@/hooks/use-comments";
 import { Textarea } from "@/components/ui/textarea";
 import { slugify } from "@/lib/utils";
-import QRCodeStyling from "qr-code-styling";
+import qrcode from "qrcode-generator";
 import qrBrandLogo from "@assets/BTC_Online_Logo_Light_White_1785285679766.png";
 
 /* ── Minimal brand-icon SVGs ── */
@@ -50,52 +50,69 @@ function IconReddit() {
 }
 
 function StyledMerchantQr({ value }: { value: string }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-    containerRef.current.replaceChildren();
-
-    const qrCode = new QRCodeStyling({
-      width: 160,
-      height: 160,
-      type: "svg",
-      data: value,
-      image: qrBrandLogo,
-      margin: 2,
-      qrOptions: {
-        errorCorrectionLevel: "H",
-      },
-      dotsOptions: {
-        type: "dots",
-        color: "#000000",
-        roundSize: false,
-      },
-      cornersSquareOptions: {
-        type: "dot",
-        color: "#000000",
-      },
-      cornersDotOptions: {
-        type: "dot",
-        color: "#000000",
-      },
-      backgroundOptions: {
-        color: "#ffffff",
-      },
-      imageOptions: {
-        hideBackgroundDots: true,
-        imageSize: 0.3,
-        margin: 2,
-      },
-    });
-
-    qrCode.append(containerRef.current);
-    return () => {
-      containerRef.current?.replaceChildren();
-    };
+  const qr = useMemo(() => {
+    const code = qrcode(0, "H");
+    code.addData(value);
+    code.make();
+    return code;
   }, [value]);
+  const count = qr.getModuleCount();
+  const quiet = 2;
+  const viewSize = count + quiet * 2;
+  const finderRegions = [
+    [0, 0],
+    [count - 7, 0],
+    [0, count - 7],
+  ];
+  const isFinder = (x: number, y: number) =>
+    finderRegions.some(([fx, fy]) => x >= fx && x < fx + 7 && y >= fy && y < fy + 7);
+  const center = viewSize / 2;
+  const logoRadius = 4.8;
 
-  return <div ref={containerRef} className="h-[160px] w-[160px]" aria-label="QR code for this merchant" />;
+  return (
+    <svg
+      viewBox={`0 0 ${viewSize} ${viewSize}`}
+      className="h-[220px] w-[220px]"
+      role="img"
+      aria-label="QR code for this merchant"
+    >
+      <rect width={viewSize} height={viewSize} fill="#fff" />
+      <defs>
+        <clipPath id="merchant-qr-logo-clip">
+          <circle cx={center} cy={center} r={logoRadius - 0.45} />
+        </clipPath>
+      </defs>
+      {Array.from({ length: count }, (_, y) =>
+        Array.from({ length: count }, (_, x) => {
+          if (!qr.isDark(y, x) || isFinder(x, y)) return null;
+          const px = x + quiet + 0.5;
+          const py = y + quiet + 0.5;
+          return <circle key={`${x}-${y}`} cx={px} cy={py} r="0.27" fill="#000" />;
+        }),
+      )}
+      {finderRegions.map(([fx, fy]) => {
+        const cx = fx + quiet + 3.5;
+        const cy = fy + quiet + 3.5;
+        return (
+          <g key={`${fx}-${fy}`}>
+            <circle cx={cx} cy={cy} r="3.5" fill="#000" />
+            <circle cx={cx} cy={cy} r="2.25" fill="#fff" />
+            <circle cx={cx} cy={cy} r="1.15" fill="#000" />
+          </g>
+        );
+      })}
+      <circle cx={center} cy={center} r={logoRadius} fill="#fff" />
+      <image
+        href={qrBrandLogo}
+        x={center - logoRadius + 0.45}
+        y={center - logoRadius + 0.45}
+        width={(logoRadius - 0.45) * 2}
+        height={(logoRadius - 0.45) * 2}
+        preserveAspectRatio="xMidYMid slice"
+        clipPath="url(#merchant-qr-logo-clip)"
+      />
+    </svg>
+  );
 }
 import { Link } from "wouter";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
