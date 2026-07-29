@@ -9,7 +9,7 @@ import { useRef, useEffect, useState, memo, useCallback } from "react";
 import { useComments, useSubmitComment, useDeleteComment, useIsAdmin, useMerchantRating, useMyComment, useMasterPubkey } from "@/hooks/use-comments";
 import { Textarea } from "@/components/ui/textarea";
 import { slugify } from "@/lib/utils";
-import { QRCodeSVG } from "qrcode.react";
+import QRCodeStyling from "qr-code-styling";
 
 /* ── Minimal brand-icon SVGs ── */
 function IconX() {
@@ -46,6 +46,54 @@ function IconReddit() {
       <path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z" />
     </svg>
   );
+}
+
+function StyledMerchantQr({ value }: { value: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    containerRef.current.replaceChildren();
+
+    const qrCode = new QRCodeStyling({
+      width: 160,
+      height: 160,
+      type: "svg",
+      data: value,
+      image: "/assets/main-logo.png",
+      margin: 4,
+      qrOptions: {
+        errorCorrectionLevel: "H",
+      },
+      dotsOptions: {
+        type: "dots",
+        color: "#000000",
+      },
+      cornersSquareOptions: {
+        type: "dot",
+        color: "#000000",
+      },
+      cornersDotOptions: {
+        type: "dot",
+        color: "#000000",
+      },
+      backgroundOptions: {
+        color: "#ffffff",
+      },
+      imageOptions: {
+        hideBackgroundDots: true,
+        imageSize: 0.28,
+        margin: 4,
+      },
+    });
+
+    qrCode.append(containerRef.current);
+    return () => {
+      containerRef.current?.replaceChildren();
+    };
+  }, [value]);
+
+  return <div ref={containerRef} className="h-[160px] w-[160px]" aria-label="QR code for this merchant" />;
 }
 import { Link } from "wouter";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -675,43 +723,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               {/* QR code */}
               <div className="flex justify-center shrink-0">
                 <div className="p-2 bg-white rounded-lg border border-border">
-                  <div className="relative h-[160px] w-[160px] overflow-hidden">
-                    <QRCodeSVG
-                      value={merchantUrl}
-                      size={160}
-                      bgColor="#ffffff"
-                      fgColor="#000000"
-                      level="H"
-                      className="qr-dotted"
-                    />
-                    <style>{`
-                      .qr-dotted > path:nth-of-type(2) {
-                        fill: none;
-                        stroke: #000;
-                        stroke-width: .92;
-                        stroke-linecap: round;
-                        stroke-linejoin: round;
-                      }
-                    `}</style>
-                    {/* Circular finder markers, matching the BTC Online reference style. */}
-                    {[
-                      "left-0.5 top-0.5",
-                      "right-0.5 top-0.5",
-                      "left-0.5 bottom-0.5",
-                    ].map((position) => (
-                      <div key={position} className={`pointer-events-none absolute ${position} h-10 w-10 rounded-full bg-white p-[3px]`}>
-                        <div className="h-full w-full rounded-full bg-black p-[5px]">
-                          <div className="h-full w-full rounded-full bg-white p-[4px]">
-                            <div className="h-full w-full rounded-full bg-black" />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                    {/* Larger circular brand badge with a white quiet zone. */}
-                    <div className="pointer-events-none absolute left-1/2 top-1/2 flex h-[58px] w-[58px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[5px] border-white bg-white shadow-sm">
-                      <img src="/assets/main-logo.png" alt="" className="h-[46px] w-[46px] rounded-full object-contain" />
-                    </div>
-                  </div>
+                  <StyledMerchantQr value={merchantUrl} />
                 </div>
               </div>
 
