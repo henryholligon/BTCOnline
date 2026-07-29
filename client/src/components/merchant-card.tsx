@@ -346,21 +346,11 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
           )}
         </div>
 
-        <div className="shrink-0 self-center flex items-center gap-0.5">
-          <button
-            onClick={(e) => { e.stopPropagation(); toggleFavourite(merchant.website); }}
-            className={`p-1.5 rounded-md transition-colors hover:bg-muted/60 ${user && favourites.has(merchant.website) ? "text-red-500" : "text-muted-foreground/25 hover:text-muted-foreground/60"}`}
-            title={user && favourites.has(merchant.website) ? "Remove from likes" : "Like this merchant"}
-            aria-label={user && favourites.has(merchant.website) ? "Remove from likes" : "Like this merchant"}
-          >
-            <Heart className={`h-4 w-4 transition-all ${user && favourites.has(merchant.website) ? "fill-current" : ""}`} />
-          </button>
-          <div className="hidden md:block px-1">
-            {expanded
-              ? <ChevronDown className="h-5 w-5 text-muted-foreground/40" />
-              : <ChevronUp className="h-5 w-5 text-muted-foreground/40" />
-            }
-          </div>
+        <div className="shrink-0 self-start mt-1 hidden md:flex items-center px-1">
+          {expanded
+            ? <ChevronDown className="h-5 w-5 text-muted-foreground/40" />
+            : <ChevronUp className="h-5 w-5 text-muted-foreground/40" />
+          }
         </div>
       </div>
 
@@ -814,14 +804,33 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 </button>
               </div>
               <div className="flex-1 flex justify-center">
-                <button
-                  onClick={() => { setShowLikes(v => !v); setShowComments(false); setShowReviews(false); }}
-                  data-testid={`button-likes-${merchant.id}`}
-                  className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${showLikes ? "text-red-500" : "text-muted-foreground"}`}
-                >
-                  <Heart className={`h-4 w-4 ${user && favourites.has(merchant.website) ? "fill-current text-red-500" : ""}`} />
-                  <span className="text-xs tabular-nums">{likeCounts.get(merchant.website) ?? 0}</span>
-                </button>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      data-testid={`button-likes-${merchant.id}`}
+                      className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${showLikes ? "text-red-500" : user && favourites.has(merchant.website) ? "text-red-500" : "text-muted-foreground"}`}
+                    >
+                      <Heart className={`h-4 w-4 ${user && favourites.has(merchant.website) ? "fill-current text-red-500" : ""}`} />
+                      <span className="text-xs tabular-nums">{likeCounts.get(merchant.website) ?? 0}</span>
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-44 p-1.5" align="center" side="top">
+                    <button
+                      className="w-full flex items-center gap-2 px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors text-left"
+                      onClick={() => toggleFavourite(merchant.website)}
+                    >
+                      <Heart className={`h-3.5 w-3.5 shrink-0 ${user && favourites.has(merchant.website) ? "fill-current text-red-500" : "text-muted-foreground"}`} />
+                      {user && favourites.has(merchant.website) ? "Unlike" : "Like"}
+                    </button>
+                    <button
+                      className="w-full flex items-center gap-2 px-3 py-1.5 rounded-md text-sm hover:bg-muted transition-colors text-left text-muted-foreground"
+                      onClick={() => { setShowLikes(v => !v); setShowComments(false); setShowReviews(false); }}
+                    >
+                      <Heart className="h-3.5 w-3.5 shrink-0" />
+                      {showLikes ? "Hide likes" : "View likes"}
+                    </button>
+                  </PopoverContent>
+                </Popover>
               </div>
               <div className="flex-1 flex justify-center">
                 {!user ? (
