@@ -6,7 +6,7 @@ import { useCountryEmojis } from "@/hooks/use-country-emojis";
 import { Zap, Clock, Copy, Check, Heart, Bookmark, Upload, X as XIcon, Mail, ExternalLink, MessageSquare, ChevronUp, ChevronDown } from "lucide-react";
 import BitcoinLogo from "@/components/bitcoin-logo";
 import { useRef, useEffect, useState, memo, useCallback } from "react";
-import { useComments, useSubmitComment, useDeleteComment, useIsAdmin, useMerchantRating, useMyReview, useMasterPubkey } from "@/hooks/use-comments";
+import { useComments, useSubmitComment, useDeleteComment, useIsAdmin, useMerchantRating, useMyReview, useMasterPubkey, useNostrProfiles } from "@/hooks/use-comments";
 import { Textarea } from "@/components/ui/textarea";
 import { slugify } from "@/lib/utils";
 import { QRCodeSVG } from "qrcode.react";
@@ -149,6 +149,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
   const { data: myReview } = useMyReview(merchant.id, !!user && expanded);
   const submitComment = useSubmitComment(merchant.id);
   const deleteComment = useDeleteComment(merchant.id);
+  const nostrProfiles = useNostrProfiles(commentsList.map(c => c.pubkey));
 
   // Pre-fill forms from the user's existing record when the card expands
   useEffect(() => {
@@ -428,14 +429,19 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
 
             {!commentsLoading && commentsList.length > 0 && (
               <div className="space-y-3">
-                {commentsList.filter(c => c.body?.trim()).map(c => (
+                {commentsList.filter(c => c.body?.trim()).map(c => {
+                  const profile = c.pubkey ? nostrProfiles.get(c.pubkey) : undefined;
+                  const displayName = profile?.displayName ?? c.authorName;
+                  return (
                   <div key={c.id} className="flex gap-2 group/comment">
-                    <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center shrink-0 text-[10px] font-bold text-muted-foreground uppercase">
-                      {c.authorName.slice(0, 1)}
+                    <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center shrink-0 text-[10px] font-bold text-muted-foreground uppercase overflow-hidden">
+                      {profile?.picture
+                        ? <img src={profile.picture} alt={displayName} className="h-full w-full object-cover" onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; (e.currentTarget.parentElement as HTMLElement).textContent = displayName.slice(0, 1); }} />
+                        : displayName.slice(0, 1)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-[11px] font-semibold">{c.authorName}</span>
+                        <span className="text-[11px] font-semibold">{displayName}</span>
                         <span className="text-[10px] text-muted-foreground">
                           {new Date(c.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                         </span>
@@ -450,7 +456,8 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                       <p className="text-xs text-foreground/90 mt-0.5 break-words">{c.body}</p>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
@@ -500,14 +507,19 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
 
             {!commentsLoading && commentsList.filter(c => c.rating != null).length > 0 && (
               <div className="space-y-3">
-                {commentsList.filter(c => c.rating != null).map(c => (
+                {commentsList.filter(c => c.rating != null).map(c => {
+                  const profile = c.pubkey ? nostrProfiles.get(c.pubkey) : undefined;
+                  const displayName = profile?.displayName ?? c.authorName;
+                  return (
                   <div key={c.id} className="flex gap-2 group/comment">
-                    <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center shrink-0 text-[10px] font-bold text-muted-foreground uppercase">
-                      {c.authorName.slice(0, 1)}
+                    <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center shrink-0 text-[10px] font-bold text-muted-foreground uppercase overflow-hidden">
+                      {profile?.picture
+                        ? <img src={profile.picture} alt={displayName} className="h-full w-full object-cover" onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; (e.currentTarget.parentElement as HTMLElement).textContent = displayName.slice(0, 1); }} />
+                        : displayName.slice(0, 1)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-[11px] font-semibold">{c.authorName}</span>
+                        <span className="text-[11px] font-semibold">{displayName}</span>
                         <span className="flex items-center gap-0.5 text-amber-400 text-[11px] leading-none">
                           {[1,2,3,4,5].map(s => (
                             <span key={s} className={s <= c.rating! ? "text-amber-400" : "text-muted-foreground/30"}>★</span>
@@ -527,7 +539,8 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                       {c.body?.trim() && <p className="text-xs text-foreground/90 mt-0.5 break-words">{c.body}</p>}
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 

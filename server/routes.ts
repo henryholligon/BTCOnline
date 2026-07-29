@@ -451,6 +451,9 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
       rating: r.rating,
       // Derive a display name from the email local-part; never expose the full address publicly.
       authorName: r.userEmail ? r.userEmail.split("@")[0] : `npub:${r.userPubkey.slice(0, 8)}…`,
+      // Expose the hex pubkey only for Nostr users so the client can resolve kind:0 profiles.
+      // Custodial email users have a server-generated key meaningless on public relays — omit it.
+      pubkey: r.userEmail ? null : r.userPubkey,
     })));
   });
 

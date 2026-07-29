@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import { apiRequest } from "@/lib/queryClient";
 import { useNostr } from "@/context/NostrContext";
+import { pool, DEFAULT_RELAYS } from "@/lib/nostr";
 
 export interface MerchantComment {
   id: number;
@@ -10,6 +12,71 @@ export interface MerchantComment {
   createdAt: string;
   authorName: string;
   rating?: number | null;
+  /** Hex pubkey, present only for Nostr (non-custodial) users. */
+  pubkey?: string | null;
+}
+
+export interface NostrProfile {
+  displayName: string;
+  picture?: string;
+}
+
+/** Module-level cache so profiles survive across card open/close cycles. */
+const profileCache = new Map<string, NostrProfile>();
+/** Tracks pubkeys whose fetch is already in flight to avoid duplicate requests. */
+const inFlight = new Set<string>();
+
+/**
+ * Given a list of hex pubkeys, fetches their kind:0 metadata from relays in a
+ * single batched query and returns a map of pubkey → NostrProfile.
+ * Results are cached for the lifetime of the page; repeated calls are instant.
+ */
+export function useNostrProfiles(pubkeys: (string | null | undefined)[]): Map<string, NostrProfile> {
+  const [profiles, setProfiles] = useState<Map<string, NostrProfile>>(() => new Map(profileCache));
+
+  useEffect(() => {
+    const missing = [...new Set(pubkeys.filter((p): p is string => !!p && !profileCache.has(p) && !inFlight.has(p)))];
+    if (missing.length === 0) return;
+    missing.forEach(p => inFlight.add(p));
+
+    let cancelled = false;
+    pool.querySync(DEFAULT_RELAYS, { kinds: [0], authors: missing }, { maxWait: 5000 })
+      .then(events => {
+        if (cancelled) return;
+        // Keep only the most recent event per author
+        const best = new Map<string, { created_at: number; content: string }>();
+        for (const ev of events) {
+          const prev = best.get(ev.pubkey);
+          if (!prev || ev.created_at > prev.created_at) best.set(ev.pubkey, ev);
+        }
+        best.forEach((ev, pk) => {
+          try {
+            const meta = JSON.parse(ev.content) as { name?: string; display_name?: string; picture?: string };
+            const displayName = meta.display_name?.trim() || meta.name?.trim() || `npub:${pk.slice(0, 8)}…`;
+            profileCache.set(pk, { displayName, picture: meta.picture });
+          } catch {
+            profileCache.set(pk, { displayName: `npub:${pk.slice(0, 8)}…` });
+          }
+          inFlight.delete(pk);
+        });
+        // For pubkeys with no event on any relay, store a fallback so we don't retry
+        missing.forEach(pk => {
+          if (!profileCache.has(pk)) {
+            profileCache.set(pk, { displayName: `npub:${pk.slice(0, 8)}…` });
+            inFlight.delete(pk);
+          }
+        });
+        setProfiles(new Map(profileCache));
+      })
+      .catch(() => {
+        missing.forEach(pk => { inFlight.delete(pk); });
+      });
+
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pubkeys.filter(Boolean).sort().join(",")]);
+
+  return profiles;
 }
 
 export interface MerchantRating {
