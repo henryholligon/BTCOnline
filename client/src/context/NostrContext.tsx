@@ -393,6 +393,8 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
     if (next.has(merchantUrl)) next.delete(merchantUrl);
     else next.add(merchantUrl);
 
+    const isAdding = !favourites.has(merchantUrl);
+
     if (likesPublic) {
       const tags: string[][] = Array.from(next).map(url => ['r', url]);
       await publishEvent({ kind: 10003, created_at: Math.floor(Date.now() / 1000), tags, content: '' });
@@ -409,6 +411,41 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
       });
     }
     setFavourites(next);
+
+    // Optimistically keep likeAuthors and likeCounts in sync so the likes panel
+    // reflects the change immediately without waiting for a relay re-fetch.
+    if (likesPublic && user) {
+      const meAsAuthor: LikeAuthor = {
+        pubkey: user.pubkey,
+        npub: user.npub,
+        displayName: user.displayName,
+      };
+
+      setLikeAuthors(prev => {
+        const next = new Map(prev);
+        const current = next.get(merchantUrl) ?? [];
+        if (isAdding) {
+          // Add if not already present
+          if (!current.some(a => a.pubkey === user.pubkey)) {
+            next.set(merchantUrl, [...current, meAsAuthor]);
+          }
+        } else {
+          next.set(merchantUrl, current.filter(a => a.pubkey !== user.pubkey));
+        }
+        return next;
+      });
+
+      setLikeCounts(prev => {
+        const next = new Map(prev);
+        const current = next.get(merchantUrl) ?? 0;
+        next.set(merchantUrl, Math.max(0, current + (isAdding ? 1 : -1)));
+        return next;
+      });
+
+      // Clear the fetching ref so the next expansion can do a fresh relay fetch
+      likeAuthorsFetchingRef.current.delete(merchantUrl);
+      likeCountFetchingRef.current.delete(merchantUrl);
+    }
   }, [user, likesPublic, favourites, publishEvent, openLoginModal]);
 
   const toggleLikesPublic = useCallback(async () => {
