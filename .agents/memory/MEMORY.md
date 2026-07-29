@@ -5,3 +5,4 @@
 - [Category emoji sync](category-emoji-sync.md) — emojis are data-driven from a separate sheet tab → category_emojis table → /api/category-emojis; static map is fallback/seed; self-heals like merchant sync.
 - [Add Merchant forms](add-merchant-forms.md) — TWO add-merchant forms: public dialog in navbar.tsx (frontend stub, no persist) vs admin page admin.tsx (/x7k2m9p4r1qn, persists).
 - [Public activity privacy](public-activity-privacy.md) — attribute only public Nostr likes; comments and reviews may show their existing author names.
+- [QR rendering](qr-rendering.md) — use a standard QR renderer and preserve quiet zones/data modules for phone scanability.
