@@ -6,7 +6,7 @@ import { useCountryEmojis } from "@/hooks/use-country-emojis";
 import { Zap, Clock, Copy, Check, Heart, Bookmark, Upload, X as XIcon, Mail, ExternalLink, MessageSquare, ChevronUp, ChevronDown } from "lucide-react";
 import BitcoinLogo from "@/components/bitcoin-logo";
 import { useRef, useEffect, useState, memo, useCallback } from "react";
-import { useComments, useSubmitComment, useDeleteComment, useIsAdmin, useMerchantRating, useMyComment, useMasterPubkey } from "@/hooks/use-comments";
+import { useComments, useSubmitComment, useDeleteComment, useIsAdmin, useMerchantRating, useMyReview, useMasterPubkey } from "@/hooks/use-comments";
 import { Textarea } from "@/components/ui/textarea";
 import { slugify } from "@/lib/utils";
 import { QRCodeSVG } from "qrcode.react";
@@ -146,17 +146,17 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
   const masterPubkey = useMasterPubkey();
   const { data: commentsList = [], isLoading: commentsLoading } = useComments(merchant.id, expanded);
   const { data: ratingData } = useMerchantRating(merchant.id);
-  const { data: myComment } = useMyComment(merchant.id, !!user && expanded);
+  const { data: myReview } = useMyReview(merchant.id, !!user && expanded);
   const submitComment = useSubmitComment(merchant.id);
   const deleteComment = useDeleteComment(merchant.id);
 
   // Pre-fill forms from the user's existing record when the card expands
   useEffect(() => {
     if (!expanded) return;
-    setCommentBody(myComment?.body ?? "");
-    setReviewRating(myComment?.rating ?? null);
+    setCommentBody("");
+    setReviewRating(myReview?.rating ?? null);
     setReviewNote("");
-  }, [expanded, myComment]);
+  }, [expanded, myReview]);
 
   const publishToNostr = useCallback(async (body: string, rating: number | null) => {
     if (!user || !merchant.nostrEventId) return;
@@ -180,11 +180,10 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
   const handleCommentSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!commentBody.trim()) return;
-    // Preserve existing rating when updating the comment text
-    const existingRating = myComment?.rating ?? null;
     try {
-      await submitComment.mutateAsync({ body: commentBody, rating: existingRating });
-      await publishToNostr(commentBody, existingRating);
+      await submitComment.mutateAsync({ body: commentBody, rating: null });
+      await publishToNostr(commentBody, null);
+      setCommentBody("");
     } catch (error) {
       toast({
         title: "Unable to post comment",
@@ -194,13 +193,12 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
         variant: "destructive",
       });
     }
-  }, [commentBody, myComment, submitComment, publishToNostr, toast]);
+  }, [commentBody, submitComment, publishToNostr, toast]);
 
   const handleReviewSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!reviewRating) return;
-    // Preserve existing body text when updating the star rating
-    const existingBody = myComment?.body?.trim() || '';
+    const existingBody = reviewNote.trim() || myReview?.body?.trim() || '';
     try {
       await submitComment.mutateAsync({ body: existingBody, rating: reviewRating });
       await publishToNostr(reviewNote || existingBody, reviewRating);
@@ -213,7 +211,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
         variant: "destructive",
       });
     }
-  }, [reviewRating, reviewNote, myComment, submitComment, publishToNostr, toast]);
+  }, [reviewRating, reviewNote, myReview, submitComment, publishToNostr, toast]);
 
   // Reset panels when card collapses
   useEffect(() => {
@@ -472,7 +470,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-muted-foreground">{commentBody.length}/1000</span>
                   <Button type="submit" size="sm" disabled={!commentBody.trim() || submitComment.isPending} className="h-7 text-xs">
-                    {submitComment.isPending ? "Posting…" : (myComment?.body ? "Update" : "Post comment")}
+                    {submitComment.isPending ? "Posting…" : "Post comment"}
                   </Button>
                 </div>
               </form>
@@ -565,7 +563,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 />
                 <div className="flex justify-end">
                   <Button type="submit" size="sm" disabled={!reviewRating || submitComment.isPending} className="h-7 text-xs">
-                    {submitComment.isPending ? "Saving…" : (myComment?.rating ? "Update rating" : "Submit rating")}
+                    {submitComment.isPending ? "Saving…" : (myReview?.rating ? "Update rating" : "Submit rating")}
                   </Button>
                 </div>
               </form>

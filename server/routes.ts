@@ -470,7 +470,7 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
     res.json({ average: Math.round(row.average * 10) / 10, count: row.count });
   });
 
-  /** Returns the current user's existing comment on a merchant, or 404 if none. */
+  /** Returns the current user's latest comment on a merchant, or 404 if none. */
   app.get("/api/merchants/:id/my-comment", async (req, res) => {
     const merchantId = parseInt(req.params.id);
     if (isNaN(merchantId)) return res.status(400).json({ message: "Invalid merchant ID" });
@@ -485,6 +485,26 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
       .limit(1);
 
     if (!existing) return res.status(404).json({ message: "No comment yet" });
+
+    res.json({ ...existing, authorName: userRow.email ? userRow.email.split("@")[0] : `npub:${userRow.pubkey.slice(0, 8)}…` });
+  });
+
+  /** Returns the current user's one review on a merchant, or 404 if none. */
+  app.get("/api/merchants/:id/my-review", async (req, res) => {
+    const merchantId = parseInt(req.params.id);
+    if (isNaN(merchantId)) return res.status(400).json({ message: "Invalid merchant ID" });
+
+    const userRow = await getCommentUser(req);
+    if (!userRow) return res.status(401).json({ message: "Sign in to review" });
+
+    const [existing] = await db
+      .select()
+      .from(comments)
+      .where(and(eq(comments.merchantId, merchantId), eq(comments.userId, userRow.id), sql`${comments.rating} IS NOT NULL`))
+      .orderBy(asc(comments.createdAt))
+      .limit(1);
+
+    if (!existing) return res.status(404).json({ message: "No review yet" });
 
     res.json({ ...existing, authorName: userRow.email ? userRow.email.split("@")[0] : `npub:${userRow.pubkey.slice(0, 8)}…` });
   });
@@ -511,27 +531,35 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
       }
     }
 
-    // Upsert: update existing comment if the user already has one for this merchant.
-    const [existing] = await db
-      .select()
-      .from(comments)
-      .where(and(eq(comments.merchantId, merchantId), eq(comments.userId, userRow.id)))
-      .limit(1);
-
     const normalizedRating = (rating !== undefined && rating !== null) ? Number(rating) : null;
 
-    if (existing) {
-      const [updated] = await db
-        .update(comments)
-        .set({
-          body: normalizedBody,
-          rating: normalizedRating,
-          createdAt: new Date().toISOString(),
-        })
-        .where(eq(comments.id, existing.id))
-        .returning();
+    // Reviews are limited to one per user and merchant. Plain comments are
+    // intentionally append-only and may be posted multiple times.
+    if (normalizedRating !== null) {
+      const [existingReview] = await db
+        .select()
+        .from(comments)
+        .where(and(
+          eq(comments.merchantId, merchantId),
+          eq(comments.userId, userRow.id),
+          sql`${comments.rating} IS NOT NULL`,
+        ))
+        .orderBy(asc(comments.createdAt))
+        .limit(1);
 
-      return res.json({ ...updated, authorName: userRow.email ? userRow.email.split("@")[0] : `npub:${userRow.pubkey.slice(0, 8)}…` });
+      if (existingReview) {
+        const [updated] = await db
+          .update(comments)
+          .set({
+            body: normalizedBody,
+            rating: normalizedRating,
+            createdAt: new Date().toISOString(),
+          })
+          .where(eq(comments.id, existingReview.id))
+          .returning();
+
+        return res.json({ ...updated, authorName: userRow.email ? userRow.email.split("@")[0] : `npub:${userRow.pubkey.slice(0, 8)}…` });
+      }
     }
 
     const [comment] = await db.insert(comments).values({

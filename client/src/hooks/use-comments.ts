@@ -51,6 +51,32 @@ export function useMyComment(merchantId: number, enabled = true) {
   });
 }
 
+export function useMyReview(merchantId: number, enabled = true) {
+  const { user, signEvent } = useNostr();
+  return useQuery<MerchantComment | null>({
+    queryKey: [`/api/merchants/${merchantId}/my-review`, user?.pubkey ?? "anonymous"],
+    enabled: enabled && merchantId > 0,
+    queryFn: async () => {
+      const path = `/api/merchants/${merchantId}/my-review`;
+      const headers: Record<string, string> = {};
+      if (user) {
+        const event = await signEvent({
+          kind: 22242,
+          created_at: Math.floor(Date.now() / 1000),
+          tags: [["u", path], ["method", "GET"]],
+          content: "Authenticate to view my review",
+        });
+        headers["x-nostr-event"] = JSON.stringify(event);
+      }
+      const res = await fetch(path, { credentials: "include", headers });
+      if (res.status === 404 || res.status === 401) return null;
+      if (!res.ok) throw new Error("Failed to fetch existing review");
+      return res.json();
+    },
+    staleTime: 30_000,
+  });
+}
+
 export function useSubmitComment(merchantId: number) {
   const { user, signEvent } = useNostr();
   const queryClient = useQueryClient();
@@ -81,7 +107,9 @@ export function useSubmitComment(merchantId: number) {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [`/api/merchants/${merchantId}/comments`] });
       queryClient.invalidateQueries({ queryKey: [`/api/merchants/${merchantId}/rating`] });
-      queryClient.setQueryData([`/api/merchants/${merchantId}/my-comment`, user?.pubkey ?? "anonymous"], data);
+      if (rating !== null) {
+        queryClient.setQueryData([`/api/merchants/${merchantId}/my-review`, user?.pubkey ?? "anonymous"], data);
+      }
     },
     throwOnError: false,
   });
