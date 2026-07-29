@@ -107,7 +107,7 @@ export function useSubmitComment(merchantId: number) {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [`/api/merchants/${merchantId}/comments`] });
       queryClient.invalidateQueries({ queryKey: [`/api/merchants/${merchantId}/rating`] });
-      if (rating !== null) {
+      if (data.rating != null) {
         queryClient.setQueryData([`/api/merchants/${merchantId}/my-review`, user?.pubkey ?? "anonymous"], data);
       }
     },
