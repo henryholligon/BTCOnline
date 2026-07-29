@@ -343,9 +343,8 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
         SELECT
           COUNT(*)::int AS total_merchants,
           COUNT(*) FILTER (
-            WHERE last_surveyed IS NOT NULL
-              AND last_surveyed <> ''
-              AND last_surveyed::date >= CURRENT_DATE - INTERVAL '1 year'
+            WHERE COALESCE(NULLIF(last_verified, ''), NULLIF(last_surveyed, '')) IS NOT NULL
+              AND COALESCE(NULLIF(last_verified, ''), NULLIF(last_surveyed, ''))::date >= CURRENT_DATE - INTERVAL '1 year'
           )::int AS recently_verified,
           COUNT(*) FILTER (WHERE lightning_supported)::int AS lightning_merchants,
           COUNT(*) FILTER (WHERE onchain_supported)::int AS onchain_merchants,
@@ -361,6 +360,15 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
         SELECT COUNT(DISTINCT country)::int AS shipping_countries
         FROM merchants, unnest(shipping_countries) AS country
       ),
+      growth AS (
+        SELECT
+          month::date::text AS snapshot_date,
+          SUM(COUNT(*)) OVER (ORDER BY month)::int AS merchant_count
+        FROM merchants
+        CROSS JOIN LATERAL date_trunc('month', COALESCE(NULLIF(date_added, ''), NULLIF(last_surveyed, ''))::date) AS month
+        WHERE COALESCE(NULLIF(date_added, ''), NULLIF(last_surveyed, '')) IS NOT NULL
+        GROUP BY month
+      ),
       snapshot AS (
         INSERT INTO merchant_growth_snapshots (snapshot_date, merchant_count, verified_count)
         SELECT CURRENT_DATE::text, total_merchants, recently_verified FROM merchant_stats
@@ -375,11 +383,19 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
           FROM merchant_stats CROSS JOIN category_stats
         ) stats),
         'shippingCountries', (SELECT shipping_countries FROM countries),
+        'hasImportedDates', EXISTS (
+          SELECT 1 FROM merchants
+          WHERE NULLIF(date_added, '') IS NOT NULL
+             OR NULLIF(last_verified, '') IS NOT NULL
+        ),
         'snapshots', COALESCE(
           (SELECT json_agg(row_to_json(s) ORDER BY s.snapshot_date) FROM (
+            SELECT snapshot_date, merchant_count, 0::int AS verified_count
+            FROM growth
+            UNION ALL
             SELECT snapshot_date, merchant_count, verified_count
             FROM merchant_growth_snapshots
-            WHERE snapshot_date >= (CURRENT_DATE - INTERVAL '1 year')::text
+            WHERE NOT EXISTS (SELECT 1 FROM growth)
             ORDER BY snapshot_date
           ) s),
           '[]'::json

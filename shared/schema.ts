@@ -41,6 +41,8 @@ export const merchants = pgTable("merchants", {
   featured: boolean("featured").default(false),
   countryMadeIn: text("country_made_in"),
   countryShippedFrom: text("country_shipped_from"),
+  dateAdded: text("date_added"),
+  lastVerified: text("last_verified"),
   lastSurveyed: text("last_surveyed"),
   bitcoinDiscount: text("bitcoin_discount"),
   nostrEventId: text("nostr_event_id"),

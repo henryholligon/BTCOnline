@@ -17,6 +17,7 @@ type DashboardData = {
     categories: number;
   };
   shippingCountries: number;
+  hasImportedDates: boolean;
   snapshots: { snapshot_date: string; merchant_count: number; verified_count: number }[];
 };
 
@@ -150,7 +151,11 @@ export default function Dashboard() {
                     <div>
                       <h2 className="font-display text-lg font-semibold">Merchant growth</h2>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        {data.snapshots.length < 2 ? "Snapshots start today — check back as the series builds." : "Daily directory total"}
+                        {!data.hasImportedDates
+                          ? "Add Date added and Date last verified to the Google Sheet to unlock history."
+                          : data.snapshots.length < 2
+                            ? "History will fill in as dated merchant records are synced."
+                            : "Historical directory total from sheet dates"}
                       </p>
                     </div>
                     <div className="flex items-center gap-1 rounded-lg bg-muted p-1">
@@ -188,7 +193,9 @@ export default function Dashboard() {
               </Card>
             </section>
             <p className="mt-6 text-center text-xs text-muted-foreground">
-              Growth history is collected from today onward. Counts reflect the current directory and update with merchant syncs.
+              {data.hasImportedDates
+                ? "Growth uses Date added and verification dates from the Google Sheet. It updates after each sheet sync."
+                : "Growth history is waiting for Date added and Date last verified columns in the Google Sheet. Current totals remain live."}
             </p>
           </>
         )}
