@@ -10,6 +10,7 @@ import { useComments, useSubmitComment, useDeleteComment, useIsAdmin, useMerchan
 import { Textarea } from "@/components/ui/textarea";
 import { slugify } from "@/lib/utils";
 import QRCodeStyling from "qr-code-styling";
+import qrBrandLogo from "@assets/BTC_Online_Logo_Light_White_1785285679766.png";
 
 /* ── Minimal brand-icon SVGs ── */
 function IconX() {
@@ -60,7 +61,7 @@ function StyledMerchantQr({ value }: { value: string }) {
       height: 160,
       type: "svg",
       data: value,
-      image: "/assets/main-logo.png",
+      image: qrBrandLogo,
       margin: 4,
       qrOptions: {
         errorCorrectionLevel: "H",
