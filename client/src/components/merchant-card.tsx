@@ -148,7 +148,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
   const { getCategoryWithEmoji } = useCategoryEmojis();
   const { getCountryEmoji } = useCountryEmojis();
   const { toast } = useToast();
-  const { user, favourites, toggleFavourite, lists, toggleListMember, openLoginModal, likeCounts, likeAuthors, fetchLikeCount, fetchLikeAuthors, saveCounts, fetchSaveCount, publishEvent, likesPublic } = useNostr();
+  const { user, favourites, follows, toggleFavourite, lists, toggleListMember, openLoginModal, likeCounts, likeAuthors, fetchLikeCount, fetchLikeAuthors, saveCounts, fetchSaveCount, publishEvent, likesPublic } = useNostr();
   const isAdmin = useIsAdmin();
   const masterPubkey = useMasterPubkey();
   const { data: commentsList = [], isLoading: commentsLoading } = useComments(merchant.id, expanded);
@@ -180,9 +180,33 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
   const visibleReviews = allReviewsVisible ? reviewComments : reviewComments.slice(0, 3);
   const visibleLikes = allLikesVisible ? likeAuthorsList : likeAuthorsList.slice(0, 3);
 
+  // ── Web-of-trust intersections ──────────────────────────────────────────────
+  const wotLikers = useMemo(
+    () => (follows.size > 0 ? likeAuthorsList.filter(a => follows.has(a.pubkey)) : []),
+    [follows, likeAuthorsList],
+  );
+  const wotReviewers = useMemo(
+    () => (follows.size > 0 ? reviewComments.filter(c => c.pubkey && follows.has(c.pubkey)) : []),
+    [follows, reviewComments],
+  );
+  const wotCommenters = useMemo(
+    () => (follows.size > 0 ? topLevelComments.filter(c => c.pubkey && follows.has(c.pubkey)) : []),
+    [follows, topLevelComments],
+  );
+  /** Deduped WoT pubkeys ordered by signal strength (liked > reviewed > commented). */
+  const allWotPubkeys = useMemo(() => {
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const a of wotLikers)   { if (a.pubkey && !seen.has(a.pubkey)) { seen.add(a.pubkey); out.push(a.pubkey); } }
+    for (const c of wotReviewers) { if (c.pubkey && !seen.has(c.pubkey)) { seen.add(c.pubkey); out.push(c.pubkey); } }
+    for (const c of wotCommenters){ if (c.pubkey && !seen.has(c.pubkey)) { seen.add(c.pubkey); out.push(c.pubkey); } }
+    return out;
+  }, [wotLikers, wotReviewers, wotCommenters]);
+
   const nostrProfiles = useNostrProfiles([
     ...commentsList.map(c => c.pubkey),
     ...likeAuthorsList.map(a => a.pubkey),
+    ...allWotPubkeys,
   ]);
 
   // Pre-fill forms from the user's existing record when the card expands
@@ -835,6 +859,56 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               </button>
             )}
           </div>}
+
+          {/* Web-of-trust strip — only shown when signed-in user has follows that interacted */}
+          {allWotPubkeys.length > 0 && (() => {
+            const displayPeople = allWotPubkeys.slice(0, 4);
+            const overflow = allWotPubkeys.length - 2;
+            const nameOf = (pk: string) => nostrProfiles.get(pk)?.displayName ?? `npub:${pk.slice(0, 6)}…`;
+            let sentence: string;
+            if (allWotPubkeys.length === 1) {
+              sentence = `${nameOf(allWotPubkeys[0])} you follow interacted with this`;
+            } else if (allWotPubkeys.length === 2) {
+              sentence = `${nameOf(allWotPubkeys[0])} and ${nameOf(allWotPubkeys[1])} you follow interacted with this`;
+            } else {
+              sentence = `${nameOf(allWotPubkeys[0])}, ${nameOf(allWotPubkeys[1])} and ${overflow} other${overflow > 1 ? 's' : ''} you follow interacted with this`;
+            }
+            // Build signal label for tooltip
+            const signals: string[] = [];
+            if (wotLikers.length > 0) signals.push(`${wotLikers.length} liked`);
+            if (wotReviewers.length > 0) signals.push(`${wotReviewers.length} reviewed`);
+            if (wotCommenters.length > 0) signals.push(`${wotCommenters.length} commented`);
+            const tooltip = signals.join(' · ');
+            return (
+              <div
+                className="flex items-center gap-2 px-1 py-1.5 rounded-md bg-amber-50 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-800/40"
+                title={tooltip}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Stacked avatars */}
+                <div className="flex items-center shrink-0" style={{ marginRight: 4 }}>
+                  {displayPeople.map((pk, i) => {
+                    const pic = nostrProfiles.get(pk)?.picture;
+                    return (
+                      <div
+                        key={pk}
+                        className="h-5 w-5 rounded-full border-2 border-amber-50 dark:border-amber-950/30 overflow-hidden bg-muted shrink-0"
+                        style={{ marginLeft: i === 0 ? 0 : -6, zIndex: displayPeople.length - i }}
+                      >
+                        {pic
+                          ? <img src={pic} alt="" className="h-full w-full object-cover" />
+                          : <div className="h-full w-full bg-amber-200 dark:bg-amber-800 flex items-center justify-center text-[8px] font-bold text-amber-800 dark:text-amber-200">{(nostrProfiles.get(pk)?.displayName ?? '?')[0].toUpperCase()}</div>
+                        }
+                      </div>
+                    );
+                  })}
+                </div>
+                <p className="text-[11px] text-amber-800 dark:text-amber-300 leading-tight min-w-0 truncate">
+                  {sentence}
+                </p>
+              </div>
+            );
+          })()}
 
           {/* Expanded footer — Visit website + 5 social buttons */}
           <div className="order-1 border-t border-border/40 pt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-0" onClick={(e) => e.stopPropagation()}>

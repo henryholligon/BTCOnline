@@ -50,6 +50,19 @@ export async function fetchProfile(pubkey: string, relays: string[]) {
   }
 }
 
+/**
+ * Fetch the user's follow list (Kind 3 — contact list).
+ * Returns an array of hex pubkeys the user follows.
+ * If no event is found on any relay, returns an empty array.
+ */
+export async function fetchFollows(pubkey: string, relays: string[]): Promise<string[]> {
+  const event = await poolGet(relays, { kinds: [3], authors: [pubkey] });
+  if (!event) return [];
+  return event.tags
+    .filter(t => t[0] === 'p' && typeof t[1] === 'string' && t[1].length === 64)
+    .map(t => t[1]);
+}
+
 export async function fetchRelayList(pubkey: string): Promise<{ read: string[]; write: string[] }> {
   const event = await poolGet(DEFAULT_RELAYS, { kinds: [10002], authors: [pubkey] });
   if (!event) return { read: DEFAULT_RELAYS, write: DEFAULT_RELAYS };

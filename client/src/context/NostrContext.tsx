@@ -9,6 +9,7 @@ import {
   DEFAULT_RELAYS,
   fetchProfile,
   fetchRelayList,
+  fetchFollows,
   fetchFavourites,
   fetchUserLists,
   fetchLikeCount as fetchLikeCountFromRelay,
@@ -87,6 +88,8 @@ interface NostrContextValue {
   saveCounts: Map<string, number>;
   /** Public lists saved/bookmarked by the user. */
   savedLists: SavedPublicList[];
+  /** Hex pubkeys the current user follows (kind:3 contact list). Empty set when not signed in. */
+  follows: Set<string>;
   loginNip07: () => Promise<void>;
   loginWithBunker: (bunkerUri: string) => Promise<void>;
   loginWithGeneratedKey: (sk: Uint8Array, ncryptsec?: string, custodialEmail?: string) => Promise<void>;
@@ -162,6 +165,7 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
   const [likeCounts, setLikeCounts] = useState<Map<string, number>>(new Map());
   const [likeAuthors, setLikeAuthors] = useState<Map<string, LikeAuthor[]>>(new Map());
   const [saveCounts, setSaveCounts] = useState<Map<string, number>>(new Map());
+  const [follows, setFollows] = useState<Set<string>>(new Set());
 
   const secretKeyRef = useRef<Uint8Array | null>(null);
   const bunkerSignerRef = useRef<BunkerSigner | null>(null);
@@ -233,8 +237,12 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem(getLikesPublicKey(pubkey), 'true');
       }
 
-      // Fetch lists — may include private (encrypted) ones
-      const listEvents = await fetchUserLists(pubkey, relays.read);
+      // Fetch follow list (kind:3) and user lists in parallel
+      const [listEvents, followPubkeys] = await Promise.all([
+        fetchUserLists(pubkey, relays.read),
+        fetchFollows(pubkey, relays.read),
+      ]);
+      setFollows(new Set(followPubkeys));
       const parsedLists: NostrList[] = [];
       for (const ev of listEvents) {
         const isPrivate = ev.tags.some(t => t[0] === 'private' && t[1] === 'true');
@@ -392,6 +400,7 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
     setWriteRelays(DEFAULT_RELAYS);
     setLikeCounts(new Map());
     setLikeAuthors(new Map());
+    setFollows(new Set());
     likeCountFetchingRef.current.clear();
     privateLikesDecryptFailedRef.current = false;
     setLikesPublicState(true); // reset to default; next login sets authoritative value
@@ -772,7 +781,7 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <NostrContext.Provider value={{
-      user, readRelays, writeRelays, favourites, lists, isLoading, isLoginModalOpen,
+      user, readRelays, writeRelays, favourites, follows, lists, isLoading, isLoginModalOpen,
       likesPublic, canUsePrivate, likeCounts, likeAuthors, saveCounts, savedLists,
       loginNip07, loginWithBunker, loginWithGeneratedKey, restoreGeneratedSession,
        logout, signEvent, publishEvent, updateProfile,
