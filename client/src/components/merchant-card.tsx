@@ -662,7 +662,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               <div className="flex-1 flex justify-center">
                 <button onClick={() => { setShowReviews(v => !v); setShowComments(false); setShowLikes(false); }} data-testid={`button-reviews-${merchant.id}`} className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${showReviews ? "text-amber-500" : "text-muted-foreground"}`}>
                   <span className={`text-base leading-none ${showReviews ? "text-amber-400" : "text-muted-foreground"}`}>★</span>
-                  {ratingData && ratingData.count > 0 ? <span className="text-xs tabular-nums">{ratingData.average.toFixed(1)}</span> : <span className="text-xs font-semibold tracking-wide">NEW</span>}
+                  {ratingData && ratingData.count > 0 ? <span className="text-xs tabular-nums">{ratingData.average.toFixed(1)} <span className="opacity-60">({ratingData.count})</span></span> : <span className="text-xs font-semibold tracking-wide">NEW</span>}
                 </button>
               </div>
               <div className="flex-1 flex justify-center">
