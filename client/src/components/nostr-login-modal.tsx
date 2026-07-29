@@ -6,9 +6,8 @@ import { Label } from "@/components/ui/label";
 import { useNostr } from "@/context/NostrContext";
 import { generateSecretKey, getPublicKey } from "nostr-tools";
 import { npubEncode, nsecEncode } from "nostr-tools/nip19";
-import { encrypt as ncryptsecEncrypt } from "nostr-tools/nip49";
 import { Copy, Check, Eye, EyeOff, Zap, Wifi, Key, AlertTriangle, ExternalLink, ShieldCheck, Mail, ChevronDown, Lock } from "lucide-react";
-import { generateEmailKeypair, decryptEmailNsec } from "@/lib/emailAuth";
+import { decryptEmailNsec } from "@/lib/emailAuth";
 import { hexToBytes } from "@/lib/nostr";
 
 type NostrSubTab = "extension" | "bunker";
@@ -101,8 +100,6 @@ function EmailTab({ mode, setMode }: { mode: "login" | "register"; setMode: (m: 
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [selfCustody, setSelfCustody] = useState(false);
-  const [showAdvanced, setShowAdvanced] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
 
   const hashPassword = async (pw: string) => {
@@ -123,26 +120,14 @@ function EmailTab({ mode, setMode }: { mode: "login" | "register"; setMode: (m: 
     try {
       const pwHash = await hashPassword(password);
       if (mode === "register") {
-        if (selfCustody) {
-          // Self-custody: generate keypair client-side, encrypt with password.
-          const { sk, pubkey, salt, iv, encryptedNsec } = await generateEmailKeypair(password);
-          const res = await fetch("/api/auth/register", {
-            method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, passwordHash: pwHash, pubkey, encryptedNsec, salt, iv, custody: "self-custody" }),
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.message || "Registration failed");
-          await loginWithGeneratedKey(sk, undefined, { encryptedNsec, salt, iv });
-        } else {
-          // Custodial (default): server generates and holds the key.
-          const res = await fetch("/api/auth/register", {
-            method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, passwordHash: pwHash, custody: "custodial" }),
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.message || "Registration failed");
-          await loginWithGeneratedKey(hexToBytes(data.nsecHex), undefined, undefined, email.trim().toLowerCase());
-        }
+        // Email sign-up is custodial: the server generates and holds the Nostr identity.
+        const res = await fetch("/api/auth/register", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, passwordHash: pwHash, custody: "custodial" }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Registration failed");
+        await loginWithGeneratedKey(hexToBytes(data.nsecHex), undefined, undefined, email.trim().toLowerCase());
       } else {
         const res = await fetch("/api/auth/login", {
           method: "POST", headers: { "Content-Type": "application/json" },
@@ -167,7 +152,7 @@ function EmailTab({ mode, setMode }: { mode: "login" | "register"; setMode: (m: 
   return (
     <div className="space-y-4">
       <div className="flex rounded-lg border border-border overflow-hidden">
-        <button type="button" onClick={() => { setMode("login"); setError(""); setSelfCustody(false); setShowAdvanced(false); }}
+        <button type="button" onClick={() => { setMode("login"); setError(""); }}
           className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${mode === "login" ? "bg-primary text-primary-foreground" : "hover:bg-muted text-muted-foreground"}`}
           data-testid="tab-email-login">Email sign in</button>
         <button type="button" onClick={() => { setMode("register"); setError(""); }}
@@ -198,7 +183,7 @@ function EmailTab({ mode, setMode }: { mode: "login" | "register"; setMode: (m: 
       </div>
 
       {/* Make the custody model explicit for email registration */}
-      {mode === "register" && !selfCustody && (
+      {mode === "register" && (
         <div className="flex items-start gap-2 rounded-lg border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20 px-3 py-2.5">
           <Lock className="h-4 w-4 shrink-0 mt-0.5 text-blue-600 dark:text-blue-400" />
           <div className="space-y-0.5">
@@ -207,54 +192,6 @@ function EmailTab({ mode, setMode }: { mode: "login" | "register"; setMode: (m: 
               We create and securely hold your Nostr identity for you. You can reset your password if you forget it.
             </p>
           </div>
-        </div>
-      )}
-
-      {mode === "register" && selfCustody && (
-        <div className="flex items-start gap-2 rounded-lg border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20 px-3 py-2.5">
-          <ShieldCheck className="h-4 w-4 shrink-0 mt-0.5 text-green-600 dark:text-green-400" />
-          <div className="space-y-0.5">
-            <p className="text-xs font-semibold text-green-800 dark:text-green-300">Self-custody email account</p>
-            <p className="text-xs text-green-700 dark:text-green-400">
-              Your private key stays with you. We cannot recover your account if you lose your password.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Advanced: self-custody toggle (register only) */}
-      {mode === "register" && (
-        <div className="space-y-2">
-          <button
-            type="button"
-            onClick={() => setShowAdvanced(v => !v)}
-            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            data-testid="button-toggle-advanced"
-          >
-            <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showAdvanced ? "rotate-180" : ""}`} />
-            Advanced: manage your own key
-          </button>
-          {showAdvanced && (
-            <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2.5">
-              <label className="flex items-start gap-2.5 cursor-pointer" data-testid="label-self-custody">
-                <input
-                  type="checkbox"
-                  checked={selfCustody}
-                  onChange={e => setSelfCustody(e.target.checked)}
-                  className="mt-0.5 shrink-0"
-                  data-testid="checkbox-self-custody"
-                />
-                <div className="space-y-1">
-                  <p className="text-xs font-medium">Use self-custody instead</p>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    Your key is generated in your browser and encrypted with your password before it is stored.
-                    We can never read it.{" "}
-                    <strong className="text-foreground">If you forget your password, your Nostr identity cannot be recovered.</strong>
-                  </p>
-                </div>
-              </label>
-            </div>
-          )}
         </div>
       )}
 
@@ -478,8 +415,6 @@ function NewAccountTab() {
   const [npub, setNpub] = useState("");
   const [nsec, setNsec] = useState("");
   const [showNsec, setShowNsec] = useState(false);
-  const [password, setPassword] = useState("");
-  const [ncryptsec, setNcryptsec] = useState("");
   const [confirmedBackup, setConfirmedBackup] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -492,27 +427,7 @@ function NewAccountTab() {
     setGeneratedSk(sk);
     setNpub(encodedNpub);
     setNsec(encodedNsec);
-    if (password.trim()) {
-      try {
-        setNcryptsec(ncryptsecEncrypt(sk, password));
-      } catch {
-        setNcryptsec("");
-      }
-    }
     setStep("backup");
-  };
-
-  const handlePasswordChange = (pw: string) => {
-    setPassword(pw);
-    if (generatedSk && pw.trim()) {
-      try {
-        setNcryptsec(ncryptsecEncrypt(generatedSk, pw));
-      } catch {
-        setNcryptsec("");
-      }
-    } else {
-      setNcryptsec("");
-    }
   };
 
   const handleLogin = async () => {
@@ -520,7 +435,7 @@ function NewAccountTab() {
     setLoading(true);
     setError("");
     try {
-      await loginWithGeneratedKey(generatedSk, ncryptsec || undefined);
+      await loginWithGeneratedKey(generatedSk);
     } catch (e: any) {
       setError(e.message || "Failed to log in");
     } finally {
@@ -539,21 +454,6 @@ function NewAccountTab() {
           <p className="text-xs font-semibold text-blue-800 dark:text-blue-300">How this works</p>
           <p className="text-xs text-blue-700 dark:text-blue-400">
             A cryptographic key pair is generated in your browser using <code>crypto.getRandomValues()</code>. The private key is never transmitted to btconline's servers. Anyone can verify this by inspecting the network tab or reading the open-source code.
-          </p>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="new-password">Password (optional)</Label>
-          <Input
-            id="new-password"
-            type="password"
-            placeholder="Encrypt your private key"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            data-testid="input-new-password"
-          />
-          <p className="text-xs text-muted-foreground">
-            If set, your key will be stored as an encrypted ncryptsec (NIP-49). You'll need this password to restore your session.
           </p>
         </div>
 
@@ -602,16 +502,6 @@ function NewAccountTab() {
           <CopyButton text={nsec} data-testid="button-copy-nsec" />
         </div>
       </div>
-
-      {ncryptsec && (
-        <div className="space-y-1">
-          <Label className="text-xs">Encrypted Key (ncryptsec) — password-protected backup</Label>
-          <div className="flex items-center gap-1 bg-muted rounded px-2.5 py-1.5">
-            <code className="text-xs break-all flex-1 select-all">{ncryptsec}</code>
-            <CopyButton text={ncryptsec} data-testid="button-copy-ncryptsec" />
-          </div>
-        </div>
-      )}
 
       <div className="flex items-start gap-2 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg px-3 py-2.5">
         <Zap className="h-4 w-4 text-purple-600 dark:text-purple-400 shrink-0 mt-0.5" />
