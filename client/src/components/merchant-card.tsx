@@ -10,6 +10,7 @@ import { useComments, useSubmitComment, useDeleteComment, useIsAdmin, useMerchan
 import { Textarea } from "@/components/ui/textarea";
 import { slugify } from "@/lib/utils";
 import { QRCodeSVG } from "qrcode.react";
+import { useToast } from "@/hooks/use-toast";
 
 /* ── Minimal brand-icon SVGs ── */
 function IconX() {
@@ -139,6 +140,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
   const cardRef = useRef<HTMLDivElement>(null);
   const { getCategoryWithEmoji } = useCategoryEmojis();
   const { getCountryEmoji } = useCountryEmojis();
+  const { toast } = useToast();
   const { user, favourites, toggleFavourite, lists, toggleListMember, openLoginModal, likeCounts, likeAuthors, fetchLikeCount, fetchLikeAuthors, saveCounts, fetchSaveCount, publishEvent } = useNostr();
   const isAdmin = useIsAdmin();
   const masterPubkey = useMasterPubkey();
@@ -180,18 +182,38 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
     if (!commentBody.trim()) return;
     // Preserve existing rating when updating the comment text
     const existingRating = myComment?.rating ?? null;
-    await submitComment.mutateAsync({ body: commentBody, rating: existingRating });
-    await publishToNostr(commentBody, existingRating);
-  }, [commentBody, myComment, submitComment, publishToNostr]);
+    try {
+      await submitComment.mutateAsync({ body: commentBody, rating: existingRating });
+      await publishToNostr(commentBody, existingRating);
+    } catch (error) {
+      toast({
+        title: "Unable to post comment",
+        description: error instanceof Error && error.message.includes("401")
+          ? "Please sign in before posting a comment."
+          : "Please try again.",
+        variant: "destructive",
+      });
+    }
+  }, [commentBody, myComment, submitComment, publishToNostr, toast]);
 
   const handleReviewSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!reviewRating) return;
     // Preserve existing body text when updating the star rating
     const existingBody = myComment?.body?.trim() || '';
-    await submitComment.mutateAsync({ body: existingBody, rating: reviewRating });
-    await publishToNostr(reviewNote || existingBody, reviewRating);
-  }, [reviewRating, reviewNote, myComment, submitComment, publishToNostr]);
+    try {
+      await submitComment.mutateAsync({ body: existingBody, rating: reviewRating });
+      await publishToNostr(reviewNote || existingBody, reviewRating);
+    } catch (error) {
+      toast({
+        title: "Unable to save review",
+        description: error instanceof Error && error.message.includes("401")
+          ? "Please sign in before submitting a review."
+          : "Please try again.",
+        variant: "destructive",
+      });
+    }
+  }, [reviewRating, reviewNote, myComment, submitComment, publishToNostr, toast]);
 
   // Reset panels when card collapses
   useEffect(() => {
