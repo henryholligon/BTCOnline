@@ -466,6 +466,7 @@ function NostrUserButton() {
 export default function Navbar({ onSearch, filtersSlot, onClearFilters }: NavbarProps) {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
+  const { user, openLoginModal } = useNostr();
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [logoMenuOpen, setLogoMenuOpen] = useState(false);
   const [businessName, setBusinessName] = useState("");
@@ -478,6 +479,7 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
   const [shippingCountries, setShippingCountries] = useState<string[]>([]);
   const [countryMadeIn, setCountryMadeIn] = useState("");
   const [paymentProvider, setPaymentProvider] = useState("");
+  const [submitterNpub, setSubmitterNpub] = useState("");
   const [altchaVerified, setAltchaVerified] = useState(false);
   const altchaRef = useRef<HTMLElement>(null);
   const { getCategoryWithEmoji } = useCategoryEmojis();
@@ -502,6 +504,13 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [logoMenuOpen]);
+
+  // Auto-fill submitter npub from the logged-in session when the form opens.
+  useEffect(() => {
+    if (isAddOpen && user?.npub) {
+      setSubmitterNpub(user.npub);
+    }
+  }, [isAddOpen, user?.npub]);
 
   useEffect(() => {
     const widget = altchaRef.current;
@@ -544,6 +553,7 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
           notes,
           dataSource,
           publicContact,
+          submitterNpub,
         }),
       });
 
@@ -577,6 +587,7 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
       setNotes("");
       setDataSource("");
       setPublicContact("");
+      setSubmitterNpub("");
       setAltchaVerified(false);
     } catch {
       toast({ title: "Network Error", description: "Could not reach the server. Please try again.", variant: "destructive" });
@@ -730,18 +741,51 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                   </Select>
                 </div>
 
+                {/* Submitter identity — used for leaderboard credit */}
+                <div className="space-y-2">
+                  <Label htmlFor="submitterNpub">
+                    Submitting as <span className="text-destructive">*</span>
+                  </Label>
+                  {user ? (
+                    <div className="flex items-center gap-2 rounded-md border border-input bg-muted/50 px-3 py-2">
+                      {user.picture && (
+                        <img src={user.picture} alt={user.displayName} className="h-5 w-5 rounded-full object-cover shrink-0" />
+                      )}
+                      <span className="text-sm font-medium truncate flex-1">{user.displayName}</span>
+                      <code className="text-[10px] text-muted-foreground truncate max-w-[120px]">{user.npub?.slice(0, 16)}…</code>
+                    </div>
+                  ) : (
+                    <>
+                      <Input
+                        id="submitterNpub"
+                        placeholder="npub1…"
+                        value={submitterNpub}
+                        onChange={(e) => setSubmitterNpub(e.target.value)}
+                        required
+                        data-testid="input-submitter-npub"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Your Nostr public key — used for leaderboard credit.{" "}
+                        <button type="button" onClick={openLoginModal} className="text-primary hover:underline">
+                          Sign in to auto-fill.
+                        </button>
+                      </p>
+                    </>
+                  )}
+                </div>
+
                 {/* Public Contact */}
                 <div className="space-y-2">
-                  <Label htmlFor="publicContact">Contact <span className="text-xs text-muted-foreground">(optional)</span></Label>
+                  <Label htmlFor="publicContact">Follow-up contact <span className="text-xs text-muted-foreground">(optional)</span></Label>
                   <Input
                     id="publicContact"
-                    placeholder="Email or Nostr npub"
+                    placeholder="Email for follow-up questions"
                     value={publicContact}
                     onChange={(e) => setPublicContact(e.target.value)}
                     data-testid="input-public-contact"
                   />
                   <p className="text-xs text-muted-foreground">
-                    For follow-up questions only. Not published.
+                    Not published. Only used if we need to follow up.
                   </p>
                 </div>
 
@@ -824,6 +868,13 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                 className="w-full text-left px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors flex items-center gap-2"
               >
                 Dashboard
+              </Link>
+              <Link
+                href="/leaderboard"
+                onClick={() => setLogoMenuOpen(false)}
+                className="w-full text-left px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors flex items-center gap-2"
+              >
+                Leaderboard
               </Link>
             </div>,
             document.body

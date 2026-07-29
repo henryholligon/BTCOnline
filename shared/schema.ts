@@ -46,6 +46,7 @@ export const merchants = pgTable("merchants", {
   lastSurveyed: text("last_surveyed"),
   bitcoinDiscount: text("bitcoin_discount"),
   nostrEventId: text("nostr_event_id"),
+  submitterNpub: text("submitter_npub"),
 });
 
 export const merchantGrowthSnapshots = pgTable("merchant_growth_snapshots", {

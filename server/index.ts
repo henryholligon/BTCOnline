@@ -146,6 +146,7 @@ app.use((req, res, next) => {
   await db.execute(sql`ALTER TABLE comments ADD COLUMN IF NOT EXISTS parent_id INTEGER REFERENCES comments(id) ON DELETE CASCADE`);
   await db.execute(sql`ALTER TABLE merchants ADD COLUMN IF NOT EXISTS date_added TEXT`);
   await db.execute(sql`ALTER TABLE merchants ADD COLUMN IF NOT EXISTS last_verified TEXT`);
+  await db.execute(sql`ALTER TABLE merchants ADD COLUMN IF NOT EXISTS submitter_npub TEXT`);
   await db.execute(sql`
     CREATE TABLE IF NOT EXISTS merchant_growth_snapshots (
       id SERIAL PRIMARY KEY,

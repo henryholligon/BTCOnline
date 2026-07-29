@@ -191,6 +191,7 @@ export async function runSheetSync(): Promise<{ count: number; errors: number; r
       countryShippedFrom: row.countryshippedfrom || row.country_shipped_from || null,
       dateAdded: row.dateadded || row.date_added || row.addeddate || row.added_date || null,
       lastVerified: row.lastverified || row.last_verified || row.date_last_verified || row.datelastverified || null,
+      submitterNpub: row.submittednpub || row.submitted_npub || row.submittedby || row.submitted_by || row.submitter || row.submitternpub || row.submitter_npub || null,
       lastSurveyed: row.lastsurveyed || row.last_surveyed || row.lastverified || row.last_verified || new Date().toISOString().split("T")[0],
       bitcoinDiscount: (() => {
         const raw = row.bitcoindiscount || row.bitcoin_discount || row.btcdiscount || row.btc_discount || row.badge || row.btcbadge || row.btc_badge || row.discount || row.promo || row.promotion || "";

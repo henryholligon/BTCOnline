@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { ArrowLeft, BarChart3, Globe2, Layers3, Zap } from "lucide-react";
+import { ArrowLeft, BarChart3, Globe2, Layers3, Trophy, Zap } from "lucide-react";
 import Navbar from "@/components/navbar";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -192,6 +192,23 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
             </section>
+            {/* Leaderboard CTA */}
+            <section className="mt-6">
+              <Link
+                href="/leaderboard"
+                className="flex items-center justify-between rounded-xl border border-border/70 bg-card px-6 py-4 hover:bg-muted/40 transition-colors group"
+              >
+                <div className="flex items-center gap-3">
+                  <Trophy className="h-5 w-5 text-amber-500 shrink-0" />
+                  <div>
+                    <p className="font-semibold text-sm">Contributor leaderboard</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">See who has added the most merchants to the directory</p>
+                  </div>
+                </div>
+                <span className="text-muted-foreground group-hover:text-foreground transition-colors text-sm">→</span>
+              </Link>
+            </section>
+
             <p className="mt-6 text-center text-xs text-muted-foreground">
               {data.hasImportedDates
                 ? "Growth uses Date added and verification dates from the Google Sheet. It updates after each sheet sync."

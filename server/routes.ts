@@ -229,10 +229,44 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/leaderboard", async (req, res) => {
+    const period = String(req.query.period || "all");
+    let dateFilter = sql``;
+    if (period === "30d") {
+      dateFilter = sql` AND NULLIF(date_added, '') IS NOT NULL AND NULLIF(date_added, '')::date >= CURRENT_DATE - INTERVAL '30 days'`;
+    } else if (period === "90d") {
+      dateFilter = sql` AND NULLIF(date_added, '') IS NOT NULL AND NULLIF(date_added, '')::date >= CURRENT_DATE - INTERVAL '90 days'`;
+    }
+
+    const result = await db.execute(sql`
+      SELECT
+        submitter_npub AS npub,
+        COUNT(*)::int AS merchant_count
+      FROM merchants
+      WHERE submitter_npub IS NOT NULL
+        AND submitter_npub != ''
+        ${dateFilter}
+      GROUP BY submitter_npub
+      ORDER BY merchant_count DESC
+      LIMIT 100
+    `);
+
+    res.set("Cache-Control", "no-store");
+    res.json({
+      period,
+      contributors: (result.rows as any[]).map((r, i) => ({
+        rank: i + 1,
+        npub: r.npub,
+        merchantCount: r.merchant_count,
+      })),
+    });
+  });
+
   app.post("/api/submit-merchant", async (req, res) => {
     const {
       altcha, businessName, businessUrl, businessCategories, paymentMethods,
       shippingCountries, countryMadeIn, paymentProvider, notes, dataSource, publicContact,
+      submitterNpub,
     } = req.body;
 
     // Verify captcha
@@ -276,7 +310,8 @@ export async function registerRoutes(
 | **Ships to** | ${availabilityStr} |
 | **Made in** | ${countryMadeIn?.trim() || "—"} |
 | **Provider** | ${paymentProvider?.trim() || "—"} |
-| **Submitted by** | ${dataSourceLabel} |
+| **How they know** | ${dataSourceLabel} |
+| **Submitter npub** | ${submitterNpub?.trim() || "—"} |
 | **Contact** | ${publicContact?.trim() || "—"} |
 
 ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
