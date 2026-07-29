@@ -675,18 +675,42 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               {/* QR code */}
               <div className="flex justify-center shrink-0">
                 <div className="p-2 bg-white rounded-lg border border-border">
-                  <div className="relative h-[140px] w-[140px] overflow-hidden">
-                  <QRCodeSVG
-                    value={merchantUrl}
-                    size={140}
-                    bgColor="#ffffff"
-                    fgColor="#000000"
-                    level="H"
-                  />
-                  {/* Keep QR finder patterns standard; only the center is branded. */}
-                  <div className="pointer-events-none absolute left-1/2 top-1/2 flex h-[42px] w-[42px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[4px] border-white bg-white shadow-sm">
-                    <img src="/assets/main-logo.png" alt="" className="h-[32px] w-[32px] rounded-full object-contain" />
-                  </div>
+                  <div className="relative h-[160px] w-[160px] overflow-hidden">
+                    <QRCodeSVG
+                      value={merchantUrl}
+                      size={160}
+                      bgColor="#ffffff"
+                      fgColor="#000000"
+                      level="H"
+                      className="qr-dotted"
+                    />
+                    <style>{`
+                      .qr-dotted > path:nth-of-type(2) {
+                        fill: none;
+                        stroke: #000;
+                        stroke-width: .92;
+                        stroke-linecap: round;
+                        stroke-linejoin: round;
+                      }
+                    `}</style>
+                    {/* Circular finder markers, matching the BTC Online reference style. */}
+                    {[
+                      "left-0.5 top-0.5",
+                      "right-0.5 top-0.5",
+                      "left-0.5 bottom-0.5",
+                    ].map((position) => (
+                      <div key={position} className={`pointer-events-none absolute ${position} h-10 w-10 rounded-full bg-white p-[3px]`}>
+                        <div className="h-full w-full rounded-full bg-black p-[5px]">
+                          <div className="h-full w-full rounded-full bg-white p-[4px]">
+                            <div className="h-full w-full rounded-full bg-black" />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {/* Larger circular brand badge with a white quiet zone. */}
+                    <div className="pointer-events-none absolute left-1/2 top-1/2 flex h-[58px] w-[58px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[5px] border-white bg-white shadow-sm">
+                      <img src="/assets/main-logo.png" alt="" className="h-[46px] w-[46px] rounded-full object-contain" />
+                    </div>
                   </div>
                 </div>
               </div>
