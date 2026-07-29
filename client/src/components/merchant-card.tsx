@@ -675,7 +675,19 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               {/* QR code */}
               <div className="flex justify-center shrink-0">
                 <div className="p-2 bg-white rounded-lg border border-border">
-                  <QRCodeSVG value={merchantUrl} size={100} bgColor="#ffffff" fgColor="#000000" />
+                  <QRCodeSVG
+                    value={merchantUrl}
+                    size={100}
+                    bgColor="#ffffff"
+                    fgColor="#000000"
+                    level="H"
+                    imageSettings={{
+                      src: "/assets/main-logo.png",
+                      height: 22,
+                      width: 22,
+                      excavate: true,
+                    }}
+                  />
                 </div>
               </div>
 
