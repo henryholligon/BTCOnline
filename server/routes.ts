@@ -96,6 +96,9 @@ export async function registerRoutes(
         keyCustody: "self-custody",
         createdAt: new Date().toISOString(),
       });
+      // Comments and reviews use the authenticated email session. Keep that
+      // session available even though the Nostr private key remains client-held.
+      req.session.userEmail = email.toLowerCase();
       return res.json({ ok: true, custody: "self-custody" });
     }
   });
@@ -130,6 +133,9 @@ export async function registerRoutes(
       return res.json({ custody: "custodial", pubkey: user.pubkey, nsecHex: Buffer.from(sk).toString("hex") });
     } else {
       // Self-custody: client decrypts locally with the user's password.
+      // The private key stays client-side, but the email session authorizes
+      // server-backed features such as comments and ratings.
+      req.session.userEmail = email.toLowerCase();
       return res.json({ custody: "self-custody", pubkey: user.pubkey, encryptedNsec: user.encryptedNsec, salt: user.salt, iv: user.iv });
     }
   });
