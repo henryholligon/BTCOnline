@@ -675,19 +675,41 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               {/* QR code */}
               <div className="flex justify-center shrink-0">
                 <div className="p-2 bg-white rounded-lg border border-border">
+                  <div className="relative h-[140px] w-[140px] overflow-hidden">
                   <QRCodeSVG
                     value={merchantUrl}
-                    size={100}
+                    size={140}
                     bgColor="#ffffff"
                     fgColor="#000000"
                     level="H"
-                    imageSettings={{
-                      src: "/assets/main-logo.png",
-                      height: 22,
-                      width: 22,
-                      excavate: true,
-                    }}
                   />
+                  {/* Circular finder patterns preserve the QR's three scan anchors. */}
+                  <div className="pointer-events-none absolute left-0.5 top-0.5 h-8 w-8 rounded-full bg-white p-[3px]">
+                    <div className="h-full w-full rounded-full bg-black p-[4px]">
+                      <div className="h-full w-full rounded-full bg-white p-[3px]">
+                        <div className="h-full w-full rounded-full bg-black" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="pointer-events-none absolute right-0.5 top-0.5 h-8 w-8 rounded-full bg-white p-[3px]">
+                    <div className="h-full w-full rounded-full bg-black p-[4px]">
+                      <div className="h-full w-full rounded-full bg-white p-[3px]">
+                        <div className="h-full w-full rounded-full bg-black" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="pointer-events-none absolute bottom-0.5 left-0.5 h-8 w-8 rounded-full bg-white p-[3px]">
+                    <div className="h-full w-full rounded-full bg-black p-[4px]">
+                      <div className="h-full w-full rounded-full bg-white p-[3px]">
+                        <div className="h-full w-full rounded-full bg-black" />
+                      </div>
+                    </div>
+                  </div>
+                  {/* Brand badge with a generous white circular quiet zone. */}
+                  <div className="pointer-events-none absolute left-1/2 top-1/2 flex h-[60px] w-[60px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[5px] border-white bg-white shadow-sm">
+                    <img src="/assets/main-logo.png" alt="" className="h-[46px] w-[46px] rounded-full object-contain" />
+                  </div>
+                  </div>
                 </div>
               </div>
 
