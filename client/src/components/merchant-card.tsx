@@ -134,6 +134,9 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
   const [showComments, setShowComments] = useState(false);
   const [showReviews, setShowReviews] = useState(false);
   const [showLikes, setShowLikes] = useState(false);
+  const [allCommentsVisible, setAllCommentsVisible] = useState(false);
+  const [allReviewsVisible, setAllReviewsVisible] = useState(false);
+  const [allLikesVisible, setAllLikesVisible] = useState(false);
   const [copied, setCopied] = useState(false);
   const [commentBody, setCommentBody] = useState("");
   const [reviewRating, setReviewRating] = useState<number | null>(null);
@@ -165,6 +168,17 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
     if (fromRelay.some(a => a.pubkey === user.pubkey)) return fromRelay;
     return [{ pubkey: user.pubkey, npub: user.npub, displayName: user.displayName }, ...fromRelay];
   }, [relayLikeAuthors, user, likesPublic, favourites, merchant.website]);
+  const topLevelComments = useMemo(
+    () => commentsList.filter(c => c.body?.trim() && !c.parentId),
+    [commentsList],
+  );
+  const reviewComments = useMemo(
+    () => commentsList.filter(c => c.rating != null),
+    [commentsList],
+  );
+  const visibleComments = allCommentsVisible ? topLevelComments : topLevelComments.slice(0, 3);
+  const visibleReviews = allReviewsVisible ? reviewComments : reviewComments.slice(0, 3);
+  const visibleLikes = allLikesVisible ? likeAuthorsList : likeAuthorsList.slice(0, 3);
 
   const nostrProfiles = useNostrProfiles([
     ...commentsList.map(c => c.pubkey),
@@ -236,7 +250,14 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
 
   // Reset panels when card collapses
   useEffect(() => {
-    if (!expanded) { setShowComments(false); setShowReviews(false); setShowLikes(false); }
+    if (!expanded) {
+      setShowComments(false);
+      setShowReviews(false);
+      setShowLikes(false);
+      setAllCommentsVisible(false);
+      setAllReviewsVisible(false);
+      setAllLikesVisible(false);
+    }
   }, [expanded]);
 
   useEffect(() => {
@@ -435,7 +456,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
           {/* ── Comments panel ───────────────────────────────────────────── */}
           {showComments && <div className="order-2 border-t border-border/30 pt-4 space-y-3">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-              Comments{commentsList.filter(c => !c.parentId).length > 0 && ` · ${commentsList.filter(c => !c.parentId).length}`}
+              Comments{topLevelComments.length > 0 && ` · ${topLevelComments.length}`}
             </p>
 
             {user ? (
@@ -496,7 +517,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
 
               return (
                 <div className="space-y-4">
-                  {commentsList.filter(c => c.body?.trim() && !c.parentId).map(c => {
+                  {visibleComments.map(c => {
                     const profile = c.pubkey ? nostrProfiles.get(c.pubkey) : undefined;
                     const displayName = profile?.displayName ?? c.authorName;
                     const thread = getDescendants(c.id);
@@ -636,8 +657,18 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               );
             })()}
 
-            {!commentsLoading && commentsList.filter(c => c.body?.trim() && !c.parentId).length === 0 && (
+            {!commentsLoading && topLevelComments.length === 0 && (
               <p className="text-xs text-muted-foreground">No comments yet. Be the first!</p>
+            )}
+
+            {topLevelComments.length > 3 && (
+              <button
+                type="button"
+                onClick={() => setAllCommentsVisible(value => !value)}
+                className="text-xs text-primary hover:underline"
+              >
+                {allCommentsVisible ? "Show top 3 comments" : `Show all ${topLevelComments.length} comments`}
+              </button>
             )}
 
           </div>}
@@ -697,9 +728,9 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
 
             {commentsLoading && <p className="text-xs text-muted-foreground">Loading…</p>}
 
-            {!commentsLoading && commentsList.filter(c => c.rating != null).length > 0 && (
+            {!commentsLoading && reviewComments.length > 0 && (
               <div className="space-y-3">
-                {commentsList.filter(c => c.rating != null).map(c => {
+                {visibleReviews.map(c => {
                   const profile = c.pubkey ? nostrProfiles.get(c.pubkey) : undefined;
                   const displayName = profile?.displayName ?? c.authorName;
                   return (
@@ -740,8 +771,18 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               </div>
             )}
 
-            {!commentsLoading && commentsList.filter(c => c.rating != null).length === 0 && (
+            {!commentsLoading && reviewComments.length === 0 && (
               <p className="text-xs text-muted-foreground">No reviews yet. Be the first to rate this merchant!</p>
+            )}
+
+            {reviewComments.length > 3 && (
+              <button
+                type="button"
+                onClick={() => setAllReviewsVisible(value => !value)}
+                className="text-xs text-primary hover:underline"
+              >
+                {allReviewsVisible ? "Show top 3 reviews" : `Show all ${reviewComments.length} reviews`}
+              </button>
             )}
 
           </div>}
@@ -765,7 +806,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               <p className="text-xs text-muted-foreground">Loading…</p>
             ) : likeAuthorsList.length > 0 ? (
               <div className="space-y-2">
-                {likeAuthorsList.map(author => {
+                {visibleLikes.map(author => {
                   const profile = nostrProfiles.get(author.pubkey);
                   const displayName = profile?.displayName ?? author.displayName;
                   return (
@@ -782,6 +823,16 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               </div>
             ) : (
               <p className="text-xs text-muted-foreground">No public likes yet. Be the first!</p>
+            )}
+
+            {likeAuthorsList.length > 3 && (
+              <button
+                type="button"
+                onClick={() => setAllLikesVisible(value => !value)}
+                className="text-xs text-primary hover:underline"
+              >
+                {allLikesVisible ? "Show top 3 likes" : `Show all ${likeAuthorsList.length} likes`}
+              </button>
             )}
           </div>}
 
