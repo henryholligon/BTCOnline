@@ -625,6 +625,18 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
               </DialogHeader>
               <form onSubmit={handleSubmitMerchant} className="space-y-4 py-2">
 
+                {/* Merchant Name */}
+                <div className="space-y-2">
+                  <Label htmlFor="businessName">Merchant Name <span className="text-xs text-muted-foreground">(optional)</span></Label>
+                  <Input
+                    id="businessName"
+                    placeholder="Enter merchant name"
+                    value={businessName}
+                    onChange={(e) => setBusinessName(e.target.value)}
+                    data-testid="input-business-name"
+                  />
+                </div>
+
                 {/* Website — only required field */}
                 <div className="space-y-2">
                   <Label htmlFor="businessUrl">
@@ -641,16 +653,44 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                   />
                 </div>
 
-                {/* Merchant Name */}
+                {/* Submitter identity — used for leaderboard credit */}
                 <div className="space-y-2">
-                  <Label htmlFor="businessName">Merchant Name <span className="text-xs text-muted-foreground">(optional)</span></Label>
-                  <Input
-                    id="businessName"
-                    placeholder="Enter merchant name"
-                    value={businessName}
-                    onChange={(e) => setBusinessName(e.target.value)}
-                    data-testid="input-business-name"
-                  />
+                  <Label htmlFor="submitterNpub">
+                    Submitting as <span className="text-xs text-muted-foreground">(recommended)</span>
+                  </Label>
+                  {user ? (
+                    <div className="flex items-center gap-2 rounded-md border border-input bg-muted/50 px-3 py-2">
+                      {user.picture && (
+                        <img src={user.picture} alt={user.displayName} className="h-5 w-5 rounded-full object-cover shrink-0" />
+                      )}
+                      <span className="text-sm font-medium truncate flex-1">{user.displayName}</span>
+                      <code className="text-[10px] text-muted-foreground truncate max-w-[120px]">{user.npub?.slice(0, 16)}…</code>
+                    </div>
+                  ) : (
+                    <>
+                      <Input
+                        id="submitterNpub"
+                        placeholder="Email or npub…"
+                        value={submitterNpub}
+                        onChange={(e) => setSubmitterNpub(e.target.value)}
+                        data-testid="input-submitter-npub"
+                      />
+                      {!submitterNpub.trim() && (
+                        <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                          <span>⚠️</span>
+                          Without an npub you won't appear on the leaderboard.{" "}
+                          <button type="button" onClick={openLoginModal} className="underline hover:text-amber-700 dark:hover:text-amber-300">
+                            Sign in to auto-fill.
+                          </button>
+                        </p>
+                      )}
+                      {submitterNpub.trim() && (
+                        <p className="text-xs text-muted-foreground">
+                          Your Nostr public key — used for leaderboard credit.
+                        </p>
+                      )}
+                    </>
+                  )}
                 </div>
 
                 {/* Category */}
@@ -739,46 +779,6 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                       <SelectItem value="other">Other</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-
-                {/* Submitter identity — used for leaderboard credit */}
-                <div className="space-y-2">
-                  <Label htmlFor="submitterNpub">
-                    Submitting as <span className="text-xs text-muted-foreground">(recommended)</span>
-                  </Label>
-                  {user ? (
-                    <div className="flex items-center gap-2 rounded-md border border-input bg-muted/50 px-3 py-2">
-                      {user.picture && (
-                        <img src={user.picture} alt={user.displayName} className="h-5 w-5 rounded-full object-cover shrink-0" />
-                      )}
-                      <span className="text-sm font-medium truncate flex-1">{user.displayName}</span>
-                      <code className="text-[10px] text-muted-foreground truncate max-w-[120px]">{user.npub?.slice(0, 16)}…</code>
-                    </div>
-                  ) : (
-                    <>
-                      <Input
-                        id="submitterNpub"
-                        placeholder="Email or npub…"
-                        value={submitterNpub}
-                        onChange={(e) => setSubmitterNpub(e.target.value)}
-                        data-testid="input-submitter-npub"
-                      />
-                      {!submitterNpub.trim() && (
-                        <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                          <span>⚠️</span>
-                          Without an npub you won't appear on the leaderboard.{" "}
-                          <button type="button" onClick={openLoginModal} className="underline hover:text-amber-700 dark:hover:text-amber-300">
-                            Sign in to auto-fill.
-                          </button>
-                        </p>
-                      )}
-                      {submitterNpub.trim() && (
-                        <p className="text-xs text-muted-foreground">
-                          Your Nostr public key — used for leaderboard credit.
-                        </p>
-                      )}
-                    </>
-                  )}
                 </div>
 
                 {/* Public Contact */}
