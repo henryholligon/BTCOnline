@@ -816,7 +816,7 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                 onClick={() => setLogoMenuOpen(false)}
                 className="w-full text-left px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors flex items-center gap-2"
               >
-                Discover
+                Merchant Packs
               </Link>
             </div>,
             document.body
