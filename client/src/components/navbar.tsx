@@ -841,6 +841,13 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
               className="fixed bg-popover border border-border rounded-lg shadow-lg min-w-[180px] p-2"
               style={{ top: logoPos.top, left: logoPos.left, zIndex: 9999 }}
             >
+              <Link
+                href="/"
+                onClick={() => { setLogoMenuOpen(false); onClearFilters?.(); }}
+                className="w-full text-left px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors flex items-center gap-2"
+              >
+                Home
+              </Link>
               <button
                 onClick={() => {
                   setTheme(theme === "dark" ? "light" : "dark");
@@ -855,13 +862,6 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                   <><Moon className="h-4 w-4" /> Dark Mode</>
                 )}
               </button>
-              <Link
-                href="/"
-                onClick={() => { setLogoMenuOpen(false); onClearFilters?.(); }}
-                className="w-full text-left px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors flex items-center gap-2"
-              >
-                Home
-              </Link>
               <Link
                 href="/discover"
                 onClick={() => setLogoMenuOpen(false)}
