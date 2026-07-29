@@ -883,6 +883,14 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
               >
                 Leaderboard
               </Link>
+              <Link
+                href="/faq"
+                onClick={() => setLogoMenuOpen(false)}
+                className="w-full text-left px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors flex items-center gap-2"
+                data-testid="link-faq"
+              >
+                FAQ
+              </Link>
             </div>,
             document.body
           )}

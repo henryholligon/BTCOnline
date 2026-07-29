@@ -16,6 +16,7 @@ import Account from "@/pages/account";
 import Profile from "@/pages/profile";
 import Dashboard from "@/pages/dashboard";
 import Leaderboard from "@/pages/leaderboard";
+import FAQ from "@/pages/faq";
 import { NostrProvider } from "@/context/NostrContext";
 
 function Router() {
@@ -31,6 +32,7 @@ function Router() {
       <Route path="/profile/:npub" component={Profile} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/leaderboard" component={Leaderboard} />
+      <Route path="/faq" component={FAQ} />
       <Route path="/x7k2m9p4r1qn" component={Admin} />
       <Route path="/reset-password" component={ResetPassword} />
       <Route component={NotFound} />
