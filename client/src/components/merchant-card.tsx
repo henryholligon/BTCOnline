@@ -269,6 +269,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
   }, [expanded, merchant.website, likeCounts, fetchLikeCount, likeAuthors, fetchLikeAuthors, saveCounts, fetchSaveCount]);
 
   const merchantUrl = `${window.location.origin}/merchant/${slugify(merchant.name)}`;
+  const qrMerchantUrl = `https://btc-online.org/merchant/${slugify(merchant.name)}`;
 
   const shippingText = merchant.shippingCountries.length > 0
     ? merchant.shippingCountries.some(c => c.toLowerCase().includes("worldwide"))
@@ -744,7 +745,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               {/* QR code */}
               <div className="flex justify-center shrink-0">
                 <div className="p-2 bg-white rounded-lg border border-border">
-                  <StyledMerchantQr value={merchantUrl} />
+                  <StyledMerchantQr value={qrMerchantUrl} />
                 </div>
               </div>
 
