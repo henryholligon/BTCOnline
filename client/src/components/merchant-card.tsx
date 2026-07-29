@@ -438,6 +438,28 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               Comments{commentsList.filter(c => !c.parentId).length > 0 && ` · ${commentsList.filter(c => !c.parentId).length}`}
             </p>
 
+            {user ? (
+              <form onSubmit={handleCommentSubmit} className="space-y-2">
+                <Textarea
+                  value={commentBody}
+                  onChange={e => setCommentBody(e.target.value)}
+                  placeholder="Share your thoughts on this merchant…"
+                  className="text-xs min-h-[60px] resize-none"
+                  maxLength={1000}
+                />
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-muted-foreground">{commentBody.length}/1000</span>
+                  <Button type="submit" size="sm" disabled={!commentBody.trim() || submitComment.isPending} className="h-7 text-xs">
+                    {submitComment.isPending ? "Posting…" : "Post comment"}
+                  </Button>
+                </div>
+              </form>
+            ) : (
+              <button className="text-xs text-primary hover:underline" onClick={openLoginModal}>
+                Sign in to leave a comment
+              </button>
+            )}
+
             {commentsLoading && <p className="text-xs text-muted-foreground">Loading…</p>}
 
             {!commentsLoading && commentsList.filter(c => c.body?.trim() && !c.parentId).length > 0 && (() => {
@@ -618,27 +640,6 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               <p className="text-xs text-muted-foreground">No comments yet. Be the first!</p>
             )}
 
-            {user ? (
-              <form onSubmit={handleCommentSubmit} className="space-y-2">
-                <Textarea
-                  value={commentBody}
-                  onChange={e => setCommentBody(e.target.value)}
-                  placeholder="Share your thoughts on this merchant…"
-                  className="text-xs min-h-[60px] resize-none"
-                  maxLength={1000}
-                />
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] text-muted-foreground">{commentBody.length}/1000</span>
-                  <Button type="submit" size="sm" disabled={!commentBody.trim() || submitComment.isPending} className="h-7 text-xs">
-                    {submitComment.isPending ? "Posting…" : "Post comment"}
-                  </Button>
-                </div>
-              </form>
-            ) : (
-              <button className="text-xs text-primary hover:underline" onClick={openLoginModal}>
-                Sign in to leave a comment
-              </button>
-            )}
           </div>}
 
           {/* ── Reviews panel ────────────────────────────────────────────── */}
