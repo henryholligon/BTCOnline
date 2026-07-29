@@ -143,6 +143,7 @@ app.use((req, res, next) => {
   await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token TEXT`);
   await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires TEXT`);
   await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS key_salt TEXT`);
+  await db.execute(sql`ALTER TABLE comments ADD COLUMN IF NOT EXISTS parent_id INTEGER REFERENCES comments(id) ON DELETE CASCADE`);
   await seed();
   await registerRoutes(httpServer, app);
   startSheetSyncPoller();

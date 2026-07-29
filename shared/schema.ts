@@ -158,6 +158,8 @@ export const comments = pgTable("comments", {
   createdAt: text("created_at").notNull(),
   // 1–5 star rating, optional (null = no rating given).
   rating: integer("rating"),
+  // Threaded replies: null = top-level, non-null = reply to that comment id.
+  parentId: integer("parent_id"),
 });
 
 export const insertCommentSchema = createInsertSchema(comments).omit({ id: true, createdAt: true }).extend({

@@ -138,6 +138,8 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
   const [reviewRating, setReviewRating] = useState<number | null>(null);
   const [reviewNote, setReviewNote] = useState("");
   const [hoverRating, setHoverRating] = useState<number | null>(null);
+  const [replyingTo, setReplyingTo] = useState<number | null>(null);
+  const [replyBody, setReplyBody] = useState("");
   const cardRef = useRef<HTMLDivElement>(null);
   const { getCategoryWithEmoji } = useCategoryEmojis();
   const { getCountryEmoji } = useCountryEmojis();
@@ -439,46 +441,136 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
           {/* ── Comments panel ───────────────────────────────────────────── */}
           {showComments && <div className="order-2 border-t border-border/30 pt-4 space-y-3">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-              Comments{commentsList.length > 0 && ` · ${commentsList.length}`}
+              Comments{commentsList.filter(c => !c.parentId).length > 0 && ` · ${commentsList.filter(c => !c.parentId).length}`}
             </p>
 
             {commentsLoading && <p className="text-xs text-muted-foreground">Loading…</p>}
 
-            {!commentsLoading && commentsList.length > 0 && (
-              <div className="space-y-3">
-                {commentsList.filter(c => c.body?.trim()).map(c => {
+            {!commentsLoading && commentsList.filter(c => c.body?.trim() && !c.parentId).length > 0 && (
+              <div className="space-y-4">
+                {commentsList.filter(c => c.body?.trim() && !c.parentId).map(c => {
                   const profile = c.pubkey ? nostrProfiles.get(c.pubkey) : undefined;
                   const displayName = profile?.displayName ?? c.authorName;
+                  const replies = commentsList.filter(r => r.parentId === c.id && r.body?.trim());
                   return (
-                  <div key={c.id} className="flex gap-2 group/comment">
-                    <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center shrink-0 text-[10px] font-bold text-muted-foreground uppercase overflow-hidden">
-                      {profile?.picture
-                        ? <img src={profile.picture} alt={displayName} className="h-full w-full object-cover" onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; (e.currentTarget.parentElement as HTMLElement).textContent = displayName.slice(0, 1); }} />
-                        : displayName.slice(0, 1)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[11px] font-semibold">{displayName}</span>
-                        <span className="text-[10px] text-muted-foreground">
-                          {new Date(c.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-                        </span>
-                        {isAdmin && (
-                          <button
-                            className="ml-auto opacity-0 group-hover/comment:opacity-100 transition-opacity text-muted-foreground hover:text-destructive text-[10px]"
-                            onClick={() => deleteComment.mutate(c.id)}
-                            title="Delete comment"
-                          >Delete</button>
-                        )}
+                    <div key={c.id}>
+                      {/* Top-level comment */}
+                      <div className="flex gap-2 group/comment">
+                        <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center shrink-0 text-[10px] font-bold text-muted-foreground uppercase overflow-hidden">
+                          {profile?.picture
+                            ? <img src={profile.picture} alt={displayName} className="h-full w-full object-cover" onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; (e.currentTarget.parentElement as HTMLElement).textContent = displayName.slice(0, 1); }} />
+                            : displayName.slice(0, 1)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[11px] font-semibold">{displayName}</span>
+                            <span className="text-[10px] text-muted-foreground">
+                              {new Date(c.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                            </span>
+                            {isAdmin && (
+                              <button
+                                className="ml-auto opacity-0 group-hover/comment:opacity-100 transition-opacity text-muted-foreground hover:text-destructive text-[10px]"
+                                onClick={() => deleteComment.mutate(c.id)}
+                                title="Delete comment"
+                              >Delete</button>
+                            )}
+                          </div>
+                          <p className="text-xs text-foreground/90 mt-0.5 break-words">{c.body}</p>
+                          {user && (
+                            <button
+                              className="text-[10px] text-muted-foreground hover:text-primary mt-1 transition-colors"
+                              onClick={() => { setReplyingTo(replyingTo === c.id ? null : c.id); setReplyBody(""); }}
+                            >
+                              {replyingTo === c.id ? "Cancel" : "Reply"}
+                            </button>
+                          )}
+                        </div>
                       </div>
-                      <p className="text-xs text-foreground/90 mt-0.5 break-words">{c.body}</p>
+
+                      {/* Inline reply form */}
+                      {replyingTo === c.id && (
+                        <div className="ml-8 mt-2 space-y-1.5">
+                          <Textarea
+                            value={replyBody}
+                            onChange={e => setReplyBody(e.target.value)}
+                            placeholder={`Reply to ${displayName}…`}
+                            className="text-xs min-h-[52px] resize-none"
+                            maxLength={1000}
+                            autoFocus
+                          />
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-muted-foreground">{replyBody.length}/1000</span>
+                            <div className="flex items-center gap-2">
+                              <button className="text-[10px] text-muted-foreground hover:text-foreground transition-colors" onClick={() => { setReplyingTo(null); setReplyBody(""); }}>Cancel</button>
+                              <Button
+                                size="sm"
+                                disabled={!replyBody.trim() || submitComment.isPending}
+                                className="h-6 text-xs px-3"
+                                onClick={async () => {
+                                  if (!replyBody.trim()) return;
+                                  try {
+                                    await submitComment.mutateAsync({ body: replyBody, rating: null, parentId: c.id });
+                                    setReplyBody("");
+                                    setReplyingTo(null);
+                                  } catch (error) {
+                                    toast({
+                                      title: "Unable to post reply",
+                                      description: error instanceof Error && error.message.includes("401")
+                                        ? "Please sign in before posting a reply."
+                                        : "Please try again.",
+                                      variant: "destructive",
+                                    });
+                                  }
+                                }}
+                              >
+                                {submitComment.isPending ? "Posting…" : "Post reply"}
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Threaded replies */}
+                      {replies.length > 0 && (
+                        <div className="ml-8 mt-2 space-y-2.5 border-l-2 border-border/40 pl-3">
+                          {replies.map(reply => {
+                            const rProfile = reply.pubkey ? nostrProfiles.get(reply.pubkey) : undefined;
+                            const rName = rProfile?.displayName ?? reply.authorName;
+                            return (
+                              <div key={reply.id} className="flex gap-2 group/reply">
+                                <div className="h-5 w-5 rounded-full bg-muted flex items-center justify-center shrink-0 text-[9px] font-bold text-muted-foreground uppercase overflow-hidden">
+                                  {rProfile?.picture
+                                    ? <img src={rProfile.picture} alt={rName} className="h-full w-full object-cover" onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; (e.currentTarget.parentElement as HTMLElement).textContent = rName.slice(0, 1); }} />
+                                    : rName.slice(0, 1)}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[11px] font-semibold">{rName}</span>
+                                    <span className="text-[10px] text-muted-foreground">
+                                      {new Date(reply.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                                    </span>
+                                    {isAdmin && (
+                                      <button
+                                        className="ml-auto opacity-0 group-hover/reply:opacity-100 transition-opacity text-muted-foreground hover:text-destructive text-[10px]"
+                                        onClick={() => deleteComment.mutate(reply.id)}
+                                        title="Delete reply"
+                                      >Delete</button>
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-foreground/90 mt-0.5 break-words">{reply.body}</p>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
-                  </div>
                   );
                 })}
               </div>
             )}
 
-            {!commentsLoading && commentsList.filter(c => c.body?.trim()).length === 0 && (
+            {!commentsLoading && commentsList.filter(c => c.body?.trim() && !c.parentId).length === 0 && (
               <p className="text-xs text-muted-foreground">No comments yet. Be the first!</p>
             )}
 

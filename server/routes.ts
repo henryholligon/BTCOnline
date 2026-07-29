@@ -434,6 +434,7 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
         body: comments.body,
         createdAt: comments.createdAt,
         rating: comments.rating,
+        parentId: comments.parentId,
          userEmail: users.email,
          userPubkey: users.pubkey,
       })
@@ -449,6 +450,7 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
       body: r.body,
       createdAt: r.createdAt,
       rating: r.rating,
+      parentId: r.parentId ?? null,
       // Derive a display name from the email local-part; never expose the full address publicly.
       authorName: r.userEmail ? r.userEmail.split("@")[0] : `npub:${r.userPubkey.slice(0, 8)}…`,
       // Expose the hex pubkey only for Nostr users so the client can resolve kind:0 profiles.
@@ -519,12 +521,29 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
     const userRow = await getCommentUser(req);
     if (!userRow) return res.status(401).json({ message: "Sign in to comment" });
 
-    const { body, rating } = req.body;
+    const { body, rating, parentId } = req.body;
     const normalizedBody = typeof body === "string" ? body.trim() : "";
     const hasBody = normalizedBody.length > 0;
     const hasRating = rating !== undefined && rating !== null;
+    const normalizedParentId = (parentId !== undefined && parentId !== null) ? Number(parentId) : null;
+
     if (!hasBody && !hasRating) return res.status(400).json({ message: "Please add a comment or a star rating" });
     if (normalizedBody.length > 1000) return res.status(400).json({ message: "Comment must be under 1000 characters" });
+
+    // Replies cannot carry a star rating
+    if (normalizedParentId !== null && hasRating) {
+      return res.status(400).json({ message: "Replies cannot include a star rating" });
+    }
+
+    // Validate parentId refers to a comment on the same merchant
+    if (normalizedParentId !== null) {
+      const [parent] = await db
+        .select({ id: comments.id })
+        .from(comments)
+        .where(and(eq(comments.id, normalizedParentId), eq(comments.merchantId, merchantId)))
+        .limit(1);
+      if (!parent) return res.status(400).json({ message: "Parent comment not found" });
+    }
 
     // Validate rating if provided
     if (rating !== undefined && rating !== null) {
@@ -570,6 +589,7 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
       userId: userRow.id,
       body: normalizedBody,
       rating: normalizedRating,
+      parentId: normalizedParentId,
       createdAt: new Date().toISOString(),
     }).returning();
 

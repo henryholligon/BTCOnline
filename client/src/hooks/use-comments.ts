@@ -14,6 +14,8 @@ export interface MerchantComment {
   rating?: number | null;
   /** Hex pubkey, present only for Nostr (non-custodial) users. */
   pubkey?: string | null;
+  /** Parent comment id for threaded replies; null/undefined = top-level. */
+  parentId?: number | null;
 }
 
 export interface NostrProfile {
@@ -148,7 +150,7 @@ export function useSubmitComment(merchantId: number) {
   const { user, signEvent } = useNostr();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ body, rating }: { body: string; rating: number | null }) => {
+    mutationFn: async ({ body, rating, parentId }: { body: string; rating: number | null; parentId?: number | null }) => {
       const path = `/api/merchants/${merchantId}/comments`;
       const event = user ? await signEvent({
         kind: 22242,
@@ -163,7 +165,7 @@ export function useSubmitComment(merchantId: number) {
           ...(event ? { "x-nostr-event": JSON.stringify(event) } : {}),
         },
         credentials: "include",
-        body: JSON.stringify({ body, rating }),
+        body: JSON.stringify({ body, rating, parentId: parentId ?? null }),
       });
       if (!res.ok) {
         const text = (await res.text()) || res.statusText;
