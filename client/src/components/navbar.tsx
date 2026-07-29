@@ -12,6 +12,7 @@ import { decrypt as ncryptsecDecrypt } from "nostr-tools/nip49";
 import { decryptEmailNsec } from "@/lib/emailAuth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTheme } from "next-themes";
+import darkBrandLogo from "@assets/BTC_Online_Logo_Dark_1785284291650.png";
 import { useToast } from "@/hooks/use-toast";
 import { useCategoryEmojis } from "@/hooks/use-category-emojis";
 import { useCountryEmojis } from "@/hooks/use-country-emojis";
@@ -775,7 +776,7 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
               className="h-9 w-9 object-contain dark:hidden mix-blend-multiply"
             />
             <img
-              src="/assets/main-logo-dark.png"
+              src={darkBrandLogo}
               alt="btconline"
               className="h-9 w-9 object-contain hidden dark:block mix-blend-screen"
             />
