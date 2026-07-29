@@ -7,7 +7,6 @@ import { useNostr } from "@/context/NostrContext";
 import { generateSecretKey, getPublicKey } from "nostr-tools";
 import { npubEncode, nsecEncode } from "nostr-tools/nip19";
 import { Copy, Check, Eye, EyeOff, Zap, Wifi, Key, AlertTriangle, ExternalLink, ShieldCheck, Mail, ChevronDown, Lock } from "lucide-react";
-import { decryptEmailNsec } from "@/lib/emailAuth";
 import { hexToBytes } from "@/lib/nostr";
 
 type NostrSubTab = "extension" | "bunker";
@@ -123,11 +122,11 @@ function EmailTab({ mode, setMode }: { mode: "login" | "register"; setMode: (m: 
         // Email sign-up is custodial: the server generates and holds the Nostr identity.
         const res = await fetch("/api/auth/register", {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, passwordHash: pwHash, custody: "custodial" }),
+          body: JSON.stringify({ email, passwordHash: pwHash }),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Registration failed");
-        await loginWithGeneratedKey(hexToBytes(data.nsecHex), undefined, undefined, email.trim().toLowerCase());
+        await loginWithGeneratedKey(hexToBytes(data.nsecHex), undefined, email.trim().toLowerCase());
       } else {
         const res = await fetch("/api/auth/login", {
           method: "POST", headers: { "Content-Type": "application/json" },
@@ -135,12 +134,7 @@ function EmailTab({ mode, setMode }: { mode: "login" | "register"; setMode: (m: 
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Login failed");
-        if (data.custody === "custodial") {
-          await loginWithGeneratedKey(hexToBytes(data.nsecHex), undefined, undefined, email.trim().toLowerCase());
-        } else {
-          const sk = await decryptEmailNsec(data.encryptedNsec, data.salt, data.iv, password);
-          await loginWithGeneratedKey(sk, undefined, { encryptedNsec: data.encryptedNsec, salt: data.salt, iv: data.iv });
-        }
+        await loginWithGeneratedKey(hexToBytes(data.nsecHex), undefined, email.trim().toLowerCase());
       }
     } catch (e: any) {
       setError(e.message || "Something went wrong");

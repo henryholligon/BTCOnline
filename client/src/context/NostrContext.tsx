@@ -56,20 +56,13 @@ export interface SavedPublicList {
   merchantCount: number;
 }
 
-export interface EmailKeyMaterial {
-  encryptedNsec: string;
-  salt: string;
-  iv: string;
-}
-
 interface StoredSession {
   pubkey: string;
   method: LoginMethod;
   ncryptsec?: string;
   bunkerUri?: string;
   bunkerLocalSkHex?: string;
-  emailKeyMaterial?: EmailKeyMaterial;
-  custody?: 'custodial' | 'self-custody';
+  custody?: 'custodial';
   email?: string;
 }
 
@@ -95,7 +88,7 @@ interface NostrContextValue {
   savedLists: SavedPublicList[];
   loginNip07: () => Promise<void>;
   loginWithBunker: (bunkerUri: string) => Promise<void>;
-  loginWithGeneratedKey: (sk: Uint8Array, ncryptsec?: string, emailKeyMaterial?: EmailKeyMaterial, custodialEmail?: string) => Promise<void>;
+  loginWithGeneratedKey: (sk: Uint8Array, ncryptsec?: string, custodialEmail?: string) => Promise<void>;
   restoreGeneratedSession: (ncryptsec: string, password: string) => Promise<void>;
   logout: () => void;
   signEvent: (template: EventTemplate) => Promise<VerifiedEvent>;
@@ -121,7 +114,6 @@ interface NostrContextValue {
   getSecretKey: () => Uint8Array | null;
   loginMethod: LoginMethod | null;
   sessionNcryptsec: string | null;
-  sessionEmailKeyMaterial: EmailKeyMaterial | null;
 }
 
 const NostrContext = createContext<NostrContextValue | null>(null);
@@ -334,11 +326,11 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
     closeLoginModal();
   }, [initUser, closeLoginModal]);
 
-  const loginWithGeneratedKey = useCallback(async (sk: Uint8Array, ncryptsec?: string, emailKeyMaterial?: EmailKeyMaterial, custodialEmail?: string) => {
+  const loginWithGeneratedKey = useCallback(async (sk: Uint8Array, ncryptsec?: string, custodialEmail?: string) => {
     secretKeyRef.current = sk;
     const pubkey = getPublicKey(sk);
     saveSession({
-      pubkey, method: 'generated', ncryptsec, emailKeyMaterial,
+      pubkey, method: 'generated', ncryptsec,
       ...(custodialEmail ? { custody: 'custodial', email: custodialEmail } : {}),
     });
     await initUser(pubkey, 'generated');
@@ -674,7 +666,6 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
   const _session = user ? loadSession() : null;
   const loginMethod: LoginMethod | null = _session?.method ?? null;
   const sessionNcryptsec: string | null = _session?.ncryptsec ?? null;
-  const sessionEmailKeyMaterial: EmailKeyMaterial | null = _session?.emailKeyMaterial ?? null;
 
   return (
     <NostrContext.Provider value={{
@@ -687,7 +678,7 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
       fetchLikeCount, fetchLikeAuthors, fetchSaveCount,
       savePublicList, unsavePublicList,
       restoringNcryptsec, openLoginModal, closeLoginModal,
-      getSecretKey, loginMethod, sessionNcryptsec, sessionEmailKeyMaterial,
+      getSecretKey, loginMethod, sessionNcryptsec,
     }}>
       {children}
       <NostrLoginModal />

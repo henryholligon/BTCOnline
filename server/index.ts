@@ -131,9 +131,9 @@ app.use((req, res, next) => {
   `);
   // Make salt nullable — custodial users have no client-side salt.
   await db.execute(sql`ALTER TABLE users ALTER COLUMN salt DROP NOT NULL`);
-  // Tag custody mode. SQL default 'self-custody' so existing rows are correctly marked.
+  // Email accounts are custodial. Pure Nostr accounts are not stored in users.
   await db.execute(sql`
-    ALTER TABLE users ADD COLUMN IF NOT EXISTS key_custody TEXT NOT NULL DEFAULT 'self-custody'
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS key_custody TEXT NOT NULL DEFAULT 'custodial'
   `);
   // Password reset token (SHA-256 hash) and its expiry.
   await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token TEXT`);

@@ -9,7 +9,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from "@/components/ui/label";
 import { npubEncode, nsecEncode } from "nostr-tools/nip19";
 import { decrypt as ncryptsecDecrypt } from "nostr-tools/nip49";
-import { decryptEmailNsec } from "@/lib/emailAuth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTheme } from "next-themes";
 import darkBrandLogo from "@assets/BTC_Online_Logo_Dark_1785284474123.png";
@@ -223,7 +222,7 @@ function KeyCopyButton({ text }: { text: string }) {
 }
 
 function MyKeysModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { user, getSecretKey, sessionNcryptsec, sessionEmailKeyMaterial } = useNostr();
+  const { user, getSecretKey, sessionNcryptsec } = useNostr();
   const [showNsec, setShowNsec] = useState(false);
   const [isNsecVerified, setIsNsecVerified] = useState(false);
   const [promptPassword, setPromptPassword] = useState(false);
@@ -233,7 +232,7 @@ function MyKeysModal({ open, onClose }: { open: boolean; onClose: () => void }) 
   const sk = open ? getSecretKey() : null;
   const npub = user ? npubEncode(user.pubkey) : "";
   const nsec = sk ? nsecEncode(sk) : "";
-  const needsPasswordGate = !!(sessionEmailKeyMaterial || sessionNcryptsec);
+  const needsPasswordGate = !!sessionNcryptsec;
 
   function handleClose() {
     setShowNsec(false);
@@ -263,14 +262,7 @@ function MyKeysModal({ open, onClose }: { open: boolean; onClose: () => void }) 
     setVerifying(true);
     setPasswordError("");
     try {
-      if (sessionEmailKeyMaterial) {
-        await decryptEmailNsec(
-          sessionEmailKeyMaterial.encryptedNsec,
-          sessionEmailKeyMaterial.salt,
-          sessionEmailKeyMaterial.iv,
-          passwordInput,
-        );
-      } else if (sessionNcryptsec) {
+      if (sessionNcryptsec) {
         ncryptsecDecrypt(sessionNcryptsec, passwordInput);
       }
       setIsNsecVerified(true);

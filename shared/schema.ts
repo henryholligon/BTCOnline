@@ -12,10 +12,10 @@ export const users = pgTable("users", {
   // salt is null for custodial users (key encrypted with server master key, not password).
   salt: text("salt"),
   iv: text("iv").notNull(),
-  // 'custodial' = server holds the key; 'self-custody' = client-side password encryption.
+  // Email accounts are custodial; pure Nostr accounts are not stored here.
   keyCustody: text("key_custody").notNull().default("custodial"),
   // Per-user HKDF salt for custodial key encryption. Null for legacy rows (pre-salt scheme)
-  // and for self-custody users (whose key is encrypted client-side, not server-side).
+  // Null for legacy rows created before per-user salts.
   keySalt: text("key_salt"),
   // One-time password reset token (hashed SHA-256) and its expiry ISO timestamp.
   resetToken: text("reset_token"),

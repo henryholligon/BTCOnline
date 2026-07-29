@@ -46,61 +46,34 @@ export async function registerRoutes(
   const ALTCHA_HMAC_KEY = process.env.ALTCHA_HMAC_KEY || "btconline-altcha-secret-key-2025";
 
   app.post("/api/auth/register", async (req, res) => {
-    const { email, passwordHash, custody, pubkey, encryptedNsec, salt, iv } = req.body;
+    const { email, passwordHash } = req.body;
     if (!email || !passwordHash) return res.status(400).json({ message: "Missing required fields" });
-
-    const custodyMode: "custodial" | "self-custody" = custody === "self-custody" ? "self-custody" : "custodial";
-
-    // Self-custody requires client-provided key material.
-    if (custodyMode === "self-custody" && (!pubkey || !encryptedNsec || !iv)) {
-      return res.status(400).json({ message: "Missing key material for self-custody mode" });
-    }
 
     const existing = await db.select().from(users).where(eq(users.email, email.toLowerCase())).limit(1);
     if (existing.length > 0) return res.status(409).json({ message: "Email already registered" });
 
     const serverHash = await bcrypt.hash(passwordHash, 10);
 
-    if (custodyMode === "custodial") {
-      // Server generates the keypair and holds it encrypted.
-      const sk = generateSecretKey();
-      const skPubkey = getPublicKey(sk);
-      const { encryptedNsec: encNsec, iv: encIv, keySalt } = encryptNsecServerSide(sk);
+    // Email accounts are always custodial: the server generates and holds
+    // the Nostr identity. Non-custodial accounts are pure Nostr accounts.
+    const sk = generateSecretKey();
+    const skPubkey = getPublicKey(sk);
+    const { encryptedNsec: encNsec, iv: encIv, keySalt } = encryptNsecServerSide(sk);
 
-      await db.insert(users).values({
-        email: email.toLowerCase(),
-        passwordHash: serverHash,
-        pubkey: skPubkey,
-        encryptedNsec: encNsec,
-        salt: null,
-        iv: encIv,
-        keySalt,
-        keyCustody: "custodial",
-        createdAt: new Date().toISOString(),
-      });
+    await db.insert(users).values({
+      email: email.toLowerCase(),
+      passwordHash: serverHash,
+      pubkey: skPubkey,
+      encryptedNsec: encNsec,
+      salt: null,
+      iv: encIv,
+      keySalt,
+      keyCustody: "custodial",
+      createdAt: new Date().toISOString(),
+    });
 
-      // Stamp the server session so /api/auth/session can restore without re-auth.
-      req.session.userEmail = email.toLowerCase();
-
-      // Return the raw nsec hex so the client can hold it in memory for this session.
-      return res.json({ ok: true, custody: "custodial", pubkey: skPubkey, nsecHex: Buffer.from(sk).toString("hex") });
-    } else {
-      // Self-custody: store the client-encrypted nsec as-is.
-      await db.insert(users).values({
-        email: email.toLowerCase(),
-        passwordHash: serverHash,
-        pubkey,
-        encryptedNsec,
-        salt: salt ?? null,
-        iv,
-        keyCustody: "self-custody",
-        createdAt: new Date().toISOString(),
-      });
-      // Comments and reviews use the authenticated email session. Keep that
-      // session available even though the Nostr private key remains client-held.
-      req.session.userEmail = email.toLowerCase();
-      return res.json({ ok: true, custody: "self-custody" });
-    }
+    req.session.userEmail = email.toLowerCase();
+    return res.json({ ok: true, custody: "custodial", pubkey: skPubkey, nsecHex: Buffer.from(sk).toString("hex") });
   });
 
   app.post("/api/auth/login", async (req, res) => {
@@ -131,13 +104,11 @@ export async function registerRoutes(
       req.session.userEmail = email.toLowerCase();
 
       return res.json({ custody: "custodial", pubkey: user.pubkey, nsecHex: Buffer.from(sk).toString("hex") });
-    } else {
-      // Self-custody: client decrypts locally with the user's password.
-      // The private key stays client-side, but the email session authorizes
-      // server-backed features such as comments and ratings.
-      req.session.userEmail = email.toLowerCase();
-      return res.json({ custody: "self-custody", pubkey: user.pubkey, encryptedNsec: user.encryptedNsec, salt: user.salt, iv: user.iv });
     }
+
+    return res.status(409).json({
+      message: "This email account uses an obsolete non-custodial format. Please contact support to migrate it.",
+    });
   });
 
   // ── Session restore & logout ────────────────────────────────────────────────
