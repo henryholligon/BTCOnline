@@ -67,7 +67,9 @@ function StyledMerchantQr({ value }: { value: string }) {
   const isFinder = (x: number, y: number) =>
     finderRegions.some(([fx, fy]) => x >= fx && x < fx + 7 && y >= fy && y < fy + 7);
   const center = viewSize / 2;
-  const logoRadius = 4.8;
+  // QRCode Monkey's reference uses a prominent center mark, approximately
+  // the same visual weight as the circular finder patterns.
+  const logoRadius = 7;
 
   return (
     <svg
