@@ -12,7 +12,7 @@ import { decrypt as ncryptsecDecrypt } from "nostr-tools/nip49";
 import { decryptEmailNsec } from "@/lib/emailAuth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTheme } from "next-themes";
-import darkBrandLogo from "@assets/BTC_Online_Logo_Dark_1785284291650.png";
+import darkBrandLogo from "@assets/BTC_Online_Logo_Dark_1785284474123.png";
 import { useToast } from "@/hooks/use-toast";
 import { useCategoryEmojis } from "@/hooks/use-category-emojis";
 import { useCountryEmojis } from "@/hooks/use-country-emojis";
