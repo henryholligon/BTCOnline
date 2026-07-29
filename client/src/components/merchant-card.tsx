@@ -821,11 +821,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 }
                 toggleFavourite(merchant.website);
               }}
-              className={`w-full flex items-center justify-center gap-1.5 py-2 text-sm font-medium rounded-md transition-colors ${
-                user && favourites.has(merchant.website)
-                  ? "bg-red-500 text-white hover:bg-red-600"
-                  : "border border-red-500/70 bg-transparent text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
-              }`}
+              className="w-full flex items-center justify-center gap-1.5 py-2 text-sm font-medium rounded-md bg-red-500 text-white hover:bg-red-600 transition-colors"
               data-testid={`button-like-panel-${merchant.id}`}
             >
               <Heart className={`h-4 w-4 text-red-500 ${user && favourites.has(merchant.website) ? "fill-current" : ""}`} />
