@@ -828,7 +828,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               }`}
               data-testid={`button-like-panel-${merchant.id}`}
             >
-              <Heart className={`h-4 w-4 ${user && favourites.has(merchant.website) ? "fill-current" : ""}`} />
+              <Heart className={`h-4 w-4 text-red-500 ${user && favourites.has(merchant.website) ? "fill-current" : ""}`} />
               {user && favourites.has(merchant.website) ? "Unlike" : "Like"}
             </button>
 
