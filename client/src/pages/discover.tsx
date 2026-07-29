@@ -154,7 +154,7 @@ export default function DiscoverPage() {
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
             <div className="flex items-center justify-center gap-2 mb-3">
               <Compass className="h-6 w-6 text-primary" />
-              <h1 className="text-2xl md:text-4xl font-display font-bold tracking-tight">Discover Lists</h1>
+              <h1 className="text-2xl md:text-4xl font-display font-bold tracking-tight">Merchant Packs</h1>
             </div>
             <p className="text-muted-foreground">
               Curated merchant collections from the community. Save packs you like to your{" "}
