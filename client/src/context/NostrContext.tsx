@@ -22,6 +22,7 @@ import {
 } from '@/lib/nostr';
 import { encryptForSelf, decryptForSelf, canEncrypt } from '@/lib/nip44-self';
 import NostrLoginModal from '@/components/nostr-login-modal';
+import { generateNostrIdentity } from '@/lib/generated-identity';
 
 export type LoginMethod = 'nip07' | 'nip46' | 'generated';
 
@@ -106,6 +107,7 @@ interface NostrContextValue {
   fetchSaveCount: (url: string) => Promise<void>;
   /** Publish a signed Nostr event to the user's write relays. */
   publishEvent: (template: EventTemplate) => Promise<VerifiedEvent>;
+  updateProfile: (profile: { name: string; picture?: string }) => Promise<void>;
   savePublicList: (list: SavedPublicList) => void;
   unsavePublicList: (authorPubkey: string, dTag: string) => void;
   restoringNcryptsec: string | null;
@@ -195,15 +197,16 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
 
   const initUser = useCallback(async (pubkey: string, method: LoginMethod) => {
     setIsLoading(true);
+    let loadedProfile: { name?: string; display_name?: string; picture?: string } | null = null;
     try {
       const npub = npubEncode(pubkey);
       const relays = await fetchRelayList(pubkey);
       setReadRelays(relays.read);
       setWriteRelays(relays.write);
 
-      const profile = await fetchProfile(pubkey, relays.read);
-      const displayName = profile?.display_name || profile?.name || npub.slice(0, 12) + '…';
-      setUser({ pubkey, npub, displayName, picture: profile?.picture, loginMethod: method });
+      loadedProfile = await fetchProfile(pubkey, relays.read);
+      const displayName = loadedProfile?.display_name || loadedProfile?.name || npub.slice(0, 12) + '…';
+      setUser({ pubkey, npub, displayName, picture: loadedProfile?.picture, loginMethod: method });
 
       // Fetch favourites — may be private (encrypted)
       const favResult = await fetchFavourites(pubkey, relays.read);
@@ -267,6 +270,7 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
+    return loadedProfile;
   }, []);
 
   useEffect(() => {
@@ -333,7 +337,21 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
       pubkey, method: 'generated', ncryptsec,
       ...(custodialEmail ? { custody: 'custodial', email: custodialEmail } : {}),
     });
-    await initUser(pubkey, 'generated');
+    const profile = await initUser(pubkey, 'generated');
+    // Pure generated Nostr identities get a real kind:0 profile that is visible
+    // to other Nostr clients. Email-custodial users deliberately keep their
+    // existing email-derived identity until they choose to edit it.
+    if (!custodialEmail && !profile) {
+      const generated = generateNostrIdentity(pubkey);
+      const profileEvent = finalizeEvent({
+        kind: 0,
+        created_at: Math.floor(Date.now() / 1000),
+        tags: [],
+        content: JSON.stringify({ name: generated.name, display_name: generated.name, picture: generated.avatarUrl }),
+      }, sk);
+      await Promise.any(pool.publish(DEFAULT_RELAYS, profileEvent));
+      setUser(prev => prev ? { ...prev, displayName: generated.name, picture: generated.avatarUrl } : prev);
+    }
     setRestoringNcryptsec(null);
     closeLoginModal();
   }, [initUser, closeLoginModal]);
@@ -345,7 +363,18 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
     saveSession({ pubkey, method: 'generated', ncryptsec });
     setRestoringNcryptsec(null);
     setIsLoginModalOpen(false);
-    await initUser(pubkey, 'generated');
+    const profile = await initUser(pubkey, 'generated');
+    if (!profile) {
+      const generated = generateNostrIdentity(pubkey);
+      const profileEvent = finalizeEvent({
+        kind: 0,
+        created_at: Math.floor(Date.now() / 1000),
+        tags: [],
+        content: JSON.stringify({ name: generated.name, display_name: generated.name, picture: generated.avatarUrl }),
+      }, sk);
+      await Promise.any(pool.publish(DEFAULT_RELAYS, profileEvent));
+      setUser(prev => prev ? { ...prev, displayName: generated.name, picture: generated.avatarUrl } : prev);
+    }
   }, [initUser]);
 
   const logout = useCallback(() => {
@@ -374,6 +403,24 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
     await Promise.any(promises);
     return signed;
   }, [signEvent, writeRelays]);
+
+  const updateProfile = useCallback(async (profile: { name: string; picture?: string }) => {
+    if (!user) throw new Error('Not logged in');
+    const name = profile.name.trim();
+    if (!name) throw new Error('A profile name is required');
+    const picture = profile.picture?.trim();
+    await publishEvent({
+      kind: 0,
+      created_at: Math.floor(Date.now() / 1000),
+      tags: [],
+      content: JSON.stringify({
+        name,
+        display_name: name,
+        ...(picture ? { picture } : {}),
+      }),
+    });
+    setUser(prev => prev ? { ...prev, displayName: name, picture: picture || undefined } : prev);
+  }, [user, publishEvent]);
 
   // ── Favourites ──────────────────────────────────────────────────────────────
 
@@ -728,7 +775,7 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
       user, readRelays, writeRelays, favourites, lists, isLoading, isLoginModalOpen,
       likesPublic, canUsePrivate, likeCounts, likeAuthors, saveCounts, savedLists,
       loginNip07, loginWithBunker, loginWithGeneratedKey, restoreGeneratedSession,
-      logout, signEvent, publishEvent,
+       logout, signEvent, publishEvent, updateProfile,
       toggleFavourite, toggleLikesPublic,
       createList, deleteList, renameList, toggleListMember, toggleListPrivacy,
       fetchLikeCount, fetchLikeAuthors, fetchSaveCount,

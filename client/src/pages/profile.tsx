@@ -5,7 +5,12 @@ import { decode } from "nostr-tools/nip19";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/navbar";
 import { fetchProfile, fetchFavourites, fetchRelayList } from "@/lib/nostr";
-import { Heart, MessageSquare, Copy, Check, ExternalLink } from "lucide-react";
+import { useNostr } from "@/context/NostrContext";
+import { Heart, MessageSquare, Copy, Check, ExternalLink, Pencil, Wand2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { generateNostrIdentity } from "@/lib/generated-identity";
 import { type Merchant } from "@shared/schema";
 import { slugify } from "@/lib/utils";
 import btcBgImage from "@assets/image_1771226498805.png";
@@ -39,6 +44,12 @@ export default function ProfilePage() {
   const [likesPrivate, setLikesPrivate] = useState(false);
   const [profileLoading, setProfileLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const { user, updateProfile } = useNostr();
+  const { toast } = useToast();
+  const [editing, setEditing] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editPicture, setEditPicture] = useState("");
+  const [saving, setSaving] = useState(false);
 
   // Decode npub → hex pubkey
   useEffect(() => {
@@ -90,8 +101,14 @@ export default function ProfilePage() {
 
   const { data: merchants = [] } = useQuery<Merchant[]>({ queryKey: ["/api/merchants"] });
 
-  const displayName = profile?.display_name || profile?.name || (npub ? npub.slice(0, 20) + "…" : "");
   const likedMerchants = publicLikes ? merchants.filter(m => publicLikes.has(m.website)) : [];
+  const isOwner = !!user && !!pubkey && user.pubkey === pubkey;
+  const generatedIdentity = pubkey ? generateNostrIdentity(pubkey) : null;
+  const displayName = profile?.display_name
+    || profile?.name
+    || (isOwner ? user?.displayName : generatedIdentity?.name)
+    || (npub ? npub.slice(0, 20) + "…" : "");
+  const picture = profile?.picture || (isOwner ? user?.picture : undefined) || undefined;
 
   const copyNpub = () => {
     if (!npub) return;
@@ -99,6 +116,36 @@ export default function ProfilePage() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
+  };
+
+  const beginEditing = () => {
+    const generated = pubkey ? generateNostrIdentity(pubkey) : null;
+    setEditName(profile?.display_name || profile?.name || generated?.name || displayName);
+    setEditPicture(profile?.picture || generated?.avatarUrl || "");
+    setEditing(true);
+  };
+
+  const useGeneratedAvatar = () => {
+    if (pubkey) setEditPicture(generateNostrIdentity(pubkey).avatarUrl);
+  };
+
+  const saveProfile = async () => {
+    setSaving(true);
+    try {
+      await updateProfile({ name: editName, picture: editPicture });
+      setProfile(prev => ({
+        ...(prev || {}),
+        name: editName.trim(),
+        display_name: editName.trim(),
+        picture: editPicture.trim(),
+      }));
+      setEditing(false);
+      toast({ title: "Profile updated", description: "Your Nostr profile was published to your write relays." });
+    } catch (e: any) {
+      toast({ title: "Could not update profile", description: e.message, variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (decodeError) {
@@ -136,13 +183,15 @@ export default function ProfilePage() {
               <div className="flex gap-5 items-start">
                 {/* Avatar */}
                 <div className="h-20 w-20 rounded-full bg-muted flex items-center justify-center shrink-0 text-2xl font-bold text-muted-foreground overflow-hidden border-2 border-border">
-                  {profile?.picture ? (
+                  {picture ? (
                     <img
-                      src={profile.picture}
+                      src={picture}
                       alt={displayName}
                       className="h-full w-full object-cover"
                       onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
                     />
+                  ) : generatedIdentity ? (
+                    <span className="text-3xl">{generatedIdentity.emoji}</span>
                   ) : (
                     (displayName[0] || "?").toUpperCase()
                   )}
@@ -150,8 +199,41 @@ export default function ProfilePage() {
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <h1 className="text-2xl font-display font-bold tracking-tight">{displayName}</h1>
-                  {profile?.about && (
+                  {editing ? (
+                    <div className="space-y-3 max-w-md">
+                      <Input
+                        value={editName}
+                        onChange={e => setEditName(e.target.value)}
+                        placeholder="Display name"
+                      />
+                      <div className="flex gap-2">
+                        <Input
+                          value={editPicture}
+                          onChange={e => setEditPicture(e.target.value)}
+                          placeholder="Profile picture URL"
+                        />
+                        <Button type="button" variant="outline" size="icon" onClick={useGeneratedAvatar} title="Use generated avatar">
+                          <Wand2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={saveProfile} disabled={saving || !editName.trim()}>
+                          {saving ? "Publishing…" : "Publish profile"}
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => setEditing(false)}>Cancel</Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <h1 className="text-2xl font-display font-bold tracking-tight">{displayName}</h1>
+                      {isOwner && (
+                        <Button type="button" variant="ghost" size="icon" onClick={beginEditing} title="Edit profile">
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                  {!editing && profile?.about && (
                     <p className="text-sm text-muted-foreground mt-1 line-clamp-3 max-w-xl">{profile.about}</p>
                   )}
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
