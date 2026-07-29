@@ -175,16 +175,40 @@ export async function fetchSaveCount(url: string, relays: string[]): Promise<num
  */
 export async function fetchLikeCount(url: string, relays: string[]): Promise<number> {
   try {
-    // '#r' is a NIP-12 tag filter — supported by all major relays
-    const events = await pool.querySync(
-      relays,
-      { kinds: [10003], '#r': [url] } as Filter,
-      { maxWait: 5000 },
-    );
-    // Only count public (non-encrypted) events
-    return events.filter(e => !e.tags.some(t => t[0] === 'private' && t[1] === 'true')).length;
+    const events = await pool.querySync(relays, { kinds: [10003], limit: 500 } as Filter, { maxWait: 5000 });
+    const latestByAuthor = new Map<string, Event>();
+    for (const event of events) {
+      if (event.tags.some(t => t[0] === 'private' && t[1] === 'true')) continue;
+      const current = latestByAuthor.get(event.pubkey);
+      if (!current || event.created_at > current.created_at) latestByAuthor.set(event.pubkey, event);
+    }
+    return Array.from(latestByAuthor.values())
+      .filter(event => event.tags.some(t => t[0] === 'r' && t[1] === url))
+      .length;
   } catch {
     return 0;
+  }
+}
+
+/** Fetch public Nostr identities whose latest public kind-10003 event includes a merchant URL. */
+export async function fetchLikeAuthors(url: string, relays: string[]): Promise<string[]> {
+  try {
+    const events = await pool.querySync(relays, { kinds: [10003], limit: 500 } as Filter, { maxWait: 5000 });
+    // Kind 10003 is replaceable: use each author's latest public event so
+    // stale events do not make an old like appear current.
+    const latestByAuthor = new Map<string, Event>();
+    for (const event of events) {
+      if (event.tags.some(t => t[0] === 'private' && t[1] === 'true')) continue;
+      const current = latestByAuthor.get(event.pubkey);
+      if (!current || event.created_at > current.created_at) {
+        latestByAuthor.set(event.pubkey, event);
+      }
+    }
+    return Array.from(latestByAuthor.values())
+      .filter(event => event.tags.some(t => t[0] === 'r' && t[1] === url))
+      .map(event => event.pubkey);
+  } catch {
+    return [];
   }
 }
 
