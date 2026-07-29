@@ -607,15 +607,23 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
     likeAuthorsFetchingRef.current.add(url);
     try {
       const pubkeys = await fetchLikeAuthorsFromRelay(url, readRelays);
-      const authors = await Promise.all(pubkeys.map(async pubkey => {
-        const profile = await fetchProfile(pubkey, readRelays);
+      // Fetch all kind:0 profiles in one batched relay query instead of N sequential ones
+      const profileEvents = pubkeys.length
+        ? await pool.querySync(readRelays, { kinds: [0], authors: pubkeys }, { maxWait: 3000 })
+        : [];
+      const profileMap = new Map<string, { display_name?: string; name?: string; picture?: string }>();
+      for (const ev of profileEvents) {
+        try { profileMap.set(ev.pubkey, JSON.parse(ev.content)); } catch { /* skip bad JSON */ }
+      }
+      const authors = pubkeys.map(pubkey => {
+        const profile = profileMap.get(pubkey);
         const npub = npubEncode(pubkey);
         return {
           pubkey,
           npub,
           displayName: profile?.display_name || profile?.name || `${npub.slice(0, 10)}…`,
         };
-      }));
+      });
       setLikeAuthors(prev => {
         const next = new Map(prev);
         next.set(url, authors);
