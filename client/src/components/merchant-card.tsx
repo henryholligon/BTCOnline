@@ -132,6 +132,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
   const [showShare, setShowShare] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [showReviews, setShowReviews] = useState(false);
+  const [showLikes, setShowLikes] = useState(false);
   const [copied, setCopied] = useState(false);
   const [commentBody, setCommentBody] = useState("");
   const [reviewRating, setReviewRating] = useState<number | null>(null);
@@ -149,7 +150,11 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
   const { data: myReview } = useMyReview(merchant.id, !!user && expanded);
   const submitComment = useSubmitComment(merchant.id);
   const deleteComment = useDeleteComment(merchant.id);
-  const nostrProfiles = useNostrProfiles(commentsList.map(c => c.pubkey));
+  const likeAuthorsList = likeAuthors.get(merchant.website) ?? [];
+  const nostrProfiles = useNostrProfiles([
+    ...commentsList.map(c => c.pubkey),
+    ...likeAuthorsList.map(a => a.pubkey),
+  ]);
 
   // Pre-fill forms from the user's existing record when the card expands
   useEffect(() => {
@@ -216,7 +221,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
 
   // Reset panels when card collapses
   useEffect(() => {
-    if (!expanded) { setShowComments(false); setShowReviews(false); }
+    if (!expanded) { setShowComments(false); setShowReviews(false); setShowLikes(false); }
   }, [expanded]);
 
   useEffect(() => {
@@ -587,6 +592,43 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
             )}
           </div>}
 
+          {/* ── Likes panel ──────────────────────────────────────────────── */}
+          {showLikes && <div className="order-2 border-t border-border/30 pt-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+                Liked by{likeAuthorsList.length > 0 && ` · ${likeAuthorsList.length}`}
+              </p>
+              <button
+                onClick={() => toggleFavourite(merchant.website)}
+                className={`flex items-center gap-1 text-xs px-2 py-1 rounded-md transition-colors hover:bg-muted ${user && favourites.has(merchant.website) ? "text-red-500" : "text-muted-foreground"}`}
+              >
+                <Heart className={`h-3.5 w-3.5 ${user && favourites.has(merchant.website) ? "fill-current" : ""}`} />
+                {user && favourites.has(merchant.website) ? "Liked" : "Like this"}
+              </button>
+            </div>
+
+            {likeAuthorsList.length > 0 ? (
+              <div className="space-y-2">
+                {likeAuthorsList.map(author => {
+                  const profile = nostrProfiles.get(author.pubkey);
+                  const displayName = profile?.displayName ?? author.displayName;
+                  return (
+                    <div key={author.pubkey} className="flex items-center gap-2">
+                      <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center shrink-0 text-[10px] font-bold text-muted-foreground uppercase overflow-hidden">
+                        {profile?.picture
+                          ? <img src={profile.picture} alt={displayName} className="h-full w-full object-cover" onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; (e.currentTarget.parentElement as HTMLElement).textContent = displayName.slice(0, 1); }} />
+                          : displayName.slice(0, 1)}
+                      </div>
+                      <span className="text-xs font-medium" title={author.npub}>{displayName}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">No public likes yet. Be the first!</p>
+            )}
+          </div>}
+
           {/* Expanded footer — Visit website + 5 social buttons */}
           <div className="order-1 border-t border-border/40 pt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-0" onClick={(e) => e.stopPropagation()}>
             <div className="sm:flex-1 sm:flex sm:justify-center">
@@ -598,20 +640,24 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
             </div>
             <div className="flex items-center w-full sm:flex-[5] sm:gap-0">
               <div className="flex-1 flex justify-center">
-                <button onClick={() => { setShowComments(v => !v); setShowReviews(false); }} data-testid={`button-comments-${merchant.id}`} className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${showComments ? "text-blue-500" : "text-muted-foreground"}`}>
+                <button onClick={() => { setShowComments(v => !v); setShowReviews(false); setShowLikes(false); }} data-testid={`button-comments-${merchant.id}`} className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${showComments ? "text-blue-500" : "text-muted-foreground"}`}>
                   <MessageSquare className="h-4 w-4" />
                   <span className="text-xs tabular-nums">{commentsList.length}</span>
                 </button>
               </div>
               <div className="flex-1 flex justify-center">
-                <button onClick={() => { setShowReviews(v => !v); setShowComments(false); }} data-testid={`button-reviews-${merchant.id}`} className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${showReviews ? "text-amber-500" : "text-muted-foreground"}`}>
+                <button onClick={() => { setShowReviews(v => !v); setShowComments(false); setShowLikes(false); }} data-testid={`button-reviews-${merchant.id}`} className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${showReviews ? "text-amber-500" : "text-muted-foreground"}`}>
                   <span className={`text-base leading-none ${showReviews ? "text-amber-400" : "text-muted-foreground"}`}>★</span>
                   {ratingData && ratingData.count > 0 ? <span className="text-xs tabular-nums">{ratingData.average.toFixed(1)}</span> : <span className="text-xs font-semibold tracking-wide">NEW</span>}
                 </button>
               </div>
               <div className="flex-1 flex justify-center">
-                <button onClick={() => toggleFavourite(merchant.website)} data-testid={`button-favourite-${merchant.id}`} className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${user && favourites.has(merchant.website) ? "text-red-500" : "text-muted-foreground"}`}>
-                  <Heart className={`h-4 w-4 ${user && favourites.has(merchant.website) ? "fill-current" : ""}`} />
+                <button
+                  onClick={() => { setShowLikes(v => !v); setShowComments(false); setShowReviews(false); }}
+                  data-testid={`button-likes-${merchant.id}`}
+                  className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${showLikes ? "text-red-500" : "text-muted-foreground"}`}
+                >
+                  <Heart className={`h-4 w-4 ${user && favourites.has(merchant.website) ? "fill-current text-red-500" : ""}`} />
                   <span className="text-xs tabular-nums">{likeCounts.get(merchant.website) ?? 0}</span>
                 </button>
               </div>
