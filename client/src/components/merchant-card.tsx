@@ -62,13 +62,14 @@ function StyledMerchantQr({ value }: { value: string }) {
       type: "svg",
       data: value,
       image: qrBrandLogo,
-      margin: 4,
+      margin: 2,
       qrOptions: {
         errorCorrectionLevel: "H",
       },
       dotsOptions: {
         type: "dots",
         color: "#000000",
+        roundSize: false,
       },
       cornersSquareOptions: {
         type: "dot",
@@ -83,8 +84,8 @@ function StyledMerchantQr({ value }: { value: string }) {
       },
       imageOptions: {
         hideBackgroundDots: true,
-        imageSize: 0.28,
-        margin: 4,
+        imageSize: 0.3,
+        margin: 2,
       },
     });
 
