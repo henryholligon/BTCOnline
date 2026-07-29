@@ -758,7 +758,7 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                     <>
                       <Input
                         id="submitterNpub"
-                        placeholder="npub1…"
+                        placeholder="Email or npub…"
                         value={submitterNpub}
                         onChange={(e) => setSubmitterNpub(e.target.value)}
                         data-testid="input-submitter-npub"
