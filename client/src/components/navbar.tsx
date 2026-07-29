@@ -13,6 +13,7 @@ import { decryptEmailNsec } from "@/lib/emailAuth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTheme } from "next-themes";
 import darkBrandLogo from "@assets/BTC_Online_Logo_Dark_1785284474123.png";
+import lightBrandLogo from "@assets/BTC_Online_Logo_Light_1785284567379.png";
 import { useToast } from "@/hooks/use-toast";
 import { useCategoryEmojis } from "@/hooks/use-category-emojis";
 import { useCountryEmojis } from "@/hooks/use-country-emojis";
@@ -771,7 +772,7 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
             className="flex items-center gap-1 shrink-0 hover:opacity-80 transition-opacity"
           >
             <img
-              src="/assets/main-logo.png"
+              src={lightBrandLogo}
               alt="btconline"
               className="h-9 w-9 object-contain dark:hidden mix-blend-multiply"
             />
