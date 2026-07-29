@@ -57,7 +57,8 @@ function StyledMerchantQr({ value }: { value: string }) {
     return code;
   }, [value]);
   const count = qr.getModuleCount();
-  const quiet = 2;
+  // QR scanners expect a clear four-module quiet zone around the symbol.
+  const quiet = 4;
   const viewSize = count + quiet * 2;
   const finderRegions = [
     [0, 0],
@@ -67,9 +68,12 @@ function StyledMerchantQr({ value }: { value: string }) {
   const isFinder = (x: number, y: number) =>
     finderRegions.some(([fx, fy]) => x >= fx && x < fx + 7 && y >= fy && y < fy + 7);
   const center = viewSize / 2;
-  // QRCode Monkey's reference uses a prominent center mark, approximately
-  // the same visual weight as the circular finder patterns.
-  const logoRadius = 13;
+  // Keep the center mark visible without obscuring too many data modules.
+  const logoRadius = 4;
+  const logoClipId = `merchant-qr-logo-clip-${Array.from(value).reduce(
+    (hash, character) => ((hash * 31 + character.charCodeAt(0)) >>> 0),
+    0,
+  )}`;
 
   return (
     <svg
@@ -80,7 +84,7 @@ function StyledMerchantQr({ value }: { value: string }) {
     >
       <rect width={viewSize} height={viewSize} fill="#fff" />
       <defs>
-        <clipPath id="merchant-qr-logo-clip">
+        <clipPath id={logoClipId}>
           <circle cx={center} cy={center} r={logoRadius - 0.45} />
         </clipPath>
       </defs>
@@ -89,7 +93,7 @@ function StyledMerchantQr({ value }: { value: string }) {
           if (!qr.isDark(y, x) || isFinder(x, y)) return null;
           const px = x + quiet + 0.5;
           const py = y + quiet + 0.5;
-          return <circle key={`${x}-${y}`} cx={px} cy={py} r="0.27" fill="#000" />;
+          return <circle key={`${x}-${y}`} cx={px} cy={py} r="0.34" fill="#000" />;
         }),
       )}
       {finderRegions.map(([fx, fy]) => {
@@ -111,7 +115,7 @@ function StyledMerchantQr({ value }: { value: string }) {
         width={(logoRadius - 0.45) * 2}
         height={(logoRadius - 0.45) * 2}
         preserveAspectRatio="xMidYMid slice"
-        clipPath="url(#merchant-qr-logo-clip)"
+        clipPath={`url(#${logoClipId})`}
       />
     </svg>
   );
