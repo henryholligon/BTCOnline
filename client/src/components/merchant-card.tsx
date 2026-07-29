@@ -5,7 +5,7 @@ import { useCategoryEmojis } from "@/hooks/use-category-emojis";
 import { useCountryEmojis } from "@/hooks/use-country-emojis";
 import { Zap, Clock, Copy, Check, Heart, Bookmark, Upload, X as XIcon, Mail, ExternalLink, MessageSquare, ChevronUp, ChevronDown } from "lucide-react";
 import BitcoinLogo from "@/components/bitcoin-logo";
-import { useRef, useEffect, useState, memo, useCallback } from "react";
+import { useRef, useEffect, useState, memo, useCallback, useMemo } from "react";
 import { useComments, useSubmitComment, useDeleteComment, useIsAdmin, useMerchantRating, useMyReview, useMasterPubkey, useNostrProfiles } from "@/hooks/use-comments";
 import { Textarea } from "@/components/ui/textarea";
 import { slugify } from "@/lib/utils";
@@ -142,7 +142,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
   const { getCategoryWithEmoji } = useCategoryEmojis();
   const { getCountryEmoji } = useCountryEmojis();
   const { toast } = useToast();
-  const { user, favourites, toggleFavourite, lists, toggleListMember, openLoginModal, likeCounts, likeAuthors, fetchLikeCount, fetchLikeAuthors, saveCounts, fetchSaveCount, publishEvent } = useNostr();
+  const { user, favourites, toggleFavourite, lists, toggleListMember, openLoginModal, likeCounts, likeAuthors, fetchLikeCount, fetchLikeAuthors, saveCounts, fetchSaveCount, publishEvent, likesPublic } = useNostr();
   const isAdmin = useIsAdmin();
   const masterPubkey = useMasterPubkey();
   const { data: commentsList = [], isLoading: commentsLoading } = useComments(merchant.id, expanded);
@@ -150,7 +150,19 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
   const { data: myReview } = useMyReview(merchant.id, !!user && expanded);
   const submitComment = useSubmitComment(merchant.id);
   const deleteComment = useDeleteComment(merchant.id);
-  const likeAuthorsList = likeAuthors.get(merchant.website) ?? [];
+  // relayLikeAuthors is undefined while loading, [] when loaded with no results
+  const relayLikeAuthors = likeAuthors.get(merchant.website);
+  const relayLikesLoaded = relayLikeAuthors !== undefined;
+
+  // Merge relay results with local knowledge: if the current user publicly liked
+  // this merchant we know that immediately — no relay round-trip required.
+  const likeAuthorsList = useMemo(() => {
+    const fromRelay = relayLikeAuthors ?? [];
+    if (!user || !likesPublic || !favourites.has(merchant.website)) return fromRelay;
+    if (fromRelay.some(a => a.pubkey === user.pubkey)) return fromRelay;
+    return [{ pubkey: user.pubkey, npub: user.npub, displayName: user.displayName }, ...fromRelay];
+  }, [relayLikeAuthors, user, likesPublic, favourites, merchant.website]);
+
   const nostrProfiles = useNostrProfiles([
     ...commentsList.map(c => c.pubkey),
     ...likeAuthorsList.map(a => a.pubkey),
@@ -607,7 +619,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               </button>
             </div>
 
-            {!likeAuthors.has(merchant.website) ? (
+            {!relayLikesLoaded && likeAuthorsList.length === 0 ? (
               <p className="text-xs text-muted-foreground">Loading…</p>
             ) : likeAuthorsList.length > 0 ? (
               <div className="space-y-2">
@@ -715,17 +727,17 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
           <div className="order-2 grid grid-cols-1 sm:grid-cols-3 gap-2 text-[10px] text-muted-foreground">
             <div className="rounded-md bg-muted/40 px-2.5 py-2 min-w-0">
               <span className="font-semibold text-foreground/80">Liked by </span>
-              {likeAuthors.get(merchant.website)?.length
+              {likeAuthorsList.length
                 ? <>
-                    {likeAuthors.get(merchant.website)!.slice(0, 3).map((author, index) => (
+                    {likeAuthorsList.slice(0, 3).map((author, index) => (
                       <span key={author.pubkey}>
                         {index > 0 && ", "}
                         <span title={author.npub}>{author.displayName}</span>
                       </span>
                     ))}
-                    {likeAuthors.get(merchant.website)!.length > 3 && ` +${likeAuthors.get(merchant.website)!.length - 3}`}
+                    {likeAuthorsList.length > 3 && ` +${likeAuthorsList.length - 3}`}
                   </>
-                : "No public likes yet"}
+                : relayLikesLoaded ? "No public likes yet" : "…"}
             </div>
             <div className="rounded-md bg-muted/40 px-2.5 py-2 min-w-0">
               <span className="font-semibold text-foreground/80">Reviewed by </span>
