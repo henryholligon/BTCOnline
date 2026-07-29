@@ -821,10 +821,10 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 }
                 toggleFavourite(merchant.website);
               }}
-              className={`w-full flex items-center justify-center gap-2 py-2 rounded-sm text-sm font-medium transition-colors ${
+              className={`w-full flex items-center justify-center gap-1.5 py-2 text-sm font-medium rounded-md transition-colors ${
                 user && favourites.has(merchant.website)
                   ? "bg-red-500 text-white hover:bg-red-600"
-                  : "bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:from-pink-600 hover:to-rose-600"
+                  : "bg-primary text-primary-foreground hover:bg-primary/90"
               }`}
               data-testid={`button-like-panel-${merchant.id}`}
             >
