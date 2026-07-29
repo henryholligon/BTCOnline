@@ -154,10 +154,10 @@ function EmailTab({ mode, setMode }: { mode: "login" | "register"; setMode: (m: 
       <div className="flex rounded-lg border border-border overflow-hidden">
         <button type="button" onClick={() => { setMode("login"); setError(""); }}
           className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${mode === "login" ? "bg-primary text-primary-foreground" : "hover:bg-muted text-muted-foreground"}`}
-          data-testid="tab-email-login">Email sign in</button>
+          data-testid="tab-email-login">Sign in</button>
         <button type="button" onClick={() => { setMode("register"); setError(""); }}
           className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${mode === "register" ? "bg-primary text-primary-foreground" : "hover:bg-muted text-muted-foreground"}`}
-          data-testid="tab-email-register">Email sign up</button>
+          data-testid="tab-email-register">Sign up</button>
       </div>
 
       <div className="space-y-3">
