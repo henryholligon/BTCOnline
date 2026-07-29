@@ -290,13 +290,6 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex items-center gap-2">
             <h3 className="font-semibold text-sm md:text-base truncate">{merchant.name}</h3>
-            {!expanded && ratingData && ratingData.count > 0 && (
-              <span className="shrink-0 flex items-center gap-0.5 text-[11px] font-semibold text-amber-500 leading-none">
-                <span>★</span>
-                <span>{ratingData.average.toFixed(1)}</span>
-                <span className="text-muted-foreground font-normal ml-0.5">({ratingData.count})</span>
-              </span>
-            )}
             {merchant.onchainSupported && (
               <BitcoinLogo className="h-3.5 w-3.5" spin />
             )}
