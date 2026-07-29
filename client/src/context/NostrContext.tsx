@@ -649,7 +649,7 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
       const profileEvents = pubkeys.length
         ? await Promise.race([
             pool.querySync(readRelays, { kinds: [0], authors: pubkeys }, { maxWait: 4000 }),
-            new Promise<typeof []>(resolve => setTimeout(() => resolve([]), 6000)),
+            new Promise<never[]>(resolve => setTimeout(() => resolve([]), 6000)),
           ])
         : [];
       const profileMap = new Map<string, { display_name?: string; name?: string; picture?: string }>();

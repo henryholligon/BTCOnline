@@ -818,6 +818,13 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
               >
                 Merchant Packs
               </Link>
+              <Link
+                href="/dashboard"
+                onClick={() => setLogoMenuOpen(false)}
+                className="w-full text-left px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors flex items-center gap-2"
+              >
+                Dashboard
+              </Link>
             </div>,
             document.body
           )}

@@ -337,6 +337,59 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
     res.json(merchants);
   });
 
+  app.get("/api/dashboard", async (_req, res) => {
+    const result = await db.execute(sql`
+      WITH merchant_stats AS (
+        SELECT
+          COUNT(*)::int AS total_merchants,
+          COUNT(*) FILTER (
+            WHERE last_surveyed IS NOT NULL
+              AND last_surveyed <> ''
+              AND last_surveyed::date >= CURRENT_DATE - INTERVAL '1 year'
+          )::int AS recently_verified,
+          COUNT(*) FILTER (WHERE lightning_supported)::int AS lightning_merchants,
+          COUNT(*) FILTER (WHERE onchain_supported)::int AS onchain_merchants,
+          COUNT(*) FILTER (WHERE cashu_supported)::int AS cashu_merchants,
+          COUNT(*) FILTER (WHERE liquid_supported)::int AS liquid_merchants
+        FROM merchants
+      ),
+      category_stats AS (
+        SELECT COUNT(DISTINCT category)::int AS categories
+        FROM merchants, unnest(categories) AS category
+      ),
+      countries AS (
+        SELECT COUNT(DISTINCT country)::int AS shipping_countries
+        FROM merchants, unnest(shipping_countries) AS country
+      ),
+      snapshot AS (
+        INSERT INTO merchant_growth_snapshots (snapshot_date, merchant_count, verified_count)
+        SELECT CURRENT_DATE::text, total_merchants, recently_verified FROM merchant_stats
+        ON CONFLICT (snapshot_date) DO UPDATE SET
+          merchant_count = EXCLUDED.merchant_count,
+          verified_count = EXCLUDED.verified_count
+        RETURNING snapshot_date, merchant_count, verified_count
+      )
+      SELECT json_build_object(
+        'totals', (SELECT row_to_json(stats) FROM (
+          SELECT merchant_stats.*, category_stats.categories
+          FROM merchant_stats CROSS JOIN category_stats
+        ) stats),
+        'shippingCountries', (SELECT shipping_countries FROM countries),
+        'snapshots', COALESCE(
+          (SELECT json_agg(row_to_json(s) ORDER BY s.snapshot_date) FROM (
+            SELECT snapshot_date, merchant_count, verified_count
+            FROM merchant_growth_snapshots
+            WHERE snapshot_date >= (CURRENT_DATE - INTERVAL '1 year')::text
+            ORDER BY snapshot_date
+          ) s),
+          '[]'::json
+        )
+      ) AS dashboard
+    `);
+    res.set("Cache-Control", "no-store");
+    res.json((result.rows[0] as any).dashboard);
+  });
+
   app.get("/api/merchants/:id", async (req, res) => {
     const id = parseInt(req.params.id);
     if (isNaN(id)) {

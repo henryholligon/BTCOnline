@@ -46,6 +46,15 @@ export const merchants = pgTable("merchants", {
   nostrEventId: text("nostr_event_id"),
 });
 
+export const merchantGrowthSnapshots = pgTable("merchant_growth_snapshots", {
+  id: serial("id").primaryKey(),
+  snapshotDate: text("snapshot_date").notNull().unique(),
+  merchantCount: integer("merchant_count").notNull(),
+  verifiedCount: integer("verified_count").notNull(),
+});
+
+export type MerchantGrowthSnapshot = typeof merchantGrowthSnapshots.$inferSelect;
+
 export const insertMerchantSchema = createInsertSchema(merchants).omit({
   id: true,
 });

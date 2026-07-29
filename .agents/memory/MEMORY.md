@@ -7,3 +7,4 @@
 - [Public activity privacy](public-activity-privacy.md) — attribute only public Nostr likes; comments and reviews may show their existing author names.
 - [QR rendering](qr-rendering.md) — use a standard QR renderer and preserve quiet zones/data modules for phone scanability.
 - [Comment authentication](comment-auth.md) — comments support custodial email sessions and pure Nostr identities without email.
+- [Dashboard history](dashboard-history.md) — growth charts use daily snapshots from feature launch, not fabricated backfilled history.
