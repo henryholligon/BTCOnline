@@ -678,7 +678,7 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                       {!submitterNpub.trim() && (
                         <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
                           <span>⚠️</span>
-                          Without an npub you won't appear on the leaderboard.{" "}
+                          Without your email or npub you won't appear on the leaderboard.{" "}
                           <button type="button" onClick={openLoginModal} className="underline hover:text-amber-700 dark:hover:text-amber-300">
                             Sign in to auto-fill.
                           </button>
