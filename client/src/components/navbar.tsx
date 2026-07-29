@@ -744,7 +744,7 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                 {/* Submitter identity — used for leaderboard credit */}
                 <div className="space-y-2">
                   <Label htmlFor="submitterNpub">
-                    Submitting as <span className="text-destructive">*</span>
+                    Submitting as <span className="text-xs text-muted-foreground">(recommended)</span>
                   </Label>
                   {user ? (
                     <div className="flex items-center gap-2 rounded-md border border-input bg-muted/50 px-3 py-2">
@@ -761,15 +761,22 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                         placeholder="npub1…"
                         value={submitterNpub}
                         onChange={(e) => setSubmitterNpub(e.target.value)}
-                        required
                         data-testid="input-submitter-npub"
                       />
-                      <p className="text-xs text-muted-foreground">
-                        Your Nostr public key — used for leaderboard credit.{" "}
-                        <button type="button" onClick={openLoginModal} className="text-primary hover:underline">
-                          Sign in to auto-fill.
-                        </button>
-                      </p>
+                      {!submitterNpub.trim() && (
+                        <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                          <span>⚠️</span>
+                          Without an npub you won't appear on the leaderboard.{" "}
+                          <button type="button" onClick={openLoginModal} className="underline hover:text-amber-700 dark:hover:text-amber-300">
+                            Sign in to auto-fill.
+                          </button>
+                        </p>
+                      )}
+                      {submitterNpub.trim() && (
+                        <p className="text-xs text-muted-foreground">
+                          Your Nostr public key — used for leaderboard credit.
+                        </p>
+                      )}
                     </>
                   )}
                 </div>
