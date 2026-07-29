@@ -656,6 +656,44 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               )}
             </div>
 
+            {user ? (
+              <form onSubmit={handleReviewSubmit} className="space-y-2">
+                <div className="flex items-center gap-1">
+                  <span className="text-[11px] text-muted-foreground mr-1">Your rating:</span>
+                  {[1,2,3,4,5].map(star => (
+                    <button
+                      key={star}
+                      type="button"
+                      className={`text-xl leading-none transition-colors ${
+                        (hoverRating ?? reviewRating ?? 0) >= star ? "text-amber-400" : "text-muted-foreground/30 hover:text-amber-300"
+                      }`}
+                      onMouseEnter={() => setHoverRating(star)}
+                      onMouseLeave={() => setHoverRating(null)}
+                      onClick={() => setReviewRating(reviewRating === star ? null : star)}
+                      title={`${star} star${star > 1 ? "s" : ""}`}
+                    >★</button>
+                  ))}
+                  {reviewRating && <span className="text-[10px] text-muted-foreground ml-1">{reviewRating}/5</span>}
+                </div>
+                <Textarea
+                  value={reviewNote}
+                  onChange={e => setReviewNote(e.target.value)}
+                  placeholder="Optional: add a note about your rating…"
+                  className="text-xs min-h-[48px] resize-none"
+                  maxLength={500}
+                />
+                <div className="flex justify-end">
+                  <Button type="submit" size="sm" disabled={!reviewRating || submitComment.isPending} className="h-7 text-xs">
+                    {submitComment.isPending ? "Saving…" : (myReview?.rating ? "Update rating" : "Submit rating")}
+                  </Button>
+                </div>
+              </form>
+            ) : (
+              <button className="text-xs text-primary hover:underline" onClick={openLoginModal}>
+                Sign in to leave a review
+              </button>
+            )}
+
             {commentsLoading && <p className="text-xs text-muted-foreground">Loading…</p>}
 
             {!commentsLoading && commentsList.filter(c => c.rating != null).length > 0 && (
@@ -705,43 +743,6 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               <p className="text-xs text-muted-foreground">No reviews yet. Be the first to rate this merchant!</p>
             )}
 
-            {user ? (
-              <form onSubmit={handleReviewSubmit} className="space-y-2">
-                <div className="flex items-center gap-1">
-                  <span className="text-[11px] text-muted-foreground mr-1">Your rating:</span>
-                  {[1,2,3,4,5].map(star => (
-                    <button
-                      key={star}
-                      type="button"
-                      className={`text-xl leading-none transition-colors ${
-                        (hoverRating ?? reviewRating ?? 0) >= star ? "text-amber-400" : "text-muted-foreground/30 hover:text-amber-300"
-                      }`}
-                      onMouseEnter={() => setHoverRating(star)}
-                      onMouseLeave={() => setHoverRating(null)}
-                      onClick={() => setReviewRating(reviewRating === star ? null : star)}
-                      title={`${star} star${star > 1 ? "s" : ""}`}
-                    >★</button>
-                  ))}
-                  {reviewRating && <span className="text-[10px] text-muted-foreground ml-1">{reviewRating}/5</span>}
-                </div>
-                <Textarea
-                  value={reviewNote}
-                  onChange={e => setReviewNote(e.target.value)}
-                  placeholder="Optional: add a note about your rating…"
-                  className="text-xs min-h-[48px] resize-none"
-                  maxLength={500}
-                />
-                <div className="flex justify-end">
-                  <Button type="submit" size="sm" disabled={!reviewRating || submitComment.isPending} className="h-7 text-xs">
-                    {submitComment.isPending ? "Saving…" : (myReview?.rating ? "Update rating" : "Submit rating")}
-                  </Button>
-                </div>
-              </form>
-            ) : (
-              <button className="text-xs text-primary hover:underline" onClick={openLoginModal}>
-                Sign in to leave a review
-              </button>
-            )}
           </div>}
 
           {/* ── Likes panel ──────────────────────────────────────────────── */}
