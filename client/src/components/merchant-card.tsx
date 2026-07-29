@@ -69,7 +69,7 @@ function StyledMerchantQr({ value }: { value: string }) {
   const center = viewSize / 2;
   // QRCode Monkey's reference uses a prominent center mark, approximately
   // the same visual weight as the circular finder patterns.
-  const logoRadius = 7;
+  const logoRadius = 9;
 
   return (
     <svg
