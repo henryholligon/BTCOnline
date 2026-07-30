@@ -7,12 +7,29 @@ import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import btcBgImage from "@assets/image_1771226498805.png";
 import { isAgeVerified, setAgeVerifiedStorage } from "@/lib/restricted-categories";
+import { useQuery } from "@tanstack/react-query";
+
+const FALLBACK_RESTRICTED_NAMES = ["Nicotine", "Cannabis", "Alcohol", "Adult"];
+
+function formatRestrictedList(names: string[]): string {
+  if (names.length === 0) return "";
+  if (names.length === 1) return names[0];
+  if (names.length === 2) return `${names[0]} and ${names[1]}`;
+  return `${names.slice(0, -1).join(", ")}, and ${names[names.length - 1]}`;
+}
 
 export default function AccountPage() {
   const { user, likesPublic, toggleLikesPublic, canUsePrivate, openLoginModal } = useNostr();
   const { toast } = useToast();
   const [toggling, setToggling] = useState(false);
   const [ageVerified, setAgeVerifiedState] = useState(() => isAgeVerified());
+
+  const { data: restrictedCategories } = useQuery<string[]>({
+    queryKey: ["/api/restricted-categories"],
+  });
+  const restrictedLabel = formatRestrictedList(
+    restrictedCategories ?? FALLBACK_RESTRICTED_NAMES,
+  );
 
   const handleToggleAgeVerified = () => {
     const next = !ageVerified;
@@ -81,7 +98,7 @@ export default function AccountPage() {
                 <div>
                   <p className="font-medium text-sm">18+ categories</p>
                   <p className="text-xs text-muted-foreground mt-0.5 max-w-sm">
-                    Show merchants in Nicotine, Cannabis, Alcohol, and Adult categories in the directory. You must be 18 or older to enable this.
+                    Show merchants in {restrictedLabel} categories in the directory. You must be 18 or older to enable this.
                   </p>
                 </div>
               </div>
