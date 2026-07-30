@@ -112,7 +112,7 @@ function FilterDropdown({
     <div className="shrink-0">
       <div
         ref={triggerRef}
-        className={`flex items-center gap-1.5 rounded-full text-[15px] font-semibold border-[1.5px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-colors whitespace-nowrap cursor-pointer ${
+        className={`flex items-center gap-1.5 rounded-full text-base font-semibold border-[1.5px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-colors whitespace-nowrap cursor-pointer ${
           open
             ? "bg-background border-foreground ring-2 ring-foreground/10"
             : active
@@ -125,7 +125,7 @@ function FilterDropdown({
         data-testid={`filter-${label.toLowerCase().replace(/\s+/g, '-')}`}
       >
         {searchable && open ? (
-          <div className="flex items-center gap-3 min-h-11 px-4">
+          <div className="flex items-center gap-2.5 min-h-10 px-3.5">
             {emoji && <span>{emoji}</span>}
             <input
               ref={inputRef}
@@ -133,7 +133,7 @@ function FilterDropdown({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={searchPlaceholder}
-              className="bg-transparent border-none outline-none text-[15px] font-semibold w-[90px] placeholder:text-muted-foreground/60"
+              className="bg-transparent border-none outline-none text-base font-semibold w-[90px] placeholder:text-muted-foreground/60"
               onKeyDown={(e) => {
                 if (e.key === "Escape") setOpen(false);
                 if (e.key === "Enter") {
@@ -150,20 +150,20 @@ function FilterDropdown({
               }}
               data-testid={`filter-search-${label.toLowerCase().replace(/\s+/g, '-')}`}
             />
-            <ChevronDown className="h-5 w-5 shrink-0 text-foreground opacity-100 stroke-[3] rotate-180" />
+            <ChevronDown className="h-4 w-4 shrink-0 text-foreground opacity-100 stroke-[3] rotate-180" />
           </div>
         ) : (
           <button
             type="button"
             onClick={() => setOpen((prev) => !prev)}
-            className="flex items-center gap-3 min-h-11 px-4 bg-transparent border-none outline-none cursor-pointer font-semibold"
+            className="flex items-center gap-2.5 min-h-10 px-3.5 bg-transparent border-none outline-none cursor-pointer font-semibold"
           >
             {committedSearch ? (
               <>{emoji && <span>{emoji}</span>} {committedSearch}</>
             ) : (
               label
             )}
-            <ChevronDown className={`ml-auto h-5 w-5 shrink-0 text-foreground opacity-100 stroke-[3] transition-transform ${open ? "rotate-180" : ""}`} />
+            <ChevronDown className={`ml-auto h-4 w-4 shrink-0 text-foreground opacity-100 stroke-[3] transition-transform ${open ? "rotate-180" : ""}`} />
           </button>
         )}
       </div>
