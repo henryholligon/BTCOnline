@@ -365,7 +365,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               {shippingText && (
                 <Badge
                   variant="outline"
-                  className="rounded-full border-2 border-foreground/80 bg-white px-2 py-0.5 text-[11px] font-semibold leading-tight text-foreground shadow-none dark:bg-card"
+                  className="rounded-full border border-[#dedede] bg-[#f7f7f7] px-2 py-0.5 text-[11px] font-normal leading-tight text-[#555] shadow-none dark:border-white/15 dark:bg-muted/60 dark:text-muted-foreground"
                 >
                   {shippingText}
                 </Badge>
@@ -375,7 +375,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                   <Badge
                     key={cat}
                     variant="outline"
-                    className="rounded-full border-2 border-foreground/80 bg-white px-2 py-0.5 text-[11px] font-semibold leading-tight text-foreground shadow-none dark:bg-card"
+                    className="rounded-full border border-[#dedede] bg-[#f7f7f7] px-2 py-0.5 text-[11px] font-normal leading-tight text-[#555] shadow-none dark:border-white/15 dark:bg-muted/60 dark:text-muted-foreground"
                   >
                     {getCategoryWithEmoji(cat)}
                   </Badge>
@@ -386,7 +386,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                   <Badge
                     key={cat}
                     variant="outline"
-                    className="rounded-full border-2 border-foreground/80 bg-white px-2 py-0.5 text-[11px] font-semibold leading-tight text-foreground shadow-none dark:bg-card"
+                    className="rounded-full border border-[#dedede] bg-[#f7f7f7] px-2 py-0.5 text-[11px] font-normal leading-tight text-[#555] shadow-none dark:border-white/15 dark:bg-muted/60 dark:text-muted-foreground"
                   >
                     {getCategoryWithEmoji(cat)}
                   </Badge>
