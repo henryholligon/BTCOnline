@@ -846,7 +846,7 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                 onClick={() => { setLogoMenuOpen(false); onClearFilters?.(); }}
                 className="w-full text-left px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors flex items-center gap-2"
               >
-                Home
+                <span>🏠</span> Home
               </Link>
               <button
                 onClick={() => {
@@ -867,21 +867,21 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                 onClick={() => setLogoMenuOpen(false)}
                 className="w-full text-left px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors flex items-center gap-2"
               >
-                Merchant Packs
+                <span>📦</span> Merchant Packs
               </Link>
               <Link
                 href="/dashboard"
                 onClick={() => setLogoMenuOpen(false)}
                 className="w-full text-left px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors flex items-center gap-2"
               >
-                Merchant dashboard
+                <span>📊</span> Merchant dashboard
               </Link>
               <Link
                 href="/leaderboard"
                 onClick={() => setLogoMenuOpen(false)}
                 className="w-full text-left px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors flex items-center gap-2"
               >
-                User leaderboard
+                <span>🏆</span> User leaderboard
               </Link>
               <Link
                 href="/faq"
@@ -889,7 +889,7 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                 className="w-full text-left px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors flex items-center gap-2"
                 data-testid="link-faq"
               >
-                FAQ
+                <span>❓</span> FAQ
               </Link>
             </div>,
             document.body
