@@ -12,6 +12,10 @@ import { slugify } from "@/lib/utils";
 import { QRCodeSVG } from "qrcode.react";
 import { useToast } from "@/hooks/use-toast";
 
+/* Remote OK-style tag pill used on collapsed cards */
+const TAG_PILL_CLASS =
+  "rounded-full border border-[#dedede] bg-white px-2 py-0.5 text-[11px] font-normal leading-tight text-[#888] shadow-none dark:border-white/15 dark:bg-muted/60 dark:text-muted-foreground";
+
 /* ── Minimal brand-icon SVGs ── */
 function IconX() {
   return (
@@ -365,7 +369,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               {shippingText && (
                 <Badge
                   variant="outline"
-                  className="rounded-full border border-[#dedede] bg-white px-2 py-0.5 text-[11px] font-normal leading-tight text-[#888] shadow-none dark:border-white/15 dark:bg-muted/60 dark:text-muted-foreground"
+                  className={TAG_PILL_CLASS}
                 >
                   {shippingText}
                 </Badge>
@@ -375,7 +379,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                   <Badge
                     key={cat}
                     variant="outline"
-                    className="rounded-full border border-[#dedede] bg-white px-2 py-0.5 text-[11px] font-normal leading-tight text-[#888] shadow-none dark:border-white/15 dark:bg-muted/60 dark:text-muted-foreground"
+                    className={TAG_PILL_CLASS}
                   >
                     {getCategoryWithEmoji(cat)}
                   </Badge>
@@ -386,7 +390,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                   <Badge
                     key={cat}
                     variant="outline"
-                    className="rounded-full border border-[#dedede] bg-white px-2 py-0.5 text-[11px] font-normal leading-tight text-[#888] shadow-none dark:border-white/15 dark:bg-muted/60 dark:text-muted-foreground"
+                    className={TAG_PILL_CLASS}
                   >
                     {getCategoryWithEmoji(cat)}
                   </Badge>
