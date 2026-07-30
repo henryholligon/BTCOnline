@@ -1,10 +1,14 @@
 /**
- * Age-restricted categories — merchants in these categories are hidden from
- * the default feed until the visitor confirms they are 18+.
+ * Age-restricted category helpers.
+ *
+ * The live list of restricted category names comes from the Google Sheet
+ * (via the `restricted` column on the emoji tab) and is served by
+ * /api/restricted-categories. Use the `useRestrictedCategories` hook in
+ * React components to get that live set.
+ *
+ * This module retains the localStorage helpers used by home.tsx, filters.tsx,
+ * and account.tsx to remember the visitor's 18+ confirmation.
  */
-export const RESTRICTED_CATEGORIES = ["Nicotine", "Cannabis", "Adult", "Alcohol"] as const;
-
-export type RestrictedCategory = (typeof RESTRICTED_CATEGORIES)[number];
 
 export const AGE_VERIFIED_KEY = "btc_age_verified";
 
@@ -28,11 +32,4 @@ export function setAgeVerifiedStorage(value: boolean): void {
   } catch {
     // localStorage unavailable (private mode, etc.) — silently ignore
   }
-}
-
-/** Returns true when a merchant belongs to at least one restricted category. */
-export function hasRestrictedCategory(categories: string[]): boolean {
-  return categories.some(c =>
-    (RESTRICTED_CATEGORIES as readonly string[]).includes(c)
-  );
 }

@@ -909,6 +909,17 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
     }
   });
 
+  /** Returns the list of age-restricted category names (those with restricted=true in the DB). */
+  app.get("/api/restricted-categories", async (_req, res) => {
+    try {
+      const rows = await storage.getCategoryEmojis();
+      const restricted = rows.filter(r => r.restricted).map(r => r.category);
+      res.json(restricted);
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+
   app.get("/api/country-emojis", async (_req, res) => {
     try {
       const rows = await storage.getCountryEmojis();

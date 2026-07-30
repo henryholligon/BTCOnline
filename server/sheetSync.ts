@@ -96,7 +96,10 @@ function parseEmojiRows(csvText: string): InsertCategoryEmoji[] {
     const key = category.toLowerCase();
     if (seen.has(key)) continue;
     seen.add(key);
-    out.push({ category, emoji });
+    // Read the optional "restricted" column — accepts yes/true/1/y (case-insensitive).
+    // Blank or missing values default to false so existing rows are unaffected.
+    const restricted = parseBool(row.restricted ?? row.agegated ?? row.age_gated ?? row.adult ?? "");
+    out.push({ category, emoji, restricted });
   }
   return out;
 }

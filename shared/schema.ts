@@ -146,6 +146,10 @@ export const categoryEmojis = pgTable("category_emojis", {
   id: serial("id").primaryKey(),
   category: text("category").notNull(),
   emoji: text("emoji").notNull(),
+  // When true, this category is age-gated — merchants in it are hidden from
+  // the default feed until the visitor confirms they are 18+.
+  // Set via a "restricted" column on the category emoji sheet tab.
+  restricted: boolean("restricted").notNull().default(false),
 });
 
 export const insertCategoryEmojiSchema = createInsertSchema(categoryEmojis).omit({ id: true });

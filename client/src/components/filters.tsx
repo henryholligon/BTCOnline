@@ -8,7 +8,7 @@ import BitcoinLogo from "@/components/bitcoin-logo";
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { RESTRICTED_CATEGORIES } from "@/lib/restricted-categories";
+import { useRestrictedCategories } from "@/hooks/use-restricted-categories";
 
 
 interface FiltersProps {
@@ -204,27 +204,25 @@ export default function Filters({
 }: FiltersProps) {
   const { getCategoryWithEmoji } = useCategoryEmojis();
   const { getCountryWithFlag } = useCountryEmojis();
+  const restrictedCategories = useRestrictedCategories();
   const [showAgeModal, setShowAgeModal] = useState(false);
   const [pendingCategory, setPendingCategory] = useState<string | null>(null);
 
-  const restrictedSet = useMemo(() => new Set<string>(RESTRICTED_CATEGORIES), []);
-
   const dynamicCategories = useMemo(() => {
     const catSet = new Set<string>();
-    // Include all categories (including restricted ones from the full merchant list)
-    // so they always appear in the filter panel — gating happens in the click handler.
+    // Include all categories from the merchant list so they appear in the panel.
     merchants.forEach(m => m.categories.forEach(c => catSet.add(c)));
-    // Ensure all four restricted categories are always listed even if no
-    // matching merchants are in the (possibly already-filtered) prop.
-    RESTRICTED_CATEGORIES.forEach(c => catSet.add(c));
+    // Always list every restricted category (even if no merchants visible yet)
+    // so the locked 18+ section is always shown at the bottom.
+    restrictedCategories.forEach(c => catSet.add(c));
     return Array.from(catSet)
-      .filter(c => !restrictedSet.has(c))   // remove restricted — shown separately below
+      .filter(c => !restrictedCategories.has(c))   // remove restricted — shown separately below
       .sort((a, b) => {
         const aText = a.replace(/[^\p{L}\p{N}\s&,]/gu, '').trim();
         const bText = b.replace(/[^\p{L}\p{N}\s&,]/gu, '').trim();
         return aText.localeCompare(bText);
       });
-  }, [merchants, restrictedSet]);
+  }, [merchants, restrictedCategories]);
 
   const dynamicCountries = useMemo(() => {
     const countrySet = new Set<string>();
@@ -288,7 +286,7 @@ export default function Filters({
 
                 {/* 18+ restricted categories — always shown at the bottom, locked until verified */}
                 {(() => {
-                  const filteredRestricted = RESTRICTED_CATEGORIES.filter(cat =>
+                  const filteredRestricted = Array.from(restrictedCategories).filter(cat =>
                     getCategoryWithEmoji(cat).toLowerCase().includes(search.toLowerCase())
                   );
                   if (filteredRestricted.length === 0) return null;
@@ -336,7 +334,7 @@ export default function Filters({
             <DialogHeader>
               <DialogTitle>🔞 Age verification required</DialogTitle>
               <DialogDescription>
-                This section includes merchants selling Nicotine, Cannabis, Alcohol, and Adult products. You must be 18 or older to view this content.
+                This section includes merchants in age-restricted categories. You must be 18 or older to view this content.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="gap-2 sm:gap-2 flex-row sm:flex-row justify-end">
