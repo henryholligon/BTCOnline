@@ -363,20 +363,31 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
           {!expanded && (
             <div className="flex items-center gap-2">
               {shippingText && (
-                <Badge variant="secondary" className="text-[10px] py-0 px-1.5">
+                <Badge
+                  variant="outline"
+                  className="rounded-full border-2 border-foreground/80 bg-white px-2 py-0.5 text-[11px] font-semibold leading-tight text-foreground shadow-none dark:bg-card"
+                >
                   {shippingText}
                 </Badge>
               )}
               <div className="flex md:hidden items-center gap-1.5">
                 {merchant.categories.slice(0, 1).map((cat) => (
-                  <Badge key={cat} variant="secondary" className="text-[10px] py-0 px-1.5">
+                  <Badge
+                    key={cat}
+                    variant="outline"
+                    className="rounded-full border-2 border-foreground/80 bg-white px-2 py-0.5 text-[11px] font-semibold leading-tight text-foreground shadow-none dark:bg-card"
+                  >
                     {getCategoryWithEmoji(cat)}
                   </Badge>
                 ))}
               </div>
               <div className="hidden md:flex items-center gap-1.5">
                 {merchant.categories.slice(0, 2).map((cat) => (
-                  <Badge key={cat} variant="secondary" className="text-[10px] py-0 px-1.5">
+                  <Badge
+                    key={cat}
+                    variant="outline"
+                    className="rounded-full border-2 border-foreground/80 bg-white px-2 py-0.5 text-[11px] font-semibold leading-tight text-foreground shadow-none dark:bg-card"
+                  >
                     {getCategoryWithEmoji(cat)}
                   </Badge>
                 ))}
