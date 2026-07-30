@@ -857,9 +857,9 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                 data-testid="button-toggle-theme"
               >
                 {theme === "dark" ? (
-                  <><Sun className="h-4 w-4" /> Light Mode</>
+                  <><span>☀️</span> Light Mode</>
                 ) : (
-                  <><Moon className="h-4 w-4" /> Dark Mode</>
+                  <><span>🌙</span> Dark Mode</>
                 )}
               </button>
               <Link
