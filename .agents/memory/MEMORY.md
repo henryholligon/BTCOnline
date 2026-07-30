@@ -8,3 +8,4 @@
 - [QR rendering](qr-rendering.md) — use a standard QR renderer and preserve quiet zones/data modules for phone scanability.
 - [Comment authentication](comment-auth.md) — comments support custodial email sessions and pure Nostr identities without email.
 - [Dashboard history](dashboard-history.md) — growth charts use daily snapshots from feature launch, not fabricated backfilled history.
+- [Remote OK style matching](remoteok-styling.md) — card text is all #111, hierarchy via weight not grey; verify colors by darkest-pixel sampling of live screenshots, never guess.
