@@ -359,7 +359,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               return renderBadge(merchant.bitcoinDiscount, style);
             })() : null}
           </div>
-          {!expanded && <p className="text-xs md:text-sm text-muted-foreground truncate">{merchant.description}</p>}
+          {!expanded && <p className="text-xs md:text-sm text-foreground/70 truncate">{merchant.description}</p>}
           {!expanded && (
             <div className="flex items-center gap-2">
               {shippingText && (
