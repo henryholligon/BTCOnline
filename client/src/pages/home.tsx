@@ -7,6 +7,7 @@ import { type Merchant, type BadgePreset } from "@shared/schema";
 import { slugify } from "@/lib/utils";
 import btcBgImage from "@assets/image_1771226498805.png";
 import { motion } from "framer-motion";
+import { isAgeVerified, setAgeVerifiedStorage, hasRestrictedCategory } from "@/lib/restricted-categories";
 
 
 export default function Home() {
@@ -27,6 +28,12 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState<number>(() => Number(localStorage.getItem("page-size")) || 50);
   const [bannerDismissed, setBannerDismissed] = useState(() => localStorage.getItem("policy-banner-dismissed") === "1");
+  const [ageVerified, setAgeVerified] = useState(() => isAgeVerified());
+
+  const handleAgeVerify = useCallback(() => {
+    setAgeVerifiedStorage(true);
+    setAgeVerified(true);
+  }, []);
 
   useEffect(() => {
     if (params?.slug) {
@@ -119,6 +126,9 @@ export default function Home() {
         (selectedPaymentMethods.includes("cashu") && merchant.cashuSupported) ||
         (selectedPaymentMethods.includes("liquid") && merchant.liquidSupported);
 
+      // Hide restricted-category merchants from the feed unless the visitor confirmed 18+
+      if (!ageVerified && hasRestrictedCategory(merchant.categories)) return false;
+
       return matchesSearch && matchesCategory && matchesCountry && matchesMadeIn && matchesProvider && matchesPaymentMethod;
     });
 
@@ -173,7 +183,7 @@ export default function Home() {
       if (aPromoted && bPromoted) return aIdx - bIdx;
       return 0;
     });
-  }, [merchants, searchQuery, selectedCategories, selectedCountries, selectedMadeIn, selectedProviders, selectedPaymentMethods, sortBy]);
+  }, [merchants, searchQuery, selectedCategories, selectedCountries, selectedMadeIn, selectedProviders, selectedPaymentMethods, sortBy, ageVerified]);
 
   useEffect(() => { setCurrentPage(1); }, [searchQuery, selectedCategories, selectedCountries, selectedMadeIn, selectedProviders, selectedPaymentMethods, sortBy, pageSize]);
 
@@ -258,6 +268,8 @@ export default function Home() {
       categorySearchQuery={searchQuery}
       sortBy={sortBy}
       onSortChange={setSortBy}
+      ageVerified={ageVerified}
+      onAgeVerify={handleAgeVerify}
     />
   );
 

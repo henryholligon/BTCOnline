@@ -6,11 +6,19 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import btcBgImage from "@assets/image_1771226498805.png";
+import { isAgeVerified, setAgeVerifiedStorage } from "@/lib/restricted-categories";
 
 export default function AccountPage() {
   const { user, likesPublic, toggleLikesPublic, canUsePrivate, openLoginModal } = useNostr();
   const { toast } = useToast();
   const [toggling, setToggling] = useState(false);
+  const [ageVerified, setAgeVerifiedState] = useState(() => isAgeVerified());
+
+  const handleToggleAgeVerified = () => {
+    const next = !ageVerified;
+    setAgeVerifiedStorage(next);
+    setAgeVerifiedState(next);
+  };
 
   const handleToggleLikes = async () => {
     if (!user) { openLoginModal(); return; }
@@ -63,6 +71,31 @@ export default function AccountPage() {
               </button>
             </Link>
             <h1 className="text-xl font-bold">Account Settings</h1>
+          </div>
+
+          {/* Content preferences — available to all visitors, no account needed */}
+          <div className="bg-card border border-border rounded-lg p-5 mb-4">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <span className="text-lg mt-0.5 shrink-0">🔞</span>
+                <div>
+                  <p className="font-medium text-sm">18+ categories</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 max-w-sm">
+                    Show merchants in Nicotine, Cannabis, Alcohol, and Adult categories in the directory. You must be 18 or older to enable this.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={handleToggleAgeVerified}
+                className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${
+                  ageVerified
+                    ? "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20"
+                    : "border-border bg-muted text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {ageVerified ? <><Globe className="h-3.5 w-3.5" /> Enabled</> : <><Lock className="h-3.5 w-3.5" /> Disabled</>}
+              </button>
+            </div>
           </div>
 
           {!user ? (

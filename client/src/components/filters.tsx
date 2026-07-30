@@ -3,10 +3,12 @@ import { Badge } from "@/components/ui/badge";
 import { type Merchant } from "@shared/schema";
 import { useCategoryEmojis } from "@/hooks/use-category-emojis";
 import { useCountryEmojis } from "@/hooks/use-country-emojis";
-import { ChevronDown, X, Zap } from "lucide-react";
+import { ChevronDown, X, Zap, Lock } from "lucide-react";
 import BitcoinLogo from "@/components/bitcoin-logo";
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { RESTRICTED_CATEGORIES } from "@/lib/restricted-categories";
 
 
 interface FiltersProps {
@@ -26,6 +28,8 @@ interface FiltersProps {
   categorySearchQuery?: string;
   sortBy?: string;
   onSortChange?: (sort: string) => void;
+  ageVerified?: boolean;
+  onAgeVerify?: () => void;
 }
 
 function FilterDropdown({
@@ -195,18 +199,32 @@ export default function Filters({
   categorySearchQuery,
   sortBy = "default",
   onSortChange,
+  ageVerified = false,
+  onAgeVerify,
 }: FiltersProps) {
   const { getCategoryWithEmoji } = useCategoryEmojis();
   const { getCountryWithFlag } = useCountryEmojis();
+  const [showAgeModal, setShowAgeModal] = useState(false);
+  const [pendingCategory, setPendingCategory] = useState<string | null>(null);
+
+  const restrictedSet = useMemo(() => new Set<string>(RESTRICTED_CATEGORIES), []);
+
   const dynamicCategories = useMemo(() => {
     const catSet = new Set<string>();
+    // Include all categories (including restricted ones from the full merchant list)
+    // so they always appear in the filter panel — gating happens in the click handler.
     merchants.forEach(m => m.categories.forEach(c => catSet.add(c)));
-    return Array.from(catSet).sort((a, b) => {
-      const aText = a.replace(/[^\p{L}\p{N}\s&,]/gu, '').trim();
-      const bText = b.replace(/[^\p{L}\p{N}\s&,]/gu, '').trim();
-      return aText.localeCompare(bText);
-    });
-  }, [merchants]);
+    // Ensure all four restricted categories are always listed even if no
+    // matching merchants are in the (possibly already-filtered) prop.
+    RESTRICTED_CATEGORIES.forEach(c => catSet.add(c));
+    return Array.from(catSet)
+      .filter(c => !restrictedSet.has(c))   // remove restricted — shown separately below
+      .sort((a, b) => {
+        const aText = a.replace(/[^\p{L}\p{N}\s&,]/gu, '').trim();
+        const bText = b.replace(/[^\p{L}\p{N}\s&,]/gu, '').trim();
+        return aText.localeCompare(bText);
+      });
+  }, [merchants, restrictedSet]);
 
   const dynamicCountries = useMemo(() => {
     const countrySet = new Set<string>();
@@ -266,11 +284,79 @@ export default function Filters({
                     {getCategoryWithEmoji(cat)}
                   </button>
                 ))}
-                {filtered.length === 0 && <p className="text-xs text-muted-foreground px-3 py-1.5">No matches</p>}
+                {filtered.length === 0 && !search && <p className="text-xs text-muted-foreground px-3 py-1.5">No matches</p>}
+
+                {/* 18+ restricted categories — always shown at the bottom, locked until verified */}
+                {(() => {
+                  const filteredRestricted = RESTRICTED_CATEGORIES.filter(cat =>
+                    getCategoryWithEmoji(cat).toLowerCase().includes(search.toLowerCase())
+                  );
+                  if (filteredRestricted.length === 0) return null;
+                  return (
+                    <div className="border-t border-border/50 mt-1 pt-1">
+                      <div className="flex items-center gap-1 px-3 py-1">
+                        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">🔞 18+ categories</span>
+                        {!ageVerified && <Lock className="h-2.5 w-2.5 text-muted-foreground/50" />}
+                      </div>
+                      {filteredRestricted.map((cat) => (
+                        <button
+                          key={cat}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (!ageVerified) {
+                              setPendingCategory(cat);
+                              setShowAgeModal(true);
+                            } else {
+                              onCategoryChange(cat);
+                            }
+                          }}
+                          className={`w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors flex items-center gap-1.5 ${
+                            !ageVerified
+                              ? "text-muted-foreground/60 hover:bg-muted/50"
+                              : selectedCategories.includes(cat)
+                                ? "bg-primary/10 text-primary font-medium hover:bg-muted"
+                                : "hover:bg-muted"
+                          }`}
+                        >
+                          {!ageVerified && <Lock className="h-3 w-3 shrink-0" />}
+                          {getCategoryWithEmoji(cat)}
+                        </button>
+                      ))}
+                    </div>
+                  );
+                })()}
               </>
             );
           }}
         </FilterDropdown>
+
+        {/* Age verification modal */}
+        <Dialog open={showAgeModal} onOpenChange={setShowAgeModal}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>🔞 Age verification required</DialogTitle>
+              <DialogDescription>
+                This section includes merchants selling Nicotine, Cannabis, Alcohol, and Adult products. You must be 18 or older to view this content.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2 sm:gap-2 flex-row sm:flex-row justify-end">
+              <Button variant="ghost" size="sm" onClick={() => { setShowAgeModal(false); setPendingCategory(null); }}>
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  onAgeVerify?.();
+                  if (pendingCategory) onCategoryChange(pendingCategory);
+                  setPendingCategory(null);
+                  setShowAgeModal(false);
+                }}
+              >
+                I confirm I'm 18+
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         <FilterDropdown label="💵 Payment" active={selectedPaymentMethods.length > 0} closeOnSelect={false}>
           {[
