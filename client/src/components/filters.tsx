@@ -117,7 +117,7 @@ function FilterDropdown({
             ? "bg-background border-foreground ring-1 ring-foreground/10"
             : active
               ? "bg-primary text-primary-foreground border-primary"
-              : "bg-background text-black dark:text-white border-[#e6e6e6] dark:border-white/20 hover:border-foreground/50"
+              : "bg-white dark:bg-card text-black dark:text-white border-[#e6e6e6] dark:border-white/20 hover:border-foreground/50"
         }`}
         onClick={() => {
           if (!open) setOpen(true);
