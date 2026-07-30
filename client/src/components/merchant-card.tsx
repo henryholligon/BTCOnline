@@ -335,7 +335,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
 
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-sm md:text-base truncate">{merchant.name}</h3>
+            <h3 className="font-bold text-sm md:text-base text-[#1a1a1a] dark:text-white truncate">{merchant.name}</h3>
             {merchant.onchainSupported && (
               <BitcoinLogo className="h-3.5 w-3.5" spin />
             )}
@@ -359,13 +359,13 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               return renderBadge(merchant.bitcoinDiscount, style);
             })() : null}
           </div>
-          {!expanded && <p className="text-xs md:text-sm text-foreground/70 truncate">{merchant.description}</p>}
+          {!expanded && <p className="text-xs md:text-sm text-[#666] dark:text-muted-foreground truncate">{merchant.description}</p>}
           {!expanded && (
             <div className="flex items-center gap-2">
               {shippingText && (
                 <Badge
                   variant="outline"
-                  className="rounded-full border border-[#dedede] bg-white px-2 py-0.5 text-[11px] font-normal leading-tight text-[#555] shadow-none dark:border-white/15 dark:bg-muted/60 dark:text-muted-foreground"
+                  className="rounded-full border border-[#dedede] bg-white px-2 py-0.5 text-[11px] font-normal leading-tight text-[#888] shadow-none dark:border-white/15 dark:bg-muted/60 dark:text-muted-foreground"
                 >
                   {shippingText}
                 </Badge>
@@ -375,7 +375,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                   <Badge
                     key={cat}
                     variant="outline"
-                    className="rounded-full border border-[#dedede] bg-white px-2 py-0.5 text-[11px] font-normal leading-tight text-[#555] shadow-none dark:border-white/15 dark:bg-muted/60 dark:text-muted-foreground"
+                    className="rounded-full border border-[#dedede] bg-white px-2 py-0.5 text-[11px] font-normal leading-tight text-[#888] shadow-none dark:border-white/15 dark:bg-muted/60 dark:text-muted-foreground"
                   >
                     {getCategoryWithEmoji(cat)}
                   </Badge>
@@ -386,7 +386,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                   <Badge
                     key={cat}
                     variant="outline"
-                    className="rounded-full border border-[#dedede] bg-white px-2 py-0.5 text-[11px] font-normal leading-tight text-[#555] shadow-none dark:border-white/15 dark:bg-muted/60 dark:text-muted-foreground"
+                    className="rounded-full border border-[#dedede] bg-white px-2 py-0.5 text-[11px] font-normal leading-tight text-[#888] shadow-none dark:border-white/15 dark:bg-muted/60 dark:text-muted-foreground"
                   >
                     {getCategoryWithEmoji(cat)}
                   </Badge>
