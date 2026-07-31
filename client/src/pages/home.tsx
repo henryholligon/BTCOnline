@@ -12,17 +12,15 @@ import { useRestrictedCategories } from "@/hooks/use-restricted-categories";
 import { HERO_LOGOS } from "@/lib/hero-logos";
 
 // ── Hero marquee ─────────────────────────────────────────────────────────────
-// 40 logos split evenly: each row gets 10 unique logos with zero overlap.
-// 10 logos × 48 px each = 480 px — narrower than a desktop viewport, so we tile
-// each row's set 3× to exceed 1280 px, then double the result for a seamless loop.
+// 120 logos split into 4 rows of 30 — zero overlap between rows.
+// 30 logos × 48 px = 1440 px > 1280 px desktop viewport, so no logo ever appears
+// twice in the visible area. Each row is doubled for a seamless translateX(-50%) loop.
 const NUM_ROWS = 4;
-const PER_ROW = Math.ceil(HERO_LOGOS.length / NUM_ROWS); // 10
+const PER_ROW = 30; // 120 / 4
 
 const LOGO_ROWS: string[][] = Array.from({ length: NUM_ROWS }, (_, i) => {
   const chunk = HERO_LOGOS.slice(i * PER_ROW, (i + 1) * PER_ROW);
-  // tile 3× so the strip is wider than the desktop viewport before doubling
-  const tiled = [...chunk, ...chunk, ...chunk];
-  return [...tiled, ...tiled]; // doubled for seamless translateX(-50%) loop
+  return [...chunk, ...chunk]; // doubled for seamless loop
 });
 
 function HeroMarquee() {
