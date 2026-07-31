@@ -255,7 +255,7 @@ export default function Filters({
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+      <div className="flex items-center justify-start md:justify-center gap-2 overflow-x-auto pb-1 scrollbar-none">
         <FilterDropdown label="🔍 Search" active={selectedCategories.length > 0 || !!categorySearchQuery} closeOnSelect={false} searchable searchPlaceholder="Type..." onSearchChange={onCategorySearch} onClearAll={onClear} committedSearch={categorySearchQuery}>
           {(search: string) => {
             const filtered = dynamicCategories.filter(cat => getCategoryWithEmoji(cat).toLowerCase().includes(search.toLowerCase()));

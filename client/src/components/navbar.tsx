@@ -815,12 +815,12 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
           <NostrUserButton />
         </div>
 
-        <div className="flex items-center py-2 gap-3">
+        <div className="relative flex items-center py-2 gap-3">
           <button
             ref={logoRef}
             type="button"
             onClick={() => setLogoMenuOpen((prev) => !prev)}
-            className="flex items-center gap-1 shrink-0 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-1 shrink-0 hover:opacity-80 transition-opacity md:absolute md:left-0"
           >
             <img
               src={lightBrandLogo}
@@ -896,7 +896,7 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
           )}
 
           {filtersSlot && (
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 md:w-full md:flex-none">
               {filtersSlot}
             </div>
           )}
