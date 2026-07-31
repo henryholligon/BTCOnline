@@ -131,9 +131,10 @@ interface MerchantCardProps {
   scrollIntoView?: boolean;
   onScrolledIntoView?: () => void;
   badgePresets?: BadgePreset[];
+  selectedCategories?: string[];
 }
 
-export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, scrollIntoView, onScrolledIntoView, badgePresets }: MerchantCardProps) {
+export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, scrollIntoView, onScrolledIntoView, badgePresets, selectedCategories = [] }: MerchantCardProps) {
   const [showShare, setShowShare] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [showReviews, setShowReviews] = useState(false);
@@ -317,6 +318,17 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
         }).slice(0, 2).join(", ") + (merchant.shippingCountries.length > 2 ? "..." : "") + " availability"
     : null;
 
+  const visibleCategories = useMemo(() => {
+    if (selectedCategories.length === 0) return merchant.categories;
+
+    const normalizeCategory = (category: string) =>
+      category.replace(/[^\p{L}\p{N}&\s]/gu, "").trim().toLowerCase();
+    const selected = new Set(selectedCategories.map(normalizeCategory));
+    const matching = merchant.categories.filter(category => selected.has(normalizeCategory(category)));
+    const remaining = merchant.categories.filter(category => !selected.has(normalizeCategory(category)));
+    return [...matching, ...remaining];
+  }, [merchant.categories, selectedCategories]);
+
   return (
     <div
       ref={cardRef}
@@ -375,7 +387,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 </Badge>
               )}
               <div className="flex md:hidden items-center gap-1.5">
-                {merchant.categories.slice(0, 1).map((cat) => (
+                {visibleCategories.slice(0, 1).map((cat) => (
                   <Badge
                     key={cat}
                     variant="outline"
@@ -386,7 +398,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 ))}
               </div>
               <div className="hidden md:flex items-center gap-1.5">
-                {merchant.categories.slice(0, 2).map((cat) => (
+                {visibleCategories.slice(0, 2).map((cat) => (
                   <Badge
                     key={cat}
                     variant="outline"

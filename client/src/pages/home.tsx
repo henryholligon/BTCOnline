@@ -351,6 +351,7 @@ export default function Home() {
                       scrollIntoView={slugify(merchant.name) === needsScroll}
                       onScrolledIntoView={() => setNeedsScroll(null)}
                       badgePresets={badgePresets}
+                      selectedCategories={selectedCategories}
                     />
                   </motion.div>
                 ))}
