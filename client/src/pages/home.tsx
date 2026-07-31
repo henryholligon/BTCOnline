@@ -12,15 +12,17 @@ import { useRestrictedCategories } from "@/hooks/use-restricted-categories";
 import { HERO_LOGOS } from "@/lib/hero-logos";
 
 // ── Hero marquee ─────────────────────────────────────────────────────────────
-// 4 rows, each using the same 40 logos rotated by 10 so adjacent rows look different.
-// Each row is doubled ([...logos, ...logos]) so the CSS translateX(-50%) loop is seamless.
+// 40 logos split evenly: each row gets 10 unique logos with zero overlap.
+// 10 logos × 48 px each = 480 px — narrower than a desktop viewport, so we tile
+// each row's set 3× to exceed 1280 px, then double the result for a seamless loop.
 const NUM_ROWS = 4;
-const OFFSET = 10; // logos to rotate per row
+const PER_ROW = Math.ceil(HERO_LOGOS.length / NUM_ROWS); // 10
 
 const LOGO_ROWS: string[][] = Array.from({ length: NUM_ROWS }, (_, i) => {
-  const offset = (i * OFFSET) % HERO_LOGOS.length;
-  const rotated = [...HERO_LOGOS.slice(offset), ...HERO_LOGOS.slice(0, offset)];
-  return [...rotated, ...rotated]; // doubled for seamless loop
+  const chunk = HERO_LOGOS.slice(i * PER_ROW, (i + 1) * PER_ROW);
+  // tile 3× so the strip is wider than the desktop viewport before doubling
+  const tiled = [...chunk, ...chunk, ...chunk];
+  return [...tiled, ...tiled]; // doubled for seamless translateX(-50%) loop
 });
 
 function HeroMarquee() {
@@ -34,7 +36,7 @@ function HeroMarquee() {
             <div key={rowIdx} className="overflow-hidden">
               <div
                 className={`flex gap-2 w-max ${goLeft ? "animate-marquee-left" : "animate-marquee-right"}`}
-                style={{ animationDuration: `${30 + rowIdx * 3}s` }}
+                style={{ animationDuration: `${55 + rowIdx * 8}s` }}
               >
                 {items.map((logo, i) => (
                   <div
@@ -70,7 +72,7 @@ function HeroMarquee() {
           <h1 className="text-3xl md:text-6xl font-display font-bold tracking-tight mb-4 leading-tight text-white">
             Find places to spend <span className="text-primary">₿itcoin online</span>
           </h1>
-          <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl text-white max-w-2xl mx-auto leading-relaxed">
             An open source directory of online merchants that accept Bitcoin
           </p>
         </motion.div>
