@@ -112,12 +112,12 @@ function FilterDropdown({
     <div className="shrink-0">
       <div
         ref={triggerRef}
-        className={`flex items-center rounded-full text-[16px] font-bold border shadow-[0_1px_2px_rgba(0,0,0,0.05)] transition-colors whitespace-nowrap cursor-pointer ${
+        className={`flex items-center gap-1.5 rounded-full text-[15px] font-semibold border-[1.5px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-colors whitespace-nowrap cursor-pointer ${
           open
-            ? "bg-background border-foreground ring-1 ring-foreground/10"
+            ? "bg-background border-foreground ring-2 ring-foreground/10"
             : active
               ? "bg-primary text-primary-foreground border-primary"
-              : "bg-white dark:bg-card text-black dark:text-white border-[#e6e6e6] dark:border-white/20 hover:border-foreground/50"
+              : "bg-background text-foreground border-[#dedede] dark:border-white/20 hover:border-foreground/60 hover:bg-muted/30"
         }`}
         onClick={() => {
           if (!open) setOpen(true);
@@ -125,15 +125,15 @@ function FilterDropdown({
         data-testid={`filter-${label.toLowerCase().replace(/\s+/g, '-')}`}
       >
         {searchable && open ? (
-          <div className="flex items-center gap-1.5 min-h-10 px-4">
-            {emoji && <span className="text-[15px]">{emoji}</span>}
+          <div className="flex items-center gap-3 min-h-11 px-4">
+            {emoji && <span>{emoji}</span>}
             <input
               ref={inputRef}
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={searchPlaceholder}
-              className="bg-transparent border-none outline-none text-[16px] font-bold w-[90px] placeholder:text-muted-foreground/60"
+              className="bg-transparent border-none outline-none text-[15px] font-semibold w-[90px] placeholder:text-muted-foreground/60"
               onKeyDown={(e) => {
                 if (e.key === "Escape") setOpen(false);
                 if (e.key === "Enter") {
@@ -150,20 +150,20 @@ function FilterDropdown({
               }}
               data-testid={`filter-search-${label.toLowerCase().replace(/\s+/g, '-')}`}
             />
-            <ChevronDown className="ml-1.5 h-[18px] w-[18px] shrink-0 opacity-100 stroke-[2.5] rotate-180" />
+            <ChevronDown className="h-5 w-5 shrink-0 text-foreground opacity-100 stroke-[3] rotate-180" />
           </div>
         ) : (
           <button
             type="button"
             onClick={() => setOpen((prev) => !prev)}
-            className="flex items-center gap-1.5 min-h-10 px-4 bg-transparent border-none outline-none cursor-pointer font-bold"
+            className="flex items-center gap-3 min-h-11 px-4 bg-transparent border-none outline-none cursor-pointer font-semibold"
           >
             {committedSearch ? (
               <>{emoji && <span>{emoji}</span>} {committedSearch}</>
             ) : (
               label
             )}
-            <ChevronDown className={`ml-1.5 h-[18px] w-[18px] shrink-0 opacity-100 stroke-[2.5] transition-transform ${open ? "rotate-180" : ""}`} />
+            <ChevronDown className={`ml-auto h-5 w-5 shrink-0 text-foreground opacity-100 stroke-[3] transition-transform ${open ? "rotate-180" : ""}`} />
           </button>
         )}
       </div>

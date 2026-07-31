@@ -601,9 +601,9 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="flex items-center justify-end py-2 gap-2 border-b border-border/20">
-          <Button asChild className="font-medium bg-green-600 hover:bg-green-700 text-white gap-2 h-10 text-sm px-4">
+      <div className="max-w-3xl mx-auto px-4">
+        <div className="flex items-center justify-end py-1.5 gap-2 border-b border-border/20">
+          <Button asChild className="font-medium bg-green-600 hover:bg-green-700 text-white gap-2 h-8 text-xs px-3">
             <a href="https://btcmap.org/map" target="_blank" rel="noopener noreferrer">
               In-person
             </a>
@@ -611,8 +611,8 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
 
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
             <DialogTrigger asChild>
-              <Button className="font-medium bg-primary hover:bg-primary/90 text-primary-foreground gap-2 h-10 text-sm px-4">
-                <Plus className="h-4 w-4" />
+              <Button className="font-medium bg-primary hover:bg-primary/90 text-primary-foreground gap-2 h-8 text-xs px-3">
+                <Plus className="h-3.5 w-3.5" />
                 Add Merchant
               </Button>
             </DialogTrigger>
@@ -825,12 +825,12 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
             <img
               src={lightBrandLogo}
               alt="btconline"
-              className="h-10 w-10 object-contain dark:hidden mix-blend-multiply"
+              className="h-9 w-9 object-contain dark:hidden mix-blend-multiply"
             />
             <img
               src={darkBrandLogo}
               alt="btconline"
-              className="h-10 w-10 object-contain hidden dark:block mix-blend-screen"
+              className="h-9 w-9 object-contain hidden dark:block mix-blend-screen"
             />
             <ChevronDown className={`h-3 w-3 text-muted-foreground transition-transform ${logoMenuOpen ? "rotate-180" : ""}`} />
           </button>
@@ -846,7 +846,7 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                 onClick={() => { setLogoMenuOpen(false); onClearFilters?.(); }}
                 className="w-full text-left px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors flex items-center gap-2"
               >
-                <span>🏠</span> Home
+                Home
               </Link>
               <button
                 onClick={() => {
@@ -857,9 +857,9 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                 data-testid="button-toggle-theme"
               >
                 {theme === "dark" ? (
-                  <><span>☀️</span> Light Mode</>
+                  <><Sun className="h-4 w-4" /> Light Mode</>
                 ) : (
-                  <><span>🌙</span> Dark Mode</>
+                  <><Moon className="h-4 w-4" /> Dark Mode</>
                 )}
               </button>
               <Link
@@ -867,21 +867,21 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                 onClick={() => setLogoMenuOpen(false)}
                 className="w-full text-left px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors flex items-center gap-2"
               >
-                <span>📦</span> Merchant Packs
+                Merchant Packs
               </Link>
               <Link
                 href="/dashboard"
                 onClick={() => setLogoMenuOpen(false)}
                 className="w-full text-left px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors flex items-center gap-2"
               >
-                <span>📊</span> Merchant dashboard
+                Merchant dashboard
               </Link>
               <Link
                 href="/leaderboard"
                 onClick={() => setLogoMenuOpen(false)}
                 className="w-full text-left px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors flex items-center gap-2"
               >
-                <span>🏆</span> User leaderboard
+                User leaderboard
               </Link>
               <Link
                 href="/faq"
@@ -889,7 +889,7 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                 className="w-full text-left px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors flex items-center gap-2"
                 data-testid="link-faq"
               >
-                <span>❓</span> FAQ
+                FAQ
               </Link>
             </div>,
             document.body
