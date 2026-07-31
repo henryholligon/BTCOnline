@@ -67,8 +67,8 @@ html.theme-transition-none *::after {
 }
 
 @theme inline {
-  --font-sans: 'Inter', sans-serif;
-  --font-display: 'Space Grotesk', sans-serif;
+  --font-sans: 'Nunito', sans-serif;
+  --font-display: 'Nunito', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
   --radius-sm: 0.25rem;
