@@ -381,7 +381,7 @@ function NostrUserButton() {
         className="h-8 px-3 text-xs font-medium rounded-md border-2 border-gray-300 dark:border-gray-600 hover:text-primary transition-colors flex items-center gap-1.5"
         data-testid="button-nostr-signin"
       >
-         Admin sign in
+         Sign in
       </button>
     );
   }
