@@ -866,7 +866,7 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                 {theme === "dark" ? (
                   <><span>☀️</span> Light Mode</>
                 ) : (
-                  <><span>🌙</span> Dark Mode</>
+                  <><span>🌙</span> dark mode</>
                 )}
               </button>
               <Link
@@ -874,7 +874,7 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
                 onClick={() => setLogoMenuOpen(false)}
                 className="w-full text-left px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors flex items-center gap-2"
               >
-                <span>📦</span> Merchant Packs
+                <span>📦</span> merchant packs
               </Link>
               <Link
                 href="/dashboard"
