@@ -10,6 +10,81 @@ import { motion } from "framer-motion";
 import { isAgeVerified, setAgeVerifiedStorage } from "@/lib/restricted-categories";
 import { useRestrictedCategories } from "@/hooks/use-restricted-categories";
 
+// ── Hero marquee ─────────────────────────────────────────────────────────────
+const NUM_ROWS = 4;
+
+function HeroMarquee({ merchants }: { merchants: Merchant[] }) {
+  // Only merchants with real image logos (not emoji)
+  const logoMerchants = useMemo(
+    () => merchants.filter(m => m.logo && (m.logo.startsWith("/") || m.logo.startsWith("http"))),
+    [merchants]
+  );
+
+  // Split into NUM_ROWS roughly equal chunks
+  const rows = useMemo(() => {
+    if (logoMerchants.length === 0) return Array.from({ length: NUM_ROWS }, () => [] as Merchant[]);
+    const chunkSize = Math.ceil(logoMerchants.length / NUM_ROWS);
+    return Array.from({ length: NUM_ROWS }, (_, i) =>
+      logoMerchants.slice(i * chunkSize, (i + 1) * chunkSize)
+    );
+  }, [logoMerchants]);
+
+  return (
+    <div className="relative border-b border-border/50 overflow-hidden bg-[#0a0f1e]">
+      {/* Scrolling logo rows — absolutely positioned behind text */}
+      <div className="absolute inset-0 flex flex-col justify-around py-2 pointer-events-none select-none">
+        {rows.map((row, rowIdx) => {
+          if (row.length === 0) return null;
+          const goLeft = rowIdx % 2 === 0;
+          // Duplicate for seamless loop
+          const items = [...row, ...row];
+          return (
+            <div key={rowIdx} className="overflow-hidden">
+              <div
+                className={`flex gap-4 w-max ${goLeft ? "animate-marquee-left" : "animate-marquee-right"}`}
+                style={{ animationDuration: `${28 + rowIdx * 4}s` }}
+              >
+                {items.map((m, i) => (
+                  <div
+                    key={`${m.id}-${i}`}
+                    className="w-10 h-10 rounded-lg overflow-hidden bg-white/5 shrink-0 flex items-center justify-center"
+                  >
+                    <img
+                      src={m.logo}
+                      alt={m.name}
+                      className="w-full h-full object-contain p-0.5"
+                      loading="lazy"
+                      onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Dark gradient overlay so text stays readable */}
+      <div className="absolute inset-0 bg-[#0a0f1e]/75" />
+
+      {/* Hero text */}
+      <div className="max-w-3xl mx-auto relative z-10 px-4 py-12 md:py-24 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h1 className="text-3xl md:text-6xl font-display font-bold tracking-tight mb-4 leading-tight text-white">
+            Find places to spend <span className="text-primary">₿itcoin online</span>
+          </h1>
+          <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto leading-relaxed">
+            An open source directory of online merchants that accept Bitcoin
+          </p>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
 
 export default function Home() {
   const [, params] = useRoute("/merchant/:slug");
@@ -295,22 +370,7 @@ export default function Home() {
         )}
       </div>
 
-      <div className="relative border-b border-border/50 overflow-hidden bg-background">
-        <div className="max-w-3xl mx-auto relative z-10 px-4 py-10 md:py-20 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <h1 className="text-3xl md:text-6xl font-display font-bold tracking-tight mb-4 leading-tight">
-              Find places to spend <span className="text-primary">₿itcoin online</span>
-            </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              An open source directory of online merchants that accept Bitcoin
-            </p>
-          </motion.div>
-        </div>
-      </div>
+      <HeroMarquee merchants={merchants} />
 
       <main className="flex-1 relative" style={{ backgroundImage: `url(${btcBgImage})`, backgroundSize: '600px', backgroundRepeat: 'repeat', backgroundPosition: 'center' }}>
         <div className="absolute inset-0 bg-background/85 dark:bg-background/80" />

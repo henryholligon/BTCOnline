@@ -282,6 +282,26 @@ html.theme-transition-none *::after {
   @apply bg-muted rounded-full hover:bg-muted/80 transition-colors;
 }
 
+/* Hero marquee animations */
+@keyframes marquee-left {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes marquee-right {
+  0%   { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+.animate-marquee-left {
+  animation: marquee-left 35s linear infinite;
+}
+.animate-marquee-right {
+  animation: marquee-right 35s linear infinite;
+}
+.animate-marquee-left:hover,
+.animate-marquee-right:hover {
+  animation-play-state: paused;
+}
+
 .scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;
