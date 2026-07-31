@@ -12,29 +12,29 @@ import { useRestrictedCategories } from "@/hooks/use-restricted-categories";
 import { HERO_LOGOS } from "@/lib/hero-logos";
 
 // ── Hero marquee ─────────────────────────────────────────────────────────────
+// 4 rows, each using the same 40 logos rotated by 10 so adjacent rows look different.
+// Each row is doubled ([...logos, ...logos]) so the CSS translateX(-50%) loop is seamless.
 const NUM_ROWS = 4;
+const OFFSET = 10; // logos to rotate per row
 
-// Pre-split the static logo list into rows once at module level (no runtime cost)
-const _chunkSize = Math.ceil(HERO_LOGOS.length / NUM_ROWS);
-const LOGO_ROWS: string[][] = Array.from({ length: NUM_ROWS }, (_, i) =>
-  HERO_LOGOS.slice(i * _chunkSize, (i + 1) * _chunkSize)
-);
+const LOGO_ROWS: string[][] = Array.from({ length: NUM_ROWS }, (_, i) => {
+  const offset = (i * OFFSET) % HERO_LOGOS.length;
+  const rotated = [...HERO_LOGOS.slice(offset), ...HERO_LOGOS.slice(0, offset)];
+  return [...rotated, ...rotated]; // doubled for seamless loop
+});
 
 function HeroMarquee() {
   return (
     <div className="relative border-b border-border/50 overflow-hidden bg-[#0a0f1e]">
-      {/* Scrolling logo rows — absolutely positioned behind text */}
-      <div className="absolute inset-0 flex flex-col justify-around py-2 pointer-events-none select-none">
-        {LOGO_ROWS.map((row, rowIdx) => {
-          if (row.length === 0) return null;
+      {/* Scrolling logo rows — clustered in center behind text */}
+      <div className="absolute inset-0 flex flex-col gap-2 items-stretch justify-center pointer-events-none select-none">
+        {LOGO_ROWS.map((items, rowIdx) => {
           const goLeft = rowIdx % 2 === 0;
-          // Duplicate for seamless loop
-          const items = [...row, ...row];
           return (
             <div key={rowIdx} className="overflow-hidden">
               <div
-                className={`flex gap-4 w-max ${goLeft ? "animate-marquee-left" : "animate-marquee-right"}`}
-                style={{ animationDuration: `${28 + rowIdx * 4}s` }}
+                className={`flex gap-2 w-max ${goLeft ? "animate-marquee-left" : "animate-marquee-right"}`}
+                style={{ animationDuration: `${30 + rowIdx * 3}s` }}
               >
                 {items.map((logo, i) => (
                   <div
@@ -45,7 +45,7 @@ function HeroMarquee() {
                       src={logo}
                       alt=""
                       className="w-full h-full object-contain p-0.5"
-                      loading="eager"
+                      fetchPriority="high"
                       decoding="async"
                       onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
                     />
@@ -57,7 +57,7 @@ function HeroMarquee() {
         })}
       </div>
 
-      {/* Dark gradient overlay so text stays readable */}
+      {/* Dark overlay so text stays readable */}
       <div className="absolute inset-0 bg-[#0a0f1e]/75" />
 
       {/* Hero text */}
