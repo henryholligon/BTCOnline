@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { type Merchant, type BadgePreset } from "@shared/schema";
 import { useCategoryEmojis } from "@/hooks/use-category-emojis";
 import { useCountryEmojis } from "@/hooks/use-country-emojis";
-import { Zap, Clock, Copy, Check, Heart, Bookmark, Upload, X as XIcon, Mail, ExternalLink, MessageSquare, ChevronUp, ChevronDown } from "lucide-react";
+import { Zap, Clock, Copy, Check, Heart, Bookmark, Upload, X as XIcon, Mail, ExternalLink, MessageSquare } from "lucide-react";
 import BitcoinLogo from "@/components/bitcoin-logo";
 import { useRef, useEffect, useState, memo, useCallback, useMemo } from "react";
 import { useComments, useSubmitComment, useDeleteComment, useIsAdmin, useMerchantRating, useMyReview, useMasterPubkey, useNostrProfiles } from "@/hooks/use-comments";
@@ -400,12 +400,6 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
           )}
         </div>
 
-        <div className="shrink-0 self-start mt-1 hidden md:flex items-center px-1">
-          {expanded
-            ? <ChevronDown className="h-5 w-5 text-muted-foreground/40" />
-            : <ChevronUp className="h-5 w-5 text-muted-foreground/40" />
-          }
-        </div>
       </div>
 
       {expanded && (
