@@ -71,7 +71,7 @@ function HeroMarquee() {
             Find places to spend <br /><span className="text-primary">₿itcoin online</span>
           </h1>
           <p className="text-lg md:text-xl text-white max-w-2xl mx-auto leading-relaxed">
-            An open source directory of online merchants that accept Bitcoin
+            An open source directory of online<br />merchants that accept Bitcoin
           </p>
         </motion.div>
       </div>
