@@ -63,7 +63,7 @@ function HeroMarquee() {
       <div className="absolute inset-0 bg-[#0a0f1e]/75" />
 
       {/* Hero text */}
-      <div className="max-w-3xl mx-auto relative z-10 px-4 py-12 md:py-24 text-center">
+      <div className="max-w-3xl mx-auto relative z-10 px-4 py-10 md:py-12 text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
