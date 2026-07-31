@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { type Merchant, type BadgePreset } from "@shared/schema";
 import { useCategoryEmojis } from "@/hooks/use-category-emojis";
 import { useCountryEmojis } from "@/hooks/use-country-emojis";
-import { Zap, Clock, Copy, Check, Heart, Bookmark, Upload, X as XIcon, Mail, ExternalLink, MessageSquare } from "lucide-react";
+import { Zap, Clock, Copy, Check, Heart, Bookmark, Upload, X as XIcon, Mail, ExternalLink, MessageSquare, Flag } from "lucide-react";
 import BitcoinLogo from "@/components/bitcoin-logo";
 import { useRef, useEffect, useState, memo, useCallback, useMemo } from "react";
 import { useComments, useSubmitComment, useDeleteComment, useIsAdmin, useMerchantRating, useMyReview, useMasterPubkey, useNostrProfiles } from "@/hooks/use-comments";
@@ -149,7 +149,15 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
   const [hoverRating, setHoverRating] = useState<number | null>(null);
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [replyBody, setReplyBody] = useState("");
+  const [showReport, setShowReport] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [reportDetails, setReportDetails] = useState("");
+  const [reportEvidenceUrl, setReportEvidenceUrl] = useState("");
+  const [reportSubmitting, setReportSubmitting] = useState(false);
+  const [reportIssueUrl, setReportIssueUrl] = useState<string | null>(null);
+  const [reportAltchaVerified, setReportAltchaVerified] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const reportAltchaRef = useRef<HTMLElement>(null);
   const { getCategoryWithEmoji } = useCategoryEmojis();
   const { getCountryEmoji } = useCountryEmojis();
   const { toast } = useToast();
@@ -283,11 +291,63 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
       setShowComments(false);
       setShowReviews(false);
       setShowLikes(false);
+      setShowReport(false);
       setAllCommentsVisible(false);
       setAllReviewsVisible(false);
       setAllLikesVisible(false);
     }
   }, [expanded]);
+
+  useEffect(() => {
+    const widget = reportAltchaRef.current;
+    if (!widget || !showReport) return;
+    const handleStateChange = (ev: Event) => {
+      const detail = (ev as CustomEvent).detail;
+      setReportAltchaVerified(detail?.state === "verified");
+    };
+    widget.addEventListener("statechange", handleStateChange);
+    return () => widget.removeEventListener("statechange", handleStateChange);
+  }, [showReport]);
+
+  const handleReportSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reportReason) {
+      toast({ title: "Choose a reason", description: "Please select why you are reporting this listing." });
+      return;
+    }
+    if (!reportAltchaVerified) {
+      toast({ title: "Captcha Required", description: "Please complete the captcha verification." });
+      return;
+    }
+
+    const widget = reportAltchaRef.current as any;
+    const altchaPayload = widget?.value ?? widget?.getAttribute?.("value") ?? null;
+    setReportSubmitting(true);
+    try {
+      const response = await fetch("/api/report-merchant", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          merchantId: merchant.id,
+          reason: reportReason,
+          details: reportDetails,
+          evidenceUrl: reportEvidenceUrl,
+          altcha: altchaPayload,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        toast({ title: "Report failed", description: data.message ?? "Please try again.", variant: "destructive" });
+        return;
+      }
+      setReportIssueUrl(data.issueUrl);
+      toast({ title: "Report submitted", description: "Your public GitHub issue is ready to review." });
+    } catch {
+      toast({ title: "Network error", description: "Could not reach the report service. Please try again.", variant: "destructive" });
+    } finally {
+      setReportSubmitting(false);
+    }
+  }, [merchant.id, reportReason, reportDetails, reportEvidenceUrl, reportAltchaVerified, toast]);
 
   useEffect(() => {
     if (expanded && scrollIntoView && cardRef.current) {
@@ -939,6 +999,101 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
             );
           })()}
 
+          {showReport && (
+            <div className="rounded-lg border border-amber-300/60 bg-amber-50/60 dark:border-amber-400/20 dark:bg-amber-950/20 p-4 space-y-3" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h4 className="text-sm font-semibold">Report this listing</h4>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Reports are published as public GitHub issues for transparent review. This will not automatically remove the merchant.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="h-7 w-7 shrink-0 inline-flex items-center justify-center rounded-md hover:bg-black/5 dark:hover:bg-white/10 text-muted-foreground"
+                  onClick={() => setShowReport(false)}
+                  aria-label="Close report form"
+                >
+                  <XIcon className="h-3.5 w-3.5" />
+                </button>
+              </div>
+
+              {reportIssueUrl ? (
+                <div className="rounded-md border border-green-300/70 bg-green-50 dark:border-green-400/20 dark:bg-green-950/20 px-3 py-2.5 text-sm">
+                  <p className="font-medium text-green-800 dark:text-green-300">Public report created.</p>
+                  <a
+                    href={reportIssueUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-green-700 dark:text-green-400 underline underline-offset-2"
+                  >
+                    View the GitHub issue
+                  </a>
+                </div>
+              ) : (
+                <form onSubmit={handleReportSubmit} className="space-y-3">
+                  <div className="space-y-1.5">
+                    <label htmlFor={`report-reason-${merchant.id}`} className="text-xs font-medium">Reason</label>
+                    <select
+                      id={`report-reason-${merchant.id}`}
+                      value={reportReason}
+                      onChange={(e) => setReportReason(e.target.value)}
+                      className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+                      required
+                    >
+                      <option value="">Choose a reason…</option>
+                      <option>No longer accepts Bitcoin</option>
+                      <option>Website is unavailable</option>
+                      <option>Suspected fraud or scam</option>
+                      <option>Misleading or inaccurate listing</option>
+                      <option>Unsafe or malicious website</option>
+                      <option>Duplicate listing</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label htmlFor={`report-details-${merchant.id}`} className="text-xs font-medium">Details <span className="font-normal text-muted-foreground">(optional)</span></label>
+                    <Textarea
+                      id={`report-details-${merchant.id}`}
+                      value={reportDetails}
+                      onChange={(e) => setReportDetails(e.target.value)}
+                      placeholder="What did you observe?"
+                      maxLength={4000}
+                      className="min-h-[80px] bg-background text-sm"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label htmlFor={`report-evidence-${merchant.id}`} className="text-xs font-medium">Evidence link <span className="font-normal text-muted-foreground">(optional)</span></label>
+                    <input
+                      id={`report-evidence-${merchant.id}`}
+                      type="url"
+                      value={reportEvidenceUrl}
+                      onChange={(e) => setReportEvidenceUrl(e.target.value)}
+                      placeholder="https://…"
+                      className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    {/* @ts-ignore */}
+                    <altcha-widget
+                      ref={reportAltchaRef}
+                      challengeurl="/api/altcha-challenge"
+                      style={{ '--altcha-max-width': '100%' } as React.CSSProperties}
+                    />
+                  </div>
+
+                  <Button type="submit" size="sm" disabled={reportSubmitting} className="w-full">
+                    <Flag className="h-3.5 w-3.5" />
+                    {reportSubmitting ? "Publishing report…" : "Publish public report"}
+                  </Button>
+                </form>
+              )}
+            </div>
+          )}
+
           {/* Expanded footer — Visit website + 5 social buttons */}
           <div className="order-1 border-t border-border/40 pt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-0" onClick={(e) => e.stopPropagation()}>
             <div className="sm:flex-1 sm:flex sm:justify-center">
@@ -1014,6 +1169,16 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               <div className="flex-1 flex justify-center">
                 <button onClick={() => setShowShare(true)} data-testid={`button-share-${merchant.id}`} className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm text-muted-foreground transition-colors hover:bg-muted">
                   <Upload className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="flex-1 flex justify-center">
+                <button
+                  onClick={() => setShowReport(v => !v)}
+                  data-testid={`button-report-${merchant.id}`}
+                  className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-muted ${showReport ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground"}`}
+                  aria-label="Report this merchant"
+                >
+                  <Flag className="h-4 w-4" />
                 </button>
               </div>
             </div>

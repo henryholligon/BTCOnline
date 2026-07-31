@@ -348,6 +348,116 @@ ${notes?.trim() ? `### Notes\n${notes.trim()}\n` : ""}
     }
   });
 
+  app.post("/api/report-merchant", async (req, res) => {
+    const { merchantId, reason, details, evidenceUrl, altcha } = req.body;
+    const parsedMerchantId = Number(merchantId);
+    const allowedReasons = new Set([
+      "No longer accepts Bitcoin",
+      "Website is unavailable",
+      "Suspected fraud or scam",
+      "Misleading or inaccurate listing",
+      "Unsafe or malicious website",
+      "Duplicate listing",
+      "Other",
+    ]);
+
+    if (!Number.isInteger(parsedMerchantId) || parsedMerchantId <= 0) {
+      return res.status(400).json({ message: "Invalid merchant" });
+    }
+    if (typeof reason !== "string" || !allowedReasons.has(reason)) {
+      return res.status(400).json({ message: "Please choose a valid report reason" });
+    }
+    const normalizedDetails = typeof details === "string" ? details.trim() : "";
+    if (normalizedDetails.length > 4000) {
+      return res.status(400).json({ message: "Details must be under 4000 characters" });
+    }
+
+    let normalizedEvidenceUrl = "";
+    if (typeof evidenceUrl === "string" && evidenceUrl.trim()) {
+      try {
+        const parsedUrl = new URL(evidenceUrl.trim());
+        if (!["http:", "https:"].includes(parsedUrl.protocol)) throw new Error("Unsupported protocol");
+        normalizedEvidenceUrl = parsedUrl.toString();
+      } catch {
+        return res.status(400).json({ message: "Evidence must be a valid http(s) URL" });
+      }
+    }
+
+    if (!altcha) {
+      return res.status(400).json({ message: "Captcha verification required" });
+    }
+    try {
+      const ok = await verifySolution(altcha, ALTCHA_HMAC_KEY);
+      if (!ok) return res.status(400).json({ message: "Invalid captcha" });
+    } catch {
+      return res.status(400).json({ message: "Captcha verification failed" });
+    }
+
+    const merchant = await storage.getMerchant(parsedMerchantId);
+    if (!merchant) return res.status(404).json({ message: "Merchant not found" });
+
+    const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+    if (!GITHUB_TOKEN) {
+      console.error("GITHUB_TOKEN not set");
+      return res.status(500).json({ message: "Report service not configured" });
+    }
+
+    const issueTitle = `Merchant report: ${merchant.name} — ${reason}`;
+    const issueBody = `## Merchant Report
+
+| Field | Value |
+|---|---|
+| **Merchant** | ${merchant.name} |
+| **Website** | ${merchant.website} |
+| **Merchant ID** | ${merchant.id} |
+| **Reason** | ${reason} |
+| **Reported by** | Anonymous |
+
+### Details
+
+${normalizedDetails || "No additional details provided."}
+
+### Evidence
+
+${normalizedEvidenceUrl || "No evidence link provided."}
+
+### Review note
+
+This is an unverified public report submitted through BTCOnline. It does **not** automatically remove or change the merchant listing. The directory maintainers will review the report and decide whether to keep, update, verify, or hide the listing.
+
+---
+*Submitted via the BTCOnline merchant report form*`;
+
+    try {
+      const response = await fetch("https://api.github.com/repos/henryholligon/BTCOnline/issues", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${GITHUB_TOKEN}`,
+          "Accept": "application/vnd.github+json",
+          "X-GitHub-Api-Version": "2022-11-28",
+          "Content-Type": "application/json",
+          "User-Agent": "BTCOnline-App",
+        },
+        body: JSON.stringify({
+          title: issueTitle,
+          body: issueBody,
+        }),
+      });
+
+      if (!response.ok) {
+        const err = await response.text();
+        console.error("GitHub report API error:", response.status, err);
+        return res.status(502).json({ message: "Failed to create report — please try again" });
+      }
+
+      const issue = await response.json() as { html_url: string; number: number };
+      return res.json({ ok: true, issueUrl: issue.html_url, issueNumber: issue.number });
+    } catch (err) {
+      console.error("GitHub report creation failed:", err);
+      return res.status(502).json({ message: "Failed to reach the report service — please try again" });
+    }
+  });
+
   app.get("/api/categories", async (_req, res) => {
     const result = await db.execute(sql`
       SELECT DISTINCT unnest(categories) AS category FROM merchants ORDER BY category
