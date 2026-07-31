@@ -601,18 +601,11 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
-      <div className="relative max-w-6xl mx-auto px-4 pt-0 md:pt-10">
-        <div className="relative flex flex-col md:flex-row md:items-center md:justify-center">
-        <div className="order-1 md:order-2 flex items-center justify-end py-1.5 gap-2 border-b border-border/20 md:border-b-0">
-          <div className="md:order-3">
-            <Button asChild className="font-medium bg-green-600 hover:bg-green-700 text-white gap-2 h-8 text-xs px-3">
-              <a href="https://btcmap.org/map" target="_blank" rel="noopener noreferrer">
-                In-person
-              </a>
-            </Button>
-          </div>
-
-          <div className="md:order-2">
+      <div className="max-w-3xl mx-auto px-4">
+        {/* Row 1: action buttons, right-aligned */}
+        <div className="flex items-center justify-end py-1.5 gap-2 border-b border-border/20">
+          <NostrUserButton />
+          <div>
             <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
               <DialogTrigger asChild>
                 <Button className="font-medium bg-primary hover:bg-primary/90 text-primary-foreground gap-2 h-8 text-xs px-3">
@@ -817,17 +810,19 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
             </Dialog>
           </div>
 
-          <div className="md:order-1">
-            <NostrUserButton />
-          </div>
+          <Button asChild className="font-medium bg-green-600 hover:bg-green-700 text-white gap-2 h-8 text-xs px-3">
+            <a href="https://btcmap.org/map" target="_blank" rel="noopener noreferrer">
+              In-person
+            </a>
+          </Button>
         </div>
 
-        <div className="order-2 md:order-1 flex items-center py-2 gap-3">
+        <div className="flex items-center gap-3 pb-2 overflow-x-auto scrollbar-hide">
           <button
             ref={logoRef}
             type="button"
             onClick={() => setLogoMenuOpen((prev) => !prev)}
-            className="flex items-center gap-1 shrink-0 hover:opacity-80 transition-opacity md:absolute md:top-[-2.5rem] md:left-[calc((100%_-_48rem)/2_+_1rem)]"
+            className="flex items-center gap-1 shrink-0 hover:opacity-80 transition-opacity"
           >
             <img
               src={lightBrandLogo}
@@ -903,11 +898,10 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
           )}
 
           {filtersSlot && (
-            <div className="flex-1 min-w-0 md:w-auto md:flex-none">
+            <div className="flex-1 min-w-0">
               {filtersSlot}
             </div>
           )}
-        </div>
         </div>
       </div>
     </nav>
