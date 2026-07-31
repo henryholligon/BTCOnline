@@ -9,31 +9,23 @@ import btcBgImage from "@assets/image_1771226498805.png";
 import { motion } from "framer-motion";
 import { isAgeVerified, setAgeVerifiedStorage } from "@/lib/restricted-categories";
 import { useRestrictedCategories } from "@/hooks/use-restricted-categories";
+import { HERO_LOGOS } from "@/lib/hero-logos";
 
 // ── Hero marquee ─────────────────────────────────────────────────────────────
 const NUM_ROWS = 4;
 
-function HeroMarquee({ merchants }: { merchants: Merchant[] }) {
-  // Only merchants with real image logos (not emoji)
-  const logoMerchants = useMemo(
-    () => merchants.filter(m => m.logo && (m.logo.startsWith("/") || m.logo.startsWith("http"))),
-    [merchants]
-  );
+// Pre-split the static logo list into rows once at module level (no runtime cost)
+const _chunkSize = Math.ceil(HERO_LOGOS.length / NUM_ROWS);
+const LOGO_ROWS: string[][] = Array.from({ length: NUM_ROWS }, (_, i) =>
+  HERO_LOGOS.slice(i * _chunkSize, (i + 1) * _chunkSize)
+);
 
-  // Split into NUM_ROWS roughly equal chunks
-  const rows = useMemo(() => {
-    if (logoMerchants.length === 0) return Array.from({ length: NUM_ROWS }, () => [] as Merchant[]);
-    const chunkSize = Math.ceil(logoMerchants.length / NUM_ROWS);
-    return Array.from({ length: NUM_ROWS }, (_, i) =>
-      logoMerchants.slice(i * chunkSize, (i + 1) * chunkSize)
-    );
-  }, [logoMerchants]);
-
+function HeroMarquee() {
   return (
     <div className="relative border-b border-border/50 overflow-hidden bg-[#0a0f1e]">
       {/* Scrolling logo rows — absolutely positioned behind text */}
       <div className="absolute inset-0 flex flex-col justify-around py-2 pointer-events-none select-none">
-        {rows.map((row, rowIdx) => {
+        {LOGO_ROWS.map((row, rowIdx) => {
           if (row.length === 0) return null;
           const goLeft = rowIdx % 2 === 0;
           // Duplicate for seamless loop
@@ -44,16 +36,17 @@ function HeroMarquee({ merchants }: { merchants: Merchant[] }) {
                 className={`flex gap-4 w-max ${goLeft ? "animate-marquee-left" : "animate-marquee-right"}`}
                 style={{ animationDuration: `${28 + rowIdx * 4}s` }}
               >
-                {items.map((m, i) => (
+                {items.map((logo, i) => (
                   <div
-                    key={`${m.id}-${i}`}
+                    key={`${rowIdx}-${i}`}
                     className="w-10 h-10 rounded-lg overflow-hidden bg-white/5 shrink-0 flex items-center justify-center"
                   >
                     <img
-                      src={m.logo}
-                      alt={m.name}
+                      src={logo}
+                      alt=""
                       className="w-full h-full object-contain p-0.5"
-                      loading="lazy"
+                      loading="eager"
+                      decoding="async"
                       onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
                     />
                   </div>
