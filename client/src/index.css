@@ -67,8 +67,8 @@ html.theme-transition-none *::after {
 }
 
 @theme inline {
-  --font-sans: 'Nunito', sans-serif;
-  --font-display: 'Nunito', sans-serif;
+  --font-sans: system-ui, sans-serif, "Nunito", "Helvetica", "Arial", sans-serif;
+  --font-display: system-ui, sans-serif, "Nunito", "Helvetica", "Arial", sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
   --radius-sm: 0.25rem;
