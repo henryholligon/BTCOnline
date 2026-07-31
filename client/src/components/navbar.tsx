@@ -381,7 +381,7 @@ function NostrUserButton() {
         className="h-8 px-3 text-xs font-medium rounded-md border-2 border-gray-300 dark:border-gray-600 hover:text-primary transition-colors flex items-center gap-1.5"
         data-testid="button-nostr-signin"
       >
-        Sign in
+         Admin sign in
       </button>
     );
   }
@@ -604,7 +604,11 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
       <div className="max-w-3xl mx-auto px-4">
         {/* Row 1: action buttons, right-aligned */}
         <div className="flex items-center justify-end py-1.5 gap-2 border-b border-border/20">
-          <NostrUserButton />
+          <Button asChild className="font-medium bg-green-600 hover:bg-green-700 text-white gap-2 h-8 text-xs px-3">
+            <a href="https://btcmap.org/map" target="_blank" rel="noopener noreferrer">
+              In-person
+            </a>
+          </Button>
           <div>
             <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
               <DialogTrigger asChild>
@@ -810,11 +814,7 @@ export default function Navbar({ onSearch, filtersSlot, onClearFilters }: Navbar
             </Dialog>
           </div>
 
-          <Button asChild className="font-medium bg-green-600 hover:bg-green-700 text-white gap-2 h-8 text-xs px-3">
-            <a href="https://btcmap.org/map" target="_blank" rel="noopener noreferrer">
-              In-person
-            </a>
-          </Button>
+          <NostrUserButton />
         </div>
 
         <div className="flex items-center gap-3 pb-2 overflow-x-auto scrollbar-hide">
