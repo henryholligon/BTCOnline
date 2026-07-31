@@ -27,7 +27,7 @@ function HeroMarquee() {
   return (
     <div className="relative border-b border-border/50 overflow-hidden bg-[#0a0f1e]">
       {/* Scrolling logo rows — clustered in center behind text */}
-      <div className="absolute inset-0 flex flex-col gap-2 items-stretch justify-center pointer-events-none select-none">
+      <div className="absolute inset-0 flex flex-col justify-evenly md:justify-center md:gap-2 items-stretch pointer-events-none select-none">
         {LOGO_ROWS.map((items, rowIdx) => {
           const goLeft = rowIdx % 2 === 0;
           return (
