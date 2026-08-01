@@ -19,6 +19,8 @@ Called fire-and-forget on every login (nip07, nip46, generated, restored session
 `status: "pending"` only confirms that the request was recorded; it does not
 add the pubkey to the relay allowlist. A publish can authenticate successfully
 with NIP-42 and still receive `blocked: pubkey not on relay allowlist`.
+Once allowlisted, the same identity receives `AUTH OK`, `EVENT OK`, and can
+complete an authenticated `REQ`/`EOSE` read on the canonical relay.
 
 ## NIP-42 publish flow (client-side)
 Implemented in `client/src/lib/btc-relay.ts → publishToCanonical()`.
