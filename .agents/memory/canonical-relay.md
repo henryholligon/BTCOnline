@@ -16,6 +16,9 @@ POST `https://nostr-permissioned-host.replit.app/api/relay/access-requests`
 Body: `{ pubkey: "<hex>", note?: "..." }`
 Called fire-and-forget on every login (nip07, nip46, generated, restored session).
 409 Conflict is silently ignored (already registered).
+`status: "pending"` only confirms that the request was recorded; it does not
+add the pubkey to the relay allowlist. A publish can authenticate successfully
+with NIP-42 and still receive `blocked: pubkey not on relay allowlist`.
 
 ## NIP-42 publish flow (client-side)
 Implemented in `client/src/lib/btc-relay.ts → publishToCanonical()`.
