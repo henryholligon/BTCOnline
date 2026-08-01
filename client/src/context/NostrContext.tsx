@@ -13,10 +13,10 @@ import {
   markOutboxAttempt,
   getPendingOutboxEntries,
   publishToCanonical,
+  verifyCanonicalAccess,
 } from '@/lib/btc-relay';
 import {
   pool,
-  DEFAULT_RELAYS,
   fetchProfile,
   fetchFollows,
   fetchFavourites,
@@ -35,6 +35,7 @@ import NostrLoginModal from '@/components/nostr-login-modal';
 import { generateNostrIdentity } from '@/lib/generated-identity';
 
 export type LoginMethod = 'nip07' | 'nip46' | 'generated';
+export type NostrSignerStatus = 'connect' | 'signer-connected' | 'verifying' | 'awaiting-access' | 'ready';
 
 export interface NostrUser {
   pubkey: string;
@@ -100,6 +101,7 @@ interface NostrContextValue {
   /** Hex pubkeys the current user follows (kind:3 contact list). Empty set when not signed in. */
   follows: Set<string>;
   loginNip07: () => Promise<void>;
+  connectNip07Signer: (onStatus?: (status: NostrSignerStatus) => void) => Promise<void>;
   loginWithBunker: (bunkerUri: string) => Promise<void>;
   loginWithGeneratedKey: (sk: Uint8Array, ncryptsec?: string, custodialEmail?: string) => Promise<void>;
   restoreGeneratedSession: (ncryptsec: string, password: string) => Promise<void>;
@@ -185,6 +187,7 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
   const privateLikesDecryptFailedRef = useRef(false);
   /** Tracks whether the post-login outbox drain has already been kicked off. */
   const outboxDrainedRef = useRef(false);
+  const outboxDrainingRef = useRef(false);
 
   const openLoginModal = useCallback(() => setIsLoginModalOpen(true), []);
   const closeLoginModal = useCallback(() => {
@@ -219,9 +222,9 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
       setReadRelays([CANONICAL_RELAY]);
       setWriteRelays([CANONICAL_RELAY]);
 
-      // Profile lookup: canonical relay first, then backup relays for users
-      // who have not yet published to the canonical relay.
-      loadedProfile = await fetchProfile(pubkey, [CANONICAL_RELAY, ...DEFAULT_RELAYS]);
+      // Profile lookup is canonical-only: the btc-online relay is the sole
+      // authoritative read source for all website/community data.
+      loadedProfile = await fetchProfile(pubkey, [CANONICAL_RELAY]);
       const displayName = loadedProfile?.display_name || loadedProfile?.name || npub.slice(0, 12) + '…';
       setUser({ pubkey, npub, displayName, picture: loadedProfile?.picture, loginMethod: method });
 
@@ -294,15 +297,45 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
     return loadedProfile;
   }, []);
 
-  // Drain outbox entries after a successful login.
-  useEffect(() => {
-    if (!user) { outboxDrainedRef.current = false; return; }
-    if (outboxDrainedRef.current) return;
-    outboxDrainedRef.current = true;
-    const pending = getPendingOutboxEntries();
-    if (pending.length === 0) return;
-    console.log(`[btc-relay] draining ${pending.length} outbox event(s) after login`);
-    (async () => {
+  const connectNip07Signer = useCallback(async (
+    onStatus?: (status: NostrSignerStatus) => void,
+  ) => {
+    if (!window.nostr) {
+      throw new Error('No Nostr extension found. Please install Alby or nos2x.');
+    }
+
+    // NIP-07 returns only the public key here. The extension retains the
+    // private key and signs both AUTH and later user events locally.
+    const pubkey = await window.nostr.getPublicKey();
+    onStatus?.('signer-connected');
+
+    await requestRelayAccess(pubkey, 'Non-custodial user signer');
+
+    onStatus?.('verifying');
+    try {
+      await verifyCanonicalAccess(
+        (template) => window.nostr!.signEvent(template) as Promise<VerifiedEvent>,
+      );
+    } catch (error) {
+      onStatus?.('awaiting-access');
+      if (error instanceof Error && error.message.includes('access denied')) {
+        throw new Error('Your public key is awaiting approval by the btc-online relay.');
+      }
+      throw new Error('The btc-online relay could not verify access yet. Please try again.');
+    }
+
+    saveSession({ pubkey, method: 'nip07' });
+    await initUser(pubkey, 'nip07');
+    onStatus?.('ready');
+  }, [initUser]);
+
+  const drainOutbox = useCallback(async () => {
+    if (!user || outboxDrainingRef.current) return;
+    outboxDrainingRef.current = true;
+    try {
+      const pending = getPendingOutboxEntries();
+      if (pending.length === 0) return;
+      console.log(`[btc-relay] draining ${pending.length} outbox event(s)`);
       for (const entry of pending) {
         try {
           await publishToCanonical(entry.event, signEvent);
@@ -311,8 +344,30 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
           markOutboxAttempt(entry.event.id);
         }
       }
-    })();
+    } finally {
+      outboxDrainingRef.current = false;
+    }
   }, [user?.pubkey, signEvent]);
+
+  // Retry queued events while the signer remains connected. Retry timestamps
+  // in localStorage remain the source of truth for backoff.
+  useEffect(() => {
+    if (!user) {
+      outboxDrainedRef.current = false;
+      outboxDrainingRef.current = false;
+      return;
+    }
+    if (!outboxDrainedRef.current) {
+      outboxDrainedRef.current = true;
+      void drainOutbox();
+    }
+    const interval = window.setInterval(() => void drainOutbox(), 10_000);
+    window.addEventListener('online', drainOutbox);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener('online', drainOutbox);
+    };
+  }, [user?.pubkey, drainOutbox]);
 
   useEffect(() => {
     const session = loadSession();
@@ -350,13 +405,9 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
   }, [initUser]);
 
   const loginNip07 = useCallback(async () => {
-    if (!window.nostr) throw new Error('No Nostr extension found. Please install Alby or nos2x.');
-    const pubkey = await window.nostr.getPublicKey();
-    requestRelayAccess(pubkey); // fire-and-forget — never sends private key
-    saveSession({ pubkey, method: 'nip07' });
-    await initUser(pubkey, 'nip07');
+    await connectNip07Signer();
     closeLoginModal();
-  }, [initUser, closeLoginModal]);
+  }, [connectNip07Signer, closeLoginModal]);
 
   const loginWithBunker = useCallback(async (bunkerUri: string) => {
     const localSk = generateSecretKey();
@@ -844,7 +895,7 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
     <NostrContext.Provider value={{
       user, readRelays, writeRelays, favourites, follows, lists, isLoading, isLoginModalOpen,
       likesPublic, canUsePrivate, likeCounts, likeAuthors, saveCounts, savedLists,
-      loginNip07, loginWithBunker, loginWithGeneratedKey, restoreGeneratedSession,
+      loginNip07, connectNip07Signer, loginWithBunker, loginWithGeneratedKey, restoreGeneratedSession,
        logout, signEvent, publishEvent, updateProfile,
       toggleFavourite, toggleLikesPublic,
       createList, deleteList, renameList, toggleListMember, toggleListPrivacy,

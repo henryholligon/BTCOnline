@@ -22,6 +22,19 @@ with NIP-42 and still receive `blocked: pubkey not on relay allowlist`.
 Once allowlisted, the same identity receives `AUTH OK`, `EVENT OK`, and can
 complete an authenticated `REQ`/`EOSE` read on the canonical relay.
 
+## Non-custodial browser signer UX
+The NIP-07 connection flow exposes these states in the login popup:
+`Connect signer` → `Signer connected` → `Verifying with btc-online relay`
+→ `Awaiting relay access` → `Ready to publish`.
+The browser receives only `window.nostr.getPublicKey()` output; AUTH and user
+events are signed by `window.nostr.signEvent()`. The browser never receives an
+nsec for this path.
+
+**Why:** A successful browser login is not proof of relay approval. The relay
+must accept a signed event before the UI claims the signer is ready.
+**How to apply:** Keep signer approval and authentication explicit in user
+messaging; never add an admin-token or private-key fallback to the client.
+
 ## NIP-42 publish flow (client-side)
 Implemented in `client/src/lib/btc-relay.ts → publishToCanonical()`.
 1. Sign event locally.

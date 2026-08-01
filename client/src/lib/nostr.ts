@@ -1,18 +1,14 @@
 import { SimplePool } from 'nostr-tools/pool';
 import type { Event, Filter } from 'nostr-tools';
-import { CANONICAL_RELAY, BACKUP_RELAYS } from './btc-relay';
+import { CANONICAL_RELAY } from './btc-relay';
 
 export { CANONICAL_RELAY } from './btc-relay';
 
 /**
- * DEFAULT_RELAYS contains the backup relays used for profile bootstrapping
- * and NIP-65 relay-list lookups. Community data (likes, saves, merchant
- * lists, favourites) is read exclusively from the canonical relay.
+ * DEFAULT_RELAYS is retained as a compatibility name for older callers, but
+ * it is deliberately the canonical relay only. Backup relays are publish-only.
  */
-export const DEFAULT_RELAYS = BACKUP_RELAYS;
-
-/** Bootstrap relay set for profile and relay-list lookups. */
-const BOOTSTRAP_RELAYS = [CANONICAL_RELAY, ...BACKUP_RELAYS];
+export const DEFAULT_RELAYS = [CANONICAL_RELAY];
 
 export const pool = new SimplePool();
 
@@ -70,23 +66,9 @@ export async function fetchFollows(pubkey: string, relays: string[]): Promise<st
 }
 
 export async function fetchRelayList(pubkey: string): Promise<{ read: string[]; write: string[] }> {
-  const event = await poolGet(BOOTSTRAP_RELAYS, { kinds: [10002], authors: [pubkey] });
-  if (!event) return { read: BOOTSTRAP_RELAYS, write: BOOTSTRAP_RELAYS };
-
-  const read: string[] = [];
-  const write: string[] = [];
-  for (const tag of event.tags) {
-    if (tag[0] === 'r') {
-      const url = tag[1];
-      const marker = tag[2];
-      if (!marker || marker === 'read') read.push(url);
-      if (!marker || marker === 'write') write.push(url);
-    }
-  }
-  return {
-    read: read.length > 0 ? read : DEFAULT_RELAYS,
-    write: write.length > 0 ? write : DEFAULT_RELAYS,
-  };
+  // NIP-65 preferences are intentionally ignored for website/community data:
+  // the btc-online relay is the sole canonical read source.
+  return { read: [CANONICAL_RELAY], write: [CANONICAL_RELAY] };
 }
 
 export interface FavouritesResult {

@@ -131,6 +131,97 @@ export type SignerFn = (template: EventTemplate) => Promise<VerifiedEvent>;
 const PUBLISH_TIMEOUT_MS = 20_000;
 
 /**
+ * Verify that a signer has been approved by the canonical relay.
+ *
+ * AUTH itself is not enough for this relay: unapproved pubkeys can complete
+ * NIP-42 and are rejected only when they try to publish. We therefore publish
+ * a kind-5 event with no deletion tags as a harmless access probe. It has no
+ * event or address references to delete, and is never added to the durable
+ * user-event outbox.
+ */
+export function verifyCanonicalAccess(signer: SignerFn): Promise<void> {
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    let authEventId = '';
+    let authComplete = false;
+    let probeEventId = '';
+
+    const settle = (err?: Error) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      try { ws.close(); } catch { /* ignore */ }
+      if (err) reject(err); else resolve();
+    };
+
+    const timer = setTimeout(
+      () => settle(new Error('canonical relay access check timed out')),
+      PUBLISH_TIMEOUT_MS,
+    );
+
+    const ws = new WebSocket(CANONICAL_RELAY);
+
+    ws.onmessage = async (raw) => {
+      let msg: unknown;
+      try { msg = JSON.parse(raw.data as string); } catch { return; }
+      if (!Array.isArray(msg)) return;
+
+      if (msg[0] === 'AUTH' && typeof msg[1] === 'string' && !authComplete) {
+        try {
+          const authEv = await signer({
+            kind: 22242,
+            created_at: Math.floor(Date.now() / 1000),
+            tags: [['challenge', msg[1]], ['relay', CANONICAL_RELAY]],
+            content: '',
+          });
+          authEventId = authEv.id;
+          ws.send(JSON.stringify(['AUTH', authEv]));
+        } catch (e) {
+          settle(new Error(`NIP-42 signing failed: ${e}`));
+        }
+        return;
+      }
+
+      if (msg[0] !== 'OK' || typeof msg[1] !== 'string') return;
+      const id = msg[1] as string;
+      const ok = msg[2] as boolean;
+      const reason = (msg[3] as string) ?? '';
+
+      if (id === authEventId && !authComplete) {
+        if (!ok) {
+          settle(new Error(`relay auth rejected: ${reason}`));
+          return;
+        }
+        authComplete = true;
+        try {
+          const probe = await signer({
+            kind: 5,
+            created_at: Math.floor(Date.now() / 1000),
+            tags: [],
+            content: 'BTCOnline relay access check',
+          });
+          probeEventId = probe.id;
+          ws.send(JSON.stringify(['EVENT', probe]));
+        } catch (e) {
+          settle(new Error(`relay access check signing failed: ${e}`));
+        }
+        return;
+      }
+
+      if (id === probeEventId) {
+        if (ok) settle();
+        else settle(new Error(`relay access denied: ${reason}`));
+      }
+    };
+
+    ws.onerror = () => settle(new Error('WebSocket error during relay access check'));
+    ws.onclose = (ev) => {
+      if (!settled) settle(new Error(`connection closed unexpectedly (code ${ev.code})`));
+    };
+  });
+}
+
+/**
  * Publish a pre-signed event to the canonical relay using NIP-42 AUTH.
  *
  * Wire protocol:

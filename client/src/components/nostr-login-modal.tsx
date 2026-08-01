@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useNostr } from "@/context/NostrContext";
 import { generateSecretKey, getPublicKey } from "nostr-tools";
 import { npubEncode, nsecEncode } from "nostr-tools/nip19";
-import { Copy, Check, Eye, EyeOff, Zap, Wifi, Key, AlertTriangle, ExternalLink, ShieldCheck, Mail, ChevronDown, Lock } from "lucide-react";
+import { Copy, Check, Eye, EyeOff, Zap, Wifi, Key, AlertTriangle, ExternalLink, ShieldCheck, Mail, ChevronDown, Lock, Loader2, CircleCheck } from "lucide-react";
 import { hexToBytes } from "@/lib/nostr";
 
 type NostrSubTab = "extension" | "bunker";
@@ -212,27 +212,39 @@ function EmailTab({ mode, setMode }: { mode: "login" | "register"; setMode: (m: 
 }
 
 function ExtensionTab() {
-  const { loginNip07 } = useNostr();
+  const { connectNip07Signer, closeLoginModal } = useNostr();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<"connect" | "signer-connected" | "verifying" | "awaiting-access" | "ready">("connect");
   const hasExtension = typeof window !== "undefined" && !!window.nostr;
 
   const handleConnect = async () => {
     setError("");
     setLoading(true);
     try {
-      await loginNip07();
+      await connectNip07Signer(setStatus);
     } catch (e: any) {
-      setError(e.message || "Failed to connect");
+      setError(status === "awaiting-access"
+        ? "The relay has received your public key. Try again after access is approved."
+        : (e.message || "Failed to connect"));
     } finally {
       setLoading(false);
     }
   };
 
+  const steps = [
+    { id: "connect", label: "Connect signer" },
+    { id: "signer-connected", label: "Signer connected" },
+    { id: "verifying", label: "Verifying with btc-online relay" },
+    { id: "awaiting-access", label: "Awaiting relay access" },
+    { id: "ready", label: "Ready to publish" },
+  ] as const;
+  const activeIndex = steps.findIndex(step => step.id === status);
+
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Use a browser extension to sign in with your existing Nostr identity. Your private key never leaves the extension.
+        Connect an installed NIP-07 browser signer. Your public key is shared with btconline; your private key stays inside the signer.
       </p>
 
       {hasExtension ? (
@@ -271,16 +283,43 @@ function ExtensionTab() {
         </div>
       )}
 
+      <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2" aria-live="polite">
+        {steps.map((step, index) => {
+          const isComplete = status === "ready" || activeIndex > index;
+          const isCurrent = step.id === status;
+          return (
+            <div key={step.id} className={`flex items-center gap-2 text-xs ${isCurrent ? "font-semibold text-foreground" : isComplete ? "text-green-600 dark:text-green-400" : "text-muted-foreground"}`}>
+              {isComplete ? <CircleCheck className="h-3.5 w-3.5 shrink-0" /> : isCurrent && loading ? <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" /> : <span className="h-3.5 w-3.5 shrink-0 rounded-full border border-current" />}
+              <span>{step.label}</span>
+            </div>
+          );
+        })}
+      </div>
+
+      {status === "awaiting-access" && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/20 px-3 py-2.5">
+          <p className="text-xs text-amber-800 dark:text-amber-300">
+            The relay accepted your signed verification, but this public key is waiting for access approval. No private key was shared with btconline.
+          </p>
+        </div>
+      )}
+
       {error && <p className="text-sm text-destructive">{error}</p>}
 
-      <Button
-        className="w-full"
-        onClick={handleConnect}
-        disabled={loading || !hasExtension}
-        data-testid="button-connect-extension"
-      >
-        {loading ? "Connecting…" : "Connect Extension"}
-      </Button>
+      {status === "ready" ? (
+        <Button className="w-full" onClick={closeLoginModal} data-testid="button-finish-nostr-signer">
+          <CircleCheck className="h-4 w-4 mr-2" /> Continue to btconline
+        </Button>
+      ) : (
+        <Button
+          className="w-full"
+          onClick={handleConnect}
+          disabled={loading || !hasExtension}
+          data-testid="button-connect-nostr-signer"
+        >
+          {loading ? (status === "verifying" ? "Verifying…" : "Connecting…") : status === "awaiting-access" ? "Check relay access" : "Connect Nostr signer"}
+        </Button>
+      )}
     </div>
   );
 }
@@ -614,8 +653,7 @@ export default function NostrLoginModal() {
   const [createOpen, setCreateOpen] = useState(false);
 
   const nostrTabs: { id: NostrSubTab; label: string; icon: ReactNode }[] = [
-    { id: "extension", label: "Extension", icon: <ShieldCheck className="h-3.5 w-3.5" /> },
-    { id: "bunker", label: "Bunker / Key", icon: <Wifi className="h-3.5 w-3.5" /> },
+    { id: "extension", label: "Browser signer", icon: <ShieldCheck className="h-3.5 w-3.5" /> },
   ];
 
   const handleClose = () => {
@@ -658,7 +696,7 @@ export default function NostrLoginModal() {
                 >
                   <span className="flex items-center gap-2">
                     <Zap className="h-4 w-4 text-amber-500" />
-                    Sign in with Nostr
+                    Connect Nostr signer
                   </span>
                   <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${nostrOpen ? "rotate-180" : ""}`} />
                 </button>
