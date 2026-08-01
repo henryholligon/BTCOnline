@@ -73,29 +73,58 @@ export async function fetchRelayList(pubkey: string): Promise<{ read: string[]; 
 
 export interface FavouritesResult {
   urls: Set<string>;
+  /** Merchant URL → ALL of the user's live kind-7 reaction event ids (unlikes delete every one). */
+  reactionIds: Map<string, string[]>;
   event: Event | null;
   isPrivate: boolean;
 }
 
 /**
- * Fetch the user's favourites (Kind 10003).
- * If the event is private (encrypted), `isPrivate` is true and `urls` is empty —
- * the caller must decrypt `event.content` with NIP-44.
+ * Fetch the user's likes.
+ * Public likes are NIP-25 kind-7 reaction events (content "+", with an
+ * ["r", <merchant-url>] tag); an unlike is a kind-5 deletion of the reaction.
+ * Kind 10003 is never written for likes anymore — it is only READ here for
+ * backwards compatibility: a `private:true` event marks encrypted private
+ * likes, and a public legacy event's `r` tags are merged so older likes are
+ * not lost before they are migrated.
  */
 export async function fetchFavourites(pubkey: string, relays: string[]): Promise<FavouritesResult> {
-  const event = await poolGet(relays, { kinds: [10003], authors: [pubkey] });
-  if (!event) return { urls: new Set(), event: null, isPrivate: false };
+  const [reactions, deletions, legacy] = await Promise.all([
+    poolQuerySync(relays, { kinds: [7], authors: [pubkey] }),
+    poolQuerySync(relays, { kinds: [5], authors: [pubkey] }),
+    poolGet(relays, { kinds: [10003], authors: [pubkey] }),
+  ]);
 
-  const isPrivate = event.tags.some(t => t[0] === 'private' && t[1] === 'true');
-  if (isPrivate) {
-    return { urls: new Set(), event, isPrivate: true };
+  const deletedIds = new Set<string>();
+  for (const d of deletions) {
+    for (const t of d.tags) if (t[0] === 'e') deletedIds.add(t[1]);
   }
 
   const urls = new Set<string>();
-  for (const tag of event.tags) {
-    if (tag[0] === 'r') urls.add(tag[1]);
+  const reactionIds = new Map<string, string[]>();
+  // A URL is liked while at least one live (non-deleted) positive reaction
+  // exists. Every live reaction id is tracked so an unlike can delete them
+  // all — duplicates from retries or other clients must not survive.
+  for (const ev of reactions) {
+    if (deletedIds.has(ev.id)) continue;
+    if (ev.content !== '+' && ev.content !== '') continue; // only positive reactions count as likes
+    const url = ev.tags.find(t => t[0] === 'r')?.[1];
+    if (!url) continue;
+    urls.add(url);
+    const ids = reactionIds.get(url) ?? [];
+    ids.push(ev.id);
+    reactionIds.set(url, ids);
   }
-  return { urls, event, isPrivate: false };
+
+  if (!legacy) return { urls, reactionIds, event: null, isPrivate: false };
+
+  const isPrivate = legacy.tags.some(t => t[0] === 'private' && t[1] === 'true');
+  if (!isPrivate) {
+    for (const tag of legacy.tags) {
+      if (tag[0] === 'r') urls.add(tag[1]);
+    }
+  }
+  return { urls, reactionIds, event: legacy, isPrivate };
 }
 
 export async function fetchUserLists(pubkey: string, relays: string[]): Promise<Event[]> {
@@ -170,57 +199,76 @@ export async function fetchSaveCount(url: string, relays: string[]): Promise<num
   }
 }
 
-/**
- * Fetch the number of public likes for a merchant URL.
- * Only counts Kind 10003 events that are NOT private-encrypted.
- */
 /** Race a promise against a hard timeout; resolves with fallback if time runs out. */
 function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
   return Promise.race([promise, new Promise<T>(resolve => setTimeout(() => resolve(fallback), ms))]);
 }
 
 export async function fetchLikeCount(url: string, relays: string[]): Promise<number> {
-  try {
-    const events = await withTimeout(
-      pool.querySync(relays, { kinds: [10003], limit: 500 } as Filter, { maxWait: 4000 }),
-      6000,
-      [] as Event[],
-    );
-    const latestByAuthor = new Map<string, Event>();
-    for (const event of events) {
-      if (event.tags.some(t => t[0] === 'private' && t[1] === 'true')) continue;
-      const current = latestByAuthor.get(event.pubkey);
-      if (!current || event.created_at > current.created_at) latestByAuthor.set(event.pubkey, event);
-    }
-    return Array.from(latestByAuthor.values())
-      .filter(event => event.tags.some(t => t[0] === 'r' && t[1] === url))
-      .length;
-  } catch {
-    return 0;
-  }
+  return (await fetchLikeAuthors(url, relays)).length;
 }
 
-/** Fetch public Nostr identities whose latest public kind-10003 event includes a merchant URL. */
+/**
+ * Fetch pubkeys that publicly like a merchant URL.
+ * A like is a NIP-25 kind-7 reaction (content "+", ["r", <url>] tag); an
+ * unlike is a kind-5 deletion of that reaction, so reactions referenced by
+ * an author's deletion event are excluded. Public legacy kind-10003 bookmark
+ * events are unioned in for backwards compatibility only — new likes are
+ * never written as kind 10003.
+ */
 export async function fetchLikeAuthors(url: string, relays: string[]): Promise<string[]> {
   try {
-    const events = await withTimeout(
+    const reactions = await withTimeout(
+      pool.querySync(relays, { kinds: [7], '#r': [url], limit: 500 } as Filter, { maxWait: 4000 }),
+      6000,
+      [] as Event[],
+    );
+    const positive = reactions.filter(
+      e => (e.content === '+' || e.content === '') && e.tags.some(t => t[0] === 'r' && t[1] === url),
+    );
+
+    const authors = Array.from(new Set(positive.map(e => e.pubkey)));
+    const deletions = authors.length
+      ? await withTimeout(
+          pool.querySync(relays, { kinds: [5], authors, limit: 500 } as Filter, { maxWait: 4000 }),
+          6000,
+          [] as Event[],
+        )
+      : [];
+    const deletedByAuthor = new Map<string, Set<string>>();
+    for (const d of deletions) {
+      for (const t of d.tags) {
+        if (t[0] !== 'e') continue;
+        const set = deletedByAuthor.get(d.pubkey) ?? new Set<string>();
+        set.add(t[1]);
+        deletedByAuthor.set(d.pubkey, set);
+      }
+    }
+
+    // Unified like rule (same as fetchFavourites): an author likes the URL
+    // while at least one live (non-deleted) positive reaction exists.
+    const liked = new Set<string>();
+    for (const e of positive) {
+      if (!deletedByAuthor.get(e.pubkey)?.has(e.id)) liked.add(e.pubkey);
+    }
+
+    // Legacy compat: authors whose latest public kind-10003 still lists the URL.
+    const legacyEvents = await withTimeout(
       pool.querySync(relays, { kinds: [10003], limit: 500 } as Filter, { maxWait: 4000 }),
       6000,
       [] as Event[],
     );
-    // Kind 10003 is replaceable: use each author's latest public event so
-    // stale events do not make an old like appear current.
-    const latestByAuthor = new Map<string, Event>();
-    for (const event of events) {
-      if (event.tags.some(t => t[0] === 'private' && t[1] === 'true')) continue;
-      const current = latestByAuthor.get(event.pubkey);
-      if (!current || event.created_at > current.created_at) {
-        latestByAuthor.set(event.pubkey, event);
-      }
+    const latestLegacyByAuthor = new Map<string, Event>();
+    for (const e of legacyEvents) {
+      if (e.tags.some(t => t[0] === 'private' && t[1] === 'true')) continue;
+      const current = latestLegacyByAuthor.get(e.pubkey);
+      if (!current || e.created_at > current.created_at) latestLegacyByAuthor.set(e.pubkey, e);
     }
-    return Array.from(latestByAuthor.values())
-      .filter(event => event.tags.some(t => t[0] === 'r' && t[1] === url))
-      .map(event => event.pubkey);
+    for (const [author, e] of Array.from(latestLegacyByAuthor)) {
+      if (e.tags.some((t: string[]) => t[0] === 'r' && t[1] === url)) liked.add(author);
+    }
+
+    return Array.from(liked);
   } catch {
     return [];
   }
