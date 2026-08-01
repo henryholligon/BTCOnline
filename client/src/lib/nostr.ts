@@ -1,12 +1,18 @@
 import { SimplePool } from 'nostr-tools/pool';
 import type { Event, Filter } from 'nostr-tools';
+import { CANONICAL_RELAY, BACKUP_RELAYS } from './btc-relay';
 
-export const DEFAULT_RELAYS = [
-  'wss://relay.damus.io',
-  'wss://nos.lol',
-  'wss://relay.nostr.band',
-  'wss://nostr.wine',
-];
+export { CANONICAL_RELAY } from './btc-relay';
+
+/**
+ * DEFAULT_RELAYS contains the backup relays used for profile bootstrapping
+ * and NIP-65 relay-list lookups. Community data (likes, saves, merchant
+ * lists, favourites) is read exclusively from the canonical relay.
+ */
+export const DEFAULT_RELAYS = BACKUP_RELAYS;
+
+/** Bootstrap relay set for profile and relay-list lookups. */
+const BOOTSTRAP_RELAYS = [CANONICAL_RELAY, ...BACKUP_RELAYS];
 
 export const pool = new SimplePool();
 
@@ -64,8 +70,8 @@ export async function fetchFollows(pubkey: string, relays: string[]): Promise<st
 }
 
 export async function fetchRelayList(pubkey: string): Promise<{ read: string[]; write: string[] }> {
-  const event = await poolGet(DEFAULT_RELAYS, { kinds: [10002], authors: [pubkey] });
-  if (!event) return { read: DEFAULT_RELAYS, write: DEFAULT_RELAYS };
+  const event = await poolGet(BOOTSTRAP_RELAYS, { kinds: [10002], authors: [pubkey] });
+  if (!event) return { read: BOOTSTRAP_RELAYS, write: BOOTSTRAP_RELAYS };
 
   const read: string[] = [];
   const write: string[] = [];

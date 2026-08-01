@@ -9,3 +9,4 @@
 - [Comment authentication](comment-auth.md) — comments support custodial email sessions and pure Nostr identities without email.
 - [Dashboard history](dashboard-history.md) — growth charts use daily snapshots from feature launch, not fabricated backfilled history.
 - [Remote OK style matching](remoteok-styling.md) — card text is all #111, hierarchy via weight not grey; verify colors by darkest-pixel sampling of live screenshots, never guess.
+- [Canonical relay architecture](canonical-relay.md) — NIP-42 auth publish flow, localStorage outbox with backoff, access-request on login, canonical-only reads for community data.

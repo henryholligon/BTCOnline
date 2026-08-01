@@ -5,10 +5,19 @@ import { decrypt as ncryptsecDecrypt } from 'nostr-tools/nip49';
 import { BunkerSigner } from 'nostr-tools/nip46';
 import type { Event, EventTemplate, VerifiedEvent } from 'nostr-tools';
 import {
+  CANONICAL_RELAY,
+  BACKUP_RELAYS,
+  requestRelayAccess,
+  addToOutbox,
+  removeFromOutbox,
+  markOutboxAttempt,
+  getPendingOutboxEntries,
+  publishToCanonical,
+} from '@/lib/btc-relay';
+import {
   pool,
   DEFAULT_RELAYS,
   fetchProfile,
-  fetchRelayList,
   fetchFollows,
   fetchFavourites,
   fetchUserLists,
@@ -153,8 +162,8 @@ function loadSavedLists(): SavedPublicList[] {
 
 export function NostrProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<NostrUser | null>(null);
-  const [readRelays, setReadRelays] = useState<string[]>(DEFAULT_RELAYS);
-  const [writeRelays, setWriteRelays] = useState<string[]>(DEFAULT_RELAYS);
+  const [readRelays, setReadRelays] = useState<string[]>([CANONICAL_RELAY]);
+  const [writeRelays, setWriteRelays] = useState<string[]>([CANONICAL_RELAY]);
   const [favourites, setFavourites] = useState<Set<string>>(new Set());
   const [lists, setLists] = useState<NostrList[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -174,6 +183,8 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
   const saveCountFetchingRef = useRef<Set<string>>(new Set());
   /** True when the current session loaded private likes but could not decrypt them. */
   const privateLikesDecryptFailedRef = useRef(false);
+  /** Tracks whether the post-login outbox drain has already been kicked off. */
+  const outboxDrainedRef = useRef(false);
 
   const openLoginModal = useCallback(() => setIsLoginModalOpen(true), []);
   const closeLoginModal = useCallback(() => {
@@ -204,16 +215,18 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
     let loadedProfile: { name?: string; display_name?: string; picture?: string } | null = null;
     try {
       const npub = npubEncode(pubkey);
-      const relays = await fetchRelayList(pubkey);
-      setReadRelays(relays.read);
-      setWriteRelays(relays.write);
+      // Community data is always read from the canonical relay only.
+      setReadRelays([CANONICAL_RELAY]);
+      setWriteRelays([CANONICAL_RELAY]);
 
-      loadedProfile = await fetchProfile(pubkey, relays.read);
+      // Profile lookup: canonical relay first, then backup relays for users
+      // who have not yet published to the canonical relay.
+      loadedProfile = await fetchProfile(pubkey, [CANONICAL_RELAY, ...DEFAULT_RELAYS]);
       const displayName = loadedProfile?.display_name || loadedProfile?.name || npub.slice(0, 12) + '…';
       setUser({ pubkey, npub, displayName, picture: loadedProfile?.picture, loginMethod: method });
 
-      // Fetch favourites — may be private (encrypted)
-      const favResult = await fetchFavourites(pubkey, relays.read);
+      // Fetch favourites from canonical relay only
+      const favResult = await fetchFavourites(pubkey, [CANONICAL_RELAY]);
       if (favResult.isPrivate && favResult.event) {
         try {
           const decrypted = await decryptForSelf(favResult.event.content, secretKeyRef.current);
@@ -237,10 +250,10 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem(getLikesPublicKey(pubkey), 'true');
       }
 
-      // Fetch follow list (kind:3) and user lists in parallel
+      // Fetch follow list (kind:3) and user lists from canonical relay
       const [listEvents, followPubkeys] = await Promise.all([
-        fetchUserLists(pubkey, relays.read),
-        fetchFollows(pubkey, relays.read),
+        fetchUserLists(pubkey, [CANONICAL_RELAY]),
+        fetchFollows(pubkey, [CANONICAL_RELAY]),
       ]);
       setFollows(new Set(followPubkeys));
       const parsedLists: NostrList[] = [];
@@ -281,6 +294,26 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
     return loadedProfile;
   }, []);
 
+  // Drain outbox entries after a successful login.
+  useEffect(() => {
+    if (!user) { outboxDrainedRef.current = false; return; }
+    if (outboxDrainedRef.current) return;
+    outboxDrainedRef.current = true;
+    const pending = getPendingOutboxEntries();
+    if (pending.length === 0) return;
+    console.log(`[btc-relay] draining ${pending.length} outbox event(s) after login`);
+    (async () => {
+      for (const entry of pending) {
+        try {
+          await publishToCanonical(entry.event, signEvent);
+          removeFromOutbox(entry.event.id);
+        } catch {
+          markOutboxAttempt(entry.event.id);
+        }
+      }
+    })();
+  }, [user?.pubkey, signEvent]);
+
   useEffect(() => {
     const session = loadSession();
     if (!session) return;
@@ -319,6 +352,7 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
   const loginNip07 = useCallback(async () => {
     if (!window.nostr) throw new Error('No Nostr extension found. Please install Alby or nos2x.');
     const pubkey = await window.nostr.getPublicKey();
+    requestRelayAccess(pubkey); // fire-and-forget — never sends private key
     saveSession({ pubkey, method: 'nip07' });
     await initUser(pubkey, 'nip07');
     closeLoginModal();
@@ -333,6 +367,7 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
     });
     bunkerSignerRef.current = signer;
     const pubkey = await signer.getPublicKey();
+    requestRelayAccess(pubkey); // fire-and-forget — never sends private key
     saveSession({ pubkey, method: 'nip46', bunkerUri, bunkerLocalSkHex: localSkHex });
     await initUser(pubkey, 'nip46');
     closeLoginModal();
@@ -341,6 +376,7 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
   const loginWithGeneratedKey = useCallback(async (sk: Uint8Array, ncryptsec?: string, custodialEmail?: string) => {
     secretKeyRef.current = sk;
     const pubkey = getPublicKey(sk);
+    requestRelayAccess(pubkey); // fire-and-forget — never sends private key
     saveSession({
       pubkey, method: 'generated', ncryptsec,
       ...(custodialEmail ? { custody: 'custodial', email: custodialEmail } : {}),
@@ -357,17 +393,23 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
         tags: [],
         content: JSON.stringify({ name: generated.name, display_name: generated.name, picture: generated.avatarUrl }),
       }, sk);
-      await Promise.any(pool.publish(DEFAULT_RELAYS, profileEvent));
+      // Publish with NIP-42 auth to canonical relay, backup relays fire-and-forget
+      addToOutbox(profileEvent);
+      publishToCanonical(profileEvent, signEvent)
+        .then(() => removeFromOutbox(profileEvent.id))
+        .catch(() => markOutboxAttempt(profileEvent.id));
+      pool.publish(BACKUP_RELAYS, profileEvent).forEach(p => p.catch(() => {}));
       setUser(prev => prev ? { ...prev, displayName: generated.name, picture: generated.avatarUrl } : prev);
     }
     setRestoringNcryptsec(null);
     closeLoginModal();
-  }, [initUser, closeLoginModal]);
+  }, [initUser, closeLoginModal, signEvent]);
 
   const restoreGeneratedSession = useCallback(async (ncryptsec: string, password: string) => {
     const sk = ncryptsecDecrypt(ncryptsec, password);
     secretKeyRef.current = sk;
     const pubkey = getPublicKey(sk);
+    requestRelayAccess(pubkey); // fire-and-forget — never sends private key
     saveSession({ pubkey, method: 'generated', ncryptsec });
     setRestoringNcryptsec(null);
     setIsLoginModalOpen(false);
@@ -380,10 +422,14 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
         tags: [],
         content: JSON.stringify({ name: generated.name, display_name: generated.name, picture: generated.avatarUrl }),
       }, sk);
-      await Promise.any(pool.publish(DEFAULT_RELAYS, profileEvent));
+      addToOutbox(profileEvent);
+      publishToCanonical(profileEvent, signEvent)
+        .then(() => removeFromOutbox(profileEvent.id))
+        .catch(() => markOutboxAttempt(profileEvent.id));
+      pool.publish(BACKUP_RELAYS, profileEvent).forEach(p => p.catch(() => {}));
       setUser(prev => prev ? { ...prev, displayName: generated.name, picture: generated.avatarUrl } : prev);
     }
-  }, [initUser]);
+  }, [initUser, signEvent]);
 
   const logout = useCallback(() => {
     const session = loadSession();
@@ -396,8 +442,8 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     setFavourites(new Set());
     setLists([]);
-    setReadRelays(DEFAULT_RELAYS);
-    setWriteRelays(DEFAULT_RELAYS);
+    setReadRelays([CANONICAL_RELAY]);
+    setWriteRelays([CANONICAL_RELAY]);
     setLikeCounts(new Map());
     setLikeAuthors(new Map());
     setFollows(new Set());
@@ -408,10 +454,25 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
 
   const publishEvent = useCallback(async (template: EventTemplate) => {
     const signed = await signEvent(template);
-    const promises = pool.publish(writeRelays, signed);
-    await Promise.any(promises);
+
+    // 1. Persist to local outbox before attempting relay publish.
+    addToOutbox(signed);
+
+    // 2. Publish to canonical relay with NIP-42 AUTH (primary, authoritative).
+    try {
+      await publishToCanonical(signed, signEvent);
+      removeFromOutbox(signed.id);
+    } catch (err) {
+      markOutboxAttempt(signed.id);
+      console.warn('[btc-relay] canonical publish failed — event queued for retry:', err);
+    }
+
+    // 3. Redundant publish to backup relays (fire-and-forget, no auth required).
+    //    These results are never read back as canonical data.
+    pool.publish(BACKUP_RELAYS, signed).forEach(p => p.catch(() => {}));
+
     return signed;
-  }, [signEvent, writeRelays]);
+  }, [signEvent]);
 
   const updateProfile = useCallback(async (profile: { name: string; picture?: string }) => {
     if (!user) throw new Error('Not logged in');

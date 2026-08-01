@@ -16,7 +16,7 @@ import { decode } from "nostr-tools/nip19";
 import WebSocket from "ws";
 import type { Merchant } from "@shared/schema";
 
-const DEFAULT_RELAY_URL = "wss://relay.primal.net";
+const DEFAULT_RELAY_URL = "wss://nostr-permissioned-host.replit.app/";
 const PUBLISH_TIMEOUT_MS = 15_000;
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -108,15 +108,38 @@ function buildKind30402(merchant: Merchant, secretKey: Uint8Array) {
 
 // ── Relay transport ───────────────────────────────────────────────────────────
 
+/**
+ * Publish a single event to a relay, performing NIP-42 AUTH if the relay
+ * issues a challenge before accepting the event.
+ *
+ * Flow:
+ *   connect
+ *   ← ["AUTH", challenge]          (relay initiates challenge)
+ *   → ["AUTH", kind-22242-event]   (we respond with signed challenge)
+ *   ← ["OK", authEventId, true, ""]
+ *   → ["EVENT", event]
+ *   ← ["OK", event.id, true|false, message]
+ *
+ * Relays that do not issue AUTH are also supported: if no AUTH arrives within
+ * AUTH_GRACE_MS, the event is sent without prior authentication.
+ */
 function publishEventToRelay(
   relayUrl: string,
   event: VerifiedEvent,
 ): Promise<boolean> {
+  const masterKey = getMasterKey();
+
   return new Promise((resolve) => {
     let settled = false;
+    let authEventId = "";
+    let authComplete = false;
+
     const settle = (val: boolean) => {
       if (!settled) {
         settled = true;
+        clearTimeout(timer);
+        clearTimeout(authFallbackTimer);
+        try { ws.close(); } catch {}
         resolve(val);
       }
     };
@@ -126,34 +149,83 @@ function publishEventToRelay(
       settle(false);
     }, PUBLISH_TIMEOUT_MS);
 
-    const ws = new WebSocket(relayUrl);
+    // If the relay does not send an AUTH challenge within 3 s, publish directly.
+    const AUTH_GRACE_MS = 3_000;
+    const authFallbackTimer = setTimeout(() => {
+      if (!authComplete) {
+        authComplete = true; // skip auth
+        ws.send(JSON.stringify(["EVENT", event]));
+      }
+    }, AUTH_GRACE_MS);
 
-    ws.on("open", () => {
-      ws.send(JSON.stringify(["EVENT", event]));
-    });
+    const ws = new WebSocket(relayUrl);
 
     ws.on("message", (data) => {
       try {
         const msg = JSON.parse(data.toString());
-        // NIP-01: ["OK", <event-id>, <true|false>, <message>]
-        if (Array.isArray(msg) && msg[0] === "OK" && msg[1] === event.id) {
-          clearTimeout(timer);
-          ws.close();
-          settle(msg[2] === true);
+        if (!Array.isArray(msg)) return;
+
+        // ── AUTH challenge ────────────────────────────────────────────────────
+        if (msg[0] === "AUTH" && typeof msg[1] === "string" && !authComplete && masterKey) {
+          clearTimeout(authFallbackTimer);
+          const challenge = msg[1] as string;
+          const authEvent = finalizeEvent(
+            {
+              kind: 22242,
+              created_at: Math.floor(Date.now() / 1000),
+              tags: [["challenge", challenge], ["relay", relayUrl]],
+              content: "",
+            },
+            masterKey,
+          );
+          authEventId = authEvent.id;
+          ws.send(JSON.stringify(["AUTH", authEvent]));
+          return;
+        }
+
+        if (msg[0] === "OK" && typeof msg[1] === "string") {
+          const id = msg[1] as string;
+          const ok = msg[2] as boolean;
+          const reason = (msg[3] as string) ?? "";
+
+          // AUTH confirmation
+          if (id === authEventId && !authComplete) {
+            if (!ok) {
+              console.error("[nostr] Auth rejected by relay:", reason);
+              settle(false);
+              return;
+            }
+            authComplete = true;
+            clearTimeout(authFallbackTimer);
+            ws.send(JSON.stringify(["EVENT", event]));
+            return;
+          }
+
+          // EVENT confirmation
+          if (id === event.id) {
+            if (!ok) console.warn(`[nostr] Relay rejected event: ${reason}`);
+            settle(ok === true);
+          }
         }
       } catch {}
     });
 
+    ws.on("open", () => {
+      // If the relay has no master key for auth or auth is already done, publish immediately.
+      if (!masterKey) {
+        authComplete = true;
+        clearTimeout(authFallbackTimer);
+        ws.send(JSON.stringify(["EVENT", event]));
+      }
+      // else: wait for AUTH challenge or fallback timer
+    });
+
     ws.on("error", (err) => {
       console.error("[nostr] WebSocket error:", (err as Error).message);
-      clearTimeout(timer);
       settle(false);
     });
 
-    ws.on("close", () => {
-      clearTimeout(timer);
-      settle(false);
-    });
+    ws.on("close", () => settle(false));
   });
 }
 
