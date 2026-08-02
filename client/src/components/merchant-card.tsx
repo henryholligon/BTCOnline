@@ -9,6 +9,7 @@ import { useRef, useEffect, useState, memo, useCallback, useMemo } from "react";
 import { useComments, useSubmitComment, useDeleteComment, useIsAdmin, useMerchantRating, useMyReview, useMasterPubkey, useNostrProfiles } from "@/hooks/use-comments";
 import { Textarea } from "@/components/ui/textarea";
 import { slugify } from "@/lib/utils";
+import { REVIEW_KIND, RATING_TAG } from "@/lib/nostr";
 import { QRCodeSVG } from "qrcode.react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -242,8 +243,8 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
         tags.push(['A', `30402:${masterPubkey}:${dTag}`]);
         tags.push(['a', `30402:${masterPubkey}:${dTag}`]);
       }
-      if (rating) tags.push(['rating', String(rating)]);
-      await publishEvent({ kind: 1111, created_at: Math.floor(Date.now() / 1000), tags, content: body });
+      if (rating) tags.push([RATING_TAG, String(rating)]);
+      await publishEvent({ kind: REVIEW_KIND, created_at: Math.floor(Date.now() / 1000), tags, content: body });
     } catch (err) {
       console.warn('[nostr] Failed to publish comment event:', err);
     }

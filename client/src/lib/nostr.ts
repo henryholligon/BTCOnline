@@ -20,6 +20,57 @@ export const pool = new SimplePool();
 export const PRIVATE_LIKES_KIND = 30078;
 export const PRIVATE_LIKES_D_TAG = 'btconline-private-likes';
 
+// ── Star-rating encoding decision ────────────────────────────────────────────
+//
+// Star ratings are encoded as a `["rating", "<1-5>"]` tag on kind-1111
+// (NIP-22 comment) events. The comment text lives in `content` as a plain
+// string. This is the canonical BTCOnline encoding; alternatives were
+// considered and rejected for these reasons:
+//
+//  Option A – rating inside content JSON  {"body":"…","rating":4}
+//    Rejected: content must be a plain human-readable string per NIP-22; JSON
+//    blobs break clients that display the content field directly and cannot be
+//    indexed by relay tag filters.
+//
+//  Option B – NIP-32 label event (kind 1985)  ["l","4","stars"]
+//    Rejected: requires publishing two separate events (one comment, one label)
+//    per review, doubling relay writes and complicating deletion. Relay
+//    filtering by rating is not a current requirement.
+//
+//  Option C – Custom kind (e.g. 9901)
+//    Rejected: no existing client support; kind-1111 already semantically
+//    covers "comment on an addressable event" and is understood by more clients.
+//
+//  Option D – Kind-1 note with structured content
+//    Rejected: kind-1 notes lack the parent-reference tags (K/k/E/e/A/a) that
+//    NIP-22 kind-1111 provides, making them unqueryable as merchant reviews.
+//
+// Summary of chosen encoding (kind-1111 + rating tag):
+//   - One event per review — simple publish and delete
+//   - `content` stays human-readable (plain text body)
+//   - Rating is a first-class tag: `["rating", "4"]` (integer string 1–5)
+//   - Merchant identified via `["r", <merchant-url>]` and NIP-22 root refs
+//   - Other Nostr clients that don't know the `rating` tag just show the
+//     comment text, degrading gracefully
+//   - Future relay support for `#rating` tag filtering is straightforward
+
+/** Kind used for merchant comments and star-rating reviews (NIP-22 comment). */
+export const REVIEW_KIND = 1111;
+
+/**
+ * Tag name for the integer (1–5) star rating on a kind-1111 review event.
+ * Example tag: `["rating", "4"]`
+ *
+ * A kind-1111 event without this tag is a plain comment (no rating).
+ * A kind-1111 event with this tag is a review; `content` holds the optional
+ * review text as a plain human-readable string.
+ */
+export const RATING_TAG = 'rating';
+
+/** Minimum and maximum valid rating values. */
+export const RATING_MIN = 1;
+export const RATING_MAX = 5;
+
 export function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
 }
