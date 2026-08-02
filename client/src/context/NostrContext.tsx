@@ -392,8 +392,13 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
       if (session.custody === 'custodial' && session.email) {
         fetch('/api/auth/session', { credentials: 'include' })
           .then(r => r.ok ? r.json() : Promise.reject(new Error('session expired')))
-          .then(data => {
+          .then(async data => {
             secretKeyRef.current = hexToBytes(data.nsecHex);
+            try {
+              await verifyCanonicalAccess(signEvent);
+            } catch (accessErr) {
+              console.warn('[btc-relay] session restore access check failed, will retry on publish:', accessErr);
+            }
             initUser(session.pubkey, 'generated');
           })
           .catch(() => clearSession());
@@ -437,6 +442,11 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
     secretKeyRef.current = sk;
     const pubkey = getPublicKey(sk);
     requestRelayAccess(pubkey); // fire-and-forget — never sends private key
+    // Verify relay access before saving session — same gate as NIP-07 signers.
+    // Generated key users need approval from the relay's allowlist before their
+    // publishes are accepted. Without this check, likes and other events silently
+    // fail with blocked: pubkey not on relay allowlist.
+    await verifyCanonicalAccess(signEvent);
     saveSession({
       pubkey, method: 'generated', ncryptsec,
       ...(custodialEmail ? { custody: 'custodial', email: custodialEmail } : {}),
@@ -470,6 +480,7 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
     secretKeyRef.current = sk;
     const pubkey = getPublicKey(sk);
     requestRelayAccess(pubkey); // fire-and-forget — never sends private key
+    await verifyCanonicalAccess(signEvent);
     saveSession({ pubkey, method: 'generated', ncryptsec });
     setRestoringNcryptsec(null);
     setIsLoginModalOpen(false);
