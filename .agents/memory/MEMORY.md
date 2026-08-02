@@ -7,6 +7,7 @@
 - [Public activity privacy](public-activity-privacy.md) — attribute only public Nostr likes; comments and reviews may show their existing author names.
 - [QR rendering](qr-rendering.md) — use a standard QR renderer and preserve quiet zones/data modules for phone scanability.
 - [Comment authentication](comment-auth.md) — comments support custodial email sessions and pure Nostr identities without email.
+- [Comments as Nostr events](comment-nostr-encoding.md) — kind-1111 NIP-22 events replace the server-side comments DB table, with star ratings as ["rating", "<1-5>"] tags.
 - [Dashboard history](dashboard-history.md) — growth charts use daily snapshots from feature launch, not fabricated backfilled history.
 - [Remote OK style matching](remoteok-styling.md) — card text is all #111, hierarchy via weight not grey; verify colors by darkest-pixel sampling of live screenshots, never guess.
 - [Canonical relay architecture](canonical-relay.md) — NIP-42 auth publish flow, localStorage outbox with backoff, access-request on login, canonical-only reads for community data.

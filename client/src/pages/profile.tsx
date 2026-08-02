@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { decode } from "nostr-tools/nip19";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/navbar";
-import { fetchProfile, fetchFavourites, fetchRelayList } from "@/lib/nostr";
+import { fetchProfile, fetchFavourites, fetchRelayList, poolQuerySync, REVIEW_KIND, CANONICAL_RELAY } from "@/lib/nostr";
 import { useNostr } from "@/context/NostrContext";
 import { Heart, MessageSquare, Copy, Check, ExternalLink, Pencil, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -92,10 +92,45 @@ export default function ProfilePage() {
     return () => { cancelled = true; };
   }, [pubkey]);
 
-  // Fetch on-site activity (comments + reviews from DB)
+  // Fetch user's comment/review activity from the canonical relay (kind-1111 events)
   const { data: activity = [], isLoading: activityLoading } = useQuery<ActivityItem[]>({
-    queryKey: ["profile-activity", pubkey],
-    queryFn: () => fetch(`/api/profile/${pubkey}/activity`).then(r => r.json()),
+    queryKey: ["profile-nostr-activity", pubkey],
+    queryFn: async () => {
+      if (!pubkey) return [];
+      const events = await poolQuerySync(
+        [CANONICAL_RELAY],
+        { kinds: [REVIEW_KIND], authors: [pubkey], limit: 100 } as import("nostr-tools").Filter,
+        8000,
+      );
+      // Filter to top-level events (no reply marker)
+      const topLevel = events.filter(
+        e => !e.tags.some(t => t[0] === 'e' && t[3] === 'reply')
+      );
+      // Match merchants by website URL
+      const merchantsList = await Promise.resolve(
+        fetch("/api/merchants").then(r => r.json() as Promise<Merchant[]>).catch(() => []),
+      );
+      const merchantByWebsite = new Map(merchantsList.map(m => [m.website, m]));
+      return topLevel
+        .map(ev => {
+          const website = ev.tags.find(t => t[0] === 'r')?.[1] ?? '';
+          const m = website ? merchantByWebsite.get(website) : undefined;
+          const ratingTag = ev.tags.find(t => t[0] === 'rating');
+          return {
+            id: 0,
+            merchantId: m?.id ?? 0,
+            merchantName: m?.name ?? 'Unknown merchant',
+            merchantWebsite: website,
+            merchantLogo: m?.logo ?? '',
+            body: ev.content,
+            rating: ratingTag ? parseInt(ratingTag[1], 10) : null,
+            createdAt: new Date(ev.created_at * 1000).toISOString(),
+          };
+        })
+        .filter(item => item.merchantId > 0)
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, 50);
+    },
     enabled: !!pubkey,
   });
 
@@ -347,7 +382,7 @@ export default function ProfilePage() {
                   const isLast = idx === activity.length - 1;
                   const isReview = item.rating !== null;
                   return (
-                    <div key={item.id} className="flex gap-3">
+                    <div key={`${item.merchantId}-${item.createdAt}`} className="flex gap-3">
                       {/* Timeline spine */}
                       <div className="flex flex-col items-center shrink-0">
                         <div className={`h-2.5 w-2.5 rounded-full mt-1.5 ring-2 ring-background ${isReview ? "bg-amber-400" : "bg-border"}`} />

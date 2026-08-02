@@ -6,7 +6,7 @@ import { useCountryEmojis } from "@/hooks/use-country-emojis";
 import { Zap, Clock, Copy, Check, Heart, Bookmark, Upload, X as XIcon, Mail, ExternalLink, MessageSquare, Flag } from "lucide-react";
 import BitcoinLogo from "@/components/bitcoin-logo";
 import { useRef, useEffect, useState, memo, useCallback, useMemo } from "react";
-import { useComments, useSubmitComment, useDeleteComment, useIsAdmin, useMerchantRating, useMyReview, useMasterPubkey, useNostrProfiles } from "@/hooks/use-comments";
+import { useComments, useDeleteComment, useIsAdmin, useMerchantRating, useMyReview, useMasterPubkey, useNostrProfiles } from "@/hooks/use-comments";
 import { Textarea } from "@/components/ui/textarea";
 import { slugify } from "@/lib/utils";
 import { REVIEW_KIND, RATING_TAG } from "@/lib/nostr";
@@ -145,11 +145,14 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
   const [allLikesVisible, setAllLikesVisible] = useState(false);
   const [copied, setCopied] = useState(false);
   const [commentBody, setCommentBody] = useState("");
+  const [commentSubmitting, setCommentSubmitting] = useState(false);
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [reviewRating, setReviewRating] = useState<number | null>(null);
   const [reviewNote, setReviewNote] = useState("");
   const [hoverRating, setHoverRating] = useState<number | null>(null);
-  const [replyingTo, setReplyingTo] = useState<number | null>(null);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyBody, setReplyBody] = useState("");
+  const [replySubmitting, setReplySubmitting] = useState(false);
   const [showReport, setShowReport] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const [reportDetails, setReportDetails] = useState("");
@@ -165,11 +168,10 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
   const { user, favourites, follows, toggleFavourite, lists, toggleListMember, openLoginModal, likeCounts, likeAuthors, fetchLikeCount, fetchLikeAuthors, saveCounts, fetchSaveCount, publishEvent, likesPublic } = useNostr();
   const isAdmin = useIsAdmin();
   const masterPubkey = useMasterPubkey();
-  const { data: commentsList = [], isLoading: commentsLoading } = useComments(merchant.id, expanded);
-  const { data: ratingData } = useMerchantRating(merchant.id);
-  const { data: myReview } = useMyReview(merchant.id, !!user && expanded);
-  const submitComment = useSubmitComment(merchant.id);
-  const deleteComment = useDeleteComment(merchant.id);
+  const { data: commentsList = [], isLoading: commentsLoading } = useComments(merchant.website, expanded);
+  const { data: ratingData } = useMerchantRating(merchant.website);
+  const { data: myReview } = useMyReview(merchant.website, !!user && expanded);
+  const deleteComment = useDeleteComment();
   // relayLikeAuthors is undefined while loading, [] when loaded with no results
   const relayLikeAuthors = likeAuthors.get(merchant.website);
   const relayLikesLoaded = relayLikeAuthors !== undefined;
@@ -231,60 +233,67 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
     setReviewNote("");
   }, [expanded, myReview]);
 
-  const publishToNostr = useCallback(async (body: string, rating: number | null) => {
+  const publishToNostr = useCallback(async (body: string, rating: number | null, parentEventId?: string) => {
     if (!user || !merchant.nostrEventId) return;
     try {
       const dTag = slugify(merchant.name);
       const tags: string[][] = [
         ['K', '30402'], ['k', '30402'],
-        ['E', merchant.nostrEventId], ['e', merchant.nostrEventId],
+        ['E', merchant.nostrEventId, '', 'root'],
+        ['r', merchant.website],
       ];
       if (masterPubkey) {
         tags.push(['A', `30402:${masterPubkey}:${dTag}`]);
         tags.push(['a', `30402:${masterPubkey}:${dTag}`]);
       }
       if (rating) tags.push([RATING_TAG, String(rating)]);
+      // Threaded reply: reference parent comment event
+      if (parentEventId) {
+        tags.push(['e', parentEventId, '', 'reply']);
+      } else {
+        tags.push(['e', merchant.nostrEventId, '', 'root']);
+      }
       await publishEvent({ kind: REVIEW_KIND, created_at: Math.floor(Date.now() / 1000), tags, content: body });
     } catch (err) {
       console.warn('[nostr] Failed to publish comment event:', err);
     }
-  }, [user, merchant.nostrEventId, merchant.name, masterPubkey, publishEvent]);
+  }, [user, merchant.nostrEventId, merchant.name, merchant.website, masterPubkey, publishEvent]);
 
   const handleCommentSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!commentBody.trim()) return;
+    setCommentSubmitting(true);
     try {
-      await submitComment.mutateAsync({ body: commentBody, rating: null });
       await publishToNostr(commentBody, null);
       setCommentBody("");
     } catch (error) {
       toast({
         title: "Unable to post comment",
-        description: error instanceof Error && error.message.includes("401")
-          ? "Please sign in before posting a comment."
-          : "Please try again.",
+        description: "Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setCommentSubmitting(false);
     }
-  }, [commentBody, submitComment, publishToNostr, toast]);
+  }, [commentBody, publishToNostr, toast]);
 
   const handleReviewSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!reviewRating) return;
     const existingBody = reviewNote.trim() || myReview?.body?.trim() || '';
+    setReviewSubmitting(true);
     try {
-      await submitComment.mutateAsync({ body: existingBody, rating: reviewRating });
       await publishToNostr(reviewNote || existingBody, reviewRating);
     } catch (error) {
       toast({
         title: "Unable to save review",
-        description: error instanceof Error && error.message.includes("401")
-          ? "Please sign in before submitting a review."
-          : "Please try again.",
+        description: "Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setReviewSubmitting(false);
     }
-  }, [reviewRating, reviewNote, myReview, submitComment, publishToNostr, toast]);
+  }, [reviewRating, reviewNote, myReview, publishToNostr, toast]);
 
   // Reset panels when card collapses
   useEffect(() => {
@@ -576,8 +585,8 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                 />
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-muted-foreground">{commentBody.length}/1000</span>
-                  <Button type="submit" size="sm" disabled={!commentBody.trim() || submitComment.isPending} className="h-7 text-xs">
-                    {submitComment.isPending ? "Posting…" : "Post comment"}
+                  <Button type="submit" size="sm" disabled={!commentBody.trim() || commentSubmitting} className="h-7 text-xs">
+                    {commentSubmitting ? "Posting…" : "Post comment"}
                   </Button>
                 </div>
               </form>
@@ -591,7 +600,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
 
             {!commentsLoading && commentsList.filter(c => c.body?.trim() && !c.parentId).length > 0 && (() => {
               /** Collect ALL descendants of rootId in chronological order (flat thread). */
-              const getDescendants = (rootId: number) => {
+              const getDescendants = (rootId: string) => {
                 const result: typeof commentsList = [];
                 const queue = [rootId];
                 while (queue.length) {
@@ -604,20 +613,21 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
               };
 
               /** Submit a reply to any comment in the thread. */
-              const submitReply = async (parentId: number) => {
+              const submitReply = async (parentId: string) => {
                 if (!replyBody.trim()) return;
+                setReplySubmitting(true);
                 try {
-                  await submitComment.mutateAsync({ body: replyBody, rating: null, parentId });
+                  await publishToNostr(replyBody, null, parentId);
                   setReplyBody("");
                   setReplyingTo(null);
                 } catch (error) {
                   toast({
                     title: "Unable to post reply",
-                    description: error instanceof Error && error.message.includes("401")
-                      ? "Please sign in before posting a reply."
-                      : "Please try again.",
+                    description: "Please try again.",
                     variant: "destructive",
                   });
+                } finally {
+                  setReplySubmitting(false);
                 }
               };
 
@@ -645,7 +655,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                                 <span className="text-[11px] font-semibold">{displayName}</span>
                               )}
                               <span className="text-[10px] text-muted-foreground">
-                                {new Date(c.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                                {new Date(c.createdAt * 1000).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                               </span>
                               {isAdmin && (
                                 <button
@@ -676,8 +686,8 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                               <span className="text-[10px] text-muted-foreground">{replyBody.length}/1000</span>
                               <div className="flex items-center gap-2">
                                 <button className="text-[10px] text-muted-foreground hover:text-foreground transition-colors" onClick={() => { setReplyingTo(null); setReplyBody(""); }}>Cancel</button>
-                                <Button size="sm" disabled={!replyBody.trim() || submitComment.isPending} className="h-6 text-xs px-3" onClick={() => submitReply(c.id)}>
-                                  {submitComment.isPending ? "Posting…" : "Post reply"}
+                                <Button size="sm" disabled={!replyBody.trim() || replySubmitting} className="h-6 text-xs px-3" onClick={() => submitReply(c.id)}>
+                                  {replySubmitting ? "Posting…" : "Post reply"}
                                 </Button>
                               </div>
                             </div>
@@ -713,7 +723,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                                           <span className="text-[10px] text-muted-foreground">↳ {replyTargetName}</span>
                                         )}
                                         <span className="text-[10px] text-muted-foreground">
-                                          {new Date(reply.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                                          {new Date(reply.createdAt * 1000).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                                         </span>
                                         {isAdmin && (
                                           <button
@@ -744,8 +754,8 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                                         <span className="text-[10px] text-muted-foreground">{replyBody.length}/1000</span>
                                         <div className="flex items-center gap-2">
                                           <button className="text-[10px] text-muted-foreground hover:text-foreground transition-colors" onClick={() => { setReplyingTo(null); setReplyBody(""); }}>Cancel</button>
-                                          <Button size="sm" disabled={!replyBody.trim() || submitComment.isPending} className="h-6 text-xs px-3" onClick={() => submitReply(reply.id)}>
-                                            {submitComment.isPending ? "Posting…" : "Post reply"}
+                                          <Button size="sm" disabled={!replyBody.trim() || replySubmitting} className="h-6 text-xs px-3" onClick={() => submitReply(reply.id)}>
+                                            {replySubmitting ? "Posting…" : "Post reply"}
                                           </Button>
                                         </div>
                                       </div>
@@ -821,8 +831,8 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                   maxLength={500}
                 />
                 <div className="flex justify-end">
-                  <Button type="submit" size="sm" disabled={!reviewRating || submitComment.isPending} className="h-7 text-xs">
-                    {submitComment.isPending ? "Saving…" : (myReview?.rating ? "Update rating" : "Submit rating")}
+                  <Button type="submit" size="sm" disabled={!reviewRating || reviewSubmitting} className="h-7 text-xs">
+                    {reviewSubmitting ? "Saving…" : (myReview?.rating ? "Update rating" : "Submit rating")}
                   </Button>
                 </div>
               </form>
@@ -859,7 +869,7 @@ export default memo(function MerchantCard({ merchant, expanded, onToggleExpand, 
                           ))}
                         </span>
                         <span className="text-[10px] text-muted-foreground">
-                          {new Date(c.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                          {new Date(c.createdAt * 1000).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                         </span>
                         {isAdmin && (
                           <button
