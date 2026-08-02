@@ -30,6 +30,8 @@ import {
   getListDescription,
   getListUrls,
   poolQuerySync,
+  PRIVATE_LIKES_KIND,
+  PRIVATE_LIKES_D_TAG,
 } from '@/lib/nostr';
 import { encryptForSelf, decryptForSelf, canEncrypt } from '@/lib/nip44-self';
 import NostrLoginModal from '@/components/nostr-login-modal';
@@ -188,7 +190,7 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
   const privateLikesDecryptFailedRef = useRef(false);
   /** Merchant URL → ALL of the current user's live kind-7 like-reaction event ids (unlikes delete every one). */
   const likeReactionIdsRef = useRef<Map<string, string[]>>(new Map());
-  /** Latest legacy kind-10003 likes event, kept so it can be migrated/deleted on the next write. */
+  /** Latest likes-container event (kind-30078 private app-data or legacy kind-10003), kept so it can be migrated/deleted on the next write. */
   const legacyLikesEventRef = useRef<Event | null>(null);
   /** Tracks whether the post-login outbox drain has already been kicked off. */
   const outboxDrainedRef = useRef(false);
@@ -639,7 +641,7 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
         await publishEvent({
           kind: 5,
           created_at: Math.floor(Date.now() / 1000),
-          tags: [['e', legacy.id], ['k', '10003']],
+          tags: [['e', legacy.id], ['k', String(legacy.kind)]],
           content: '',
         });
         legacyLikesEventRef.current = null;
@@ -649,12 +651,24 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
         JSON.stringify({ merchants: Array.from(next) }),
         secretKeyRef.current,
       );
-      await publishEvent({
-        kind: 10003,
+      // Private likes are a NIP-78 encrypted app-data event — never kind 10003.
+      const signed = await publishEvent({
+        kind: PRIVATE_LIKES_KIND,
         created_at: Math.floor(Date.now() / 1000),
-        tags: [['private', 'true']],
+        tags: [['d', PRIVATE_LIKES_D_TAG], ['private', 'true']],
         content: encrypted,
       });
+      // Retire any previous container in a different kind (legacy kind-10003).
+      const previous = legacyLikesEventRef.current;
+      if (previous && previous.kind !== PRIVATE_LIKES_KIND) {
+        await publishEvent({
+          kind: 5,
+          created_at: Math.floor(Date.now() / 1000),
+          tags: [['e', previous.id], ['k', String(previous.kind)]],
+          content: '',
+        });
+      }
+      legacyLikesEventRef.current = signed;
     }
     setFavourites(next);
 
@@ -717,24 +731,35 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
         await publishEvent({
           kind: 5,
           created_at: Math.floor(Date.now() / 1000),
-          tags: [['e', legacy.id], ['k', '10003']],
+          tags: [['e', legacy.id], ['k', String(legacy.kind)]],
           content: '',
         });
         legacyLikesEventRef.current = null;
       }
     } else {
-      // Switching public → private: encrypt the set, then delete every public
-      // reaction so the likes stop being visible on the relay.
+      // Switching public → private: encrypt the set into a NIP-78 app-data
+      // event (never kind 10003), then delete every public reaction so the
+      // likes stop being visible on the relay.
       const encrypted = await encryptForSelf(
         JSON.stringify({ merchants: Array.from(favourites) }),
         secretKeyRef.current,
       );
-      await publishEvent({
-        kind: 10003,
+      const signed = await publishEvent({
+        kind: PRIVATE_LIKES_KIND,
         created_at: Math.floor(Date.now() / 1000),
-        tags: [['private', 'true']],
+        tags: [['d', PRIVATE_LIKES_D_TAG], ['private', 'true']],
         content: encrypted,
       });
+      const previous = legacyLikesEventRef.current;
+      if (previous && previous.kind !== PRIVATE_LIKES_KIND) {
+        await publishEvent({
+          kind: 5,
+          created_at: Math.floor(Date.now() / 1000),
+          tags: [['e', previous.id], ['k', String(previous.kind)]],
+          content: '',
+        });
+      }
+      legacyLikesEventRef.current = signed;
       const reactionIds = Array.from(likeReactionIdsRef.current.values())
         .reduce<string[]>((acc, ids) => acc.concat(ids), []);
       if (reactionIds.length > 0) {

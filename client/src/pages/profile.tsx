@@ -63,7 +63,7 @@ export default function ProfilePage() {
     }
   }, [npub]);
 
-  // Fetch Nostr profile (kind:0) + public likes (kind:10003)
+  // Fetch Nostr profile (kind:0) + public likes (kind:7 reactions; legacy kind:10003 read-compat)
   useEffect(() => {
     if (!pubkey) return;
     let cancelled = false;

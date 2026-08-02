@@ -12,6 +12,14 @@ export const DEFAULT_RELAYS = [CANONICAL_RELAY];
 
 export const pool = new SimplePool();
 
+/**
+ * NIP-78 app-data kind used for encrypted private likes. Private likes are
+ * NEVER stored as kind 10003 — public likes are kind-7 reactions and private
+ * likes are this encrypted container, decrypted only by the owner.
+ */
+export const PRIVATE_LIKES_KIND = 30078;
+export const PRIVATE_LIKES_D_TAG = 'btconline-private-likes';
+
 export function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
 }
@@ -84,21 +92,32 @@ export interface FavouritesResult {
  * Public likes are NIP-25 kind-7 reaction events (content "+", with an
  * ["r", <merchant-url>] tag); an unlike is a kind-5 deletion of the reaction.
  * Kind 10003 is never written for likes anymore — it is only READ here for
- * backwards compatibility: a `private:true` event marks encrypted private
- * likes, and a public legacy event's `r` tags are merged so older likes are
- * not lost before they are migrated.
+ * backwards compatibility: a `private:true` event (kind 10003 legacy or the
+ * kind-30078 app-data container) marks encrypted private likes, and a public
+ * legacy kind-10003 event's `r` tags are merged so older likes are not lost
+ * before they are migrated.
  */
 export async function fetchFavourites(pubkey: string, relays: string[]): Promise<FavouritesResult> {
-  const [reactions, deletions, legacy] = await Promise.all([
+  const [reactions, deletions, legacy10003, privateContainer] = await Promise.all([
     poolQuerySync(relays, { kinds: [7], authors: [pubkey] }),
     poolQuerySync(relays, { kinds: [5], authors: [pubkey] }),
     poolGet(relays, { kinds: [10003], authors: [pubkey] }),
+    // Constrain to OUR d-tag — any other kind-30078 app-data event by this
+    // author must not be mistaken for the private-likes container.
+    poolGet(relays, { kinds: [PRIVATE_LIKES_KIND], authors: [pubkey], '#d': [PRIVATE_LIKES_D_TAG] } as Filter),
   ]);
 
   const deletedIds = new Set<string>();
   for (const d of deletions) {
     for (const t of d.tags) if (t[0] === 'e') deletedIds.add(t[1]);
   }
+
+  // Authoritative container = latest candidate the user has NOT deleted.
+  // Relays that keep serving kind-5-deleted events must not resurrect an old
+  // container and flip the user back into the wrong mode.
+  const legacy = [legacy10003, privateContainer]
+    .filter((e): e is Event => e !== null && !deletedIds.has(e.id))
+    .sort((a, b) => b.created_at - a.created_at)[0] ?? null;
 
   const urls = new Set<string>();
   const reactionIds = new Map<string, string[]>();

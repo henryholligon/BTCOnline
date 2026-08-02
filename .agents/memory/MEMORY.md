@@ -10,3 +10,4 @@
 - [Dashboard history](dashboard-history.md) — growth charts use daily snapshots from feature launch, not fabricated backfilled history.
 - [Remote OK style matching](remoteok-styling.md) — card text is all #111, hierarchy via weight not grey; verify colors by darkest-pixel sampling of live screenshots, never guess.
 - [Canonical relay architecture](canonical-relay.md) — NIP-42 auth publish flow, localStorage outbox with backoff, access-request on login, canonical-only reads for community data.
+- [Likes encoding](likes-encoding.md) — public likes kind-7, private likes encrypted kind-30078 (d-tag btconline-private-likes); kind 10003 read-only legacy, never written.
