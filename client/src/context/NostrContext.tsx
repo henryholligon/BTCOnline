@@ -442,15 +442,14 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
     secretKeyRef.current = sk;
     const pubkey = getPublicKey(sk);
     requestRelayAccess(pubkey); // fire-and-forget — never sends private key
-    // Verify relay access before saving session — same gate as NIP-07 signers.
-    // Generated key users need approval from the relay's allowlist before their
-    // publishes are accepted. Without this check, likes and other events silently
-    // fail with blocked: pubkey not on relay allowlist.
-    await verifyCanonicalAccess(signEvent);
+    // Save session before verifyCanonicalAccess so signEvent (which calls
+    // loadSession()) can create the AUTH event. Same gate as NIP-07 signers:
+    // generated key users need relay allowlist approval before publishes work.
     saveSession({
       pubkey, method: 'generated', ncryptsec,
       ...(custodialEmail ? { custody: 'custodial', email: custodialEmail } : {}),
     });
+    await verifyCanonicalAccess(signEvent);
     const profile = await initUser(pubkey, 'generated');
     // Pure generated Nostr identities get a real kind:0 profile that is visible
     // to other Nostr clients. Email-custodial users deliberately keep their
@@ -480,8 +479,8 @@ export function NostrProvider({ children }: { children: React.ReactNode }) {
     secretKeyRef.current = sk;
     const pubkey = getPublicKey(sk);
     requestRelayAccess(pubkey); // fire-and-forget — never sends private key
-    await verifyCanonicalAccess(signEvent);
     saveSession({ pubkey, method: 'generated', ncryptsec });
+    await verifyCanonicalAccess(signEvent);
     setRestoringNcryptsec(null);
     setIsLoginModalOpen(false);
     const profile = await initUser(pubkey, 'generated');
