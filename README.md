@@ -56,27 +56,18 @@ npm install
 
 ### Configure the environment
 
-Set a `DATABASE_URL` for a PostgreSQL database before starting the server.
+Set `DATABASE_URL` to a PostgreSQL database that you control before starting the
+server. The application also supports optional integrations for media storage,
+email delivery, Nostr publishing, and maintainer workflows. Configure those
+through your hosting provider’s secret manager or local environment settings
+when you need them.
 
-The application can also use the following optional or deployment-specific variables:
+The exact production credentials and administrative access settings are
+intentionally not documented here. They are deployment configuration, not
+requirements for understanding or contributing to the codebase.
 
-| Variable | Purpose |
-| --- | --- |
-| `PORT` | HTTP port; defaults to `5000` in the Replit environment |
-| `SESSION_SECRET` | Signs login sessions |
-| `ALTCHA_HMAC_KEY` | Signs spam-protection challenges |
-| `ADMIN_SECRET_PATH` | Protects the admin route |
-| `CLOUDINARY_CLOUD_NAME` | Cloudinary account name |
-| `CLOUDINARY_API_KEY` | Cloudinary API access |
-| `CLOUDINARY_API_SECRET` | Cloudinary API access |
-| `RESEND_API_KEY` | Password-reset and transactional email |
-| `FROM_EMAIL` | Sender address for application email |
-| `NOSTR_MASTER_NSEC` | Server identity used for publishing listings |
-| `NOSTR_RELAY_URL` | Nostr relay override; defaults to the configured public relay |
-| `APP_URL` | Public application URL used in generated links |
-| `GITHUB_TOKEN` | Optional token for creating maintainer review issues |
-
-Never commit secrets or put production credentials in the repository. Use your hosting provider’s secret manager or environment configuration.
+Never commit secrets, private keys, tokens, or production credentials to the
+repository.
 
 ### Start the development server
 
@@ -133,7 +124,9 @@ This keeps the public directory data-driven while allowing maintainers to manage
 
 BTC Online uses Nostr to make directory listings portable and discoverable beyond the website. Merchant listings can be published as NIP-99 classified listings, and the application supports Nostr identities for community participation.
 
-Nostr publishing is optional for local development. A local instance can run the directory and database without publishing events by leaving the publishing secret unconfigured.
+Nostr publishing is optional for local development. A local instance can run
+the directory and database without publishing events when Nostr publishing has
+not been configured.
 
 ## Contributing
 
